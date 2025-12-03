@@ -1,36 +1,102 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Capo
 
-## Getting Started
+<p align="center">
+    <img src="./docs/logo.svg" height="120" alt="Capo logo" />
+</p>
+<br />
 
-First, run the development server:
+A modern song library app for musicians, featuring chords and lyrics for your favorite songs. Built with [`NextJS`](https://nextjs.org/) and powered by the [`ChordPro`](https://www.chordpro.org/) file format for chord notation.
+
+## Why Capo?
+
+A `Capo` is a small device that clamps onto the neck of a guitar and shortens the length of the strings. The main
+advantage of using a capo is that it lets a guitarist play a song in different keys while still using first-position
+open-string chord forms.
+
+## Motivation
+
+During past months my son has been learning to play guitar. I decided to build him a tool to make his learning process easier. As a passionate musician and software engineer, I want to create something more powerful by combining my knowledge of music and programming.
+
+Beyond helping beginners learn, this app serves musicians of all levels by providing an organized song library with easy access to chords and lyrics for practice and performance.
+
+Apart from that, it sounds fascinating and fun 🤓.
+
+## Stack
+
+- NextJS
+- TailwindCSS + shadcn/ui
+- Supabase
+
+## Getting started
+
+### Prerequisites
+
+- [Docker](https://docs.docker.com/engine/install/) - For running Supabase services locally
+- [fnm](https://github.com/Schniz/fnm) - Node version manager
+
+### Installation
+
+Install fnm, Node, and pnpm:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# Install fnm as node version manager
+curl -fsSL https://fnm.vercel.app/install | bash
+
+# fnm automatically uses the Node version from .node-version
+fnm use
+
+# Install pnpm globally
+npm install -g pnpm
+
+# Install project dependencies
+pnpm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Development
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+#### 1. Start Supabase Services Locally
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+# Initialize Supabase local development (if not already done)
+pnpm supabase init
 
-## Learn More
+# Start Supabase services locally
+pnpm supabase start
+```
 
-To learn more about Next.js, take a look at the following resources:
+See [Supabase Local Development Guide](https://supabase.com/docs/guides/resources/supabase-cli/local-development) for more details.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+#### 2. Configure Google Provider for Local Login
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+To enable Google OAuth for local development:
 
-## Deploy on Vercel
+1. Go to your Supabase project dashboard
+2. Navigate to **Authentication > Providers**
+3. Enable the Google provider
+4. Add your OAuth credentials:
+   - **Client ID**: Get from [Google Cloud Console](https://console.cloud.google.com/)
+   - **Client Secret**: Get from [Google Cloud Console](https://console.cloud.google.com/)
+5. Add redirect URI: `http://localhost:3000/auth/callback`
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+For local testing with Google Auth, create OAuth credentials with:
+- **Authorized redirect URIs**: `http://localhost:3000/auth/callback`
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+#### 3. Start Development Server
+
+```bash
+pnpm dev
+```
+
+This starts the Next.js development server at [`http://localhost:3000`](http://localhost:3000).
+
+> **Note**: Ensure Supabase services are running before starting the dev server.
+
+## Help me keep making awesome stuff
+
+Contribute with me, supporting this project through
+
+<a href="https://www.buymeacoffee.com/mfuentesg" target="_blank">
+   <img height="41" src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" />
+</a>
+
+Happy Coding!
