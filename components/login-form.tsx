@@ -1,34 +1,30 @@
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import {
-  Field,
-  FieldGroup,
-  FieldLabel,
-  FieldSeparator,
-} from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
-import Image from "next/image"
+import { Field, FieldGroup } from "@/components/ui/field"
 
-export function LoginForm({
-  className,
-  ...props
-}: React.ComponentProps<"div">) {
+export function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <form>
         <FieldGroup>
           <div className="flex flex-col items-center gap-2 text-center">
-            <a
-              href="#"
-              className="flex flex-col items-center gap-2 font-medium"
-            >
+            <a href="#" className="flex flex-col items-center gap-2 font-medium">
               <div className="flex items-center justify-center rounded-md">
-                <Image src="/img/capo.svg" alt="Capo App" width={100} height={100} />
+                <img
+                  src="/img/capo.svg"
+                  alt="Capo App"
+                  width={100}
+                  height={100}
+                  className="text-foreground"
+                  style={{ color: "hsl(var(--foreground))" }}
+                />
               </div>
               <span className="sr-only">Capo App</span>
             </a>
-            <h1 className="text-xl font-bold">Welcome to Capo App</h1>
-            <h2 className="text-muted-foreground">Sign in to start creating and sharing your music</h2>
+            <h1 className="text-xl font-bold">Welcome to Capo</h1>
+            <h2 className="text-muted-foreground">
+              Sign in to start creating and sharing your music
+            </h2>
           </div>
           <Field className="flex justify-center items-center">
             <Button variant="outline" type="button" className="max-w-9/12 p-4">
