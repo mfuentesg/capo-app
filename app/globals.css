@@ -122,9 +122,10 @@
 }
 
 .chordsheet-content {
-  white-space: pre;
+  white-space: pre-wrap;
+  word-wrap: break-word;
   line-height: 1.8;
-  overflow-x: auto;
+  overflow-x: visible;
   margin: 0;
   max-width: 100%;
   font-family: "Courier New", Courier, monospace;
@@ -134,4 +135,20 @@
 .chordsheet-content .chord {
   color: hsl(var(--primary));
   font-weight: 700 !important;
+}
+
+.multi-column-lyrics {
+  column-width: 400px;
+  column-gap: 3rem;
+  column-rule: 1px solid hsl(var(--border));
+  max-height: none;
+  overflow: visible;
+}
+
+@media (max-width: 768px) {
+  .multi-column-lyrics {
+    column-width: 100%;
+    column-count: 1;
+    column-rule: none;
+  }
 }

@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { cookies } from "next/headers"
 import { Geist, Geist_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/react"
 import "./globals.css"
@@ -6,6 +7,8 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { PlaylistDraftProvider } from "@/contexts/playlist-draft-context"
 import { PlaylistsProvider } from "@/contexts/playlists-context"
 import { LocaleProvider } from "@/contexts/locale-context"
+import { defaultLocale, isValidLocale } from "@/lib/i18n/config"
+import type { Locale } from "@/lib/i18n/config"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -47,11 +50,17 @@ export const metadata: Metadata = {
   }
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  // Read locale from cookie on the server
+  const cookieStore = await cookies()
+  const localeCookie = cookieStore.get("NEXT_LOCALE")
+  const initialLocale: Locale =
+    localeCookie && isValidLocale(localeCookie.value) ? localeCookie.value : defaultLocale
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
@@ -61,7 +70,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <LocaleProvider>
+          <LocaleProvider initialLocale={initialLocale}>
             <PlaylistsProvider>
               <PlaylistDraftProvider>{children}</PlaylistDraftProvider>
             </PlaylistsProvider>

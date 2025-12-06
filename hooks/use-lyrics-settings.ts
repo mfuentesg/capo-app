@@ -11,7 +11,7 @@ interface UseLyricsSettingsOptions {
 
 export function useLyricsSettings(options?: UseLyricsSettingsOptions) {
   const { t } = useTranslation()
-  const [fontSizeValue, setFontSizeValue] = useState(options?.initialFontSize ?? 1.25) // 1.25rem = 20px default for readable lyrics
+  const [fontSizeValue, setFontSizeValue] = useState(options?.initialFontSize ?? 1) // 1.25rem = 20px default for readable lyrics
   const [transposeValue, setTransposeValue] = useState(options?.initialTranspose ?? 0)
   const [capoValue, setCapoValue] = useState(options?.initialCapo ?? 0)
 

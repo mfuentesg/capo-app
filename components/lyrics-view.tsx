@@ -205,7 +205,7 @@ export function LyricsView({ song }: LyricsViewProps) {
 
       {/* Lyrics Content */}
       <div className="container mx-auto px-4 py-8">
-        <div className="max-w-3xl mx-auto w-full">
+        <div className="w-full">
           <RenderedSong
             lyrics={song.lyrics}
             transpose={transpose.value}

@@ -1,6 +1,6 @@
 "use client"
 
-import React, { createContext, useContext, useState } from "react"
+import React, { createContext, useContext, useState, useEffect } from "react"
 import type { Locale } from "@/lib/i18n/config"
 import { defaultLocale, isValidLocale } from "@/lib/i18n/config"
 import { getTranslations } from "@/lib/i18n/translations"
@@ -35,14 +35,15 @@ function setLocaleCookie(locale: Locale) {
   document.cookie = `${LOCALE_COOKIE_NAME}=${locale}; path=/; max-age=31536000; SameSite=Lax`
 }
 
-export function LocaleProvider({ children }: { children: React.ReactNode }) {
-  // Initialize with saved locale from cookie on first render
-  const [locale, setLocaleState] = useState<Locale>(() => {
-    if (typeof document !== "undefined") {
-      return getLocaleFromCookie()
-    }
-    return defaultLocale
-  })
+export function LocaleProvider({
+  children,
+  initialLocale = defaultLocale
+}: {
+  children: React.ReactNode
+  initialLocale?: Locale
+}) {
+  // Use initialLocale from server-side cookie reading
+  const [locale, setLocaleState] = useState<Locale>(initialLocale)
 
   const setLocale = (newLocale: Locale) => {
     setLocaleState(newLocale)

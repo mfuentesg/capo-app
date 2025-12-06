@@ -84,7 +84,7 @@ export function RenderedSong({ lyrics, transpose, capo, fontSize }: RenderedSong
   if (renderedSong) {
     return (
       <pre
-        className="chordsheet-content"
+        className="chordsheet-content multi-column-lyrics"
         style={{ fontSize: `${fontSize}rem`, fontWeight: 600 }}
         dangerouslySetInnerHTML={{ __html: renderedSong }}
       />
@@ -93,7 +93,7 @@ export function RenderedSong({ lyrics, transpose, capo, fontSize }: RenderedSong
 
   return (
     <div
-      className="whitespace-pre-wrap leading-relaxed"
+      className="whitespace-pre-wrap leading-relaxed multi-column-lyrics"
       style={{ fontSize: `${fontSize}rem`, lineHeight: 1.8, fontWeight: 600 }}
     >
       {lyrics}
