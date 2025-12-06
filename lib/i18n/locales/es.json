@@ -1,0 +1,94 @@
+{
+  "common": {
+    "loading": "Cargando...",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "search": "Buscar",
+    "close": "Cerrar"
+  },
+  "nav": {
+    "home": "Inicio",
+    "dashboard": "Panel",
+    "songs": "Canciones",
+    "playlists": "Listas de reproducción",
+    "settings": "Configuración",
+    "logout": "Cerrar sesión"
+  },
+  "settings": {
+    "title": "Configuración",
+    "language": "Idioma",
+    "languageDescription": "Selecciona tu idioma preferido",
+    "appearance": "Apariencia",
+    "theme": "Tema",
+    "themeDescription": "Elige tu tema preferido"
+  },
+  "songs": {
+    "title": "Canciones",
+    "allSongs": "Todas las canciones",
+    "addSong": "Agregar canción",
+    "noSongs": "No se encontraron canciones",
+    "selectSong": "Selecciona una canción",
+    "selectSongDescription": "Elige una canción de la lista para ver detalles, editar o agregar a una lista de reproducción",
+    "songDetails": "Detalles de la canción",
+    "artist": "Artista",
+    "key": "Tonalidad",
+    "capo": "Capo",
+    "tempo": "Tempo",
+    "transpose": "Transportar",
+    "semitones": "semitonos",
+    "originalKey": "Tonalidad original",
+    "transposed": "Transportada",
+    "noCapo": "Sin Capo",
+    "fret": "Traste",
+    "playIn": "Tocar en",
+    "reset": "Reiniciar",
+    "addedToSelection": "Agregada a la selección",
+    "addToPlaylist": "Agregar a lista",
+    "viewLyrics": "Ver letra",
+    "bpm": "BPM",
+    "searchPlaceholder": "Buscar canciones...",
+    "all": "Todas",
+    "byKey": "Por tonalidad",
+    "byArtist": "Por artista",
+    "clickKeyBadgeInstruction": "Haz clic en el badge de tonalidad para seleccionar canciones para una lista",
+    "none": "Ninguno",
+    "lyrics": {
+      "settings": "Configuración",
+      "displaySettings": "Configuración de visualización",
+      "displaySettingsDescription": "Ajustar tamaño de fuente, transporte y capo",
+      "fontSize": "Tamaño de fuente"
+    }
+  },
+  "playlists": {
+    "title": "Listas de reproducción",
+    "allPlaylists": "Todas las listas",
+    "createPlaylist": "Crear lista",
+    "noPlaylists": "No se encontraron listas",
+    "selectPlaylist": "Selecciona una lista",
+    "selectPlaylistDescription": "Elige una lista de la lista para ver las canciones y administrarla",
+    "playlistDetails": "Detalles de la lista",
+    "addToPlaylist": "Agregar a lista",
+    "draft": "Borrador",
+    "searchPlaceholder": "Buscar listas..."
+  },
+  "auth": {
+    "login": "Iniciar sesión",
+    "loginWith": "Iniciar sesión con {provider}",
+    "logout": "Cerrar sesión",
+    "welcome": "Bienvenido de nuevo"
+  },
+  "account": {
+    "title": "Cuenta",
+    "info": "La autenticación se gestiona a través de Google. Tu nombre y correo no se pueden cambiar aquí.",
+    "dangerZone": "Zona de Peligro",
+    "deleteAccount": "Eliminar Cuenta",
+    "deleteAccountDescription": "Eliminar permanentemente tu cuenta y todos los datos asociados. Esta acción no se puede deshacer.",
+    "deleteAccountButton": "Eliminar Cuenta",
+    "deleteAccountConfirm": "¿Estás seguro de que quieres eliminar tu cuenta?",
+    "deleteAccountConfirmDescription": "Esto eliminará permanentemente tu cuenta y todas tus canciones, listas de reproducción y datos. Esta acción no se puede deshacer.",
+    "confirmDelete": "Sí, eliminar mi cuenta",
+    "cancelDelete": "Cancelar"
+  }
+}

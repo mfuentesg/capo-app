@@ -3,20 +3,10 @@
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
-import {
-  Music,
-  ListMusic,
-  User,
-  Settings,
-  LogOut,
-  CreditCard,
-  Bell,
-  HelpCircle,
-  Menu
-} from "lucide-react"
+import { Music, ListMusic, Settings, LogOut, Menu } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,14 +17,16 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { cn } from "@/lib/utils"
-
-const navItems = [
-  { title: "Songs", href: "/dashboard/songs", icon: Music },
-  { title: "Playlists", href: "/dashboard/playlists", icon: ListMusic }
-]
+import { useLocale } from "@/contexts/locale-context"
 
 export function Navbar() {
   const pathname = usePathname()
+  const { t } = useLocale()
+
+  const navItems = [
+    { title: t.nav.songs, href: "/dashboard/songs", icon: Music },
+    { title: t.nav.playlists, href: "/dashboard/playlists", icon: ListMusic }
+  ]
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
@@ -71,7 +63,7 @@ export function Navbar() {
           </SheetContent>
         </Sheet>
 
-        <Link href="/" className="mr-6 flex items-center lg:mr-8">
+        <Link href="/dashboard" className="mr-6 flex items-center lg:mr-8">
           <Image src="/img/capo-text.svg" alt="Capo Logo" width={80} height={24} />
         </Link>
 
@@ -99,7 +91,6 @@ export function Navbar() {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-9 w-9 rounded-full">
                 <Avatar className="h-9 w-9">
-                  <AvatarImage src="/professional-avatar.png" alt="User" />
                   <AvatarFallback>MF</AvatarFallback>
                 </Avatar>
               </Button>
@@ -112,13 +103,15 @@ export function Navbar() {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <Settings className="mr-2 h-4 w-4" />
-                Settings
+              <DropdownMenuItem asChild>
+                <Link href="/dashboard/settings">
+                  <Settings className="mr-2 h-4 w-4" />
+                  {t.nav.settings}
+                </Link>
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <LogOut className="mr-2 h-4 w-4" />
-                Log out
+                {t.nav.logout}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

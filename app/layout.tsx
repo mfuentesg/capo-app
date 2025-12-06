@@ -2,6 +2,9 @@ import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
+import { PlaylistDraftProvider } from "@/contexts/playlist-draft-context"
+import { PlaylistsProvider } from "@/contexts/playlists-context"
+import { LocaleProvider } from "@/contexts/locale-context"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -57,7 +60,11 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <LocaleProvider>
+            <PlaylistsProvider>
+              <PlaylistDraftProvider>{children}</PlaylistDraftProvider>
+            </PlaylistsProvider>
+          </LocaleProvider>
         </ThemeProvider>
       </body>
     </html>

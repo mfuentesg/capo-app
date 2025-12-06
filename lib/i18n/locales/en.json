@@ -1,0 +1,94 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "search": "Search",
+    "close": "Close"
+  },
+  "nav": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "songs": "Songs",
+    "playlists": "Playlists",
+    "settings": "Settings",
+    "logout": "Logout"
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "languageDescription": "Select your preferred language",
+    "appearance": "Appearance",
+    "theme": "Theme",
+    "themeDescription": "Choose your preferred theme"
+  },
+  "songs": {
+    "title": "Songs",
+    "allSongs": "All Songs",
+    "addSong": "Add Song",
+    "noSongs": "No songs found",
+    "selectSong": "Select a song",
+    "selectSongDescription": "Choose a song from the list to view details, edit, or add to a playlist",
+    "songDetails": "Song Details",
+    "artist": "Artist",
+    "key": "Key",
+    "capo": "Capo",
+    "tempo": "Tempo",
+    "transpose": "Transpose",
+    "semitones": "semitones",
+    "originalKey": "Original key",
+    "transposed": "Transposed",
+    "noCapo": "No Capo",
+    "fret": "Fret",
+    "playIn": "Play in",
+    "reset": "Reset",
+    "addedToSelection": "Added to selection",
+    "addToPlaylist": "Add to Playlist",
+    "viewLyrics": "View Lyrics",
+    "bpm": "BPM",
+    "searchPlaceholder": "Search songs...",
+    "all": "All",
+    "byKey": "By Key",
+    "byArtist": "By Artist",
+    "clickKeyBadgeInstruction": "Click on the key badge to select songs for a playlist",
+    "none": "None",
+    "lyrics": {
+      "settings": "Settings",
+      "displaySettings": "Display Settings",
+      "displaySettingsDescription": "Adjust font size, transpose, and capo",
+      "fontSize": "Font Size"
+    }
+  },
+  "playlists": {
+    "title": "Playlists",
+    "allPlaylists": "All Playlists",
+    "createPlaylist": "Create Playlist",
+    "noPlaylists": "No playlists found",
+    "selectPlaylist": "Select a playlist",
+    "selectPlaylistDescription": "Choose a playlist from the list to view songs and manage it",
+    "playlistDetails": "Playlist Details",
+    "addToPlaylist": "Add to Playlist",
+    "draft": "Draft",
+    "searchPlaceholder": "Search playlists..."
+  },
+  "auth": {
+    "login": "Login",
+    "loginWith": "Login with {provider}",
+    "logout": "Logout",
+    "welcome": "Welcome back"
+  },
+  "account": {
+    "title": "Account",
+    "info": "Authentication is managed through Google. Your name and email cannot be changed here.",
+    "dangerZone": "Danger Zone",
+    "deleteAccount": "Delete Account",
+    "deleteAccountDescription": "Permanently delete your account and all associated data. This action cannot be undone.",
+    "deleteAccountButton": "Delete Account",
+    "deleteAccountConfirm": "Are you sure you want to delete your account?",
+    "deleteAccountConfirmDescription": "This will permanently delete your account and all your songs, playlists, and data. This action cannot be undone.",
+    "confirmDelete": "Yes, delete my account",
+    "cancelDelete": "Cancel"
+  }
+}

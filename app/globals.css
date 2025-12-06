@@ -120,3 +120,18 @@
     @apply bg-background text-foreground;
   }
 }
+
+.chordsheet-content {
+  white-space: pre;
+  line-height: 1.8;
+  overflow-x: auto;
+  margin: 0;
+  max-width: 100%;
+  font-family: "Courier New", Courier, monospace;
+  font-weight: 600 !important;
+}
+
+.chordsheet-content .chord {
+  color: hsl(var(--primary));
+  font-weight: 700 !important;
+}

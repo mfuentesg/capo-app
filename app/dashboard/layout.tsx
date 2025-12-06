@@ -11,7 +11,7 @@ export default function RootLayout({
   return (
     <main className="flex-1">
       <Navbar />
-      <section className="p-4">{children}</section>
+      {children}
     </main>
   )
 }

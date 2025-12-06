@@ -1,3 +1,4 @@
+import Image from "next/image"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Field, FieldGroup } from "@/components/ui/field"
@@ -10,7 +11,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
           <div className="flex flex-col items-center gap-2 text-center">
             <a href="#" className="flex flex-col items-center gap-2 font-medium">
               <div className="flex items-center justify-center rounded-md">
-                <img
+                <Image
                   src="/img/capo.svg"
                   alt="Capo App"
                   width={100}
