@@ -48,8 +48,8 @@ export function PlaylistsClient({
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <ResizablePanelGroup direction="horizontal" className="h-[calc(100vh-4rem)]">
+    <div className="h-[calc(100vh-4rem)] bg-background">
+      <ResizablePanelGroup direction="horizontal" className="h-full">
         <ResizablePanel
           defaultSize={35}
           minSize={25}

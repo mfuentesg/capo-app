@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { ArrowLeft, Music2, Type, Plus, Minus, Guitar, Settings2 } from "lucide-react"
+import { ArrowLeft, Music2, Type, Plus, Minus, Guitar, Settings2, X } from "lucide-react"
 import { useRouter } from "next/navigation"
 import type { Song } from "@/types"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
@@ -18,7 +18,7 @@ interface LyricsViewProps {
 export function LyricsView({ song }: LyricsViewProps) {
   const { t } = useTranslation()
   const router = useRouter()
-  const { font, transpose, capo } = useLyricsSettings({
+  const { font, transpose, capo, hasModifications, resetAll } = useLyricsSettings({
     initialFontSize: song.fontSize,
     initialTranspose: song.transpose,
     initialCapo: song.capo
@@ -56,12 +56,47 @@ export function LyricsView({ song }: LyricsViewProps) {
           </div>
 
           {/* Controls */}
-          <div className="mt-4 pt-4 border-t flex items-center justify-end gap-4">
+          <div className="mt-4 pt-4 border-t flex items-center justify-between gap-4">
+            {/* Current Settings Display */}
+            <div className="flex items-center gap-2 flex-wrap">
+              {!font.isAtDefault() && (
+                <Badge variant="secondary" className="gap-1">
+                  <Type className="h-3 w-3" />
+                  {font.value.toFixed(2)}
+                </Badge>
+              )}
+              {!transpose.isAtDefault() && (
+                <Badge variant="secondary" className="gap-1">
+                  <Music2 className="h-3 w-3" />
+                  {transpose.display()} st
+                </Badge>
+              )}
+              {!capo.isAtDefault() && (
+                <Badge variant="secondary" className="gap-1">
+                  <Guitar className="h-3 w-3" />
+                  {capo.display()}
+                </Badge>
+              )}
+              {hasModifications() && (
+                <Button variant="ghost" size="sm" onClick={resetAll} className="h-7 px-2">
+                  <X className="h-3.5 w-3.5 mr-1" />
+                  {t.songs.reset}
+                </Button>
+              )}
+            </div>
+
+            {/* Settings Button */}
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" className="relative">
                   <Settings2 className="h-4 w-4 mr-2" />
                   {t.songs.lyrics.settings}
+                  {hasModifications() && (
+                    <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
+                    </span>
+                  )}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto mr-2.5" align="start">

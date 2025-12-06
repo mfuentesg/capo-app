@@ -18,10 +18,10 @@ export function useLyricsSettings(options?: UseLyricsSettingsOptions) {
   const font = {
     value: fontSizeValue,
     increase: () => setFontSizeValue((prev) => Math.min(prev + 0.25, 3)), // max 3rem (48px)
-    decrease: () => setFontSizeValue((prev) => Math.max(prev - 0.25, 1)), // min 1rem (16px)
-    reset: () => setFontSizeValue(1.25), // 1.25rem (20px)
-    isAtDefault: () => fontSizeValue === 1.25,
-    isAtMin: () => fontSizeValue <= 1,
+    decrease: () => setFontSizeValue((prev) => Math.max(prev - 0.25, 0.5)), // min 0.5rem (8px)
+    reset: () => setFontSizeValue(1), // 1rem (16px)
+    isAtDefault: () => fontSizeValue === 1,
+    isAtMin: () => fontSizeValue <= 0.5,
     isAtMax: () => fontSizeValue >= 3
   }
 
@@ -47,9 +47,21 @@ export function useLyricsSettings(options?: UseLyricsSettingsOptions) {
     display: () => (capoValue === 0 ? t.songs.none : `${t.songs.fret} ${capoValue}`)
   }
 
+  const hasModifications = () => {
+    return !font.isAtDefault() || !transpose.isAtDefault() || !capo.isAtDefault()
+  }
+
+  const resetAll = () => {
+    font.reset()
+    transpose.reset()
+    capo.reset()
+  }
+
   return {
     font,
     transpose,
-    capo
+    capo,
+    hasModifications,
+    resetAll
   }
 }

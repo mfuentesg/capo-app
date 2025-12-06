@@ -3,7 +3,8 @@
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
-import { Music, ListMusic, Settings, LogOut, Menu } from "lucide-react"
+import { useState } from "react"
+import { Music, ListMusic, Settings, LogOut, Menu, Languages } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -18,10 +19,17 @@ import {
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { cn } from "@/lib/utils"
 import { useLocale } from "@/contexts/locale-context"
+import type { Locale } from "@/lib/i18n/config"
 
 export function Navbar() {
   const pathname = usePathname()
-  const { t } = useLocale()
+  const { t, locale, setLocale } = useLocale()
+  const [isSheetOpen, setIsSheetOpen] = useState(false)
+
+  const toggleLanguage = () => {
+    const newLocale: Locale = locale === "en" ? "es" : "en"
+    setLocale(newLocale)
+  }
 
   const navItems = [
     { title: t.nav.songs, href: "/dashboard/songs", icon: Music },
@@ -31,7 +39,7 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
       <div className="flex h-16 items-center px-4 sm:px-6 lg:px-8">
-        <Sheet>
+        <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
           <SheetTrigger asChild>
             <Button variant="ghost" size="icon" className="mr-2 md:hidden">
               <Menu className="h-5 w-5" />
@@ -48,7 +56,7 @@ export function Navbar() {
               {navItems.map((item) => {
                 const isActive = pathname === item.href
                 return (
-                  <Link key={item.href} href={item.href}>
+                  <Link key={item.href} href={item.href} onClick={() => setIsSheetOpen(false)}>
                     <Button
                       variant={isActive ? "secondary" : "ghost"}
                       className={cn("w-full justify-start gap-3", isActive && "font-medium")}
@@ -86,6 +94,11 @@ export function Navbar() {
 
         <div className="ml-auto flex items-center gap-1 sm:gap-2">
           <ThemeToggle />
+
+          <Button variant="ghost" size="icon" onClick={toggleLanguage} title="Change language">
+            <Languages className="h-[1.2rem] w-[1.2rem]" />
+            <span className="sr-only">Toggle language</span>
+          </Button>
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
