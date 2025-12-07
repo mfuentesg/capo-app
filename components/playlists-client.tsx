@@ -1,11 +1,14 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable"
 import { Sheet, SheetContent, SheetTitle, SheetDescription } from "@/components/ui/sheet"
-import { Plus, Search, ListMusic } from "lucide-react"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Separator } from "@/components/ui/separator"
+import { Badge } from "@/components/ui/badge"
+import { Plus, Search, ListMusic, Settings2, X, Info } from "lucide-react"
 import { PlaylistList } from "@/components/playlist-list"
 import { PlaylistDetail } from "@/components/playlist-detail"
 import type { Playlist } from "@/types"
@@ -23,10 +26,21 @@ export function PlaylistsClient({
   onDeletePlaylist
 }: PlaylistsClientProps) {
   const { t } = useTranslation()
-  const [isMobile, setIsMobile] = useState<boolean>(false)
+  const [isMobile, setIsMobile] = useState<boolean | undefined>(undefined)
   const [searchQuery, setSearchQuery] = useState("")
+  const [filterStatus, setFilterStatus] = useState<"all" | "drafts" | "completed">("all")
   const [selectedPlaylist, setSelectedPlaylist] = useState<Playlist | null>(null)
   const [isMobileSheetOpen, setIsMobileSheetOpen] = useState(false)
+
+  // Calculate active filter count
+  const activeFilterCount = useMemo(() => {
+    return filterStatus !== "all" ? 1 : 0
+  }, [filterStatus])
+
+  // Remove filter helper
+  const removeFilter = (type: string) => {
+    if (type === "status") setFilterStatus("all")
+  }
 
   // Track viewport to render Sheet only on mobile (md: 768px)
   useEffect(() => {
@@ -56,30 +70,96 @@ export function PlaylistsClient({
           maxSize={50}
           className="flex flex-col border-r bg-background"
         >
-          <div className="shrink-0 border-b p-4 lg:p-6">
+          <div className="border-b border-r p-4 lg:p-6">
             <div className="flex items-center justify-between gap-4">
-              <div>
+              <div className="flex items-center gap-2">
                 <h1 className="text-xl font-semibold tracking-tight lg:text-2xl">
                   {t.playlists.title}
                 </h1>
-                <p className="text-sm text-muted-foreground">
-                  {initialPlaylists.length} {t.playlists.title.toLowerCase()}
-                </p>
+                <Badge variant="secondary">{initialPlaylists.length}</Badge>
               </div>
-              <Button size="sm" className="gap-1.5">
+              <Button size="sm" className="gap-1.5 rounded-full">
                 <Plus className="h-4 w-4" />
-                <span className="hidden sm:inline">{t.playlists.createPlaylist}</span>
+                {t.playlists.createPlaylist}
               </Button>
             </div>
 
-            <div className="relative mt-4">
+            <div className="relative mt-4 flex items-center gap-2">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 placeholder={`${t.common.search} ${t.playlists.title.toLowerCase()}...`}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 h-9 bg-muted/50"
+                className="pl-9 h-9 bg-muted/50 flex-1"
+                suppressHydrationWarning
               />
+
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" size="sm" className="relative gap-2 shrink-0">
+                    <Settings2 className="h-4 w-4" />
+                    <span className="hidden sm:inline">Filters</span>
+                    {activeFilterCount > 0 && (
+                      <Badge variant="default" className="ml-1 h-5 w-5 rounded-full p-0 text-xs">
+                        {activeFilterCount}
+                      </Badge>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-80 max-h-[500px] overflow-y-auto" align="end">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-1">
+                        <h4 className="font-medium leading-none">Filters</h4>
+                        <p className="text-xs text-muted-foreground">Filter your playlists</p>
+                      </div>
+                      {activeFilterCount > 0 && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 text-xs"
+                          onClick={() => setFilterStatus("all")}
+                        >
+                          Clear all
+                        </Button>
+                      )}
+                    </div>
+
+                    <Separator />
+
+                    {/* Status Filter */}
+                    <div className="space-y-2">
+                      <span className="text-sm font-medium">Status</span>
+                      <div className="grid grid-cols-3 gap-2">
+                        <Button
+                          onClick={() => setFilterStatus("all")}
+                          variant={filterStatus === "all" ? "default" : "outline"}
+                          size="sm"
+                          className="justify-center"
+                        >
+                          All
+                        </Button>
+                        <Button
+                          onClick={() => setFilterStatus("drafts")}
+                          variant={filterStatus === "drafts" ? "default" : "outline"}
+                          size="sm"
+                          className="justify-center"
+                        >
+                          {t.playlists.drafts}
+                        </Button>
+                        <Button
+                          onClick={() => setFilterStatus("completed")}
+                          variant={filterStatus === "completed" ? "default" : "outline"}
+                          size="sm"
+                          className="justify-center"
+                        >
+                          {t.playlists.completed}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </PopoverContent>
+              </Popover>
             </div>
           </div>
 
@@ -87,6 +167,7 @@ export function PlaylistsClient({
             <PlaylistList
               playlists={initialPlaylists}
               searchQuery={searchQuery}
+              filterStatus={filterStatus}
               onSelectPlaylist={handleSelectPlaylist}
             />
           </div>

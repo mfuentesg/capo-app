@@ -1,26 +1,39 @@
 "use client"
 
 import { useState, useMemo } from "react"
-import { Music } from "lucide-react"
+import { ListMusic } from "lucide-react"
 import { PlaylistItem } from "./playlist-item"
 import type { Playlist } from "@/types"
 
 interface PlaylistListProps {
   playlists: Playlist[]
   searchQuery: string
+  filterStatus: "all" | "drafts" | "completed"
   onSelectPlaylist: (playlist: Playlist) => void
 }
 
-export function PlaylistList({ playlists, searchQuery, onSelectPlaylist }: PlaylistListProps) {
+export function PlaylistList({
+  playlists,
+  searchQuery,
+  filterStatus,
+  onSelectPlaylist
+}: PlaylistListProps) {
   const [selectedPlaylist, setSelectedPlaylist] = useState<Playlist | null>(null)
 
   const filteredPlaylists = useMemo(() => {
-    return playlists.filter(
-      (playlist) =>
-        playlist.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (playlist.description?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false)
+    let filtered = playlists.filter((playlist) =>
+      playlist.name.toLowerCase().includes(searchQuery.toLowerCase())
     )
-  }, [searchQuery, playlists])
+
+    // Apply status filter
+    if (filterStatus === "drafts") {
+      filtered = filtered.filter((playlist) => playlist.isDraft === true)
+    } else if (filterStatus === "completed") {
+      filtered = filtered.filter((playlist) => !playlist.isDraft)
+    }
+
+    return filtered
+  }, [searchQuery, playlists, filterStatus])
 
   const handleSelectPlaylist = (playlist: Playlist) => {
     setSelectedPlaylist(playlist)
@@ -31,7 +44,7 @@ export function PlaylistList({ playlists, searchQuery, onSelectPlaylist }: Playl
     return (
       <div className="flex flex-col items-center justify-center h-full p-8 text-center">
         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
-          <Music className="h-5 w-5 text-muted-foreground" />
+          <ListMusic className="h-5 w-5 text-muted-foreground" />
         </div>
         <p className="mt-3 text-sm font-medium">No playlists found</p>
         <p className="mt-1 text-xs text-muted-foreground">Try a different search term</p>

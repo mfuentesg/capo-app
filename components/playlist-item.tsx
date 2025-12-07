@@ -1,7 +1,8 @@
 "use client"
 
-import { Calendar, Music, MoreVertical } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { Calendar, Music3, Lock, Globe, Users } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip"
 import type { Playlist } from "@/types"
 
 interface PlaylistItemProps {
@@ -21,15 +22,46 @@ export function PlaylistItem({ playlist, isSelected, onSelect }: PlaylistItemPro
       }`}
     >
       <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 shrink-0">
-        <Music className="h-5 w-5 text-primary" />
+        <Music3 className="h-5 w-5 text-primary" />
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
           <p className="text-sm font-medium truncate">{playlist.name}</p>
+          {playlist.isDraft && (
+            <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 shrink-0">
+              Draft
+            </Badge>
+          )}
+          {playlist.visibility === "private" && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Lock className="h-3 w-3 text-muted-foreground shrink-0" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Private playlist</p>
+              </TooltipContent>
+            </Tooltip>
+          )}
+          {playlist.visibility === "public" && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="flex items-center gap-0.5 shrink-0">
+                  <Globe className="h-3 w-3 text-muted-foreground" />
+                  {playlist.allowGuestEditing && (
+                    <Users className="h-3 w-3 text-muted-foreground" />
+                  )}
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>
+                  {playlist.allowGuestEditing
+                    ? "Public - Guest editing enabled"
+                    : "Public - View only"}
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          )}
         </div>
-        {playlist.description && (
-          <p className="text-xs text-muted-foreground truncate">{playlist.description}</p>
-        )}
         <div className="flex items-center gap-3 mt-1">
           {playlist.date && (
             <div className="flex items-center gap-1">
@@ -41,20 +73,12 @@ export function PlaylistItem({ playlist, isSelected, onSelect }: PlaylistItemPro
           )}
           {playlist.songs.length >= 0 && (
             <div className="flex items-center gap-1">
-              <Music className="h-3 w-3 text-muted-foreground" />
+              <Music3 className="h-3 w-3 text-muted-foreground" />
               <p className="text-xs text-muted-foreground">{playlist.songs.length}</p>
             </div>
           )}
         </div>
       </div>
-      <Button
-        variant="ghost"
-        size="icon"
-        className="h-8 w-8 shrink-0"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <MoreVertical className="h-4 w-4" />
-      </Button>
     </div>
   )
 }

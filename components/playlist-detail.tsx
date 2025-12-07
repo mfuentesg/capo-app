@@ -1,12 +1,38 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
-import { X, Calendar, Pencil, Check, Trash2, Plus, Music } from "lucide-react"
+import { useState, useRef, useEffect, useMemo } from "react"
+import {
+  X,
+  Calendar as CalendarIcon,
+  Pencil,
+  Check,
+  Trash2,
+  Plus,
+  ListMusic,
+  Lock,
+  Globe,
+  Users
+} from "lucide-react"
+import { format } from "date-fns"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
+import { Calendar } from "@/components/ui/calendar"
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
+import { Switch } from "@/components/ui/switch"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select"
 import { cn } from "@/lib/utils"
-import type { Playlist } from "@/types"
+import type { Playlist, Song } from "@/types"
+import type { SongWithPosition, PlaylistWithSongs } from "@/types/extended"
+import { DraggablePlaylist } from "@/components/draggable-playlist"
+import { usePlaylists } from "@/contexts/playlists-context"
+import { getSongsByIds } from "@/lib/songs-data"
 
 interface PlaylistDetailProps {
   playlist: Playlist
@@ -106,6 +132,31 @@ function EditableField({
 }
 
 export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: PlaylistDetailProps) {
+  const { reorderPlaylistSongs } = usePlaylists()
+
+  // Convert playlist songs to SongWithPosition format
+  // TODO: Replace with backend API call to fetch songs by IDs
+  const songsWithPosition = useMemo<SongWithPosition[]>(() => {
+    const songs = getSongsByIds(playlist.songs)
+    return songs.map((song, index) => ({
+      ...song,
+      position: index
+    }))
+  }, [playlist.songs])
+
+  // Create PlaylistWithSongs object
+  const playlistWithSongs = useMemo<PlaylistWithSongs>(
+    () => ({
+      ...playlist,
+      songs: songsWithPosition
+    }),
+    [playlist, songsWithPosition]
+  )
+
+  const handleSongReorder = async (sourceIndex: number, destinationIndex: number) => {
+    reorderPlaylistSongs(playlist.id, sourceIndex, destinationIndex)
+  }
+
   return (
     <div className="flex flex-1 flex-col bg-muted/30">
       <div className="shrink-0 flex items-center justify-between border-b bg-background p-4 lg:p-6">
@@ -115,35 +166,105 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
             onSave={(value) => onUpdate(playlist.id, { name: value })}
             className="text-lg font-semibold"
           />
-          {playlist.description && (
-            <EditableField
-              value={playlist.description}
-              onSave={(value) => onUpdate(playlist.id, { description: value })}
-              className="text-sm text-muted-foreground mt-1"
-            />
-          )}
         </div>
-        <Button variant="ghost" size="icon" onClick={onClose}>
-          <X className="h-5 w-5" />
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="destructive"
+            size="sm"
+            className="gap-2"
+            onClick={() => onDelete(playlist.id)}
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">Delete Playlist</span>
+          </Button>
+          <Button variant="ghost" size="icon" onClick={onClose}>
+            <X className="h-5 w-5" />
+          </Button>
+        </div>
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 lg:p-6 space-y-6">
-        <div>
-          <h3 className="text-sm font-medium mb-3">Details</h3>
-          <div className="flex flex-wrap gap-3">
+        {/* Details Section */}
+        <div className="space-y-3">
+          <h3 className="text-sm font-medium">Details</h3>
+          <div className="flex flex-wrap gap-2">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "flex items-center gap-2 rounded-full bg-background border px-3 py-1.5 h-auto font-normal",
+                    !playlist.date && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="h-3.5 w-3.5" />
+                  {playlist.date ? format(new Date(playlist.date), "PPP") : "Pick a date"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={playlist.date ? new Date(playlist.date) : undefined}
+                  onSelect={(date) => {
+                    if (date) {
+                      onUpdate(playlist.id, { date: format(date, "yyyy-MM-dd") })
+                    }
+                  }}
+                  autoFocus
+                />
+              </PopoverContent>
+            </Popover>
             <div className="flex items-center gap-2 rounded-full bg-background border px-3 py-1.5">
-              <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-              <Input
-                type="date"
-                value={playlist.date || ""}
-                onChange={(e) => onUpdate(playlist.id, { date: e.target.value })}
-                className="h-auto border-0 p-0 text-sm w-auto"
+              <ListMusic className="h-3.5 w-3.5 text-muted-foreground" />
+              <span className="text-sm font-medium">{playlist.songs.length}</span>
+              <span className="text-xs text-muted-foreground">
+                {playlist.songs.length === 1 ? "song" : "songs"}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Privacy Settings Section */}
+        <div className="space-y-3">
+          <h3 className="text-sm font-medium">Privacy & Sharing</h3>
+          <div className="space-y-3 max-w-md">
+            <div className="flex items-center justify-between gap-4">
+              <div className="space-y-0.5">
+                <label className="text-sm font-medium">Public Visibility</label>
+                <p className="text-xs text-muted-foreground">
+                  <Globe className="h-3 w-3 inline mr-1" />
+                  Anyone with the link can view
+                </p>
+                {playlist.visibility === "public" && playlist.shareCode && (
+                  <p className="text-xs text-muted-foreground mt-2">
+                    Share code:{" "}
+                    <code className="bg-muted px-1.5 py-0.5 rounded text-xs font-mono">
+                      {playlist.shareCode}
+                    </code>
+                  </p>
+                )}
+              </div>
+              <Switch
+                defaultChecked={playlist.visibility === "public"}
+                onCheckedChange={(checked) => {
+                  console.log("Visibility changed:", checked)
+                  onUpdate(playlist.id, { visibility: checked ? "public" : "private" })
+                }}
               />
             </div>
-            <div className="flex items-center gap-2 rounded-full bg-background border px-3 py-1.5">
-              <span className="text-xs text-muted-foreground">Songs:</span>
-              <span className="text-sm font-medium">{playlist.songs.length}</span>
+
+            <div className="flex items-center justify-between gap-4">
+              <div className="space-y-0.5">
+                <label className="text-sm font-medium">Guest Editing</label>
+                <p className="text-xs text-muted-foreground">Guests can reorder songs</p>
+              </div>
+              <Switch
+                defaultChecked={playlist.allowGuestEditing || false}
+                onCheckedChange={(checked) => {
+                  console.log("Guest editing changed:", checked)
+                  onUpdate(playlist.id, { allowGuestEditing: checked })
+                }}
+              />
             </div>
           </div>
         </div>
@@ -152,7 +273,7 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
           <h3 className="text-sm font-medium mb-3">Songs</h3>
           {playlist.songs.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-8 border border-dashed rounded-lg">
-              <Music className="h-8 w-8 text-muted-foreground mb-2" />
+              <ListMusic className="h-8 w-8 text-muted-foreground mb-2" />
               <p className="text-sm text-muted-foreground">No songs in this playlist</p>
               <Button variant="outline" size="sm" className="mt-3 gap-2">
                 <Plus className="h-4 w-4" />
@@ -160,39 +281,12 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
               </Button>
             </div>
           ) : (
-            <div className="space-y-2">
-              {playlist.songs.map((song, index) => (
-                <div
-                  key={song.id}
-                  className="flex items-center gap-3 rounded-lg border bg-background p-3"
-                >
-                  <span className="text-sm text-muted-foreground w-5">{index + 1}</span>
-                  <div className="flex h-8 w-8 items-center justify-center rounded bg-muted text-xs font-semibold">
-                    {song.key}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{song.title}</p>
-                    <p className="text-xs text-muted-foreground truncate">{song.artist}</p>
-                  </div>
-                  <Badge variant="secondary" className="text-xs shrink-0">
-                    {song.bpm} BPM
-                  </Badge>
-                </div>
-              ))}
-            </div>
+            <DraggablePlaylist
+              playlist={playlistWithSongs}
+              songs={songsWithPosition}
+              onPlaylistSort={handleSongReorder}
+            />
           )}
-        </div>
-
-        <div className="flex flex-wrap gap-2 pt-4 border-t">
-          <Button
-            variant="destructive"
-            size="sm"
-            className="gap-2"
-            onClick={() => onDelete(playlist.id)}
-          >
-            <Trash2 className="h-3.5 w-3.5" />
-            Delete Playlist
-          </Button>
         </div>
       </div>
     </div>

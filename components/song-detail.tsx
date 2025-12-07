@@ -15,6 +15,7 @@ import {
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import type { Song } from "@/types"
 import { KeySelect } from "@/components/key-select"
@@ -112,12 +113,19 @@ export function SongDetail({ song, onClose, onUpdate }: SongDetailProps) {
       <div className="shrink-0 flex items-center justify-between border-b bg-background p-4 lg:p-6">
         <div className="flex items-center gap-3">
           <div className="flex-1 min-w-0">
-            <EditableField
-              value={song.title}
-              onSave={(value) => onUpdate(song.id, { title: value })}
-              className="text-lg font-semibold"
-              inputClassName="text-lg font-semibold"
-            />
+            <div className="flex items-center gap-2">
+              <EditableField
+                value={song.title}
+                onSave={(value) => onUpdate(song.id, { title: value })}
+                className="text-lg font-semibold"
+                inputClassName="text-lg font-semibold"
+              />
+              {song.isDraft && (
+                <Badge variant="secondary" className="text-xs">
+                  Draft
+                </Badge>
+              )}
+            </div>
             <EditableField
               value={song.artist}
               onSave={(value) => onUpdate(song.id, { artist: value })}

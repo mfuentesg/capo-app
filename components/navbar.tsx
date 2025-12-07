@@ -7,7 +7,7 @@ import { useState } from "react"
 import { Music, ListMusic, Settings, LogOut, Menu, Languages } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,10 +26,10 @@ export function Navbar() {
   const { t, locale, setLocale } = useLocale()
   const [isSheetOpen, setIsSheetOpen] = useState(false)
 
-  const toggleLanguage = () => {
-    const newLocale: Locale = locale === "en" ? "es" : "en"
-    setLocale(newLocale)
-  }
+  const languages = [
+    { code: "en" as Locale, label: "English" },
+    { code: "es" as Locale, label: "Español" }
+  ]
 
   const navItems = [
     { title: t.nav.songs, href: "/dashboard/songs", icon: Music },
@@ -49,7 +49,13 @@ export function Navbar() {
           <SheetContent side="left" className="w-64">
             <SheetHeader>
               <SheetTitle className="flex items-center gap-2">
-                <Image src="/img/capo-text.svg" alt="Capo Logo" width={80} height={27} />
+                <Image
+                  src="/img/capo-text.svg"
+                  alt="Capo Logo"
+                  width={80}
+                  height={27}
+                  className="dark:invert"
+                />
               </SheetTitle>
             </SheetHeader>
             <nav className="mt-8 flex flex-col gap-2">
@@ -72,7 +78,13 @@ export function Navbar() {
         </Sheet>
 
         <Link href="/dashboard" className="mr-6 flex items-center lg:mr-8">
-          <Image src="/img/capo-text.svg" alt="Capo Logo" width={80} height={24} />
+          <Image
+            src="/img/capo-text.svg"
+            alt="Capo Logo"
+            width={80}
+            height={24}
+            className="dark:invert"
+          />
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">
@@ -82,7 +94,7 @@ export function Navbar() {
               <Link key={item.href} href={item.href}>
                 <Button
                   variant={isActive ? "secondary" : "ghost"}
-                  className={cn("gap-2", isActive && "font-medium")}
+                  className={cn("gap-2 rounded-full", isActive && "font-medium")}
                 >
                   <item.icon className="h-4 w-4" />
                   {item.title}
@@ -95,15 +107,32 @@ export function Navbar() {
         <div className="ml-auto flex items-center gap-1 sm:gap-2">
           <ThemeToggle />
 
-          <Button variant="ghost" size="icon" onClick={toggleLanguage} title="Change language">
-            <Languages className="h-[1.2rem] w-[1.2rem]" />
-            <span className="sr-only">Toggle language</span>
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" className="gap-1 h-9 px-2">
+                <Languages className="h-4 w-4" />
+                <span className="text-xs font-medium uppercase">{locale}</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {languages.map((lang) => (
+                <DropdownMenuItem
+                  key={lang.code}
+                  onClick={() => setLocale(lang.code)}
+                  className={cn(locale === lang.code && "bg-accent")}
+                >
+                  <span className="text-xs font-medium uppercase mr-2">{lang.code}</span>
+                  {lang.label}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-9 w-9 rounded-full">
                 <Avatar className="h-9 w-9">
+                  <AvatarImage src="https://ui.shadcn.com/avatars/01.png" alt="MF" />
                   <AvatarFallback>MF</AvatarFallback>
                 </Avatar>
               </Button>

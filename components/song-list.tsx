@@ -12,10 +12,17 @@ interface SongListProps {
   songs: Song[]
   searchQuery: string
   groupBy: GroupBy
+  filterStatus: "all" | "drafts" | "completed"
   onSelectSong: (song: Song) => void
 }
 
-export function SongList({ songs, searchQuery, groupBy, onSelectSong }: SongListProps) {
+export function SongList({
+  songs,
+  searchQuery,
+  groupBy,
+  filterStatus,
+  onSelectSong
+}: SongListProps) {
   const { t } = useTranslation()
   const [selectedSong, setSelectedSong] = useState<Song | null>(null)
   const {
@@ -25,30 +32,43 @@ export function SongList({ songs, searchQuery, groupBy, onSelectSong }: SongList
     toggleSongInDraft,
     isSongInDraft,
     clearDraft,
-    removeFromDraft
+    removeFromDraft,
+    reorderDraft
   } = usePlaylistDraft()
 
   const filteredSongs = useMemo(() => {
-    return songs.filter(
+    let filtered = songs.filter(
       (song) =>
         song.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         song.artist.toLowerCase().includes(searchQuery.toLowerCase())
     )
-  }, [searchQuery, songs])
+
+    // Apply status filter
+    if (filterStatus === "drafts") {
+      filtered = filtered.filter((song) => song.isDraft === true)
+    } else if (filterStatus === "completed") {
+      filtered = filtered.filter((song) => !song.isDraft)
+    }
+
+    return filtered
+  }, [searchQuery, songs, filterStatus])
 
   const groupedSongs = useMemo(() => {
     if (groupBy === "none") {
       return { "All Songs": filteredSongs }
     }
 
-    return filteredSongs.reduce((groups, song) => {
-      const groupKey = groupBy === "key" ? song.key : song.artist
-      if (!groups[groupKey]) {
-        groups[groupKey] = []
-      }
-      groups[groupKey].push(song)
-      return groups
-    }, {} as Record<string, Song[]>)
+    return filteredSongs.reduce(
+      (groups, song) => {
+        const groupKey = groupBy === "key" ? song.key : song.artist
+        if (!groups[groupKey]) {
+          groups[groupKey] = []
+        }
+        groups[groupKey].push(song)
+        return groups
+      },
+      {} as Record<string, Song[]>
+    )
   }, [filteredSongs, groupBy])
 
   const sortedGroupKeys = useMemo(() => {
@@ -84,15 +104,13 @@ export function SongList({ songs, searchQuery, groupBy, onSelectSong }: SongList
         onOpenChange={setIsDraftOpen}
         onClear={clearDraft}
         onRemove={removeFromDraft}
+        onReorder={reorderDraft}
       />
-      <div className="p-2">
-        <p className="px-2 pb-3 text-xs text-muted-foreground">
-          {t.songs.clickKeyBadgeInstruction}
-        </p>
+      <div className="p-4">
         {sortedGroupKeys.map((groupKey) => (
-          <div key={groupKey} className="mb-4">
+          <div key={groupKey} className="mb-6">
             {groupBy !== "none" && (
-              <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 px-2 py-2 mb-1">
+              <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 py-2 mb-3">
                 <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   {groupKey}
                 </span>
@@ -101,16 +119,18 @@ export function SongList({ songs, searchQuery, groupBy, onSelectSong }: SongList
                 </span>
               </div>
             )}
-            {groupedSongs[groupKey].map((song) => (
-              <SongItem
-                key={song.id}
-                song={song}
-                isSelected={selectedSong?.id === song.id}
-                isInCart={isSongInDraft(song.id)}
-                onSelect={handleSelectSong}
-                onToggleCart={toggleSongInDraft}
-              />
-            ))}
+            <div className="space-y-3">
+              {groupedSongs[groupKey].map((song) => (
+                <SongItem
+                  key={song.id}
+                  song={song}
+                  isSelected={selectedSong?.id === song.id}
+                  isInCart={isSongInDraft(song.id)}
+                  onSelect={handleSelectSong}
+                  onToggleCart={toggleSongInDraft}
+                />
+              ))}
+            </div>
           </div>
         ))}
       </div>

@@ -1,4 +1,5 @@
-import { Check, ChevronRight } from "lucide-react"
+import { Check, Music3, Music2, Clock } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import type { Song } from "@/types"
 
@@ -13,37 +14,56 @@ interface SongItemProps {
 export function SongItem({ song, isSelected, isInCart, onSelect, onToggleCart }: SongItemProps) {
   return (
     <div
+      onClick={() => onSelect(song)}
       className={cn(
-        "group w-full flex items-center gap-3 rounded-lg p-2 text-left transition-colors",
-        isSelected ? "bg-primary/10 text-primary" : "hover:bg-muted/50"
+        "group flex items-start gap-4 rounded-lg border bg-card p-4 transition-all hover:shadow-sm cursor-pointer",
+        isSelected && "ring-2 ring-primary"
       )}
     >
+      {/* Key Badge / Checkbox */}
       <button
-        onClick={() => onToggleCart(song)}
+        onClick={(e) => {
+          e.stopPropagation()
+          onToggleCart(song)
+        }}
         className={cn(
-          "relative flex h-10 w-10 shrink-0 items-center justify-center rounded-md text-sm font-semibold transition-all",
+          "flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-semibold transition-all",
           isInCart
-            ? "bg-primary text-primary-foreground ring-2 ring-primary ring-offset-2 ring-offset-background"
-            : isSelected
             ? "bg-primary text-primary-foreground"
-            : "bg-muted text-muted-foreground hover:bg-muted/80"
+            : "bg-primary/10 text-primary hover:bg-primary/20"
         )}
       >
-        {isInCart ? <Check className="h-5 w-5" /> : song.key}
+        {isInCart ? <Check className="h-4 w-4" /> : <Music3 className="h-4 w-4" />}
       </button>
 
-      <button onClick={() => onSelect(song)} className="flex flex-1 items-center gap-3 min-w-0">
-        <div className="flex-1 min-w-0 text-left">
-          <p className="font-medium truncate text-sm">{song.title}</p>
-          <p className="text-xs text-muted-foreground truncate">{song.artist}</p>
+      {/* Song Info */}
+      <div className="flex min-w-0 flex-1 flex-col gap-2">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2">
+              <h4 className="truncate text-base font-semibold leading-tight">{song.title}</h4>
+              {song.isDraft && (
+                <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 shrink-0">
+                  Draft
+                </Badge>
+              )}
+            </div>
+            <p className="mt-0.5 truncate text-sm text-muted-foreground">{song.artist}</p>
+          </div>
         </div>
-        <ChevronRight
-          className={cn(
-            "h-4 w-4 shrink-0 text-muted-foreground transition-transform",
-            isSelected && "text-primary"
-          )}
-        />
-      </button>
+
+        {/* Metadata Row */}
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge variant="outline" className="gap-1.5 font-mono text-xs">
+            <Music2 className="h-3 w-3" />
+            {song.key}
+          </Badge>
+          <Badge variant="secondary" className="gap-1.5 text-xs">
+            <Clock className="h-3 w-3" />
+            {song.bpm} BPM
+          </Badge>
+        </div>
+      </div>
     </div>
   )
 }

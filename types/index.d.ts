@@ -10,6 +10,7 @@ export interface Song {
   fontSize?: number
   transpose?: number
   capo?: number
+  isDraft?: boolean
 }
 
 export interface Playlist {
@@ -17,9 +18,13 @@ export interface Playlist {
   name: string
   description?: string
   date?: string
-  songs: Song[]
+  songs: string[] // Array of song IDs
   createdAt: string
   updatedAt: string
+  isDraft?: boolean
+  visibility?: "private" | "public"
+  allowGuestEditing?: boolean
+  shareCode?: string
 }
 
 export type GroupBy = "none" | "key" | "artist"

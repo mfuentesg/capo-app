@@ -11,6 +11,7 @@ interface PlaylistDraftContextType {
   isSongInDraft: (songId: string) => boolean
   clearDraft: () => void
   removeFromDraft: (songId: string) => void
+  reorderDraft: (sourceIndex: number, destinationIndex: number) => void
 }
 
 const PlaylistDraftContext = createContext<PlaylistDraftContextType | undefined>(undefined)
@@ -27,6 +28,7 @@ export function PlaylistDraftProvider({ children }: { children: ReactNode }) {
       }
       return [...prev, song]
     })
+    // Don't auto-open the draft sheet when adding songs
   }, [])
 
   const isSongInDraft = useCallback(
@@ -42,6 +44,15 @@ export function PlaylistDraftProvider({ children }: { children: ReactNode }) {
     setPlaylistDraft((prev) => prev.filter((s) => s.id !== songId))
   }, [])
 
+  const reorderDraft = useCallback((sourceIndex: number, destinationIndex: number) => {
+    setPlaylistDraft((prev) => {
+      const result = Array.from(prev)
+      const [removed] = result.splice(sourceIndex, 1)
+      result.splice(destinationIndex, 0, removed)
+      return result
+    })
+  }, [])
+
   return (
     <PlaylistDraftContext.Provider
       value={{
@@ -51,7 +62,8 @@ export function PlaylistDraftProvider({ children }: { children: ReactNode }) {
         toggleSongInDraft,
         isSongInDraft,
         clearDraft,
-        removeFromDraft
+        removeFromDraft,
+        reorderDraft
       }}
     >
       {children}
