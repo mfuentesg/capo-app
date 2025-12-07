@@ -15,7 +15,9 @@ async function getPlaylistByShareCode(shareCode: string): Promise<Playlist | nul
       date: "2024-12-07",
       visibility: "public",
       shareCode: "ABC123",
-      allowGuestEditing: false
+      allowGuestEditing: false,
+      createdAt: "2024-12-07T00:00:00.000Z",
+      updatedAt: "2024-12-07T00:00:00.000Z"
     }
   }
   return null
