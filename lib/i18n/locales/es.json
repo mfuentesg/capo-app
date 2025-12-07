@@ -60,6 +60,11 @@
     "filtersDescription": "Filtrar y organizar tus canciones",
     "status": "Estado",
     "groupBy": "Agrupar por",
+    "bpmRange": "Rango de PPM",
+    "slow": "Lento",
+    "medium": "Medio",
+    "fast": "Rápido",
+    "bpmDescription": "Lento: <90 • Medio: 90-120 • Rápido: >120",
     "lyrics": {
       "settings": "Configuración",
       "displaySettings": "Configuración de visualización",
@@ -80,6 +85,47 @@
     "addToPlaylist": "Agregar a lista",
     "draft": "Borrador",
     "searchPlaceholder": "Buscar listas..."
+  },
+  "playlistDetail": {
+    "details": "Detalles",
+    "deletePlaylist": "Eliminar lista",
+    "privacySharing": "Privacidad y uso compartido",
+    "publicVisibility": "Visibilidad pública",
+    "anyoneWithLink": "Cualquier persona con el enlace puede ver",
+    "publicUrl": "URL pública:",
+    "copy": "Copiar",
+    "copied": "¡Enlace copiado al portapapeles!",
+    "guestEditing": "Edición de invitados",
+    "guestsCanReorder": "Los invitados pueden reordenar canciones",
+    "songs": "Canciones",
+    "noSongsInPlaylist": "No hay canciones en esta lista",
+    "addSongsButton": "Agregar canciones",
+    "song": "canción",
+    "songsPlural": "canciones",
+    "pickDate": "Selecciona una fecha"
+  },
+  "playlistDraft": {
+    "addToPlaylist": "Agregar a lista",
+    "songsSelected": "canciones seleccionadas",
+    "selectPlaylist": "Selecciona una lista...",
+    "clearButton": "Limpiar",
+    "addButton": "Agregar {count} canciones",
+    "selectNewPlaylist": "+ Crear nueva lista"
+  },
+  "filters": {
+    "clearAll": "Limpiar todo",
+    "visibility": "Visibilidad",
+    "public": "Público",
+    "private": "Privado"
+  },
+  "toasts": {
+    "songCreated": "Canción creada exitosamente",
+    "songUpdated": "Canción actualizada",
+    "songDeleted": "Canción eliminada",
+    "playlistCreated": "Lista creada exitosamente",
+    "playlistUpdated": "Lista actualizada",
+    "playlistDeleted": "Lista eliminada",
+    "error": "Algo salió mal"
   },
   "auth": {
     "login": "Iniciar sesión",

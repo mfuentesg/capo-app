@@ -60,6 +60,11 @@
     "filtersDescription": "Filter and organize your songs",
     "status": "Status",
     "groupBy": "Group by",
+    "bpmRange": "BPM Range",
+    "slow": "Slow",
+    "medium": "Med",
+    "fast": "Fast",
+    "bpmDescription": "Slow: <90 • Medium: 90-120 • Fast: >120",
     "lyrics": {
       "settings": "Settings",
       "displaySettings": "Display Settings",
@@ -80,6 +85,47 @@
     "addToPlaylist": "Add to Playlist",
     "draft": "Draft",
     "searchPlaceholder": "Search playlists..."
+  },
+  "playlistDetail": {
+    "details": "Details",
+    "deletePlaylist": "Delete Playlist",
+    "privacySharing": "Privacy & Sharing",
+    "publicVisibility": "Public Visibility",
+    "anyoneWithLink": "Anyone with the link can view",
+    "publicUrl": "Public URL:",
+    "copy": "Copy",
+    "copied": "Link copied to clipboard!",
+    "guestEditing": "Guest Editing",
+    "guestsCanReorder": "Guests can reorder songs",
+    "songs": "Songs",
+    "noSongsInPlaylist": "No songs in this playlist",
+    "addSongsButton": "Add Songs",
+    "song": "song",
+    "songsPlural": "songs",
+    "pickDate": "Pick a date"
+  },
+  "playlistDraft": {
+    "addToPlaylist": "Add to Playlist",
+    "songsSelected": "songs selected",
+    "selectPlaylist": "Select a playlist...",
+    "clearButton": "Clear",
+    "addButton": "Add {count} songs",
+    "selectNewPlaylist": "+ Create new playlist"
+  },
+  "filters": {
+    "clearAll": "Clear all",
+    "visibility": "Visibility",
+    "public": "Public",
+    "private": "Private"
+  },
+  "toasts": {
+    "songCreated": "Song created successfully",
+    "songUpdated": "Song updated",
+    "songDeleted": "Song deleted",
+    "playlistCreated": "Playlist created successfully",
+    "playlistUpdated": "Playlist updated",
+    "playlistDeleted": "Playlist deleted",
+    "error": "Something went wrong"
   },
   "auth": {
     "login": "Login",

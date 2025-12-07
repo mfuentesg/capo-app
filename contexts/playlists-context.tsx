@@ -34,7 +34,8 @@ const mockPlaylists: Playlist[] = [
     createdAt: "2024-12-01T10:00:00Z",
     updatedAt: "2024-12-01T10:00:00Z",
     visibility: "public",
-    allowGuestEditing: true
+    allowGuestEditing: true,
+    shareCode: "ABC123"
   },
   {
     id: "2",
@@ -49,7 +50,8 @@ const mockPlaylists: Playlist[] = [
     createdAt: "2024-11-28T15:00:00Z",
     updatedAt: "2024-11-28T15:00:00Z",
     visibility: "public",
-    allowGuestEditing: false
+    allowGuestEditing: false,
+    shareCode: "XYZ789"
   },
   {
     id: "3",
@@ -92,7 +94,17 @@ export function PlaylistsProvider({ children }: { children: ReactNode }) {
 
   const updatePlaylist = useCallback((id: string, updates: Partial<Playlist>) => {
     setPlaylists((prev) =>
-      prev.map((playlist) => (playlist.id === id ? { ...playlist, ...updates } : playlist))
+      prev.map((playlist) => {
+        if (playlist.id !== id) return playlist
+
+        // Generate shareCode if visibility is being set to public and shareCode doesn't exist
+        const updatedPlaylist = { ...playlist, ...updates }
+        if (updates.visibility === "public" && !updatedPlaylist.shareCode) {
+          updatedPlaylist.shareCode = Math.random().toString(36).substring(2, 8).toUpperCase()
+        }
+
+        return updatedPlaylist
+      })
     )
   }, [])
 

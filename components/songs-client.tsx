@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable"
-import { Sheet, SheetContent, SheetTitle, SheetDescription } from "@/components/ui/sheet"
+import { Drawer, DrawerContent, DrawerTitle, DrawerDescription } from "@/components/ui/drawer"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
@@ -43,9 +43,9 @@ export function SongsClient({ initialSongs }: SongsClientProps) {
   const [bpmRange, setBpmRange] = useState<BPMRange>("all")
   const [sortBy, setSortBy] = useState<SortBy>("name")
   const [songs, setSongs] = useState<Song[]>(initialSongs)
-  const [isMobileSheetOpen, setIsMobileSheetOpen] = useState(false)
+  const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false)
 
-  // Track viewport to render Sheet only on mobile (md: 768px)
+  // Track viewport to render Drawer only on mobile (md: 768px)
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 767px)")
     const update = () => setIsMobile(mq.matches)
@@ -63,12 +63,12 @@ export function SongsClient({ initialSongs }: SongsClientProps) {
 
   const handleSelectSong = (song: Song) => {
     setSelectedSong(song)
-    setIsMobileSheetOpen(true)
+    setIsMobileDrawerOpen(true)
   }
 
   const handleCloseSongDetail = () => {
     setSelectedSong(null)
-    setIsMobileSheetOpen(false)
+    setIsMobileDrawerOpen(false)
   }
 
   // Get unique keys and artists with counts
@@ -164,14 +164,24 @@ export function SongsClient({ initialSongs }: SongsClientProps) {
             </div>
 
             <div className="relative mt-4 flex items-center gap-2">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                placeholder={t.songs.searchPlaceholder}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 h-9 bg-muted/50 flex-1"
-                suppressHydrationWarning
-              />
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+                <Input
+                  placeholder={t.songs.searchPlaceholder}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className={`pl-9 h-9 bg-muted/50 ${searchQuery ? "pr-9" : "pr-3"}`}
+                  suppressHydrationWarning
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery("")}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
 
               <Popover>
                 <PopoverTrigger asChild>
@@ -249,7 +259,7 @@ export function SongsClient({ initialSongs }: SongsClientProps) {
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
                         <Music2 className="h-4 w-4" />
-                        <span className="text-sm font-medium">BPM Range</span>
+                        <span className="text-sm font-medium">{t.songs.bpmRange}</span>
                       </div>
                       <div className="grid grid-cols-4 gap-2">
                         <Button
@@ -258,7 +268,7 @@ export function SongsClient({ initialSongs }: SongsClientProps) {
                           size="sm"
                           className="justify-center"
                         >
-                          All
+                          {t.songs.all}
                         </Button>
                         <Button
                           onClick={() => setBpmRange("slow")}
@@ -266,7 +276,7 @@ export function SongsClient({ initialSongs }: SongsClientProps) {
                           size="sm"
                           className="justify-center"
                         >
-                          Slow
+                          {t.songs.slow}
                         </Button>
                         <Button
                           onClick={() => setBpmRange("medium")}
@@ -274,7 +284,7 @@ export function SongsClient({ initialSongs }: SongsClientProps) {
                           size="sm"
                           className="justify-center"
                         >
-                          Med
+                          {t.songs.medium}
                         </Button>
                         <Button
                           onClick={() => setBpmRange("fast")}
@@ -282,12 +292,10 @@ export function SongsClient({ initialSongs }: SongsClientProps) {
                           size="sm"
                           className="justify-center"
                         >
-                          Fast
+                          {t.songs.fast}
                         </Button>
                       </div>
-                      <p className="text-xs text-muted-foreground">
-                        Slow: &lt;90 • Medium: 90-120 • Fast: &gt;120
-                      </p>
+                      <p className="text-xs text-muted-foreground">{t.songs.bpmDescription}</p>
                     </div>
 
                     <Separator />
@@ -296,7 +304,7 @@ export function SongsClient({ initialSongs }: SongsClientProps) {
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
                         <LayoutList className="h-4 w-4" />
-                        <span className="text-sm font-medium">{t.songs.groupBy || "Group by"}</span>
+                        <span className="text-sm font-medium">{t.songs.groupBy}</span>
                       </div>
                       <div className="grid grid-cols-3 gap-2">
                         <Button
@@ -305,7 +313,7 @@ export function SongsClient({ initialSongs }: SongsClientProps) {
                           size="sm"
                           className="justify-center"
                         >
-                          {t.songs.none || "None"}
+                          {t.songs.none}
                         </Button>
                         <Button
                           onClick={() => setGroupBy("key")}
@@ -335,7 +343,7 @@ export function SongsClient({ initialSongs }: SongsClientProps) {
               <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
                 <Music3 className="h-3 w-3" />
               </div>
-              <span>{t.songs.selectSongDescription}</span>
+              <span className="text-xs">{t.songs.selectSongDescription}</span>
             </div>
           </div>
 
@@ -369,26 +377,21 @@ export function SongsClient({ initialSongs }: SongsClientProps) {
         </ResizablePanel>
       </ResizablePanelGroup>
 
-      {/* Mobile-only Sheet for Song Detail (do not render on desktop to avoid overlay) */}
+      {/* Mobile Drawer for Song Detail */}
       {isMobile && (
-        <Sheet
-          open={isMobileSheetOpen}
+        <Drawer
+          open={isMobileDrawerOpen}
           onOpenChange={(open) => {
             if (!open) {
               handleCloseSongDetail()
             }
           }}
         >
-          <SheetContent
-            side="bottom"
-            className="h-full max-h-dvh overflow-y-auto p-0 [&>button]:hidden"
-          >
-            <SheetTitle className="sr-only">
-              {selectedSong ? `Edit ${selectedSong.title}` : "Song Details"}
-            </SheetTitle>
-            <SheetDescription className="sr-only">
-              View and edit song information, add to playlist, or view lyrics
-            </SheetDescription>
+          <DrawerContent className="h-[95vh] max-h-[95vh]">
+            <DrawerTitle className="sr-only">Song Details</DrawerTitle>
+            <DrawerDescription className="sr-only">
+              View and edit song information
+            </DrawerDescription>
             {selectedSong && (
               <SongDetail
                 song={selectedSong}
@@ -396,8 +399,8 @@ export function SongsClient({ initialSongs }: SongsClientProps) {
                 onUpdate={updateSong}
               />
             )}
-          </SheetContent>
-        </Sheet>
+          </DrawerContent>
+        </Drawer>
       )}
     </div>
   )

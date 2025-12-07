@@ -16,7 +16,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu"
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger
+} from "@/components/ui/drawer"
 import { cn } from "@/lib/utils"
 import { useLocale } from "@/contexts/locale-context"
 import type { Locale } from "@/lib/i18n/config"
@@ -24,7 +30,7 @@ import type { Locale } from "@/lib/i18n/config"
 export function Navbar() {
   const pathname = usePathname()
   const { t, locale, setLocale } = useLocale()
-  const [isSheetOpen, setIsSheetOpen] = useState(false)
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false)
 
   const languages = [
     { code: "en" as Locale, label: "English" },
@@ -39,16 +45,16 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
       <div className="flex h-16 items-center px-4 sm:px-6 lg:px-8">
-        <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-          <SheetTrigger asChild>
+        <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen} direction="left">
+          <DrawerTrigger asChild>
             <Button variant="ghost" size="icon" className="mr-2 md:hidden">
               <Menu className="h-5 w-5" />
               <span className="sr-only">Toggle menu</span>
             </Button>
-          </SheetTrigger>
-          <SheetContent side="left" className="w-64">
-            <SheetHeader>
-              <SheetTitle className="flex items-center gap-2">
+          </DrawerTrigger>
+          <DrawerContent className="w-64">
+            <DrawerHeader>
+              <DrawerTitle className="flex items-center gap-2">
                 <Image
                   src="/img/capo-text.svg"
                   alt="Capo Logo"
@@ -56,13 +62,13 @@ export function Navbar() {
                   height={27}
                   className="dark:invert"
                 />
-              </SheetTitle>
-            </SheetHeader>
+              </DrawerTitle>
+            </DrawerHeader>
             <nav className="mt-8 flex flex-col gap-2">
               {navItems.map((item) => {
                 const isActive = pathname === item.href
                 return (
-                  <Link key={item.href} href={item.href} onClick={() => setIsSheetOpen(false)}>
+                  <Link key={item.href} href={item.href} onClick={() => setIsDrawerOpen(false)}>
                     <Button
                       variant={isActive ? "secondary" : "ghost"}
                       className={cn("w-full justify-start gap-3", isActive && "font-medium")}
@@ -74,8 +80,8 @@ export function Navbar() {
                 )
               })}
             </nav>
-          </SheetContent>
-        </Sheet>
+          </DrawerContent>
+        </Drawer>
 
         <Link href="/dashboard" className="mr-6 flex items-center lg:mr-8">
           <Image

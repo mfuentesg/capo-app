@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable"
-import { Sheet, SheetContent, SheetTitle, SheetDescription } from "@/components/ui/sheet"
+import { Drawer, DrawerContent, DrawerTitle, DrawerDescription } from "@/components/ui/drawer"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
@@ -29,20 +29,31 @@ export function PlaylistsClient({
   const [isMobile, setIsMobile] = useState<boolean | undefined>(undefined)
   const [searchQuery, setSearchQuery] = useState("")
   const [filterStatus, setFilterStatus] = useState<"all" | "drafts" | "completed">("all")
+  const [filterVisibility, setFilterVisibility] = useState<"all" | "public" | "private">("all")
   const [selectedPlaylist, setSelectedPlaylist] = useState<Playlist | null>(null)
-  const [isMobileSheetOpen, setIsMobileSheetOpen] = useState(false)
+  const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false)
 
   // Calculate active filter count
   const activeFilterCount = useMemo(() => {
-    return filterStatus !== "all" ? 1 : 0
-  }, [filterStatus])
+    let count = 0
+    if (filterStatus !== "all") count++
+    if (filterVisibility !== "all") count++
+    return count
+  }, [filterStatus, filterVisibility])
 
   // Remove filter helper
   const removeFilter = (type: string) => {
     if (type === "status") setFilterStatus("all")
+    if (type === "visibility") setFilterVisibility("all")
   }
 
-  // Track viewport to render Sheet only on mobile (md: 768px)
+  // Clear all filters
+  const clearAllFilters = () => {
+    setFilterStatus("all")
+    setFilterVisibility("all")
+  }
+
+  // Track viewport to render Drawer only on mobile (md: 768px)
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 767px)")
     const update = () => setIsMobile(mq.matches)
@@ -53,12 +64,12 @@ export function PlaylistsClient({
 
   const handleSelectPlaylist = (playlist: Playlist) => {
     setSelectedPlaylist(playlist)
-    setIsMobileSheetOpen(true)
+    setIsMobileDrawerOpen(true)
   }
 
   const handleClosePlaylistDetail = () => {
     setSelectedPlaylist(null)
-    setIsMobileSheetOpen(false)
+    setIsMobileDrawerOpen(false)
   }
 
   return (
@@ -85,14 +96,24 @@ export function PlaylistsClient({
             </div>
 
             <div className="relative mt-4 flex items-center gap-2">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                placeholder={`${t.common.search} ${t.playlists.title.toLowerCase()}...`}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 h-9 bg-muted/50 flex-1"
-                suppressHydrationWarning
-              />
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+                <Input
+                  placeholder={`${t.common.search} ${t.playlists.title.toLowerCase()}...`}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className={`pl-9 h-9 bg-muted/50 ${searchQuery ? "pr-9" : "pr-3"}`}
+                  suppressHydrationWarning
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery("")}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
 
               <Popover>
                 <PopoverTrigger asChild>
@@ -110,17 +131,19 @@ export function PlaylistsClient({
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <div className="space-y-1">
-                        <h4 className="font-medium leading-none">Filters</h4>
-                        <p className="text-xs text-muted-foreground">Filter your playlists</p>
+                        <h4 className="font-medium leading-none">{t.songs.filters}</h4>
+                        <p className="text-xs text-muted-foreground">
+                          {t.songs.filtersDescription}
+                        </p>
                       </div>
                       {activeFilterCount > 0 && (
                         <Button
                           variant="ghost"
                           size="sm"
                           className="h-7 text-xs"
-                          onClick={() => setFilterStatus("all")}
+                          onClick={clearAllFilters}
                         >
-                          Clear all
+                          {t.filters.clearAll}
                         </Button>
                       )}
                     </div>
@@ -129,7 +152,7 @@ export function PlaylistsClient({
 
                     {/* Status Filter */}
                     <div className="space-y-2">
-                      <span className="text-sm font-medium">Status</span>
+                      <span className="text-sm font-medium">{t.songs.status}</span>
                       <div className="grid grid-cols-3 gap-2">
                         <Button
                           onClick={() => setFilterStatus("all")}
@@ -137,7 +160,7 @@ export function PlaylistsClient({
                           size="sm"
                           className="justify-center"
                         >
-                          All
+                          {t.songs.all}
                         </Button>
                         <Button
                           onClick={() => setFilterStatus("drafts")}
@@ -157,6 +180,39 @@ export function PlaylistsClient({
                         </Button>
                       </div>
                     </div>
+
+                    <Separator />
+
+                    {/* Visibility Filter */}
+                    <div className="space-y-2">
+                      <span className="text-sm font-medium">{t.filters.visibility}</span>
+                      <div className="grid grid-cols-3 gap-2">
+                        <Button
+                          onClick={() => setFilterVisibility("all")}
+                          variant={filterVisibility === "all" ? "default" : "outline"}
+                          size="sm"
+                          className="justify-center"
+                        >
+                          {t.songs.all}
+                        </Button>
+                        <Button
+                          onClick={() => setFilterVisibility("public")}
+                          variant={filterVisibility === "public" ? "default" : "outline"}
+                          size="sm"
+                          className="justify-center"
+                        >
+                          {t.filters.public}
+                        </Button>
+                        <Button
+                          onClick={() => setFilterVisibility("private")}
+                          variant={filterVisibility === "private" ? "default" : "outline"}
+                          size="sm"
+                          className="justify-center"
+                        >
+                          {t.filters.private}
+                        </Button>
+                      </div>
+                    </div>
                   </div>
                 </PopoverContent>
               </Popover>
@@ -168,6 +224,7 @@ export function PlaylistsClient({
               playlists={initialPlaylists}
               searchQuery={searchQuery}
               filterStatus={filterStatus}
+              filterVisibility={filterVisibility}
               onSelectPlaylist={handleSelectPlaylist}
             />
           </div>
@@ -200,19 +257,12 @@ export function PlaylistsClient({
         </ResizablePanel>
       </ResizablePanelGroup>
 
-      {/* Mobile Sheet for Playlist Detail */}
+      {/* Mobile Drawer for Playlist Detail */}
       {isMobile && (
-        <Sheet open={isMobileSheetOpen} onOpenChange={setIsMobileSheetOpen}>
-          <SheetContent
-            side="bottom"
-            className="h-full max-h-dvh overflow-y-auto p-0 md:hidden [&>button]:hidden"
-          >
-            <SheetTitle className="sr-only">
-              {selectedPlaylist ? `Edit ${selectedPlaylist.name}` : "Playlist Details"}
-            </SheetTitle>
-            <SheetDescription className="sr-only">
-              View and edit playlist information, manage songs, and delete playlist
-            </SheetDescription>
+        <Drawer open={isMobileDrawerOpen} onOpenChange={setIsMobileDrawerOpen}>
+          <DrawerContent className="h-[95vh] max-h-[95vh]">
+            <DrawerTitle className="sr-only">Playlist Details</DrawerTitle>
+            <DrawerDescription className="sr-only">View and edit playlist</DrawerDescription>
             {selectedPlaylist && (
               <PlaylistDetail
                 playlist={selectedPlaylist}
@@ -224,8 +274,8 @@ export function PlaylistsClient({
                 }}
               />
             )}
-          </SheetContent>
-        </Sheet>
+          </DrawerContent>
+        </Drawer>
       )}
     </div>
   )

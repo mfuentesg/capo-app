@@ -5,6 +5,7 @@ import { Analytics } from "@vercel/analytics/react"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { Toaster } from "@/components/ui/sonner"
 import { PlaylistDraftProvider } from "@/contexts/playlist-draft-context"
 import { PlaylistsProvider } from "@/contexts/playlists-context"
 import { LocaleProvider } from "@/contexts/locale-context"
@@ -76,6 +77,7 @@ export default async function RootLayout({
               <PlaylistDraftProvider>{children}</PlaylistDraftProvider>
             </PlaylistsProvider>
           </LocaleProvider>
+          <Toaster />
         </ThemeProvider>
         <Analytics />
       </body>

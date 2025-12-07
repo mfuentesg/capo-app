@@ -9,6 +9,7 @@ interface PlaylistListProps {
   playlists: Playlist[]
   searchQuery: string
   filterStatus: "all" | "drafts" | "completed"
+  filterVisibility?: "all" | "public" | "private"
   onSelectPlaylist: (playlist: Playlist) => void
 }
 
@@ -16,6 +17,7 @@ export function PlaylistList({
   playlists,
   searchQuery,
   filterStatus,
+  filterVisibility = "all",
   onSelectPlaylist
 }: PlaylistListProps) {
   const [selectedPlaylist, setSelectedPlaylist] = useState<Playlist | null>(null)
@@ -32,8 +34,15 @@ export function PlaylistList({
       filtered = filtered.filter((playlist) => !playlist.isDraft)
     }
 
+    // Apply visibility filter
+    if (filterVisibility === "public") {
+      filtered = filtered.filter((playlist) => playlist.visibility === "public")
+    } else if (filterVisibility === "private") {
+      filtered = filtered.filter((playlist) => playlist.visibility === "private")
+    }
+
     return filtered
-  }, [searchQuery, playlists, filterStatus])
+  }, [searchQuery, playlists, filterStatus, filterVisibility])
 
   const handleSelectPlaylist = (playlist: Playlist) => {
     setSelectedPlaylist(playlist)
