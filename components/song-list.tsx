@@ -3,7 +3,6 @@
 import { useState, useMemo } from "react"
 import { Music } from "lucide-react"
 import { SongItem } from "./song-item"
-import { PlaylistDraft } from "./playlist-draft"
 import type { Song, GroupBy } from "@/types"
 import { usePlaylistDraft } from "@/contexts/playlist-draft-context"
 import { useTranslation } from "@/hooks/use-translation"
@@ -25,16 +24,7 @@ export function SongList({
 }: SongListProps) {
   const { t } = useTranslation()
   const [selectedSong, setSelectedSong] = useState<Song | null>(null)
-  const {
-    playlistDraft,
-    isDraftOpen,
-    setIsDraftOpen,
-    toggleSongInDraft,
-    isSongInDraft,
-    clearDraft,
-    removeFromDraft,
-    reorderDraft
-  } = usePlaylistDraft()
+  const { toggleSongInDraft, isSongInDraft } = usePlaylistDraft()
 
   const filteredSongs = useMemo(() => {
     let filtered = songs.filter(
@@ -97,43 +87,33 @@ export function SongList({
   }
 
   return (
-    <>
-      <PlaylistDraft
-        songs={playlistDraft}
-        isOpen={isDraftOpen}
-        onOpenChange={setIsDraftOpen}
-        onClear={clearDraft}
-        onRemove={removeFromDraft}
-        onReorder={reorderDraft}
-      />
-      <div className="p-4">
-        {sortedGroupKeys.map((groupKey) => (
-          <div key={groupKey} className="mb-6">
-            {groupBy !== "none" && (
-              <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 py-2 mb-3">
-                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  {groupKey}
-                </span>
-                <span className="ml-2 text-xs text-muted-foreground">
-                  ({groupedSongs[groupKey].length})
-                </span>
-              </div>
-            )}
-            <div className="space-y-3">
-              {groupedSongs[groupKey].map((song) => (
-                <SongItem
-                  key={song.id}
-                  song={song}
-                  isSelected={selectedSong?.id === song.id}
-                  isInCart={isSongInDraft(song.id)}
-                  onSelect={handleSelectSong}
-                  onToggleCart={toggleSongInDraft}
-                />
-              ))}
+    <div className="p-4">
+      {sortedGroupKeys.map((groupKey) => (
+        <div key={groupKey} className="mb-6">
+          {groupBy !== "none" && (
+            <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 py-2 mb-3">
+              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                {groupKey}
+              </span>
+              <span className="ml-2 text-xs text-muted-foreground">
+                ({groupedSongs[groupKey].length})
+              </span>
             </div>
+          )}
+          <div className="space-y-3">
+            {groupedSongs[groupKey].map((song) => (
+              <SongItem
+                key={song.id}
+                song={song}
+                isSelected={selectedSong?.id === song.id}
+                isInCart={isSongInDraft(song.id)}
+                onSelect={handleSelectSong}
+                onToggleCart={toggleSongInDraft}
+              />
+            ))}
           </div>
-        ))}
-      </div>
-    </>
+        </div>
+      ))}
+    </div>
   )
 }
