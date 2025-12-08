@@ -267,7 +267,7 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
                     className="gap-1.5"
                     onClick={() => {
                       navigator.clipboard.writeText(
-                        `${window.location.origin}/dashboard/playlist/${playlist.shareCode}`
+                        `${window.location.origin}/dashboard/playlists/${playlist.shareCode}`
                       )
                       toast.success(t.playlistDetail.copied)
                     }}
@@ -277,7 +277,7 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
                   </Button>
                   <Button size="sm" variant="outline" asChild>
                     <a
-                      href={`/dashboard/playlist/${playlist.shareCode}`}
+                      href={`/dashboard/playlists/${playlist.shareCode}`}
                       target="_blank"
                       rel="noopener noreferrer"
                     >

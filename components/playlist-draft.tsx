@@ -84,7 +84,7 @@ export function PlaylistDraft({
           </div>
         </div>
       </DrawerTrigger>
-      <DrawerContent className="h-screen mt-0! max-h-screen! p-0 overflow-hidden">
+      <DrawerContent className="flex flex-col mt-0! max-h-dvh! p-0 overflow-hidden">
         <DrawerHeader>
           <DrawerTitle className="flex items-center gap-2">
             <ListMusic className="h-5 w-5" />

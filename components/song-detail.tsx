@@ -6,7 +6,6 @@ import {
   ListPlus,
   Check,
   Pencil,
-  FileText,
   Music2,
   Guitar,
   Minus,
@@ -296,12 +295,14 @@ export function SongDetail({ song, onClose, onUpdate }: SongDetailProps) {
                 </>
               )}
             </Button>
-            <Link href={`/dashboard/songs/${song.id}`}>
-              <Button variant="outline" size="sm" className="gap-2 bg-transparent">
-                <FileText className="h-3.5 w-3.5" />
-                {t.songs.viewLyrics}
-              </Button>
-            </Link>
+            {!song.lyrics && (
+              <Link href={`/dashboard/songs/${song.id}`}>
+                <Button variant="outline" size="sm" className="gap-2 bg-transparent">
+                  <Music2 className="h-3.5 w-3.5" />
+                  {t.songs.addLyrics}
+                </Button>
+              </Link>
+            )}
             <Button
               variant="outline"
               size="sm"
@@ -311,6 +312,16 @@ export function SongDetail({ song, onClose, onUpdate }: SongDetailProps) {
               {t.common.delete}
             </Button>
           </div>
+
+          {/* Add Lyrics Button Example (replace or add where needed */}
+          {/*
+          <Link href={`/dashboard/songs/${song.id}`}>
+            <Button variant="outline" size="sm" className="gap-2">
+              <Music2 className="h-3.5 w-3.5" />
+              {t.songs.addLyrics}
+            </Button>
+          </Link>
+          */}
         </div>
       </div>
     </div>

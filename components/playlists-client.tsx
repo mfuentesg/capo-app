@@ -254,10 +254,10 @@ export function PlaylistsClient({
       {/* Mobile Drawer for Playlist Detail */}
       {isMobile && (
         <Drawer open={isMobileDrawerOpen} onOpenChange={setIsMobileDrawerOpen}>
-          <DrawerContent className="h-screen mt-0! max-h-screen! p-0 overflow-hidden">
+          <DrawerContent className="flex flex-col mt-0! max-h-dvh! p-0 overflow-hidden">
             <DrawerTitle className="sr-only">Playlist Details</DrawerTitle>
             <DrawerDescription className="sr-only">View and edit playlist</DrawerDescription>
-            <div className="h-full overflow-y-auto">
+            <div className="flex-1 overflow-y-auto">
               {selectedPlaylist && (
                 <PlaylistDetail
                   playlist={selectedPlaylist}

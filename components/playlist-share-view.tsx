@@ -28,7 +28,7 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
 
   const shareUrl =
     typeof window !== "undefined"
-      ? `${window.location.origin}/dashboard/playlist/${playlist.shareCode}`
+      ? `${window.location.origin}/dashboard/playlists/${playlist.shareCode}`
       : ""
 
   const copyToClipboard = () => {

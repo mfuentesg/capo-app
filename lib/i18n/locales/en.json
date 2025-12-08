@@ -2,11 +2,16 @@
   "common": {
     "loading": "Loading...",
     "save": "Save",
+    "submit": "Submit",
     "cancel": "Cancel",
     "delete": "Delete",
     "edit": "Edit",
     "search": "Search",
-    "close": "Close"
+    "close": "Close",
+    "unsavedChanges": "Unsaved Changes",
+    "discardChangesMessage": "You have unsaved changes. Do you want to discard them?",
+    "keepEditing": "Keep Editing",
+    "discard": "Discard"
   },
   "nav": {
     "home": "Home",
@@ -65,6 +70,20 @@
     "medium": "Med",
     "fast": "Fast",
     "bpmDescription": "Slow: <90 • Medium: 90-120 • Fast: >120",
+    "createSong": "Create Song",
+    "editLyrics": "Edit Lyrics",
+    "addLyrics": "Add Lyrics",
+    "songTitle": "Song Title",
+    "addLyricsDescription": "Add lyrics to your song using ChordPro format",
+    "enterSongDetails": "Enter the basic song information. You can add lyrics in the next step.",
+    "songSettingsInfo": "Settings like capo and transpose will be available after the song is created.",
+    "saveAsDraft": "Save as Draft",
+    "next": "Next",
+    "preview": "Preview",
+    "lyricsFormatInfo": "Enter lyrics in ChordPro format. Chords are displayed inline with the lyrics.",
+    "lyricsTitle": "Lyrics",
+    "noLyrics": "This song does not have lyrics yet.",
+    "lyricsAvailable": "Lyrics are available for this song.",
     "lyrics": {
       "settings": "Settings",
       "displaySettings": "Display Settings",

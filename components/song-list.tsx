@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useMemo } from "react"
 import { Music } from "lucide-react"
 import { SongItem } from "./song-item"
 import { Empty, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription } from "@/components/ui/empty"
@@ -9,38 +9,34 @@ import { usePlaylistDraft } from "@/contexts/playlist-draft-context"
 
 interface SongListProps {
   songs: Song[]
+  previewSong?: Song | null
+  selectedSong?: Song | null
   searchQuery: string
   groupBy: GroupBy
-  filterStatus: "all" | "drafts" | "completed"
+  isCreatingNewSong?: boolean
   onSelectSong: (song: Song) => void
 }
 
 export function SongList({
   songs,
+  previewSong,
+  selectedSong,
   searchQuery,
   groupBy,
-  filterStatus,
+  isCreatingNewSong = false,
   onSelectSong
 }: SongListProps) {
-  const [selectedSong, setSelectedSong] = useState<Song | null>(null)
   const { toggleSongInDraft, isSongInDraft } = usePlaylistDraft()
 
   const filteredSongs = useMemo(() => {
-    let filtered = songs.filter(
+    const filtered = songs.filter(
       (song) =>
         song.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         song.artist.toLowerCase().includes(searchQuery.toLowerCase())
     )
 
-    // Apply status filter
-    if (filterStatus === "drafts") {
-      filtered = filtered.filter((song) => song.isDraft === true)
-    } else if (filterStatus === "completed") {
-      filtered = filtered.filter((song) => !song.isDraft)
-    }
-
     return filtered
-  }, [searchQuery, songs, filterStatus])
+  }, [searchQuery, songs])
 
   const groupedSongs = useMemo(() => {
     if (groupBy === "none") {
@@ -65,7 +61,6 @@ export function SongList({
   }, [groupedSongs])
 
   const handleSelectSong = (song: Song) => {
-    setSelectedSong(song)
     onSelectSong(song)
   }
 
@@ -89,6 +84,33 @@ export function SongList({
 
   return (
     <div className="p-4">
+      {/* Preview Song Entry */}
+      {previewSong && (
+        <div className="mb-6 relative">
+          <div className="rounded-xl border-2 border-orange-500 dark:border-orange-600 bg-orange-100/50 dark:bg-orange-900/20 shadow-lg">
+            <div className="relative">
+              <div className="absolute top-2 right-2 z-20">
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-white bg-orange-600 rounded-full">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+                  </span>
+                  Draft
+                </span>
+              </div>
+              <SongItem
+                song={previewSong}
+                isSelected={true}
+                isInCart={false}
+                isPreview={true}
+                onSelect={() => {}}
+                onToggleCart={() => {}}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
       {sortedGroupKeys.map((groupKey) => (
         <div key={groupKey} className="mb-6">
           {groupBy !== "none" && (
@@ -106,8 +128,9 @@ export function SongList({
               <SongItem
                 key={song.id}
                 song={song}
-                isSelected={selectedSong?.id === song.id}
+                isSelected={!isCreatingNewSong && selectedSong?.id === song.id}
                 isInCart={isSongInDraft(song.id)}
+                isDisabled={isCreatingNewSong}
                 onSelect={handleSelectSong}
                 onToggleCart={toggleSongInDraft}
               />

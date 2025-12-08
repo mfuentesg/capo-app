@@ -2,11 +2,16 @@
   "common": {
     "loading": "Cargando...",
     "save": "Guardar",
+    "submit": "Enviar",
     "cancel": "Cancelar",
     "delete": "Eliminar",
     "edit": "Editar",
     "search": "Buscar",
-    "close": "Cerrar"
+    "close": "Cerrar",
+    "unsavedChanges": "Cambios sin guardar",
+    "discardChangesMessage": "Tienes cambios sin guardar. ¿Quieres descartarlos?",
+    "keepEditing": "Seguir editando",
+    "discard": "Descartar"
   },
   "nav": {
     "home": "Inicio",
@@ -65,11 +70,25 @@
     "medium": "Medio",
     "fast": "Rápido",
     "bpmDescription": "Lento: <90 • Medio: 90-120 • Rápido: >120",
+    "createSong": "Crear canción",
+    "editLyrics": "Editar letra",
+    "addLyrics": "Agregar letra",
+    "songTitle": "Título de la canción",
+    "addLyricsDescription": "Agrega letra a tu canción usando formato ChordPro",
+    "enterSongDetails": "Ingresa la información básica de la canción. Puedes agregar letra en el siguiente paso.",
+    "songSettingsInfo": "Configuraciones como capo y transporte estarán disponibles después de crear la canción.",
+    "saveAsDraft": "Guardar como borrador",
+    "next": "Siguiente",
+    "preview": "Vista previa",
+    "lyricsFormatInfo": "Ingresa la letra en formato ChordPro. Los acordes se muestran en línea con la letra.",
+    "lyricsTitle": "Letra",
+    "noLyrics": "Esta canción aún no tiene letra.",
+    "lyricsAvailable": "La letra está disponible para esta canción.",
     "lyrics": {
       "settings": "Configuración",
-      "displaySettings": "Configuración de visualización",
-      "displaySettingsDescription": "Ajustar tamaño de fuente, transporte y capo",
-      "fontSize": "Tamaño de fuente"
+      "displaySettings": "Configuración de Visualización",
+      "displaySettingsDescription": "Ajusta el tamaño de fuente, transposición y cejilla",
+      "fontSize": "Tamaño de Fuente"
     }
   },
   "playlists": {

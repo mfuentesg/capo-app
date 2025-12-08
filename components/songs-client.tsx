@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge"
 import { Plus, Search, Music, LayoutList, Music2, Music3, Settings2, X } from "lucide-react"
 import { SongList } from "@/components/song-list"
 import { SongDetail } from "@/components/song-detail"
+import { SongDraftForm } from "@/components/song-draft-form"
 import type { Song, GroupBy } from "@/types"
 import { useTranslation } from "@/hooks/use-translation"
 
@@ -30,6 +31,8 @@ export function SongsClient({ initialSongs }: SongsClientProps) {
   const [bpmRange, setBpmRange] = useState<BPMRange>("all")
   const [songs, setSongs] = useState<Song[]>(initialSongs)
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false)
+  const [isCreatingNewSong, setIsCreatingNewSong] = useState(false)
+  const [previewSong, setPreviewSong] = useState<Song | null>(null)
 
   // Track viewport to render Drawer only on mobile (md: 768px)
   useEffect(() => {
@@ -48,6 +51,9 @@ export function SongsClient({ initialSongs }: SongsClientProps) {
   }
 
   const handleSelectSong = (song: Song) => {
+    // Prevent selection when creating a new song
+    if (isCreatingNewSong) return
+
     setSelectedSong(song)
     setIsMobileDrawerOpen(true)
   }
@@ -55,6 +61,39 @@ export function SongsClient({ initialSongs }: SongsClientProps) {
   const handleCloseSongDetail = () => {
     setSelectedSong(null)
     setIsMobileDrawerOpen(false)
+    setIsCreatingNewSong(false)
+    setPreviewSong(null)
+  }
+
+  const handleCreateNewSong = () => {
+    const previewId = `preview-${Date.now()}`
+    const newPreview: Song = {
+      id: previewId,
+      title: "",
+      artist: "",
+      key: "",
+      bpm: 0
+    }
+    setPreviewSong(newPreview)
+    setSelectedSong(newPreview)
+    setIsCreatingNewSong(true)
+    setIsMobileDrawerOpen(true)
+  }
+
+  const handleUpdatePreview = (updates: Partial<Song>) => {
+    if (previewSong) {
+      setPreviewSong((prev) => (prev ? { ...prev, ...updates } : null))
+      setSelectedSong((prev) => (prev ? { ...prev, ...updates } : null))
+    }
+  }
+
+  const handleSaveSong = (song: Song) => {
+    setSongs((prev) => [song, ...prev])
+    setIsCreatingNewSong(false)
+    setPreviewSong(null)
+    setSelectedSong(song)
+    // Keep drawer open on mobile to show the new song detail
+    setIsMobileDrawerOpen(true)
   }
 
   // Calculate active filter count
@@ -90,7 +129,12 @@ export function SongsClient({ initialSongs }: SongsClientProps) {
                 </h1>
                 <Badge variant="secondary">{songs.length}</Badge>
               </div>
-              <Button size="sm" className="gap-1.5 rounded-full">
+              <Button
+                size="sm"
+                className="gap-1.5 rounded-full"
+                onClick={handleCreateNewSong}
+                disabled={isCreatingNewSong}
+              >
                 <Plus className="h-4 w-4" />
                 {t.songs.addSong}
               </Button>
@@ -283,9 +327,11 @@ export function SongsClient({ initialSongs }: SongsClientProps) {
           <div className="flex-1 overflow-y-auto">
             <SongList
               songs={songs}
+              previewSong={previewSong}
+              selectedSong={selectedSong}
               searchQuery={searchQuery}
               groupBy={groupBy}
-              filterStatus={filterStatus}
+              isCreatingNewSong={isCreatingNewSong}
               onSelectSong={handleSelectSong}
             />
           </div>
@@ -294,7 +340,18 @@ export function SongsClient({ initialSongs }: SongsClientProps) {
         <ResizableHandle withHandle className="hidden md:flex" />
 
         <ResizablePanel defaultSize={65} minSize={40} className="hidden md:flex">
-          {selectedSong ? (
+          {isCreatingNewSong ? (
+            <SongDraftForm
+              song={previewSong || undefined}
+              onClose={() => {
+                setIsCreatingNewSong(false)
+                setPreviewSong(null)
+                setSelectedSong(null)
+              }}
+              onSave={handleSaveSong}
+              onChange={handleUpdatePreview}
+            />
+          ) : selectedSong ? (
             <SongDetail song={selectedSong} onClose={handleCloseSongDetail} onUpdate={updateSong} />
           ) : (
             <div className="flex flex-1 flex-col items-center justify-center bg-muted/30 p-8 text-center">
@@ -320,19 +377,28 @@ export function SongsClient({ initialSongs }: SongsClientProps) {
             }
           }}
         >
-          <DrawerContent className="h-screen mt-0! max-h-screen! p-0 overflow-hidden">
-            <DrawerTitle className="sr-only">Song Details</DrawerTitle>
+          <DrawerContent className="flex flex-col mt-0! max-h-dvh! p-0 overflow-hidden">
+            <DrawerTitle className="sr-only">
+              {isCreatingNewSong ? "Create Song" : "Song Details"}
+            </DrawerTitle>
             <DrawerDescription className="sr-only">
-              View and edit song information
+              {isCreatingNewSong ? "Create a new song" : "View and edit song information"}
             </DrawerDescription>
-            <div className="h-full overflow-y-auto">
-              {selectedSong && (
+            <div className="flex-1 overflow-y-auto">
+              {isCreatingNewSong ? (
+                <SongDraftForm
+                  song={previewSong || undefined}
+                  onClose={handleCloseSongDetail}
+                  onSave={handleSaveSong}
+                  onChange={handleUpdatePreview}
+                />
+              ) : selectedSong ? (
                 <SongDetail
                   song={selectedSong}
                   onClose={handleCloseSongDetail}
                   onUpdate={updateSong}
                 />
-              )}
+              ) : null}
             </div>
           </DrawerContent>
         </Drawer>

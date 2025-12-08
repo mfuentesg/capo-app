@@ -7,46 +7,56 @@ interface SongItemProps {
   song: Song
   isSelected: boolean
   isInCart: boolean
+  isDisabled?: boolean
+  isPreview?: boolean
   onSelect: (song: Song) => void
   onToggleCart: (song: Song) => void
 }
 
-export function SongItem({ song, isSelected, isInCart, onSelect, onToggleCart }: SongItemProps) {
+export function SongItem({
+  song,
+  isSelected,
+  isInCart,
+  isDisabled = false,
+  isPreview = false,
+  onSelect,
+  onToggleCart
+}: SongItemProps) {
   return (
     <div
-      onClick={() => onSelect(song)}
+      onClick={() => !isDisabled && onSelect(song)}
       className={cn(
-        "group flex items-start gap-4 rounded-lg border bg-card p-4 transition-all hover:shadow-sm cursor-pointer",
-        isSelected && "ring-2 ring-primary"
+        "group flex items-start gap-4 rounded-lg border p-4 transition-all",
+        isPreview ? "bg-orange-100/80 dark:bg-orange-900/30" : "bg-card",
+        !isDisabled && "hover:shadow-sm cursor-pointer",
+        isDisabled && "opacity-50 cursor-not-allowed",
+        isSelected && !isDisabled && "ring-2 ring-primary"
       )}
     >
-      {/* Key Badge / Checkbox */}
       <button
         onClick={(e) => {
           e.stopPropagation()
-          onToggleCart(song)
+          if (!isDisabled) {
+            onToggleCart(song)
+          }
         }}
+        disabled={isDisabled}
         className={cn(
           "flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-semibold transition-all",
           isInCart
             ? "bg-primary text-primary-foreground"
-            : "bg-primary/10 text-primary hover:bg-primary/20"
+            : "bg-primary/10 text-primary hover:bg-primary/20",
+          isDisabled && "cursor-not-allowed"
         )}
       >
         {isInCart ? <Check className="h-4 w-4" /> : <Music3 className="h-4 w-4" />}
       </button>
 
-      {/* Song Info */}
       <div className="flex min-w-0 flex-1 flex-col gap-2">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
               <h4 className="truncate text-base font-semibold leading-tight">{song.title}</h4>
-              {song.isDraft && (
-                <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 shrink-0">
-                  Draft
-                </Badge>
-              )}
             </div>
             <p className="mt-0.5 truncate text-sm text-muted-foreground">{song.artist}</p>
           </div>
