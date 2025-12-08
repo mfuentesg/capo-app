@@ -6,11 +6,11 @@ import { format } from "date-fns"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { Empty, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription } from "@/components/ui/empty"
 import Link from "next/link"
 import type { Playlist } from "@/types"
 import type { SongWithPosition } from "@/types/extended"
 import { getSongsByIds } from "@/lib/songs-data"
-import { PlaylistSongItem } from "@/components/playlist-song-item"
 
 interface PlaylistShareViewProps {
   playlist: Playlist
@@ -83,10 +83,15 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
           <div className="space-y-3">
             <h2 className="text-lg font-semibold">Songs</h2>
             {songsWithPosition.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-12 border border-dashed rounded-lg">
-                <ListMusic className="h-8 w-8 text-muted-foreground mb-2" />
-                <p className="text-sm text-muted-foreground">No songs in this playlist</p>
-              </div>
+              <Empty>
+                <EmptyHeader>
+                  <EmptyMedia variant="icon">
+                    <ListMusic />
+                  </EmptyMedia>
+                  <EmptyTitle>No songs in this playlist</EmptyTitle>
+                  <EmptyDescription>This playlist is currently empty</EmptyDescription>
+                </EmptyHeader>
+              </Empty>
             ) : (
               <div className="space-y-2">
                 {songsWithPosition.map((song) => (

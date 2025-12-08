@@ -1,8 +1,8 @@
 "use client"
 
-import React, { createContext, useContext, useState, useEffect } from "react"
+import { createContext, useContext, useState } from "react"
 import type { Locale } from "@/lib/i18n/config"
-import { defaultLocale, isValidLocale } from "@/lib/i18n/config"
+import { defaultLocale } from "@/lib/i18n/config"
 import { getTranslations } from "@/lib/i18n/translations"
 
 const LOCALE_COOKIE_NAME = "NEXT_LOCALE"
@@ -14,22 +14,6 @@ interface LocaleContextType {
 }
 
 const LocaleContext = createContext<LocaleContextType | undefined>(undefined)
-
-function getLocaleFromCookie(): Locale {
-  if (typeof document === "undefined") return defaultLocale
-
-  const cookies = document.cookie.split(";")
-  const localeCookie = cookies.find((c) => c.trim().startsWith(`${LOCALE_COOKIE_NAME}=`))
-
-  if (localeCookie) {
-    const locale = localeCookie.split("=")[1]
-    if (isValidLocale(locale)) {
-      return locale
-    }
-  }
-
-  return defaultLocale
-}
 
 function setLocaleCookie(locale: Locale) {
   document.cookie = `${LOCALE_COOKIE_NAME}=${locale}; path=/; max-age=31536000; SameSite=Lax`

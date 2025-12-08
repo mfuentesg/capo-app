@@ -12,12 +12,7 @@ interface PlaylistSongItemProps {
   showDragHandle?: boolean
 }
 
-export function PlaylistSongItem({
-  song,
-  index,
-  className,
-  showDragHandle = false
-}: PlaylistSongItemProps) {
+export function PlaylistSongItem({ song, index, className }: PlaylistSongItemProps) {
   return (
     <div
       className={cn(

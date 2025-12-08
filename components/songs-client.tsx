@@ -8,17 +8,7 @@ import { Drawer, DrawerContent, DrawerTitle, DrawerDescription } from "@/compone
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
-import {
-  Plus,
-  Search,
-  Music,
-  LayoutList,
-  Music2,
-  Music3,
-  Settings2,
-  X,
-  ArrowUpDown
-} from "lucide-react"
+import { Plus, Search, Music, LayoutList, Music2, Music3, Settings2, X } from "lucide-react"
 import { SongList } from "@/components/song-list"
 import { SongDetail } from "@/components/song-detail"
 import type { Song, GroupBy } from "@/types"
@@ -28,7 +18,6 @@ interface SongsClientProps {
   initialSongs: Song[]
 }
 
-type SortBy = "name" | "artist" | "date" | "bpm"
 type BPMRange = "all" | "slow" | "medium" | "fast"
 
 export function SongsClient({ initialSongs }: SongsClientProps) {
@@ -38,10 +27,7 @@ export function SongsClient({ initialSongs }: SongsClientProps) {
   const [selectedSong, setSelectedSong] = useState<Song | null>(null)
   const [groupBy, setGroupBy] = useState<GroupBy>("none")
   const [filterStatus, setFilterStatus] = useState<"all" | "drafts" | "completed">("all")
-  const [selectedKeys, setSelectedKeys] = useState<string[]>([])
-  const [selectedArtists, setSelectedArtists] = useState<string[]>([])
   const [bpmRange, setBpmRange] = useState<BPMRange>("all")
-  const [sortBy, setSortBy] = useState<SortBy>("name")
   const [songs, setSongs] = useState<Song[]>(initialSongs)
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false)
 
@@ -71,36 +57,6 @@ export function SongsClient({ initialSongs }: SongsClientProps) {
     setIsMobileDrawerOpen(false)
   }
 
-  // Get unique keys and artists with counts
-  const availableKeys = useMemo(() => {
-    const keyCounts = songs.reduce(
-      (acc, song) => {
-        const key = song.key
-        acc[key] = (acc[key] || 0) + 1
-        return acc
-      },
-      {} as Record<string, number>
-    )
-    return Object.entries(keyCounts)
-      .sort(([a], [b]) => a.localeCompare(b))
-      .map(([key, count]) => ({ key, count }))
-  }, [songs])
-
-  const availableArtists = useMemo(() => {
-    const artistCounts = songs.reduce(
-      (acc, song) => {
-        const artist = song.artist
-        acc[artist] = (acc[artist] || 0) + 1
-        return acc
-      },
-      {} as Record<string, number>
-    )
-    return Object.entries(artistCounts)
-      .sort(([, a], [, b]) => b - a) // Sort by count descending
-      .slice(0, 10) // Top 10 artists
-      .map(([artist, count]) => ({ artist, count }))
-  }, [songs])
-
   // Calculate active filter count
   const activeFilterCount = useMemo(() => {
     let count = 0
@@ -115,29 +71,6 @@ export function SongsClient({ initialSongs }: SongsClientProps) {
     setFilterStatus("all")
     setGroupBy("none")
     setBpmRange("all")
-  }
-
-  // Toggle key filter
-  const toggleKeyFilter = (key: string) => {
-    setSelectedKeys((prev) => (prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]))
-  }
-
-  // Toggle artist filter
-  const toggleArtistFilter = (artist: string) => {
-    setSelectedArtists((prev) =>
-      prev.includes(artist) ? prev.filter((a) => a !== artist) : [...prev, artist]
-    )
-  }
-
-  // Remove individual filter
-  const removeFilter = (type: string, value?: string) => {
-    if (type === "status") setFilterStatus("all")
-    else if (type === "groupBy") setGroupBy("none")
-    else if (type === "key" && value) setSelectedKeys((prev) => prev.filter((k) => k !== value))
-    else if (type === "artist" && value)
-      setSelectedArtists((prev) => prev.filter((a) => a !== value))
-    else if (type === "bpm") setBpmRange("all")
-    else if (type === "sort") setSortBy("name")
   }
 
   return (
@@ -387,18 +320,20 @@ export function SongsClient({ initialSongs }: SongsClientProps) {
             }
           }}
         >
-          <DrawerContent className="h-[95vh] max-h-[95vh]">
+          <DrawerContent className="h-screen mt-0! max-h-screen! p-0 overflow-hidden">
             <DrawerTitle className="sr-only">Song Details</DrawerTitle>
             <DrawerDescription className="sr-only">
               View and edit song information
             </DrawerDescription>
-            {selectedSong && (
-              <SongDetail
-                song={selectedSong}
-                onClose={handleCloseSongDetail}
-                onUpdate={updateSong}
-              />
-            )}
+            <div className="h-full overflow-y-auto">
+              {selectedSong && (
+                <SongDetail
+                  song={selectedSong}
+                  onClose={handleCloseSongDetail}
+                  onUpdate={updateSong}
+                />
+              )}
+            </div>
           </DrawerContent>
         </Drawer>
       )}

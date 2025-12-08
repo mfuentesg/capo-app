@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Guitar, ListMusic } from "lucide-react"
+import { ListMusic } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Drawer,
@@ -84,7 +84,7 @@ export function PlaylistDraft({
           </div>
         </div>
       </DrawerTrigger>
-      <DrawerContent className="h-[95vh] max-h-[95vh]">
+      <DrawerContent className="h-screen mt-0! max-h-screen! p-0 overflow-hidden">
         <DrawerHeader>
           <DrawerTitle className="flex items-center gap-2">
             <ListMusic className="h-5 w-5" />

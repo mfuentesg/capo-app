@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react"
 import { ListMusic } from "lucide-react"
 import { PlaylistItem } from "./playlist-item"
+import { Empty, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription } from "@/components/ui/empty"
 import type { Playlist } from "@/types"
 
 interface PlaylistListProps {
@@ -51,13 +52,15 @@ export function PlaylistList({
 
   if (filteredPlaylists.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-full p-8 text-center">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
-          <ListMusic className="h-5 w-5 text-muted-foreground" />
-        </div>
-        <p className="mt-3 text-sm font-medium">No playlists found</p>
-        <p className="mt-1 text-xs text-muted-foreground">Try a different search term</p>
-      </div>
+      <Empty>
+        <EmptyHeader>
+          <EmptyMedia variant="icon">
+            <ListMusic />
+          </EmptyMedia>
+          <EmptyTitle>No playlists found</EmptyTitle>
+          <EmptyDescription>Try a different search term</EmptyDescription>
+        </EmptyHeader>
+      </Empty>
     )
   }
 

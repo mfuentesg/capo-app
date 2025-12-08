@@ -3,9 +3,9 @@
 import { useState, useMemo } from "react"
 import { Music } from "lucide-react"
 import { SongItem } from "./song-item"
+import { Empty, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription } from "@/components/ui/empty"
 import type { Song, GroupBy } from "@/types"
 import { usePlaylistDraft } from "@/contexts/playlist-draft-context"
-import { useTranslation } from "@/hooks/use-translation"
 
 interface SongListProps {
   songs: Song[]
@@ -22,7 +22,6 @@ export function SongList({
   filterStatus,
   onSelectSong
 }: SongListProps) {
-  const { t } = useTranslation()
   const [selectedSong, setSelectedSong] = useState<Song | null>(null)
   const { toggleSongInDraft, isSongInDraft } = usePlaylistDraft()
 
@@ -76,13 +75,15 @@ export function SongList({
 
   if (!hasAnySongs) {
     return (
-      <div className="flex flex-col items-center justify-center h-full p-8 text-center">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
-          <Music className="h-5 w-5 text-muted-foreground" />
-        </div>
-        <p className="mt-3 text-sm font-medium">No songs found</p>
-        <p className="mt-1 text-xs text-muted-foreground">Try a different search term</p>
-      </div>
+      <Empty>
+        <EmptyHeader>
+          <EmptyMedia variant="icon">
+            <Music />
+          </EmptyMedia>
+          <EmptyTitle>No songs found</EmptyTitle>
+          <EmptyDescription>Try a different search term</EmptyDescription>
+        </EmptyHeader>
+      </Empty>
     )
   }
 

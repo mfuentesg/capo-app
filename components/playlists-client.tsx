@@ -8,7 +8,7 @@ import { Drawer, DrawerContent, DrawerTitle, DrawerDescription } from "@/compone
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
-import { Plus, Search, ListMusic, Settings2, X, Info } from "lucide-react"
+import { Plus, Search, ListMusic, Settings2, X } from "lucide-react"
 import { PlaylistList } from "@/components/playlist-list"
 import { PlaylistDetail } from "@/components/playlist-detail"
 import type { Playlist } from "@/types"
@@ -40,12 +40,6 @@ export function PlaylistsClient({
     if (filterVisibility !== "all") count++
     return count
   }, [filterStatus, filterVisibility])
-
-  // Remove filter helper
-  const removeFilter = (type: string) => {
-    if (type === "status") setFilterStatus("all")
-    if (type === "visibility") setFilterVisibility("all")
-  }
 
   // Clear all filters
   const clearAllFilters = () => {
@@ -260,20 +254,22 @@ export function PlaylistsClient({
       {/* Mobile Drawer for Playlist Detail */}
       {isMobile && (
         <Drawer open={isMobileDrawerOpen} onOpenChange={setIsMobileDrawerOpen}>
-          <DrawerContent className="h-[95vh] max-h-[95vh]">
+          <DrawerContent className="h-screen mt-0! max-h-screen! p-0 overflow-hidden">
             <DrawerTitle className="sr-only">Playlist Details</DrawerTitle>
             <DrawerDescription className="sr-only">View and edit playlist</DrawerDescription>
-            {selectedPlaylist && (
-              <PlaylistDetail
-                playlist={selectedPlaylist}
-                onClose={handleClosePlaylistDetail}
-                onUpdate={onUpdatePlaylist}
-                onDelete={(id) => {
-                  onDeletePlaylist(id)
-                  handleClosePlaylistDetail()
-                }}
-              />
-            )}
+            <div className="h-full overflow-y-auto">
+              {selectedPlaylist && (
+                <PlaylistDetail
+                  playlist={selectedPlaylist}
+                  onClose={handleClosePlaylistDetail}
+                  onUpdate={onUpdatePlaylist}
+                  onDelete={(id) => {
+                    onDeletePlaylist(id)
+                    handleClosePlaylistDetail()
+                  }}
+                />
+              )}
+            </div>
           </DrawerContent>
         </Drawer>
       )}

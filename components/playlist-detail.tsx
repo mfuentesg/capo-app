@@ -9,9 +9,7 @@ import {
   Trash2,
   Plus,
   ListMusic,
-  Lock,
   Globe,
-  Users,
   Copy,
   ExternalLink
 } from "lucide-react"
@@ -19,20 +17,20 @@ import { format } from "date-fns"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
 import { Calendar } from "@/components/ui/calendar"
+import {
+  Empty,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+  EmptyDescription,
+  EmptyContent
+} from "@/components/ui/empty"
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
 import { Switch } from "@/components/ui/switch"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from "@/components/ui/select"
 import { cn } from "@/lib/utils"
 import { useTranslation } from "@/hooks/use-translation"
-import type { Playlist, Song } from "@/types"
+import type { Playlist } from "@/types"
 import type { SongWithPosition, PlaylistWithSongs } from "@/types/extended"
 import { DraggablePlaylist } from "@/components/draggable-playlist"
 import { usePlaylists } from "@/contexts/playlists-context"
@@ -309,14 +307,21 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
         <div>
           <h3 className="text-sm font-medium mb-3">{t.playlistDetail.songs}</h3>
           {playlist.songs.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-8 border border-dashed rounded-lg">
-              <ListMusic className="h-8 w-8 text-muted-foreground mb-2" />
-              <p className="text-sm text-muted-foreground">{t.playlistDetail.noSongsInPlaylist}</p>
-              <Button variant="outline" size="sm" className="mt-3 gap-2">
-                <Plus className="h-4 w-4" />
-                {t.playlistDetail.addSongsButton}
-              </Button>
-            </div>
+            <Empty>
+              <EmptyHeader>
+                <EmptyMedia variant="icon">
+                  <ListMusic />
+                </EmptyMedia>
+                <EmptyTitle>{t.playlistDetail.noSongsInPlaylist}</EmptyTitle>
+                <EmptyDescription>Add songs to get started</EmptyDescription>
+              </EmptyHeader>
+              <EmptyContent>
+                <Button variant="outline" size="sm" className="gap-2">
+                  <Plus className="h-4 w-4" />
+                  {t.playlistDetail.addSongsButton}
+                </Button>
+              </EmptyContent>
+            </Empty>
           ) : (
             <DraggablePlaylist
               playlist={playlistWithSongs}
