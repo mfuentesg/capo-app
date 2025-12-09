@@ -3,7 +3,6 @@
  * Validates that mock data is properly structured
  */
 import { mockSong, mockSongs } from "./fixtures"
-import type { Song } from "../types"
 
 describe("Song Fixtures", () => {
   describe("mockSong", () => {
