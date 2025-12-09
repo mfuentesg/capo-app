@@ -56,7 +56,6 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  // Read locale from cookie on the server
   const cookieStore = await cookies()
   const localeCookie = cookieStore.get("NEXT_LOCALE")
   const initialLocale: Locale =
