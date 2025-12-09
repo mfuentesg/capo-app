@@ -27,6 +27,33 @@ Apart from that, it sounds fascinating and fun 🤓.
 - TailwindCSS + shadcn/ui
 - Supabase
 
+## Architecture
+
+This project uses **Feature-Based Architecture (FBA)** for better code organization and scalability.
+
+### 📚 Documentation
+
+- **[FBA Guide](./features/docs/FBA_GUIDE.md)** - Complete developer guide for Feature-Based Architecture
+  - Quick start rules
+  - Adding components, hooks, types
+  - Cross-feature dependencies
+  - Testing patterns
+  - Deployment checklist
+
+### 📁 Project Structure
+
+```
+features/          # Feature-based modules (organized by business domain)
+├── songs/         # Song library management
+├── playlists/     # Playlist management
+├── settings/      # User settings
+└── ... (see FBA_GUIDE.md for complete structure)
+
+app/              # Next.js routes
+lib/              # Shared utilities and constants
+types/            # Global type definitions
+```
+
 ## Getting started
 
 ### Prerequisites
@@ -79,6 +106,7 @@ To enable Google OAuth for local development:
 5. Add redirect URI: `http://localhost:3000/auth/callback`
 
 For local testing with Google Auth, create OAuth credentials with:
+
 - **Authorized redirect URIs**: `http://localhost:3000/auth/callback`
 
 #### 3. Start Development Server

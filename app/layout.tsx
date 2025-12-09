@@ -5,8 +5,8 @@ import { Analytics } from "@vercel/analytics/react"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/sonner"
-import { PlaylistDraftProvider } from "@/contexts/playlist-draft-context"
-import { PlaylistsProvider } from "@/contexts/playlists-context"
+import { PlaylistDraftProvider } from "@/features/playlist-draft"
+import { PlaylistsProvider } from "@/features/playlists"
 import { LocaleProvider } from "@/contexts/locale-context"
 import { defaultLocale, isValidLocale } from "@/lib/i18n/config"
 import type { Locale } from "@/lib/i18n/config"
@@ -56,7 +56,6 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  // Read locale from cookie on the server
   const cookieStore = await cookies()
   const localeCookie = cookieStore.get("NEXT_LOCALE")
   const initialLocale: Locale =

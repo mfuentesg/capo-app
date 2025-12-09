@@ -1,9 +1,9 @@
 "use client"
 
 import type React from "react"
-import { Navbar } from "@/components/navbar"
-import { PlaylistDraft } from "@/components/playlist-draft"
-import { usePlaylistDraft } from "@/contexts/playlist-draft-context"
+import { Navbar } from "@/features/settings"
+import { PlaylistDraft } from "@/features/playlist-draft"
+import { usePlaylistDraft } from "@/features/playlist-draft"
 
 import "../globals.css"
 

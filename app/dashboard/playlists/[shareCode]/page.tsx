@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation"
-import { PlaylistShareView } from "@/components/playlist-share-view"
+import { PlaylistShareView } from "@/features/playlist-sharing"
 import type { Playlist } from "@/types"
 
 // Mock function - replace with actual API call

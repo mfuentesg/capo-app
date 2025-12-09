@@ -1,7 +1,7 @@
 "use client"
 
-import { PlaylistsClient } from "@/components/playlists-client"
-import { usePlaylists } from "@/contexts/playlists-context"
+import { PlaylistsClient } from "@/features/playlists"
+import { usePlaylists } from "@/features/playlists"
 
 export default function PlaylistsPage() {
   const { playlists, updatePlaylist, deletePlaylist } = usePlaylists()
