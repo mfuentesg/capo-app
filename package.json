@@ -7,7 +7,12 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "lint": "eslint && pnpm run typecheck",
+    "lint": "eslint . --max-warnings 0",
+    "lint:fix": "eslint . --fix",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "ci": "pnpm run lint && pnpm run typecheck && pnpm run build",
     "supabase": "pnpm dlx supabase@latest"
   },
   "dependencies": {
