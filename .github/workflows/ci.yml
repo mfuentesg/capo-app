@@ -16,19 +16,19 @@ jobs:
         timeout-minutes: 10
         steps:
             - name: Checkout code
-              uses: actions/checkout@v4
-
-            - name: Setup Node.js
-              uses: actions/setup-node@v4
-              with:
-                  node-version: "20"
-                  cache: "pnpm"
-                  cache-dependency-path: "**/pnpm-lock.yaml"
+              uses: actions/checkout@v6
 
             - name: Install pnpm
-              uses: pnpm/action-setup@v2
+              uses: pnpm/action-setup@v4
               with:
-                  version: 9
+                  version: 10
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v6
+              with:
+                  node-version-file: ".node-version"
+                  cache: "pnpm"
+                  cache-dependency-path: "**/pnpm-lock.yaml"
 
             - name: Install dependencies
               run: pnpm install --frozen-lockfile
@@ -46,19 +46,19 @@ jobs:
         needs: [lint-and-typecheck]
         steps:
             - name: Checkout code
-              uses: actions/checkout@v4
-
-            - name: Setup Node.js
-              uses: actions/setup-node@v4
-              with:
-                  node-version: "20"
-                  cache: "pnpm"
-                  cache-dependency-path: "**/pnpm-lock.yaml"
+              uses: actions/checkout@v6
 
             - name: Install pnpm
-              uses: pnpm/action-setup@v2
+              uses: pnpm/action-setup@v4
               with:
-                  version: 9
+                  version: 10
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v6
+              with:
+                  node-version-file: ".node-version"
+                  cache: "pnpm"
+                  cache-dependency-path: "**/pnpm-lock.yaml"
 
             - name: Install dependencies
               run: pnpm install --frozen-lockfile
@@ -67,7 +67,7 @@ jobs:
               run: pnpm run build
 
             - name: Upload build artifacts
-              uses: actions/upload-artifact@v4
+              uses: actions/upload-artifact@v5
               with:
                   name: next-build
                   path: .next
@@ -80,19 +80,19 @@ jobs:
         needs: [lint-and-typecheck]
         steps:
             - name: Checkout code
-              uses: actions/checkout@v4
-
-            - name: Setup Node.js
-              uses: actions/setup-node@v4
-              with:
-                  node-version: "20"
-                  cache: "pnpm"
-                  cache-dependency-path: "**/pnpm-lock.yaml"
+              uses: actions/checkout@v6
 
             - name: Install pnpm
-              uses: pnpm/action-setup@v2
+              uses: pnpm/action-setup@v4
               with:
-                  version: 9
+                  version: 10
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v6
+              with:
+                  node-version-file: ".node-version"
+                  cache: "pnpm"
+                  cache-dependency-path: "**/pnpm-lock.yaml"
 
             - name: Install dependencies
               run: pnpm install --frozen-lockfile
@@ -101,7 +101,7 @@ jobs:
               run: pnpm run test -- --coverage --passWithNoTests
 
             - name: Upload coverage reports
-              uses: codecov/codecov-action@v4
+              uses: codecov/codecov-action@v5
               if: always()
               with:
                   files: ./coverage/coverage-final.json
