@@ -1,4 +1,4 @@
-import { LyricsView } from "@/components/lyrics-view"
+import { LyricsView } from "@/features/lyrics-editor"
 import type { Song } from "@/types"
 
 // Mock data - in real app, fetch from database

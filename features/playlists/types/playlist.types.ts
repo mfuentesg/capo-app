@@ -1,0 +1,32 @@
+import type { Song } from "@/features/songs"
+
+export interface Playlist {
+  id: string
+  name: string
+  description?: string
+  date?: string
+  songs: string[] // Array of song IDs
+  createdAt: string
+  updatedAt: string
+  isDraft?: boolean
+  visibility?: "private" | "public"
+  allowGuestEditing?: boolean
+  shareCode?: string
+}
+
+export interface PlaylistWithSongs extends Omit<Playlist, "songs"> {
+  songs: Song[]
+}
+
+export interface PlaylistDetailProps {
+  playlist: Playlist
+  onClose: () => void
+  onUpdate: (playlistId: string, updates: Partial<Playlist>) => void
+}
+
+export interface PlaylistListProps {
+  playlists: Playlist[]
+  selectedPlaylist?: Playlist | null
+  searchQuery: string
+  onSelectPlaylist: (playlist: Playlist) => void
+}

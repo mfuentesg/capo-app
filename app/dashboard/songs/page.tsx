@@ -1,4 +1,4 @@
-import { SongsClient } from "@/components/songs-client"
+import { SongsClient } from "@/features/songs"
 import { mockSongs } from "@/lib/songs-data"
 
 // TODO: Replace with backend API call to fetch songs
