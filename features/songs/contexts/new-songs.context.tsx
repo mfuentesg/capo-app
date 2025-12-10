@@ -3,7 +3,7 @@
 import { createContext, useContext, useState, useCallback, type ReactNode } from "react"
 import type { Song } from "@/types"
 
-interface NewSongsContextType {
+export interface NewSongsContextType {
   newSongs: Song[]
   addNewSong: (song: Song) => void
   removeSong: (songId: string) => void

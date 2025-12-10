@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge"
 import { Plus, Search, Music, LayoutList, Music2, Music3, Settings2, X } from "lucide-react"
 import { SongList } from "./song-list"
 import { SongDetail } from "./song-detail"
-import { SongDraftForm } from "./song-draft-form"
+import { SongDraftForm } from "@/features/song-draft"
 import type { Song, GroupBy } from "../types"
 import { useTranslation } from "@/hooks/use-translation"
 

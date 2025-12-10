@@ -5,8 +5,8 @@ import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { useState } from "react"
 import { Music, ListMusic, Settings, LogOut, Menu, Languages } from "lucide-react"
-import { ThemeToggle } from "./theme-toggle"
 import { Button } from "@/components/ui/button"
+import { ThemeToggle } from "./theme-toggle"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   DropdownMenu,

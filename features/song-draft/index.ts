@@ -1,3 +1,4 @@
 "use client"
 
-export type { DraftSong } from './types'
+export { SongDraftForm } from "./components"
+export type { DraftSong } from "./types"

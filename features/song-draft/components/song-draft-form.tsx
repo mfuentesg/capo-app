@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { KeySelect } from "../key-select"
+import { KeySelect } from "@/features/songs"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { X, Info } from "lucide-react"
 import {
