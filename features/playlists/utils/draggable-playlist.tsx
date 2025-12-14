@@ -4,7 +4,7 @@ import { memo } from "react"
 import { GripVerticalIcon } from "lucide-react"
 import { DragDropContext, Droppable, DropResult, Draggable } from "@hello-pangea/dnd"
 
-import { PlaylistSongItem } from "../components/playlist-song-item"
+import { PlaylistSongItem } from "@/features/playlists"
 import { type SongWithPosition, type PlaylistWithSongs } from "@/types/extended"
 
 const DraggableSong = memo(({ index, song }: { index: number; song: SongWithPosition }) => {

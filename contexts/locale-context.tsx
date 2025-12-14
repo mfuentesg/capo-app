@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext, useState } from "react"
+import { createContext, useContext, useState, type ReactNode } from "react"
 import type { Locale } from "@/lib/i18n/config"
 import { defaultLocale } from "@/lib/i18n/config"
 import { getTranslations } from "@/lib/i18n/translations"
@@ -23,7 +23,7 @@ export function LocaleProvider({
   children,
   initialLocale = defaultLocale
 }: {
-  children: React.ReactNode
+  children: ReactNode
   initialLocale?: Locale
 }) {
   // Use initialLocale from server-side cookie reading

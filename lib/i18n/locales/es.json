@@ -11,7 +11,12 @@
     "unsavedChanges": "Cambios sin guardar",
     "discardChangesMessage": "Tienes cambios sin guardar. ¿Quieres descartarlos?",
     "keepEditing": "Seguir editando",
-    "discard": "Descartar"
+    "discard": "Descartar",
+    "backToHome": "Volver al inicio",
+    "toggleTheme": "Alternar tema",
+    "toggleMenu": "Alternar menú",
+    "poweredBy": "Desarrollado por Capo",
+    "tryDifferentSearch": "Prueba con otro término de búsqueda"
   },
   "nav": {
     "home": "Inicio",
@@ -57,8 +62,8 @@
     "all": "Todas",
     "drafts": "Borradores",
     "completed": "Completadas",
-    "byKey": "Por tonalidad",
-    "byArtist": "Por artista",
+    "byKey": "Tonalidad",
+    "byArtist": "Artista",
     "clickKeyBadgeInstruction": "Haz clic en la etiqueta de tonalidad para seleccionar canciones para una lista",
     "none": "Ninguno",
     "filters": "Filtros",
@@ -77,6 +82,8 @@
     "addLyricsDescription": "Agrega letra a tu canción usando formato ChordPro",
     "enterSongDetails": "Ingresa la información básica de la canción. Puedes agregar letra en el siguiente paso.",
     "songSettingsInfo": "Configuraciones como capo y transporte estarán disponibles después de crear la canción.",
+    "artistPlaceholder": "Nombre del artista",
+    "selectKey": "Selecciona una tonalidad",
     "saveAsDraft": "Guardar como borrador",
     "next": "Siguiente",
     "preview": "Vista previa",
@@ -119,9 +126,16 @@
     "songs": "Canciones",
     "noSongsInPlaylist": "No hay canciones en esta lista",
     "addSongsButton": "Agregar canciones",
+    "addSongsDescription": "Agrega canciones para comenzar",
     "song": "canción",
     "songsPlural": "canciones",
-    "pickDate": "Selecciona una fecha"
+    "pickDate": "Selecciona una fecha",
+    "editDescription": "Ver y editar lista"
+  },
+  "playlistItem": {
+    "privatePlaylist": "Lista privada",
+    "publicGuestEditing": "Público - Edición por invitados habilitada",
+    "publicViewOnly": "Público - Solo visualización"
   },
   "playlistDraft": {
     "addToPlaylist": "Agregar a lista",
@@ -144,9 +158,33 @@
     "playlistCreated": "Lista creada exitosamente",
     "playlistUpdated": "Lista actualizada",
     "playlistDeleted": "Lista eliminada",
-    "error": "Algo salió mal"
+    "error": "Algo salió mal",
+    "accountDeleted": "Cuenta eliminada",
+    "accountDeleteFailed": "Error al eliminar la cuenta"
+  },
+  "dashboard": {
+    "title": "Panel",
+    "description": "Aquí tienes un resumen de tu biblioteca.",
+    "newPlaylist": "Nueva lista",
+    "addSong": "Agregar canción",
+    "totalSongs": "Total de canciones",
+    "playlists": "Listas",
+    "thisMonth": "Este mes",
+    "upcoming": "Próximas",
+    "recentlyAdded": "Agregadas recientemente",
+    "latestSongs": "Últimas canciones en tu biblioteca",
+    "viewAll": "Ver todas",
+    "songsByKey": "Canciones por tonalidad",
+    "distributionByKey": "Distribución por tonalidades"
+  },
+
+  "playlistShare": {
+    "publicPlaylist": "Lista pública",
+    "emptyDescription": "Esta lista está vacía actualmente"
   },
   "auth": {
+    "welcomeToCapo": "Bienvenido a Capo",
+    "signInDescription": "Inicia sesión para comenzar a crear y compartir tu música",
     "login": "Iniciar sesión",
     "loginWith": "Iniciar sesión con {provider}",
     "logout": "Cerrar sesión",

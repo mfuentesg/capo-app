@@ -11,7 +11,12 @@
     "unsavedChanges": "Unsaved Changes",
     "discardChangesMessage": "You have unsaved changes. Do you want to discard them?",
     "keepEditing": "Keep Editing",
-    "discard": "Discard"
+    "discard": "Discard",
+    "backToHome": "Back to Home",
+    "toggleTheme": "Toggle theme",
+    "toggleMenu": "Toggle menu",
+    "poweredBy": "Powered by Capo",
+    "tryDifferentSearch": "Try a different search term"
   },
   "nav": {
     "home": "Home",
@@ -77,6 +82,8 @@
     "addLyricsDescription": "Add lyrics to your song using ChordPro format",
     "enterSongDetails": "Enter the basic song information. You can add lyrics in the next step.",
     "songSettingsInfo": "Settings like capo and transpose will be available after the song is created.",
+    "artistPlaceholder": "Artist name",
+    "selectKey": "Select key",
     "saveAsDraft": "Save as Draft",
     "next": "Next",
     "preview": "Preview",
@@ -119,9 +126,16 @@
     "songs": "Songs",
     "noSongsInPlaylist": "No songs in this playlist",
     "addSongsButton": "Add Songs",
+    "addSongsDescription": "Add songs to get started",
     "song": "song",
     "songsPlural": "songs",
-    "pickDate": "Pick a date"
+    "pickDate": "Pick a date",
+    "editDescription": "View and edit playlist"
+  },
+  "playlistItem": {
+    "privatePlaylist": "Private playlist",
+    "publicGuestEditing": "Public - Guest editing enabled",
+    "publicViewOnly": "Public - View only"
   },
   "playlistDraft": {
     "addToPlaylist": "Add to Playlist",
@@ -144,9 +158,33 @@
     "playlistCreated": "Playlist created successfully",
     "playlistUpdated": "Playlist updated",
     "playlistDeleted": "Playlist deleted",
-    "error": "Something went wrong"
+    "error": "Something went wrong",
+    "accountDeleted": "Account deleted",
+    "accountDeleteFailed": "Failed to delete account"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "description": "Here's an overview of your library.",
+    "newPlaylist": "New Playlist",
+    "addSong": "Add Song",
+    "totalSongs": "Total Songs",
+    "playlists": "Playlists",
+    "thisMonth": "This Month",
+    "upcoming": "Upcoming",
+    "recentlyAdded": "Recently Added",
+    "latestSongs": "Latest songs in your library",
+    "viewAll": "View all",
+    "songsByKey": "Songs by Key",
+    "distributionByKey": "Distribution across musical keys"
+  },
+
+  "playlistShare": {
+    "publicPlaylist": "Public Playlist",
+    "emptyDescription": "This playlist is currently empty"
   },
   "auth": {
+    "welcomeToCapo": "Welcome to Capo",
+    "signInDescription": "Sign in to start creating and sharing your music",
     "login": "Login",
     "loginWith": "Login with {provider}",
     "logout": "Logout",

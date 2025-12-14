@@ -3,6 +3,7 @@
 import { useMemo } from "react"
 import { ChordProParser, TextFormatter } from "chordsheetjs"
 import { Music2 } from "lucide-react"
+import { useLocale } from "@/contexts/locale-context"
 
 interface RenderedSongProps {
   lyrics?: string
@@ -67,16 +68,16 @@ export function RenderedSong({ lyrics, transpose, capo, fontSize }: RenderedSong
     }
   }, [lyrics, transpose, capo])
 
+  const { t } = useLocale()
+
   if (!lyrics) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
         <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted mb-4">
           <Music2 className="h-8 w-8 text-muted-foreground" />
         </div>
-        <p className="text-lg font-medium">No lyrics available</p>
-        <p className="text-sm text-muted-foreground mt-2">
-          Lyrics haven&apos;t been added for this song yet
-        </p>
+        <p className="text-lg font-medium">{t.songs.noLyrics}</p>
+        <p className="text-sm text-muted-foreground mt-2">{t.songs.addLyricsDescription}</p>
       </div>
     )
   }

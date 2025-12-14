@@ -313,7 +313,7 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
                   <ListMusic />
                 </EmptyMedia>
                 <EmptyTitle>{t.playlistDetail.noSongsInPlaylist}</EmptyTitle>
-                <EmptyDescription>Add songs to get started</EmptyDescription>
+                <EmptyDescription>{t.playlistDetail.addSongsDescription}</EmptyDescription>
               </EmptyHeader>
               <EmptyContent>
                 <Button variant="outline" size="sm" className="gap-2">

@@ -48,7 +48,7 @@ export function LyricsView({ song }: LyricsViewProps) {
 
   const handleCancel = () => {
     if (hasUnsavedChanges) {
-      if (confirm(t.common.discardChangesMessage || "You have unsaved changes. Discard them?")) {
+      if (confirm(t.common.discardChangesMessage)) {
         setIsEditing(false)
         setEditedLyrics(song.lyrics || "")
         setHasUnsavedChanges(false)

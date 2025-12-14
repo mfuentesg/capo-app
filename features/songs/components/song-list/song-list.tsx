@@ -6,6 +6,7 @@ import { SongItem } from "../song-item"
 import { Empty, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription } from "@/components/ui/empty"
 import type { Song, GroupBy } from "../../types"
 import { usePlaylistDraft } from "@/features/playlist-draft"
+import { useTranslation } from "@/hooks/use-translation"
 
 interface SongListProps {
   songs: Song[]
@@ -27,6 +28,7 @@ export function SongList({
   onSelectSong
 }: SongListProps) {
   const { toggleSongInDraft, isSongInDraft } = usePlaylistDraft()
+  const { t } = useTranslation()
 
   const filteredSongs = useMemo(() => {
     const filtered = songs.filter(
@@ -75,8 +77,8 @@ export function SongList({
           <EmptyMedia variant="icon">
             <Music />
           </EmptyMedia>
-          <EmptyTitle>No songs found</EmptyTitle>
-          <EmptyDescription>Try a different search term</EmptyDescription>
+          <EmptyTitle>{t.songs.noSongs}</EmptyTitle>
+          <EmptyDescription>{t.common.tryDifferentSearch}</EmptyDescription>
         </EmptyHeader>
       </Empty>
     )
@@ -95,7 +97,7 @@ export function SongList({
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
                   </span>
-                  Draft
+                  {t.playlists.draft}
                 </span>
               </div>
               <SongItem

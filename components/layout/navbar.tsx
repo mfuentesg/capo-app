@@ -49,7 +49,7 @@ export function Navbar() {
           <DrawerTrigger asChild>
             <Button variant="ghost" size="icon" className="mr-2 md:hidden">
               <Menu className="h-5 w-5" />
-              <span className="sr-only">Toggle menu</span>
+              <span className="sr-only">{t.common.toggleMenu}</span>
             </Button>
           </DrawerTrigger>
           <DrawerContent className="w-64">

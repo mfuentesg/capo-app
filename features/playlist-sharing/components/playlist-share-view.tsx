@@ -4,6 +4,7 @@ import { useMemo } from "react"
 import { Calendar as CalendarIcon, ListMusic, ArrowLeft, Copy } from "lucide-react"
 import { format } from "date-fns"
 import { toast } from "sonner"
+import { useLocale } from "@/contexts/locale-context"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Empty, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription } from "@/components/ui/empty"
@@ -31,10 +32,12 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
       ? `${window.location.origin}/dashboard/playlists/${playlist.shareCode}`
       : ""
 
+  const { t } = useLocale()
+
   const copyToClipboard = () => {
     if (shareUrl) {
       navigator.clipboard.writeText(shareUrl)
-      toast.success("Link copied to clipboard!")
+      toast.success(t.playlistDetail.copied)
     }
   }
 
@@ -44,7 +47,7 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
         <Link href="/">
           <Button variant="ghost" size="sm" className="gap-2 mb-6">
             <ArrowLeft className="h-4 w-4" />
-            Back to Home
+            {t.common.backToHome}
           </Button>
         </Link>
 
@@ -59,7 +62,7 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
                 <code className="flex-1 text-sm font-mono truncate">{shareUrl}</code>
                 <Button size="sm" variant="outline" onClick={copyToClipboard} className="gap-1.5">
                   <Copy className="h-3 w-3" />
-                  Copy
+                  {t.playlistDetail.copy}
                 </Button>
               </div>
             )}
@@ -73,23 +76,24 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
               )}
               <Badge variant="secondary" className="gap-1.5">
                 <ListMusic className="h-3.5 w-3.5" />
-                {playlist.songs.length} {playlist.songs.length === 1 ? "song" : "songs"}
+                {playlist.songs.length}{" "}
+                {playlist.songs.length === 1 ? t.playlistDetail.song : t.playlistDetail.songsPlural}
               </Badge>
-              <Badge variant="secondary">Public Playlist</Badge>
+              <Badge variant="secondary">{t.playlistShare.publicPlaylist}</Badge>
             </div>
           </div>
 
           {/* Songs List */}
           <div className="space-y-3">
-            <h2 className="text-lg font-semibold">Songs</h2>
+            <h2 className="text-lg font-semibold">{t.playlistDetail.songs}</h2>
             {songsWithPosition.length === 0 ? (
               <Empty>
                 <EmptyHeader>
                   <EmptyMedia variant="icon">
                     <ListMusic />
                   </EmptyMedia>
-                  <EmptyTitle>No songs in this playlist</EmptyTitle>
-                  <EmptyDescription>This playlist is currently empty</EmptyDescription>
+                  <EmptyTitle>{t.playlistDetail.noSongsInPlaylist}</EmptyTitle>
+                  <EmptyDescription>{t.playlistShare.emptyDescription}</EmptyDescription>
                 </EmptyHeader>
               </Empty>
             ) : (
@@ -124,7 +128,7 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
 
           {/* Footer */}
           <div className="pt-8 border-t text-center text-sm text-muted-foreground">
-            <p>Powered by Capo</p>
+            <p>{t.common.poweredBy}</p>
           </div>
         </div>
       </div>

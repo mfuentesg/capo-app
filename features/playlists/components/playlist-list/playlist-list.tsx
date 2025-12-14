@@ -5,6 +5,7 @@ import { ListMusic } from "lucide-react"
 import { PlaylistItem } from "../playlist-item"
 import { Empty, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription } from "@/components/ui/empty"
 import type { Playlist } from "../../types"
+import { useTranslation } from "@/hooks/use-translation"
 
 interface PlaylistListProps {
   playlists: Playlist[]
@@ -22,6 +23,7 @@ export function PlaylistList({
   onSelectPlaylist
 }: PlaylistListProps) {
   const [selectedPlaylist, setSelectedPlaylist] = useState<Playlist | null>(null)
+  const { t } = useTranslation()
 
   const filteredPlaylists = useMemo(() => {
     let filtered = playlists.filter((playlist) =>
@@ -57,8 +59,8 @@ export function PlaylistList({
           <EmptyMedia variant="icon">
             <ListMusic />
           </EmptyMedia>
-          <EmptyTitle>No playlists found</EmptyTitle>
-          <EmptyDescription>Try a different search term</EmptyDescription>
+          <EmptyTitle>{t.playlists.noPlaylists}</EmptyTitle>
+          <EmptyDescription>{t.common.tryDifferentSearch}</EmptyDescription>
         </EmptyHeader>
       </Empty>
     )

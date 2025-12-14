@@ -3,9 +3,11 @@ import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Field, FieldGroup } from "@/components/ui/field"
+import { useLocale } from "@/contexts/locale-context"
 
 export function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
   const router = useRouter()
+  const { t } = useLocale()
 
   const handleGoogleSignIn = () => {
     router.push("/dashboard")
@@ -29,10 +31,8 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
               </div>
               <span className="sr-only">Capo App</span>
             </a>
-            <h1 className="text-xl font-bold">Welcome to Capo</h1>
-            <h2 className="text-muted-foreground">
-              Sign in to start creating and sharing your music
-            </h2>
+            <h1 className="text-xl font-bold">{t.auth.welcomeToCapo}</h1>
+            <h2 className="text-muted-foreground">{t.auth.signInDescription}</h2>
           </div>
           <Field className="flex justify-center items-center">
             <Button
@@ -47,7 +47,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
                   fill="currentColor"
                 />
               </svg>
-              Continue with Google
+              {t.auth.loginWith.replace("{provider}", "Google")}
             </Button>
           </Field>
         </FieldGroup>

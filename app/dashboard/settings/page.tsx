@@ -15,6 +15,7 @@ import {
   DialogTitle
 } from "@/components/ui/dialog"
 import { AlertTriangle } from "lucide-react"
+import { toast } from "sonner"
 
 export default function SettingsPage() {
   const { locale, setLocale, t } = useLocale()
@@ -42,10 +43,10 @@ export default function SettingsPage() {
       // - Call API to delete user data
       // - Sign out user
       // - Redirect to home
-      alert("Account deletion would happen here")
+      toast.success(t.toasts.accountDeleted)
     } catch (error) {
       console.error("Error deleting account:", error)
-      alert("Failed to delete account. Please try again.")
+      toast.error(t.toasts.accountDeleteFailed)
     } finally {
       setIsDeleting(false)
       setIsDeleteDialogOpen(false)

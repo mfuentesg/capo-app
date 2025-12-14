@@ -4,6 +4,7 @@ import { Calendar, Music3, Lock, Globe, Users } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip"
 import type { Playlist } from "../../types"
+import { useTranslation } from "@/hooks/use-translation"
 
 interface PlaylistItemProps {
   playlist: Playlist
@@ -12,6 +13,7 @@ interface PlaylistItemProps {
 }
 
 export function PlaylistItem({ playlist, isSelected, onSelect }: PlaylistItemProps) {
+  const { t } = useTranslation()
   return (
     <div
       onClick={() => onSelect(playlist)}
@@ -29,7 +31,7 @@ export function PlaylistItem({ playlist, isSelected, onSelect }: PlaylistItemPro
           <p className="text-sm font-medium truncate">{playlist.name}</p>
           {playlist.isDraft && (
             <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 shrink-0">
-              Draft
+              {t.playlists.draft}
             </Badge>
           )}
           {playlist.visibility === "private" && (
@@ -38,7 +40,7 @@ export function PlaylistItem({ playlist, isSelected, onSelect }: PlaylistItemPro
                 <Lock className="h-3 w-3 text-muted-foreground shrink-0" />
               </TooltipTrigger>
               <TooltipContent>
-                <p>Private playlist</p>
+                <p>{t.playlistItem.privatePlaylist}</p>
               </TooltipContent>
             </Tooltip>
           )}
@@ -55,8 +57,8 @@ export function PlaylistItem({ playlist, isSelected, onSelect }: PlaylistItemPro
               <TooltipContent>
                 <p>
                   {playlist.allowGuestEditing
-                    ? "Public - Guest editing enabled"
-                    : "Public - View only"}
+                    ? t.playlistItem.publicGuestEditing
+                    : t.playlistItem.publicViewOnly}
                 </p>
               </TooltipContent>
             </Tooltip>

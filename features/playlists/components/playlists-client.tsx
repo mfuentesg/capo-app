@@ -113,7 +113,7 @@ export function PlaylistsClient({
                 <PopoverTrigger asChild>
                   <Button variant="outline" size="sm" className="relative gap-2 shrink-0">
                     <Settings2 className="h-4 w-4" />
-                    <span className="hidden sm:inline">Filters</span>
+                    <span className="hidden sm:inline">{t.songs.filters}</span>
                     {activeFilterCount > 0 && (
                       <Badge variant="default" className="ml-1 h-5 w-5 rounded-full p-0 text-xs">
                         {activeFilterCount}
@@ -255,8 +255,10 @@ export function PlaylistsClient({
       {isMobile && (
         <Drawer open={isMobileDrawerOpen} onOpenChange={setIsMobileDrawerOpen}>
           <DrawerContent className="flex flex-col mt-0! max-h-dvh! p-0 overflow-hidden">
-            <DrawerTitle className="sr-only">Playlist Details</DrawerTitle>
-            <DrawerDescription className="sr-only">View and edit playlist</DrawerDescription>
+            <DrawerTitle className="sr-only">{t.playlists.playlistDetails}</DrawerTitle>
+            <DrawerDescription className="sr-only">
+              {t.playlistDetail.editDescription}
+            </DrawerDescription>
             <div className="flex-1 overflow-y-auto">
               {selectedPlaylist && (
                 <PlaylistDetail

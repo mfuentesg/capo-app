@@ -156,7 +156,11 @@ export function SongDraftForm({ song, onClose, onSave, onChange }: SongDraftForm
                     <FormItem>
                       <FormLabel>{t.songs.artist}</FormLabel>
                       <FormControl>
-                        <Input placeholder="Artist name" {...field} className="shadow-none" />
+                        <Input
+                          placeholder={t.songs.artistPlaceholder}
+                          {...field}
+                          className="shadow-none"
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -173,7 +177,7 @@ export function SongDraftForm({ song, onClose, onSave, onChange }: SongDraftForm
                         <KeySelect
                           value={field.value}
                           onValueChange={field.onChange}
-                          placeholder="Select key"
+                          placeholder={t.songs.selectKey}
                         />
                       </FormControl>
                       <FormMessage />
