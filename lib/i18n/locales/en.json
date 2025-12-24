@@ -187,6 +187,7 @@
     "signInDescription": "Sign in to start creating and sharing your music",
     "login": "Login",
     "loginWith": "Login with {provider}",
+    "loggingIn": "Logging in",
     "logout": "Logout",
     "welcome": "Welcome back"
   },

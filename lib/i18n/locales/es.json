@@ -187,6 +187,7 @@
     "signInDescription": "Inicia sesión para comenzar a crear y compartir tu música",
     "login": "Iniciar sesión",
     "loginWith": "Iniciar sesión con {provider}",
+    "loggingIn": "Iniciando sesión",
     "logout": "Cerrar sesión",
     "welcome": "Bienvenido de nuevo"
   },

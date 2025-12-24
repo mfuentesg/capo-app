@@ -26,11 +26,18 @@ import {
 import { cn } from "@/lib/utils"
 import { useLocale } from "@/contexts/locale-context"
 import type { Locale } from "@/lib/i18n/config"
+import { useSignOut, useSession, getUserInfo } from "@/hooks/use-auth"
 
 export function Navbar() {
   const pathname = usePathname()
   const { t, locale, setLocale } = useLocale()
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
+  const { data: session } = useSession()
+  const signOut = useSignOut()
+
+  const handleSignOut = async () => {
+    await signOut.mutateAsync()
+  }
 
   const languages = [
     { code: "en" as Locale, label: "English" },
@@ -138,16 +145,38 @@ export function Navbar() {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-9 w-9 rounded-full">
                 <Avatar className="h-9 w-9">
-                  <AvatarImage src="https://ui.shadcn.com/avatars/01.png" alt="MF" />
-                  <AvatarFallback>MF</AvatarFallback>
+                  {(() => {
+                    const userInfo = getUserInfo(session)
+                    return (
+                      <>
+                        <AvatarImage src={userInfo?.avatarUrl} alt={userInfo?.displayName || "User"} />
+                        <AvatarFallback>
+                          {userInfo?.fullName
+                            ? userInfo.fullName
+                                .split(" ")
+                                .map((n) => n[0])
+                                .join("")
+                                .toUpperCase()
+                                .slice(0, 2)
+                            : userInfo?.email
+                              ? userInfo.email[0].toUpperCase()
+                              : "U"}
+                        </AvatarFallback>
+                      </>
+                    )
+                  })()}
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="end" forceMount>
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">Marcelo Fuentes</p>
-                  <p className="text-xs leading-none text-muted-foreground">me@mfuentesg.dev</p>
+                  <p className="text-sm font-medium leading-none">
+                    {getUserInfo(session)?.displayName || "User"}
+                  </p>
+                  <p className="text-xs leading-none text-muted-foreground">
+                    {getUserInfo(session)?.email || ""}
+                  </p>
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
@@ -157,9 +186,9 @@ export function Navbar() {
                   {t.nav.settings}
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={handleSignOut} disabled={signOut.isPending}>
                 <LogOut className="mr-2 h-4 w-4" />
-                {t.nav.logout}
+                {signOut.isPending ? (t.common.loading || "Loading...") : t.nav.logout}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

@@ -10,6 +10,8 @@ import { PlaylistsProvider } from "@/features/playlists"
 import { LocaleProvider } from "@/contexts/locale-context"
 import { defaultLocale, isValidLocale } from "@/lib/i18n/config"
 import type { Locale } from "@/lib/i18n/config"
+import { QueryProvider } from "@/components/providers/query-provider"
+import { AuthStateProvider } from "@/components/providers/auth-state-provider"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -70,14 +72,18 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <LocaleProvider initialLocale={initialLocale}>
-            <PlaylistsProvider>
-              <PlaylistDraftProvider>{children}</PlaylistDraftProvider>
-            </PlaylistsProvider>
-          </LocaleProvider>
+          <QueryProvider>
+            <AuthStateProvider>
+              <LocaleProvider initialLocale={initialLocale}>
+                <PlaylistsProvider>
+                  <PlaylistDraftProvider>{children}</PlaylistDraftProvider>
+                </PlaylistsProvider>
+              </LocaleProvider>
+            </AuthStateProvider>
+          </QueryProvider>
           <Toaster />
         </ThemeProvider>
-        <Analytics />
+        {process.env.NODE_ENV === "production" && <Analytics />}
       </body>
     </html>
   )

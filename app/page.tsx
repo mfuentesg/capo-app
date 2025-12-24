@@ -1,5 +1,6 @@
 "use client"
 
+import { Suspense } from "react"
 import { LoginForm } from "@/components/login-form"
 import { Moon, Sun } from "lucide-react"
 import { useTheme } from "next-themes"
@@ -8,11 +9,11 @@ import { useLocale } from "@/contexts/locale-context"
 
 export default function LoginPage() {
   const { theme, setTheme } = useTheme()
+  const { t } = useLocale()
 
   const toggleTheme = () => {
     setTheme(theme === "dark" ? "light" : "dark")
   }
-  const { t } = useLocale()
 
   return (
     <div className="bg-background flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
@@ -24,7 +25,9 @@ export default function LoginPage() {
         </Button>
       </div>
       <div className="w-full max-w-sm">
-        <LoginForm />
+        <Suspense fallback={<div>Loading...</div>}>
+          <LoginForm />
+        </Suspense>
       </div>
     </div>
   )
