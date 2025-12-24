@@ -16,7 +16,7 @@
     "i18n:validate": "node lib/i18n/validate-translations.js",
     "optimize:logos": "tsx scripts/optimize-logos.ts",
     "supabase": "pnpm dlx supabase@latest",
-    "types:generate": "pnpm supabase gen types typescript --local > lib/supabase/database.types.ts",
+    "types:generate": "pnpm supabase gen types typescript --local 2>/dev/null > lib/supabase/database.types.ts || pnpm supabase gen types typescript --local 2>&1 | grep -v 'Connecting to db' > lib/supabase/database.types.ts",
     "types:generate:remote": "pnpm supabase gen types typescript --project-id"
   },
   "dependencies": {
