@@ -4,7 +4,7 @@
 /* eslint-disable @typescript-eslint/no-require-imports, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any */
 import { render, waitFor } from "@testing-library/react"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import { AuthStateProvider } from "../auth-state-provider"
+import { AuthStateProvider } from "@/features/auth/contexts/auth-state-provider"
 import { authKeys } from "@/lib/supabase/constants"
 
 // Mock Supabase client
@@ -179,4 +179,3 @@ describe("AuthStateProvider", () => {
     expect(mockUnsubscribe).toHaveBeenCalled()
   })
 })
-

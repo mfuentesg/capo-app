@@ -160,7 +160,9 @@
     "playlistDeleted": "Lista eliminada",
     "error": "Algo salió mal",
     "accountDeleted": "Cuenta eliminada",
-    "accountDeleteFailed": "Error al eliminar la cuenta"
+    "accountDeleteFailed": "Error al eliminar la cuenta",
+    "signInFailed": "Error al iniciar sesión con Google. Por favor, inténtalo de nuevo.",
+    "signOutFailed": "Error al cerrar sesión. Por favor, inténtalo de nuevo."
   },
   "dashboard": {
     "title": "Panel",

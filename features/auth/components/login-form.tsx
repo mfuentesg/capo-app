@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Field, FieldGroup } from "@/components/ui/field"
 import { useLocale } from "@/contexts/locale-context"
-import { useSignInWithGoogle } from "@/hooks/use-auth"
+import { useSignInWithGoogle } from "@/features/auth/hooks"
 
 export function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
   const { t } = useLocale()
@@ -16,7 +16,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
   const [isLoading, setIsLoading] = useState(false)
   const errorRef = useRef<string | null>(null)
 
-  // Reset loading state on rror
+  // Reset loading state on error
   // We're synchronizing with URL search params (external system), so using an effect is correct
   useLayoutEffect(() => {
     const error = searchParams.get("error")

@@ -11,34 +11,8 @@ import {
 } from "@/lib/supabase/constants"
 import type { Session, AuthError } from "@supabase/supabase-js"
 import { toast } from "sonner"
-
-/**
- * Type definitions for auth
- */
-export type AuthSession = Session | null
-
-/**
- * User metadata from OAuth providers (e.g., Google)
- */
-export interface UserMetadata {
-  avatar_url?: string
-  picture?: string
-  full_name?: string
-  name?: string
-  email?: string
-  [key: string]: unknown
-}
-
-/**
- * User information extracted from Supabase session
- */
-export interface UserInfo {
-  id: string
-  email?: string
-  avatarUrl?: string
-  fullName?: string
-  displayName?: string
-}
+import { useLocale } from "@/contexts/locale-context"
+import type { AuthSession, UserMetadata, UserInfo } from "@/features/auth/types"
 
 /**
  * Helper function to extract user information from a session
@@ -97,6 +71,7 @@ export function useSession() {
  */
 export function useSignInWithGoogle() {
   const queryClient = useQueryClient()
+  const { t } = useLocale()
 
   return useMutation({
     mutationFn: async () => {
@@ -122,7 +97,7 @@ export function useSignInWithGoogle() {
     },
     onError: (error: AuthError) => {
       console.error("Error signing in with Google:", error)
-      toast.error("Failed to sign in with Google. Please try again.")
+      toast.error(t.toasts.signInFailed)
     }
   })
 }
@@ -133,6 +108,7 @@ export function useSignInWithGoogle() {
 export function useSignOut() {
   const queryClient = useQueryClient()
   const router = useRouter()
+  const { t } = useLocale()
 
   return useMutation({
     mutationFn: async () => {
@@ -151,7 +127,7 @@ export function useSignOut() {
     },
     onError: (error: AuthError) => {
       console.error("Error signing out:", error)
-      toast.error("Failed to sign out. Please try again.")
+      toast.error(t.toasts.signOutFailed)
     }
   })
 }

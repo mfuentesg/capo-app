@@ -26,7 +26,7 @@ import {
 import { cn } from "@/lib/utils"
 import { useLocale } from "@/contexts/locale-context"
 import type { Locale } from "@/lib/i18n/config"
-import { useSignOut, useSession, getUserInfo } from "@/hooks/use-auth"
+import { useSignOut, useSession, getUserInfo } from "@/features/auth"
 
 export function Navbar() {
   const pathname = usePathname()
@@ -149,7 +149,10 @@ export function Navbar() {
                     const userInfo = getUserInfo(session)
                     return (
                       <>
-                        <AvatarImage src={userInfo?.avatarUrl} alt={userInfo?.displayName || "User"} />
+                        <AvatarImage
+                          src={userInfo?.avatarUrl}
+                          alt={userInfo?.displayName || "User"}
+                        />
                         <AvatarFallback>
                           {userInfo?.fullName
                             ? userInfo.fullName
@@ -188,7 +191,7 @@ export function Navbar() {
               </DropdownMenuItem>
               <DropdownMenuItem onClick={handleSignOut} disabled={signOut.isPending}>
                 <LogOut className="mr-2 h-4 w-4" />
-                {signOut.isPending ? (t.common.loading || "Loading...") : t.nav.logout}
+                {signOut.isPending ? t.common.loading || "Loading..." : t.nav.logout}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

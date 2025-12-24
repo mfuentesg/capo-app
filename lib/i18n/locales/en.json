@@ -160,7 +160,9 @@
     "playlistDeleted": "Playlist deleted",
     "error": "Something went wrong",
     "accountDeleted": "Account deleted",
-    "accountDeleteFailed": "Failed to delete account"
+    "accountDeleteFailed": "Failed to delete account",
+    "signInFailed": "Failed to sign in with Google. Please try again.",
+    "signOutFailed": "Failed to sign out. Please try again."
   },
   "dashboard": {
     "title": "Dashboard",

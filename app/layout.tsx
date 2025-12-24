@@ -11,7 +11,7 @@ import { LocaleProvider } from "@/contexts/locale-context"
 import { defaultLocale, isValidLocale } from "@/lib/i18n/config"
 import type { Locale } from "@/lib/i18n/config"
 import { QueryProvider } from "@/components/providers/query-provider"
-import { AuthStateProvider } from "@/components/providers/auth-state-provider"
+import { AuthStateProvider } from "@/features/auth"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

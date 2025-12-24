@@ -4,8 +4,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { render, screen, waitFor, fireEvent } from "@testing-library/react"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import { LoginForm } from "../login-form"
-import { useSignInWithGoogle } from "@/hooks/use-auth"
+import { LoginForm } from "@/features/auth/components/login-form"
+import { useSignInWithGoogle } from "@/features/auth/hooks"
 import { LocaleProvider } from "@/contexts/locale-context"
 
 // Mock next/navigation
@@ -27,7 +27,7 @@ jest.mock("next/image", () => ({
 }))
 
 // Mock useSignInWithGoogle hook
-jest.mock("@/hooks/use-auth", () => ({
+jest.mock("../../hooks", () => ({
   useSignInWithGoogle: jest.fn()
 }))
 
