@@ -2,7 +2,7 @@
 
 import { useState, useLayoutEffect, useRef } from "react"
 import { useSearchParams } from "next/navigation"
-import Image from "next/image"
+import { OptimizedLogo } from "@/components/optimized-logo"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Field, FieldGroup } from "@/components/ui/field"
@@ -47,11 +47,12 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
           <div className="flex flex-col items-center gap-2 text-center">
             <a href="#" className="flex flex-col items-center gap-2 font-medium">
               <div className="flex items-center justify-center rounded-md">
-                <Image
-                  src="/img/capo.svg"
+                <OptimizedLogo
+                  name="capo"
                   alt="Capo App"
                   width={150}
                   height={150}
+                  priority
                   className="text-foreground dark:invert"
                   style={{ color: "hsl(var(--foreground))" }}
                 />

@@ -65,6 +65,10 @@ export default async function RootLayout({
 
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="preload" href="/img/optimized/capo.webp" as="image" type="image/webp" />
+        <link rel="preload" href="/img/optimized/capo-text.webp" as="image" type="image/webp" />
+      </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <ThemeProvider
           attribute="class"

@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import Image from "next/image"
+import { OptimizedLogo } from "@/components/optimized-logo"
 import { usePathname } from "next/navigation"
 import { useState } from "react"
 import { Music, ListMusic, Settings, LogOut, Menu, Languages } from "lucide-react"
@@ -62,8 +62,8 @@ export function Navbar() {
           <DrawerContent className="w-64">
             <DrawerHeader>
               <DrawerTitle className="flex items-center gap-2">
-                <Image
-                  src="/img/capo-text.svg"
+                <OptimizedLogo
+                  name="capo-text"
                   alt="Capo Logo"
                   width={80}
                   height={27}
@@ -91,11 +91,12 @@ export function Navbar() {
         </Drawer>
 
         <Link href="/dashboard" className="mr-6 flex items-center lg:mr-8">
-          <Image
-            src="/img/capo-text.svg"
+          <OptimizedLogo
+            name="capo-text"
             alt="Capo Logo"
             width={80}
             height={24}
+            priority
             className="dark:invert"
           />
         </Link>

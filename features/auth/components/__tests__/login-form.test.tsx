@@ -17,12 +17,14 @@ jest.mock("next/navigation", () => ({
   }))
 }))
 
-// Mock next/image
-jest.mock("next/image", () => ({
-  __esModule: true,
-  default: (props: Record<string, unknown>) => {
+// Mock OptimizedLogo component
+jest.mock("@/components/optimized-logo", () => ({
+  OptimizedLogo: (props: Record<string, unknown>) => {
+    // Filter out non-HTML props
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { priority, name, useSvg, ...imgProps } = props
     // eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text
-    return <img {...props} />
+    return <img {...imgProps} />
   }
 }))
 
