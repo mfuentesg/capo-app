@@ -1,7 +1,7 @@
 /**
  * Combined real-time hook for playlist collaboration
  * Handles both data changes and presence
- * 
+ *
  * TODO: Implement when collaboration features are needed
  */
 
@@ -24,7 +24,7 @@ interface PresenceUser {
 /**
  * Combined real-time hook for playlist collaboration
  * Handles both data changes and presence
- * 
+ *
  * @param playlistId - Playlist UUID to collaborate on
  * @returns { isConnected, activeUsers, activeUserCount } - Collaboration state
  */
@@ -40,7 +40,7 @@ export function usePlaylistCollaboration(playlistId: string) {
     // TODO: Implement combined real-time subscription
     // const supabase = createClient()
     // const channelName = `playlist:collab:${playlistId}`
-    // 
+    //
     // const channel = supabase.channel(channelName, {
     //   config: {
     //     presence: {
@@ -48,7 +48,7 @@ export function usePlaylistCollaboration(playlistId: string) {
     //     },
     //   },
     // })
-    // 
+    //
     // // Subscribe to data changes
     // channel.on<PlaylistSong>(
     //   "postgres_changes",
@@ -64,7 +64,7 @@ export function usePlaylistCollaboration(playlistId: string) {
     //     })
     //   }
     // )
-    // 
+    //
     // // Subscribe to presence changes
     // channel
     //   .on("presence", { event: "sync" }, () => {
@@ -86,7 +86,7 @@ export function usePlaylistCollaboration(playlistId: string) {
     //   })
     //   .subscribe(async (status) => {
     //     setIsConnected(status === "SUBSCRIBED")
-    //     
+    //
     //     if (status === "SUBSCRIBED") {
     //       // Track current user's presence
     //       await channel.track({
@@ -96,7 +96,7 @@ export function usePlaylistCollaboration(playlistId: string) {
     //       })
     //     }
     //   })
-    // 
+    //
     // return () => {
     //   channel.unsubscribe()
     //   setIsConnected(false)
@@ -107,7 +107,6 @@ export function usePlaylistCollaboration(playlistId: string) {
   return {
     isConnected,
     activeUsers,
-    activeUserCount: activeUsers.length,
+    activeUserCount: activeUsers.length
   }
 }
-

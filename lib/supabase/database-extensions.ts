@@ -1,9 +1,9 @@
 /**
  * Database Extensions
- * 
+ *
  * Custom composite types that combine multiple tables or add computed properties.
  * These extend the base types from database.types.ts
- * 
+ *
  * Note: For complex nested queries, use QueryData from @supabase/supabase-js
  * instead of manually defining types (see playlistsApi.ts for example).
  */
@@ -21,7 +21,7 @@ export type SongWithPosition = Database["public"]["Tables"]["songs"]["Row"] & {
 /**
  * Playlist with nested songs
  * Used when fetching a playlist with its songs included
- * 
+ *
  * Note: For actual query results, use QueryData helper from @supabase/supabase-js
  * This type is provided as a reference/fallback
  */
@@ -43,4 +43,3 @@ export type TeamWithMembers = Database["public"]["Tables"]["teams"]["Row"] & {
     joined_at: string
   }>
 }
-

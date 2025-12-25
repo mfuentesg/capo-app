@@ -1,7 +1,7 @@
 /**
  * Real-time hook for playlist collaboration
  * Subscribes to changes in playlist_songs table
- * 
+ *
  * TODO: Implement when real-time features are needed
  */
 
@@ -17,7 +17,7 @@ type PlaylistSong = Database["public"]["Tables"]["playlist_songs"]["Row"]
 /**
  * Real-time hook for playlist collaboration
  * Subscribes to changes in playlist_songs table
- * 
+ *
  * @param playlistId - Playlist UUID to subscribe to
  * @returns { isConnected } - Connection status
  */
@@ -31,7 +31,7 @@ export function usePlaylistRealtime(playlistId: string) {
     // TODO: Implement real-time subscription
     // const supabase = createClient()
     // const channelName = `playlist:${playlistId}`
-    // 
+    //
     // const channel = supabase
     //   .channel(channelName)
     //   .on<PlaylistSong>(
@@ -47,7 +47,7 @@ export function usePlaylistRealtime(playlistId: string) {
     //       queryClient.invalidateQueries({
     //         queryKey: playlistsKeys.detail(playlistId),
     //       })
-    //       
+    //
     //       // Optional: Handle specific events
     //       // if (payload.eventType === "INSERT") {
     //       //   // Handle new song added
@@ -61,7 +61,7 @@ export function usePlaylistRealtime(playlistId: string) {
     //   .subscribe((status) => {
     //     setIsConnected(status === "SUBSCRIBED")
     //   })
-    // 
+    //
     // return () => {
     //   channel.unsubscribe()
     //   setIsConnected(false)
@@ -70,4 +70,3 @@ export function usePlaylistRealtime(playlistId: string) {
 
   return { isConnected }
 }
-
