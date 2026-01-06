@@ -64,11 +64,11 @@ export async function proxy(request: NextRequest) {
       })
 
       const {
-        data: { session }
-      } = await supabase.auth.getSession()
+        data: { user }
+      } = await supabase.auth.getUser()
 
       // If user is authenticated, redirect to dashboard
-      if (session) {
+      if (user) {
         response = NextResponse.redirect(new URL(DEFAULT_REDIRECT_PATH, request.url))
       }
 
@@ -79,9 +79,9 @@ export async function proxy(request: NextRequest) {
 
       return response
     } catch (error) {
-      // If there's an error checking session, allow the request to continue
+      // If there's an error checking user, allow the request to continue
       // This prevents blocking access if Supabase is unavailable
-      console.error("Error checking session in proxy:", error)
+      console.error("Error checking user in proxy:", error)
     }
   }
 

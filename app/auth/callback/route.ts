@@ -33,33 +33,31 @@ export async function GET(request: NextRequest) {
   // Validate redirect URL to prevent open redirects
   const redirectTo = isValidRedirect(next, requestUrl.origin) && next ? next : DEFAULT_REDIRECT_PATH
 
-  if (code) {
-    const supabase = await createClient()
-
-    try {
-      const { error } = await supabase.auth.exchangeCodeForSession(code)
-
-      if (error) {
-        console.error("Error exchanging code for session:", error)
-        // Redirect to login with error
-        const loginUrl = new URL("/", requestUrl.origin)
-        loginUrl.searchParams.set("error", "auth_failed")
-        return NextResponse.redirect(loginUrl)
-      }
-
-      // Success - redirect to dashboard or specified next URL
-      return NextResponse.redirect(new URL(redirectTo, requestUrl.origin))
-    } catch (error) {
-      console.error("Unexpected error during auth callback:", error)
-      // Redirect to login with error
-      const loginUrl = new URL("/", requestUrl.origin)
-      loginUrl.searchParams.set("error", "auth_error")
-      return NextResponse.redirect(loginUrl)
-    }
+  if (!code) {
+    const loginUrl = new URL("/", requestUrl.origin)
+    loginUrl.searchParams.set("error", "missing_code")
+    return NextResponse.redirect(loginUrl)
   }
 
-  // No code parameter - redirect to login
-  const loginUrl = new URL("/", requestUrl.origin)
-  loginUrl.searchParams.set("error", "missing_code")
-  return NextResponse.redirect(loginUrl)
+  const supabase = await createClient()
+
+  try {
+    const { error } = await supabase.auth.exchangeCodeForSession(code)
+
+    if (error) {
+      const loginUrl = new URL("/", requestUrl.origin)
+      loginUrl.searchParams.set("error", "auth_failed")
+
+      console.error("Error exchanging code for session:", error)
+      return NextResponse.redirect(loginUrl)
+    }
+
+    return NextResponse.redirect(new URL(redirectTo, requestUrl.origin))
+  } catch (error) {
+    console.error("Unexpected error during auth callback:", error)
+    // Redirect to login with error
+    const loginUrl = new URL("/", requestUrl.origin)
+    loginUrl.searchParams.set("error", "auth_error")
+    return NextResponse.redirect(loginUrl)
+  }
 }

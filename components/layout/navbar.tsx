@@ -4,7 +4,7 @@ import Link from "next/link"
 import { OptimizedLogo } from "@/components/optimized-logo"
 import { usePathname } from "next/navigation"
 import { useState } from "react"
-import { Music, ListMusic, Settings, LogOut, Menu, Languages } from "lucide-react"
+import { Music, ListMusic, LogOut, Menu, Languages } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "./theme-toggle"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -23,16 +23,16 @@ import {
   DrawerTitle,
   DrawerTrigger
 } from "@/components/ui/drawer"
-import { cn } from "@/lib/utils"
+import { cn, getUserInitials } from "@/lib/utils"
 import { useLocale } from "@/contexts/locale-context"
 import type { Locale } from "@/lib/i18n/config"
-import { useSignOut, useSession, getUserInfo } from "@/features/auth"
+import { useSignOut, useUser } from "@/features/auth"
 
 export function Navbar() {
   const pathname = usePathname()
   const { t, locale, setLocale } = useLocale()
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
-  const { data: session } = useSession()
+  const { data: user } = useUser()
   const signOut = useSignOut()
 
   const handleSignOut = async () => {
@@ -146,50 +146,19 @@ export function Navbar() {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-9 w-9 rounded-full">
                 <Avatar className="h-9 w-9">
-                  {(() => {
-                    const userInfo = getUserInfo(session)
-                    return (
-                      <>
-                        <AvatarImage
-                          src={userInfo?.avatarUrl}
-                          alt={userInfo?.displayName || "User"}
-                        />
-                        <AvatarFallback>
-                          {userInfo?.fullName
-                            ? userInfo.fullName
-                                .split(" ")
-                                .map((n) => n[0])
-                                .join("")
-                                .toUpperCase()
-                                .slice(0, 2)
-                            : userInfo?.email
-                              ? userInfo.email[0].toUpperCase()
-                              : "U"}
-                        </AvatarFallback>
-                      </>
-                    )
-                  })()}
+                  <AvatarImage src={user?.avatarUrl} alt={user?.displayName || "User"} />
+                  <AvatarFallback>{getUserInitials(user)}</AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="end" forceMount>
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">
-                    {getUserInfo(session)?.displayName || "User"}
-                  </p>
-                  <p className="text-xs leading-none text-muted-foreground">
-                    {getUserInfo(session)?.email || ""}
-                  </p>
+                  <p className="text-sm font-medium leading-none">{user?.displayName || "User"}</p>
+                  <p className="text-xs leading-none text-muted-foreground">{user?.email || ""}</p>
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link href="/dashboard/settings">
-                  <Settings className="mr-2 h-4 w-4" />
-                  {t.nav.settings}
-                </Link>
-              </DropdownMenuItem>
               <DropdownMenuItem onClick={handleSignOut} disabled={signOut.isPending}>
                 <LogOut className="mr-2 h-4 w-4" />
                 {signOut.isPending ? t.common.loading || "Loading..." : t.nav.logout}

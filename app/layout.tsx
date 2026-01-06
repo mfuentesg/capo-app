@@ -2,7 +2,6 @@ import type { Metadata } from "next"
 import { cookies } from "next/headers"
 import { Geist, Geist_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/react"
-import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/sonner"
 import { PlaylistDraftProvider } from "@/features/playlist-draft"
@@ -12,6 +11,8 @@ import { defaultLocale, isValidLocale } from "@/lib/i18n/config"
 import type { Locale } from "@/lib/i18n/config"
 import { QueryProvider } from "@/components/providers/query-provider"
 import { AuthStateProvider } from "@/features/auth"
+
+import "./globals.css"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
