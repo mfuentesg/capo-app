@@ -273,8 +273,10 @@ CREATE OR REPLACE FUNCTION handle_new_user()
 RETURNS TRIGGER
 LANGUAGE plpgsql
 SECURITY DEFINER
+SET search_path = public
 AS $$
 BEGIN
+  -- SECURITY DEFINER should bypass RLS, but we set search_path for safety
   INSERT INTO profiles (id, email, full_name, avatar_url)
   VALUES (
     NEW.id,
