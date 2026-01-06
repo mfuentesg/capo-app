@@ -1,11 +1,10 @@
 "use client"
 
-import { createContext, useContext, useState, type ReactNode } from "react"
+import { createContext, useContext, useState, useTransition, type ReactNode } from "react"
 import type { Locale } from "@/lib/i18n/config"
 import { defaultLocale } from "@/lib/i18n/config"
 import { getTranslations } from "@/lib/i18n/translations"
-
-const LOCALE_COOKIE_NAME = "NEXT_LOCALE"
+import { setLocaleAction } from "@/lib/actions/locale"
 
 interface LocaleContextType {
   locale: Locale
@@ -15,10 +14,6 @@ interface LocaleContextType {
 
 const LocaleContext = createContext<LocaleContextType | undefined>(undefined)
 
-function setLocaleCookie(locale: Locale) {
-  document.cookie = `${LOCALE_COOKIE_NAME}=${locale}; path=/; max-age=31536000; SameSite=Lax`
-}
-
 export function LocaleProvider({
   children,
   initialLocale = defaultLocale
@@ -26,12 +21,14 @@ export function LocaleProvider({
   children: ReactNode
   initialLocale?: Locale
 }) {
-  // Use initialLocale from server-side cookie reading
   const [locale, setLocaleState] = useState<Locale>(initialLocale)
+  const [, startTransition] = useTransition()
 
   const setLocale = (newLocale: Locale) => {
     setLocaleState(newLocale)
-    setLocaleCookie(newLocale)
+    startTransition(async () => {
+      await setLocaleAction(newLocale)
+    })
   }
 
   const translations = getTranslations(locale)
