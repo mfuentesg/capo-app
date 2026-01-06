@@ -1,12 +1,11 @@
 /**
  * Real-time presence hook - shows who's currently viewing a playlist
- * 
+ *
  * TODO: Implement when presence features are needed
  */
 
 import { useEffect, useState } from "react"
-import { createClient } from "@/lib/supabase/client"
-import { useSession } from "@/features/auth"
+import { useUser } from "@/features/auth"
 
 interface PresenceUser {
   user_id: string
@@ -16,21 +15,21 @@ interface PresenceUser {
 
 /**
  * Real-time presence hook - shows who's currently viewing a playlist
- * 
+ *
  * @param playlistId - Playlist UUID to track presence for
  * @returns { activeUsers, count } - Active users and count
  */
 export function usePlaylistPresence(playlistId: string) {
-  const { data: session } = useSession()
+  const { data: user } = useUser()
   const [activeUsers, setActiveUsers] = useState<PresenceUser[]>([])
 
   useEffect(() => {
-    if (!playlistId || !session?.user) return
+    if (!playlistId || !user?.id) return
 
     // TODO: Implement presence tracking
     // const supabase = createClient()
     // const channelName = `playlist:presence:${playlistId}`
-    // 
+    //
     // const channel = supabase.channel(channelName, {
     //   config: {
     //     presence: {
@@ -38,7 +37,7 @@ export function usePlaylistPresence(playlistId: string) {
     //     },
     //   },
     // })
-    // 
+    //
     // // Track current user's presence
     // channel
     //   .on("presence", { event: "sync" }, () => {
@@ -47,7 +46,7 @@ export function usePlaylistPresence(playlistId: string) {
     //       .flat()
     //       .map((presence) => presence as PresenceUser)
     //       .filter((user) => user.user_id !== session.user.id) // Exclude self
-    //     
+    //
     //     setActiveUsers(users)
     //   })
     //   .on("presence", { event: "join" }, ({ key, newPresences }) => {
@@ -72,13 +71,12 @@ export function usePlaylistPresence(playlistId: string) {
     //       })
     //     }
     //   })
-    // 
+    //
     // return () => {
     //   channel.unsubscribe()
     //   setActiveUsers([])
     // }
-  }, [playlistId, session])
+  }, [playlistId, user?.id])
 
   return { activeUsers, count: activeUsers.length }
 }
-

@@ -9,58 +9,39 @@ import {
   DEFAULT_REDIRECT_PATH,
   LOGIN_PATH
 } from "@/lib/supabase/constants"
-import type { Session, AuthError } from "@supabase/supabase-js"
+import type { AuthError } from "@supabase/supabase-js"
 import { toast } from "sonner"
 import { useLocale } from "@/contexts/locale-context"
-import type { AuthSession, UserMetadata, UserInfo } from "@/features/auth/types"
+import type { UserInfo } from "@/features/auth/types"
 
-/**
- * Helper function to extract user information from a session
- */
-export function getUserInfo(session: Session | null | undefined): UserInfo | null {
-  if (!session?.user) {
-    return null
-  }
-
-  const metadata = (session.user.user_metadata as UserMetadata | undefined) || {}
-  const email = session.user.email || metadata.email
-  const avatarUrl = metadata.avatar_url || metadata.picture
-  const fullName = metadata.full_name || metadata.name
-  const displayName = fullName || email || "User"
-
-  return {
-    id: session.user.id,
-    email,
-    avatarUrl,
-    fullName,
-    displayName
-  }
-}
-
-/**
- * Fetches the current session from Supabase
- */
-async function getSession(): Promise<AuthSession> {
+async function getUser(): Promise<UserInfo | null> {
   const supabase = createClient()
   const {
-    data: { session },
+    data: { user },
     error
-  } = await supabase.auth.getSession()
+  } = await supabase.auth.getUser()
 
   if (error) {
     throw error
   }
 
-  return session
+  if (!user) {
+    return null
+  }
+
+  return {
+    id: user?.id || "",
+    email: user?.email,
+    avatarUrl: user?.user_metadata.avatar_url,
+    fullName: user?.user_metadata.full_name,
+    displayName: user?.user_metadata.name
+  }
 }
 
-/**
- * Hook to get the current session
- */
-export function useSession() {
+export function useUser() {
   return useQuery({
-    queryKey: authKeys.session(),
-    queryFn: getSession,
+    queryKey: authKeys.user(),
+    queryFn: getUser,
     staleTime: 5 * 60 * 1000, // 5 minutes
     retry: 1
   })
@@ -120,9 +101,7 @@ export function useSignOut() {
       }
     },
     onSuccess: () => {
-      // Clear all auth-related queries
       queryClient.removeQueries({ queryKey: authKeys.all })
-      // Redirect to login
       router.push(LOGIN_PATH)
     },
     onError: (error: AuthError) => {

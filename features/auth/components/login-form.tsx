@@ -16,8 +16,6 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
   const [isLoading, setIsLoading] = useState(false)
   const errorRef = useRef<string | null>(null)
 
-  // Reset loading state on error
-  // We're synchronizing with URL search params (external system), so using an effect is correct
   useLayoutEffect(() => {
     const error = searchParams.get("error")
     const previousError = errorRef.current
@@ -34,7 +32,6 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
     setIsLoading(true)
     try {
       await signInWithGoogle.mutateAsync()
-      // Keep loading state - redirect will happen
     } catch {
       setIsLoading(false)
     }

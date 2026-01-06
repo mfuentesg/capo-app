@@ -1,1 +1,1 @@
-export { useSession, useSignInWithGoogle, useSignOut, getUserInfo } from "./use-auth"
+export { useSignInWithGoogle, useSignOut, useUser } from "./use-auth"

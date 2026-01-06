@@ -7,35 +7,22 @@
 
 import { useEffect, useState } from "react"
 import { useQueryClient } from "@tanstack/react-query"
-import { createClient } from "@/lib/supabase/client"
-import { useSession } from "@/features/auth"
-import { playlistsKeys } from "./query-keys"
-import type { RealtimePostgresChangesPayload } from "@supabase/supabase-js"
-import type { Database } from "@/lib/supabase/database.types"
-
-type PlaylistSong = Database["public"]["Tables"]["playlist_songs"]["Row"]
-
-interface PresenceUser {
-  user_id: string
-  user_name: string
-  avatar_url?: string
-}
+import { useUser } from "@/features/auth"
 
 /**
  * Combined real-time hook for playlist collaboration
  * Handles both data changes and presence
  *
  * @param playlistId - Playlist UUID to collaborate on
- * @returns { isConnected, activeUsers, activeUserCount } - Collaboration state
+ * @returns { isConnected } - Collaboration state
  */
 export function usePlaylistCollaboration(playlistId: string) {
   const queryClient = useQueryClient()
-  const { data: session } = useSession()
+  const { data: user } = useUser()
   const [isConnected, setIsConnected] = useState(false)
-  const [activeUsers, setActiveUsers] = useState<PresenceUser[]>([])
 
   useEffect(() => {
-    if (!playlistId || !session?.user) return
+    if (!playlistId || !user?.id) return
 
     // TODO: Implement combined real-time subscription
     // const supabase = createClient()
@@ -102,11 +89,9 @@ export function usePlaylistCollaboration(playlistId: string) {
     //   setIsConnected(false)
     //   setActiveUsers([])
     // }
-  }, [playlistId, session, queryClient])
+  }, [playlistId, user?.id, queryClient])
 
   return {
-    isConnected,
-    activeUsers,
-    activeUserCount: activeUsers.length
+    isConnected
   }
 }

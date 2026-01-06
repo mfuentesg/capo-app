@@ -16,4 +16,3 @@ export async function setLocaleAction(locale: Locale) {
     secure: process.env.NODE_ENV === "production"
   })
 }
-
