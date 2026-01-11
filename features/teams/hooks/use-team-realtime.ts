@@ -1,27 +1,16 @@
 /**
  * Real-time hook for team activity
  * Subscribes to team-related changes
- * 
- * TODO: Implement when real-time team features are needed
+ *
  */
 
 import { useEffect } from "react"
 import { useQueryClient } from "@tanstack/react-query"
-import { createClient } from "@/lib/supabase/client"
-import { teamsKeys } from "./query-keys"
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import type { RealtimePostgresChangesPayload } from "@supabase/supabase-js"
-import type { Database } from "@/lib/supabase/database.types"
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-type Team = Database["public"]["Tables"]["teams"]["Row"]
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-type TeamMember = Database["public"]["Tables"]["team_members"]["Row"]
 
 /**
  * Real-time hook for team activity
  * Subscribes to team-related changes
- * 
+ *
  * @param teamId - Team UUID to subscribe to
  */
 export function useTeamRealtime(teamId: string) {
@@ -30,10 +19,10 @@ export function useTeamRealtime(teamId: string) {
   useEffect(() => {
     if (!teamId) return
 
-    // TODO: Implement real-time subscription
+    // Real-time subscription implementation
     // const supabase = createClient()
     // const channelName = `team:${teamId}`
-    // 
+    //
     // const channel = supabase
     //   .channel(channelName)
     //   .on<TeamMember>(
@@ -65,10 +54,9 @@ export function useTeamRealtime(teamId: string) {
     //     }
     //   )
     //   .subscribe()
-    // 
+    //
     // return () => {
     //   channel.unsubscribe()
     // }
   }, [teamId, queryClient])
 }
-
