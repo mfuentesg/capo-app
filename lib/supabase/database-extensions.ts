@@ -8,13 +8,13 @@
  * instead of manually defining types (see playlistsApi.ts for example).
  */
 
-import type { Database } from "./database.types"
+import type { Tables, Enums } from "./database.types"
 
 /**
  * Song with position in playlist
  * Used when fetching songs that belong to a playlist
  */
-export type SongWithPosition = Database["public"]["Tables"]["songs"]["Row"] & {
+export type SongWithPosition = Tables<"songs"> & {
   position: number
 }
 
@@ -25,10 +25,10 @@ export type SongWithPosition = Database["public"]["Tables"]["songs"]["Row"] & {
  * Note: For actual query results, use QueryData helper from @supabase/supabase-js
  * This type is provided as a reference/fallback
  */
-export type PlaylistWithSongs = Database["public"]["Tables"]["playlists"]["Row"] & {
+export type PlaylistWithSongs = Tables<"playlists"> & {
   playlist_songs: Array<{
     position: number
-    song: Database["public"]["Tables"]["songs"]["Row"]
+    song: Tables<"songs">
   }>
 }
 
@@ -36,10 +36,10 @@ export type PlaylistWithSongs = Database["public"]["Tables"]["playlists"]["Row"]
  * Team with members
  * Used when fetching a team with its members included
  */
-export type TeamWithMembers = Database["public"]["Tables"]["teams"]["Row"] & {
+export type TeamWithMembers = Tables<"teams"> & {
   team_members: Array<{
-    user: Database["public"]["Tables"]["profiles"]["Row"]
-    role: Database["public"]["Enums"]["team_role_enum"]
+    user: Tables<"profiles">
+    role: Enums<"team_role_enum">
     joined_at: string
   }>
 }

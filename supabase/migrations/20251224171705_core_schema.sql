@@ -22,7 +22,7 @@ CREATE INDEX idx_profiles_email ON profiles (email);
 CREATE TABLE teams (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
     name VARCHAR NOT NULL,
-    slug VARCHAR UNIQUE NOT NULL,
+
     description TEXT,
     avatar_url TEXT,
     is_public BOOLEAN NOT NULL DEFAULT false,
@@ -35,7 +35,7 @@ CREATE INDEX idx_teams_created_by ON teams (created_by);
 
 CREATE INDEX idx_teams_is_public ON teams (is_public);
 
-CREATE UNIQUE INDEX idx_teams_slug ON teams (slug);
+
 
 -- 3. team_members table
 CREATE TABLE team_members (
