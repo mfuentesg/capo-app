@@ -40,7 +40,7 @@ describe("Supabase Server Client", () => {
       process.env.NEXT_PUBLIC_SUPABASE_URL = "https://test.supabase.co"
       process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY = "test-key"
 
-      const { createClient } = require("../server")
+      const { createClient } = require("@/lib/supabase/server")
       const { createServerClient } = require("@supabase/ssr")
       const { cookies } = require("next/headers")
       const client = await createClient()
@@ -63,7 +63,7 @@ describe("Supabase Server Client", () => {
       process.env.NEXT_PUBLIC_SUPABASE_URL = "https://test.supabase.co"
       process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY = "test-key"
 
-      const { createClient } = require("../server")
+      const { createClient } = require("@/lib/supabase/server")
       const { createServerClient } = require("@supabase/ssr")
       const mockCookies = [{ name: "test", value: "value" }]
       mockCookieStore.getAll.mockReturnValue(mockCookies)
@@ -80,7 +80,7 @@ describe("Supabase Server Client", () => {
       process.env.NEXT_PUBLIC_SUPABASE_URL = "https://test.supabase.co"
       process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY = "test-key"
 
-      const { createClient } = require("../server")
+      const { createClient } = require("@/lib/supabase/server")
       await createClient()
 
       const { createServerClient } = require("@supabase/ssr")
@@ -101,7 +101,7 @@ describe("Supabase Server Client", () => {
       process.env.NEXT_PUBLIC_SUPABASE_URL = "https://test.supabase.co"
       process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY = "test-key"
 
-      const { createClient } = require("../server")
+      const { createClient } = require("@/lib/supabase/server")
       mockCookieStore.set.mockImplementation(() => {
         throw new Error("Cannot set cookie in Server Component")
       })
@@ -120,7 +120,7 @@ describe("Supabase Server Client", () => {
       delete process.env.NEXT_PUBLIC_SUPABASE_URL
       process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY = "test-key"
 
-      const { createClient } = require("../server")
+      const { createClient } = require("@/lib/supabase/server")
       await expect(createClient()).rejects.toThrow(
         "Missing NEXT_PUBLIC_SUPABASE_URL environment variable. Please add it to your .env.local file."
       )
@@ -130,7 +130,7 @@ describe("Supabase Server Client", () => {
       process.env.NEXT_PUBLIC_SUPABASE_URL = "https://test.supabase.co"
       delete process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
 
-      const { createClient } = require("../server")
+      const { createClient } = require("@/lib/supabase/server")
       await expect(createClient()).rejects.toThrow(
         "Missing NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY environment variable. Please add it to your .env.local file."
       )

@@ -29,7 +29,7 @@ describe("Supabase Client", () => {
       process.env.NEXT_PUBLIC_SUPABASE_URL = "https://test.supabase.co"
       process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY = "test-key"
 
-      const { createClient } = require("../client")
+      const { createClient } = require("@/lib/supabase/client")
       const { createBrowserClient } = require("@supabase/ssr")
       const client = createClient()
 
@@ -41,7 +41,7 @@ describe("Supabase Client", () => {
       process.env.NEXT_PUBLIC_SUPABASE_URL = "https://test.supabase.co"
       process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY = "test-key"
 
-      const { createClient } = require("../client")
+      const { createClient } = require("@/lib/supabase/client")
       const { createBrowserClient } = require("@supabase/ssr")
       const client1 = createClient()
       const client2 = createClient()
@@ -54,7 +54,7 @@ describe("Supabase Client", () => {
       delete process.env.NEXT_PUBLIC_SUPABASE_URL
       process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY = "test-key"
 
-      const { createClient } = require("../client")
+      const { createClient } = require("@/lib/supabase/client")
       expect(() => createClient()).toThrow(
         "Missing NEXT_PUBLIC_SUPABASE_URL environment variable. Please add it to your .env.local file."
       )
@@ -64,7 +64,7 @@ describe("Supabase Client", () => {
       process.env.NEXT_PUBLIC_SUPABASE_URL = "https://test.supabase.co"
       delete process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
 
-      const { createClient } = require("../client")
+      const { createClient } = require("@/lib/supabase/client")
       expect(() => createClient()).toThrow(
         "Missing NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY environment variable. Please add it to your .env.local file."
       )
@@ -74,7 +74,7 @@ describe("Supabase Client", () => {
       delete process.env.NEXT_PUBLIC_SUPABASE_URL
       delete process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
 
-      const { createClient } = require("../client")
+      const { createClient } = require("@/lib/supabase/client")
       expect(() => createClient()).toThrow(
         "Missing NEXT_PUBLIC_SUPABASE_URL environment variable. Please add it to your .env.local file."
       )

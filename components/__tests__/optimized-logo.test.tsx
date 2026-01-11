@@ -2,7 +2,7 @@
  * Tests for OptimizedLogo component
  */
 import { render, screen } from "@testing-library/react"
-import { OptimizedLogo } from "../optimized-logo"
+import { OptimizedLogo } from "@/components/optimized-logo"
 
 // Mock next/image for SVG fallback
 jest.mock("next/image", () => ({
@@ -128,4 +128,3 @@ describe("OptimizedLogo", () => {
     expect(img).toHaveAttribute("aria-label", "Custom label")
   })
 })
-

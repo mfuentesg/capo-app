@@ -67,7 +67,7 @@ jest.mock("@supabase/ssr", () => ({
 }))
 
 const { createServerClient } = require("@supabase/ssr")
-const { proxy } = require("../proxy")
+const { proxy } = require("@/proxy")
 
 describe("Proxy", () => {
   const originalEnv = process.env
@@ -85,7 +85,7 @@ describe("Proxy", () => {
 
     mockSupabase = {
       auth: {
-        getSession: jest.fn()
+        getUser: jest.fn()
       }
     }
 
@@ -104,8 +104,9 @@ describe("Proxy", () => {
 
   describe("proxy function", () => {
     it("should redirect authenticated users from home to dashboard", async () => {
-      mockSupabase.auth.getSession.mockResolvedValue({
-        data: { session: { access_token: "token", user: { id: "123" } } }
+      mockSupabase.auth.getUser.mockResolvedValue({
+        data: { user: { id: "123" } },
+        error: null
       })
 
       const request = new NextRequest("http://localhost:3000/")
@@ -118,8 +119,9 @@ describe("Proxy", () => {
     })
 
     it("should allow unauthenticated users to access home page", async () => {
-      mockSupabase.auth.getSession.mockResolvedValue({
-        data: { session: null }
+      mockSupabase.auth.getUser.mockResolvedValue({
+        data: { user: null },
+        error: null
       })
 
       const request = new NextRequest("http://localhost:3000/")
@@ -130,10 +132,15 @@ describe("Proxy", () => {
     })
 
     it("should continue with request for non-home paths", async () => {
+      mockSupabase.auth.getUser.mockResolvedValue({
+        data: { user: { id: "123" } },
+        error: null
+      })
+
       const request = new NextRequest("http://localhost:3000/dashboard")
       const response = await proxy(request)
 
-      expect(mockSupabase.auth.getSession).not.toHaveBeenCalled()
+      expect(mockSupabase.auth.getUser).toHaveBeenCalled()
       expect(response.status).toBe(200)
     })
 
@@ -149,7 +156,7 @@ describe("Proxy", () => {
     })
 
     it("should handle session check errors gracefully", async () => {
-      mockSupabase.auth.getSession.mockRejectedValue(new Error("Network error"))
+      mockSupabase.auth.getUser.mockRejectedValue(new Error("Network error"))
 
       const request = new NextRequest("http://localhost:3000/")
       const response = await proxy(request)
@@ -172,8 +179,9 @@ describe("Proxy", () => {
         return mockSupabase
       })
 
-      mockSupabase.auth.getSession.mockResolvedValue({
-        data: { session: null }
+      mockSupabase.auth.getUser.mockResolvedValue({
+        data: { user: null },
+        error: null
       })
 
       const request = new NextRequest("http://localhost:3000/")
@@ -184,8 +192,9 @@ describe("Proxy", () => {
     })
 
     it("should use correct Supabase client configuration", async () => {
-      mockSupabase.auth.getSession.mockResolvedValue({
-        data: { session: null }
+      mockSupabase.auth.getUser.mockResolvedValue({
+        data: { user: null },
+        error: null
       })
 
       const request = new NextRequest("http://localhost:3000/")
