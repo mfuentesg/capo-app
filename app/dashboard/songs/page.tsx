@@ -1,5 +1,5 @@
 import { SongsClient } from "@/features/songs"
-import { mockSongs } from "@/features/songs"
+import { mockSongs } from "@/lib/mock-data"
 
 // TODO: Replace with backend API call to fetch songs
 // Example: const songs = await fetch('/api/songs').then(r => r.json())

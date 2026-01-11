@@ -5,47 +5,13 @@ import { Music, ListMusic, Plus, Calendar, TrendingUp, Clock, ArrowRight } from 
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import KeyBadge from "@/components/key-badge"
-import { getTranslations } from "@/lib/i18n/translations"
-import { defaultLocale } from "@/lib/i18n/config"
+import { useTranslation } from "@/hooks/use-translation"
 import { ActivityFeed, useActivityRealtime } from "@/features/activity"
+import { mockDashboardStats as stats, mockDashboardRecentSongs as recentSongs } from "@/features/dashboard"
 
-// Mock data - replace with real data later
-const stats = {
-  totalSongs: 24,
-  totalPlaylists: 8,
-  songsThisMonth: 5,
-  upcomingPlaylists: 3
-}
-
-const recentSongs = [
-  {
-    id: "1",
-    title: "Espíritu y verdad",
-    artist: "Marcos Barrientos",
-    key: "A",
-    bpm: 120,
-    addedAt: "2 days ago"
-  },
-  {
-    id: "2",
-    title: "Ven ante su trono",
-    artist: "Elevation Worship",
-    key: "D#",
-    bpm: 120,
-    addedAt: "3 days ago"
-  },
-  {
-    id: "3",
-    title: "Al Que Está Sentado",
-    artist: "Marcos Brunet",
-    key: "A",
-    bpm: 141,
-    addedAt: "5 days ago"
-  }
-]
 
 export default function DashboardPage() {
-  const t = getTranslations(defaultLocale)
+  const { t } = useTranslation()
 
   // Enable real-time activity updates
   useActivityRealtime()
@@ -174,8 +140,8 @@ export default function DashboardPage() {
 
             <div className="rounded-lg border bg-card shadow-sm">
               <div className="p-4 border-b">
-                <h3 className="text-lg font-semibold">Recent Activity</h3>
-                <p className="text-sm text-muted-foreground">Your latest actions</p>
+                <h3 className="text-lg font-semibold">{t.dashboard.recentActivity}</h3>
+                <p className="text-sm text-muted-foreground">{t.dashboard.recentActivityDescription}</p>
               </div>
               <ActivityFeed />
             </div>
