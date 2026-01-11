@@ -6,11 +6,13 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/sonner"
 import { PlaylistDraftProvider } from "@/features/playlist-draft"
 import { PlaylistsProvider } from "@/features/playlists"
-import { LocaleProvider } from "@/contexts/locale-context"
+import { LocaleProvider } from "@/features/settings"
 import { defaultLocale, isValidLocale } from "@/lib/i18n/config"
 import type { Locale } from "@/lib/i18n/config"
 import { QueryProvider } from "@/components/providers/query-provider"
 import { AuthStateProvider } from "@/features/auth"
+import { AppContextProvider } from "@/features/app-context"
+import { getSelectedTeamIdFromCookies } from "@/features/app-context/server"
 
 import "./globals.css"
 
@@ -64,6 +66,9 @@ export default async function RootLayout({
   const initialLocale: Locale =
     localeCookie && isValidLocale(localeCookie.value) ? localeCookie.value : defaultLocale
 
+  // Get selected team ID from cookies (server-side)
+  const initialSelectedTeamId = await getSelectedTeamIdFromCookies()
+
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -79,11 +84,13 @@ export default async function RootLayout({
         >
           <QueryProvider>
             <AuthStateProvider>
-              <LocaleProvider initialLocale={initialLocale}>
-                <PlaylistsProvider>
-                  <PlaylistDraftProvider>{children}</PlaylistDraftProvider>
-                </PlaylistsProvider>
-              </LocaleProvider>
+              <AppContextProvider initialSelectedTeamId={initialSelectedTeamId}>
+                <LocaleProvider initialLocale={initialLocale}>
+                  <PlaylistsProvider>
+                    <PlaylistDraftProvider>{children}</PlaylistDraftProvider>
+                  </PlaylistsProvider>
+                </LocaleProvider>
+              </AppContextProvider>
             </AuthStateProvider>
           </QueryProvider>
           <Toaster />

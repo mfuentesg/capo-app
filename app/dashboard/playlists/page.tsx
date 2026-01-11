@@ -1,16 +1,19 @@
-"use client"
+import { createClient } from "@/lib/supabase/server"
+import { getPlaylistsWithClient, PlaylistsClient } from "@/features/playlists"
+import { getAppContextFromCookies } from "@/features/app-context/server"
 
-import { PlaylistsClient } from "@/features/playlists"
-import { usePlaylists } from "@/features/playlists"
+export default async function PlaylistsPage() {
+  const supabase = await createClient()
+  const {
+    data: { user }
+  } = await supabase.auth.getUser()
 
-export default function PlaylistsPage() {
-  const { playlists, updatePlaylist, deletePlaylist } = usePlaylists()
+  if (!user) {
+    return null
+  }
 
-  return (
-    <PlaylistsClient
-      initialPlaylists={playlists}
-      onUpdatePlaylist={updatePlaylist}
-      onDeletePlaylist={deletePlaylist}
-    />
-  )
+  const context = await getAppContextFromCookies(user.id)
+  const playlists = await getPlaylistsWithClient(supabase, context)
+
+  return <PlaylistsClient initialPlaylists={playlists} />
 }

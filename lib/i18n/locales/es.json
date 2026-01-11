@@ -16,7 +16,9 @@
     "toggleTheme": "Alternar tema",
     "toggleMenu": "Alternar menú",
     "poweredBy": "Desarrollado por Capo",
-    "tryDifferentSearch": "Prueba con otro término de búsqueda"
+    "tryDifferentSearch": "Prueba con otro término de búsqueda",
+    "capoLogo": "Logo de Capo",
+    "capoApp": "Aplicación Capo"
   },
   "nav": {
     "home": "Inicio",
@@ -24,7 +26,17 @@
     "songs": "Canciones",
     "playlists": "Listas de reproducción",
     "settings": "Configuración",
-    "logout": "Cerrar sesión"
+    "logout": "Cerrar sesión",
+    "personal": "Personal",
+    "personalAccount": "Tu cuenta personal",
+    "switchTeam": "Cambiar equipo",
+    "switchContext": "Cambiar contexto",
+    "myTeams": "Mis Equipos",
+    "manageTeams": "Administrar equipos",
+    "createTeam": "Crear equipo",
+    "goToTeamDashboard": "Ir al panel del equipo",
+    "profile": "Perfil",
+    "account": "Cuenta"
   },
   "settings": {
     "title": "Configuración",
@@ -162,7 +174,13 @@
     "accountDeleted": "Cuenta eliminada",
     "accountDeleteFailed": "Error al eliminar la cuenta",
     "signInFailed": "Error al iniciar sesión con Google. Por favor, inténtalo de nuevo.",
-    "signOutFailed": "Error al cerrar sesión. Por favor, inténtalo de nuevo."
+    "signOutFailed": "Error al cerrar sesión. Por favor, inténtalo de nuevo.",
+    "teamCreated": "¡Equipo creado exitosamente!",
+    "teamCreatedFailed": "Error al crear el equipo. Por favor, inténtalo de nuevo.",
+    "teamCreatedAuthRequired": "Debes iniciar sesión para crear un equipo",
+    "teamLeft": "Has dejado el equipo",
+    "teamLeftFailed": "Error al dejar el equipo. Por favor, inténtalo de nuevo.",
+    "teamSwitched": "Cambiado a {name}"
   },
   "dashboard": {
     "title": "Panel",
@@ -177,7 +195,9 @@
     "latestSongs": "Últimas canciones en tu biblioteca",
     "viewAll": "Ver todas",
     "songsByKey": "Canciones por tonalidad",
-    "distributionByKey": "Distribución por tonalidades"
+    "distributionByKey": "Distribución por tonalidades",
+    "recentActivity": "Actividad Reciente",
+    "recentActivityDescription": "Tus últimas acciones"
   },
 
   "playlistShare": {
@@ -204,5 +224,41 @@
     "deleteAccountConfirmDescription": "Esto eliminará permanentemente tu cuenta y todas tus canciones, listas de reproducción y datos. Esta acción no se puede deshacer.",
     "confirmDelete": "Sí, eliminar mi cuenta",
     "cancelDelete": "Cancelar"
+  },
+  "teams": {
+    "title": "Equipos",
+    "createNewTeam": "Crear Nuevo Equipo",
+    "createNewTeamDescription": "Configura un nuevo equipo para colaborar con otros",
+    "manageTeams": "Administra tus equipos y miembros",
+    "noTeamsFound": "No se encontraron equipos",
+    "teamName": "Nombre del Equipo",
+    "teamNamePlaceholder": "ej. Equipo de Adoración Alfa",
+    "teamNameDescription": "Elige un nombre para tu equipo",
+    "slug": "Identificador",
+    "slugPlaceholder": "equipo-adoracion-alfa",
+    "slugDescription": "Un identificador amigable para URL de tu equipo (solo minúsculas, números y guiones)",
+    "description": "Descripción",
+    "descriptionOptional": "Descripción (Opcional)",
+    "descriptionPlaceholder": "Equipo principal de adoración para servicios dominicales",
+    "descriptionDescription": "Agrega una breve descripción de tu equipo",
+    "publicTeam": "Equipo Público",
+    "publicTeamDescription": "Permitir que otros descubran y soliciten unirse a este equipo",
+    "teamInformation": "Información del Equipo",
+    "members": "Miembros",
+    "addMember": "Agregar Miembro",
+    "noMembersYet": "Aún no hay miembros",
+    "leaveTeam": "Dejar Equipo",
+    "leaveTeamConfirm": "¿Estás seguro de que quieres dejar \"{name}\"? Perderás acceso a todo el contenido del equipo.",
+    "leaveTeamWarning": "Esta acción no se puede deshacer. Necesitarás ser invitado nuevamente para volver a unirte al equipo.",
+    "leaving": "Dejando...",
+    "switchToTeam": "Cambiar a Equipo",
+    "deleteTeam": "Eliminar Equipo",
+    "deleteTeamDescription": "Una vez que elimines un equipo, no hay vuelta atrás. Por favor, asegúrate.",
+    "creating": "Creando...",
+    "createTeam": "Crear Equipo"
+  },
+  "activity": {
+    "noActivity": "Aún no hay actividad",
+    "noActivityDescription": "Tus acciones recientes aparecerán aquí"
   }
 }

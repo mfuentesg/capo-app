@@ -52,7 +52,7 @@ jest.mock("@/lib/supabase/server", () => ({
 }))
 
 const { createClient } = require("@/lib/supabase/server")
-const { GET } = require("../route")
+const { GET } = require("@/app/auth/callback/route")
 
 describe("Auth Callback Route", () => {
   const originalConsoleError = console.error
