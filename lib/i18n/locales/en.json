@@ -18,7 +18,13 @@
     "poweredBy": "Powered by Capo",
     "tryDifferentSearch": "Try a different search term",
     "capoLogo": "Capo Logo",
-    "capoApp": "Capo App"
+    "capoApp": "Capo App",
+    "clickToAdd": "Click to add",
+    "google": "Google"
+  },
+  "metadata": {
+    "title": "Capo",
+    "description": "A modern song library app for musicians featuring chords and lyrics, built with Next.js and ChordPro format."
   },
   "nav": {
     "home": "Home",
@@ -49,6 +55,7 @@
   "songs": {
     "title": "Songs",
     "allSongs": "All Songs",
+    "draft": "Draft",
     "addSong": "Add Song",
     "noSongs": "No songs found",
     "selectSong": "Select a song",
@@ -91,6 +98,7 @@
     "editLyrics": "Edit Lyrics",
     "addLyrics": "Add Lyrics",
     "songTitle": "Song Title",
+    "songTitlePlaceholder": "Song title",
     "addLyricsDescription": "Add lyrics to your song using ChordPro format",
     "enterSongDetails": "Enter the basic song information. You can add lyrics in the next step.",
     "songSettingsInfo": "Settings like capo and transpose will be available after the song is created.",
@@ -155,7 +163,10 @@
     "selectPlaylist": "Select a playlist...",
     "clearButton": "Clear",
     "addButton": "Add {count} songs",
-    "selectNewPlaylist": "+ Create new playlist"
+    "selectNewPlaylist": "+ Create new playlist",
+    "exampleSunday7": "Sunday Dec 7",
+    "exampleSunday14": "Sunday Dec 14",
+    "exampleChristmas": "Christmas Special"
   },
   "filters": {
     "clearAll": "Clear all",
@@ -234,9 +245,8 @@
     "teamName": "Team Name",
     "teamNamePlaceholder": "e.g. Worship Team Alpha",
     "teamNameDescription": "Choose a name for your team",
-    "slug": "Slug",
-    "slugPlaceholder": "worship-team-alpha",
-    "slugDescription": "A URL-friendly identifier for your team (lowercase, numbers, and hyphens only)",
+    "clickIconToChange": ". Click the icon to change it.",
+
     "description": "Description",
     "descriptionOptional": "Description (Optional)",
     "descriptionPlaceholder": "Main worship team for Sunday services",
@@ -255,10 +265,25 @@
     "deleteTeam": "Delete Team",
     "deleteTeamDescription": "Once you delete a team, there is no going back. Please be certain.",
     "creating": "Creating...",
-    "createTeam": "Create Team"
+    "createTeam": "Create Team",
+    "active": "Active",
+    "created": "Created",
+    "user": "User",
+    "joined": "Joined"
   },
   "activity": {
     "noActivity": "No activity yet",
     "noActivityDescription": "Your recent actions will appear here"
+  },
+  "validation": {
+    "required": "{field} is required",
+    "tooLong": "{field} is too long",
+    "minBpm": "BPM must be at least {min}",
+    "maxBpm": "BPM must be at most {max}",
+    "teamName": "Team name",
+    "description": "Description",
+    "songTitle": "Song title",
+    "artistName": "Artist name",
+    "key": "Key"
   }
 }

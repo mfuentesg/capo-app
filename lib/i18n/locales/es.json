@@ -18,7 +18,13 @@
     "poweredBy": "Desarrollado por Capo",
     "tryDifferentSearch": "Prueba con otro término de búsqueda",
     "capoLogo": "Logo de Capo",
-    "capoApp": "Aplicación Capo"
+    "capoApp": "Aplicación Capo",
+    "clickToAdd": "Haz clic para agregar",
+    "google": "Google"
+  },
+  "metadata": {
+    "title": "Capo",
+    "description": "Una aplicación moderna de biblioteca de canciones para músicos con acordes y letras, construida con Next.js y formato ChordPro."
   },
   "nav": {
     "home": "Inicio",
@@ -49,6 +55,7 @@
   "songs": {
     "title": "Canciones",
     "allSongs": "Todas las canciones",
+    "draft": "Borrador",
     "addSong": "Agregar canción",
     "noSongs": "No se encontraron canciones",
     "selectSong": "Selecciona una canción",
@@ -91,6 +98,7 @@
     "editLyrics": "Editar letra",
     "addLyrics": "Agregar letra",
     "songTitle": "Título de la canción",
+    "songTitlePlaceholder": "Título de la canción",
     "addLyricsDescription": "Agrega letra a tu canción usando formato ChordPro",
     "enterSongDetails": "Ingresa la información básica de la canción. Puedes agregar letra en el siguiente paso.",
     "songSettingsInfo": "Configuraciones como capo y transporte estarán disponibles después de crear la canción.",
@@ -155,7 +163,10 @@
     "selectPlaylist": "Selecciona una lista...",
     "clearButton": "Limpiar",
     "addButton": "Agregar {count} canciones",
-    "selectNewPlaylist": "+ Crear nueva lista"
+    "selectNewPlaylist": "+ Crear nueva lista",
+    "exampleSunday7": "Domingo 7 diciembre",
+    "exampleSunday14": "Domingo 14 diciembre",
+    "exampleChristmas": "Especial de Navidad"
   },
   "filters": {
     "clearAll": "Limpiar todo",
@@ -234,9 +245,8 @@
     "teamName": "Nombre del Equipo",
     "teamNamePlaceholder": "ej. Equipo de Adoración Alfa",
     "teamNameDescription": "Elige un nombre para tu equipo",
-    "slug": "Identificador",
-    "slugPlaceholder": "equipo-adoracion-alfa",
-    "slugDescription": "Un identificador amigable para URL de tu equipo (solo minúsculas, números y guiones)",
+    "clickIconToChange": ". Haz clic en el icono para cambiarlo.",
+
     "description": "Descripción",
     "descriptionOptional": "Descripción (Opcional)",
     "descriptionPlaceholder": "Equipo principal de adoración para servicios dominicales",
@@ -255,10 +265,25 @@
     "deleteTeam": "Eliminar Equipo",
     "deleteTeamDescription": "Una vez que elimines un equipo, no hay vuelta atrás. Por favor, asegúrate.",
     "creating": "Creando...",
-    "createTeam": "Crear Equipo"
+    "createTeam": "Crear equipo",
+    "active": "Activo",
+    "created": "Creado",
+    "user": "Usuario",
+    "joined": "Unido"
   },
   "activity": {
     "noActivity": "Aún no hay actividad",
     "noActivityDescription": "Tus acciones recientes aparecerán aquí"
+  },
+  "validation": {
+    "required": "{field} es requerido",
+    "tooLong": "{field} es demasiado largo",
+    "minBpm": "El PPM debe ser al menos {min}",
+    "maxBpm": "El PPM debe ser como máximo {max}",
+    "teamName": "El nombre del equipo",
+    "description": "La descripción",
+    "songTitle": "El título de la canción",
+    "artistName": "El nombre del artista",
+    "key": "La tonalidad"
   }
 }
