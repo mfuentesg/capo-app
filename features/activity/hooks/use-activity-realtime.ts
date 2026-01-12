@@ -1,71 +1,56 @@
 /**
  * Real-time hook for activity feed
  * Subscribes to activity_log table changes
- * 
- * TODO: Implement when real-time activity features are needed
+ *
+ * Currently set up for personal context (user_id filtering)
+ * TODO: Add team context support when AppContext is implemented
  */
 
 import { useEffect } from "react"
 import { useQueryClient } from "@tanstack/react-query"
-// TODO: Import when AppContext is implemented
-// import { useAppContext } from "@/features/app-context"
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { createClient } from "@/lib/supabase/client"
+import { useUser } from "@/features/auth"
 import { activityKeys } from "./query-keys"
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import type { RealtimePostgresChangesPayload } from "@supabase/supabase-js"
- 
-import type { Database } from "@/lib/supabase/database.types"
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-type ActivityLog = Database["public"]["Tables"]["activity_log"]["Row"]
+import type { Tables } from "@/lib/supabase/database.types"
 
 /**
  * Real-time hook for activity feed
  * Subscribes to activity_log table changes
+ *
+ * Note: Real-time subscription is ready but will only work when real data is available.
+ * Currently using mock data, so this hook will set up the subscription but won't receive updates.
  */
 export function useActivityRealtime() {
-  // TODO: Get context when AppContext is implemented
-  // const { context } = useAppContext()
+  const { data: user } = useUser()
   const queryClient = useQueryClient()
 
   useEffect(() => {
-    // TODO: Uncomment when AppContext is available
-    // if (!context) return
-    return
+    if (!user?.id) return
 
-    // TODO: Implement real-time subscription
-    // const supabase = createClient()
-    // const channelName = `activity:${context.type === "personal" ? context.userId : context.teamId}`
-    // 
-    // let filter = ""
-    // if (context.type === "personal") {
-    //   filter = `user_id=eq.${context.userId}`
-    // } else {
-    //   filter = `team_id=eq.${context.teamId}`
-    // }
-    // 
-    // const channel = supabase
-    //   .channel(channelName)
-    //   .on<ActivityLog>(
-    //     "postgres_changes",
-    //     {
-    //       event: "INSERT", // Only new activities
-    //       schema: "public",
-    //       table: "activity_log",
-    //       filter,
-    //     },
-    //     (payload: RealtimePostgresChangesPayload<ActivityLog>) => {
-    //       // Invalidate activity feed query
-    //       queryClient.invalidateQueries({
-    //         queryKey: activityKeys.list(context),
-    //       })
-    //     }
-    //   )
-    //   .subscribe()
-    // 
-    // return () => {
-    //   channel.unsubscribe()
-    // }
-  }, [queryClient]) // TODO: Add context to dependencies when available
+    const supabase = createClient()
+    const channelName = `activity:${user.id}`
+
+    const channel = supabase
+      .channel(channelName)
+      .on<Tables<"activity_log">>(
+        "postgres_changes",
+        {
+          event: "INSERT", // Only new activities
+          schema: "public",
+          table: "activity_log",
+          filter: `user_id=eq.${user.id}`
+        },
+        () => {
+          // Invalidate activity feed query when new activity is inserted
+          queryClient.invalidateQueries({
+            queryKey: activityKeys.list({ type: "personal", userId: user.id })
+          })
+        }
+      )
+      .subscribe()
+
+    return () => {
+      channel.unsubscribe()
+    }
+  }, [user?.id, queryClient])
 }
-
