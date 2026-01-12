@@ -1,48 +1,19 @@
 "use client"
 
 import Link from "next/link"
-import { OptimizedLogo } from "@/components/optimized-logo"
-import { usePathname } from "next/navigation"
 import { useState } from "react"
-import { Music, ListMusic, LogOut, Menu, Languages } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { ThemeToggle } from "./theme-toggle"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger
-} from "@/components/ui/dropdown-menu"
-import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger
-} from "@/components/ui/drawer"
-import { cn, getUserInitials } from "@/lib/utils"
-import { useLocale } from "@/contexts/locale-context"
-import type { Locale } from "@/lib/i18n/config"
-import { useSignOut, useUser } from "@/features/auth"
+import { OptimizedLogo } from "@/components/optimized-logo"
+import { ThemeToggle } from "@/components/layout/theme-toggle"
+import { MobileNavDrawer } from "@/components/layout/mobile-nav-drawer"
+import { NavLinks } from "@/components/layout/nav-links"
+import { LanguageSwitcher } from "@/components/layout/language-switcher"
+import { UserProfileMenu } from "@/components/layout/user-profile-menu"
+import { useLocale } from "@/features/settings"
+import { Music, ListMusic } from "lucide-react"
 
 export function Navbar() {
-  const pathname = usePathname()
-  const { t, locale, setLocale } = useLocale()
+  const { t } = useLocale()
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
-  const { data: user } = useUser()
-  const signOut = useSignOut()
-
-  const handleSignOut = async () => {
-    await signOut.mutateAsync()
-  }
-
-  const languages = [
-    { code: "en" as Locale, label: "English" },
-    { code: "es" as Locale, label: "Español" }
-  ]
 
   const navItems = [
     { title: t.nav.songs, href: "/dashboard/songs", icon: Music },
@@ -52,48 +23,12 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
       <div className="flex h-16 items-center px-4 sm:px-6 lg:px-8">
-        <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen} direction="left">
-          <DrawerTrigger asChild>
-            <Button variant="ghost" size="icon" className="mr-2 md:hidden">
-              <Menu className="h-5 w-5" />
-              <span className="sr-only">{t.common.toggleMenu}</span>
-            </Button>
-          </DrawerTrigger>
-          <DrawerContent className="w-64">
-            <DrawerHeader>
-              <DrawerTitle className="flex items-center gap-2">
-                <OptimizedLogo
-                  name="capo-text"
-                  alt="Capo Logo"
-                  width={80}
-                  height={27}
-                  className="dark:invert"
-                />
-              </DrawerTitle>
-            </DrawerHeader>
-            <nav className="mt-8 flex flex-col gap-2">
-              {navItems.map((item) => {
-                const isActive = pathname === item.href
-                return (
-                  <Link key={item.href} href={item.href} onClick={() => setIsDrawerOpen(false)}>
-                    <Button
-                      variant={isActive ? "secondary" : "ghost"}
-                      className={cn("w-full justify-start gap-3", isActive && "font-medium")}
-                    >
-                      <item.icon className="h-5 w-5" />
-                      {item.title}
-                    </Button>
-                  </Link>
-                )
-              })}
-            </nav>
-          </DrawerContent>
-        </Drawer>
+        <MobileNavDrawer isOpen={isDrawerOpen} onOpenChange={setIsDrawerOpen} />
 
         <Link href="/dashboard" className="mr-6 flex items-center lg:mr-8">
           <OptimizedLogo
             name="capo-text"
-            alt="Capo Logo"
+            alt={t.common.capoLogo}
             width={80}
             height={24}
             priority
@@ -102,69 +37,13 @@ export function Navbar() {
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">
-          {navItems.map((item) => {
-            const isActive = pathname === item.href
-            return (
-              <Link key={item.href} href={item.href}>
-                <Button
-                  variant={isActive ? "secondary" : "ghost"}
-                  className={cn("gap-2 rounded-full", isActive && "font-medium")}
-                >
-                  <item.icon className="h-4 w-4" />
-                  {item.title}
-                </Button>
-              </Link>
-            )
-          })}
+          <NavLinks items={navItems} variant="horizontal" />
         </nav>
 
         <div className="ml-auto flex items-center gap-1 sm:gap-2">
           <ThemeToggle />
-
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="gap-1 h-9 px-2">
-                <Languages className="h-4 w-4" />
-                <span className="text-xs font-medium uppercase">{locale}</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {languages.map((lang) => (
-                <DropdownMenuItem
-                  key={lang.code}
-                  onClick={() => setLocale(lang.code)}
-                  className={cn(locale === lang.code && "bg-accent")}
-                >
-                  <span className="text-xs font-medium uppercase mr-2">{lang.code}</span>
-                  {lang.label}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-9 w-9 rounded-full">
-                <Avatar className="h-9 w-9">
-                  <AvatarImage src={user?.avatarUrl} alt={user?.displayName || "User"} />
-                  <AvatarFallback>{getUserInitials(user)}</AvatarFallback>
-                </Avatar>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56" align="end" forceMount>
-              <DropdownMenuLabel className="font-normal">
-                <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">{user?.displayName || "User"}</p>
-                  <p className="text-xs leading-none text-muted-foreground">{user?.email || ""}</p>
-                </div>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleSignOut} disabled={signOut.isPending}>
-                <LogOut className="mr-2 h-4 w-4" />
-                {signOut.isPending ? t.common.loading || "Loading..." : t.nav.logout}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <LanguageSwitcher />
+          <UserProfileMenu />
         </div>
       </div>
     </header>

@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation"
 import { PlaylistShareView } from "@/features/playlist-sharing"
-import type { Playlist } from "@/types"
 import { getPlaylistByShareCode } from "@/lib/mock-data"
 
 export default async function PlaylistSharePage({

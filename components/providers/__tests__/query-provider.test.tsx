@@ -2,7 +2,7 @@
  * Tests for QueryProvider component
  */
 import { render, screen } from "@testing-library/react"
-import { QueryProvider } from "../query-provider"
+import { QueryProvider } from "@/components/providers/query-provider"
 
 // Mock child component
 const TestChild = () => <div>Test Content</div>
