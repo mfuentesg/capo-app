@@ -104,7 +104,7 @@ export function AppContextProvider({
   useEffect(() => {
     const currentUserId = user?.id || initialUser?.id
     if (!currentUserId) {
-      if (context !== null) setContextState(null)
+      setContextState(null)
       return
     }
 
@@ -147,40 +147,46 @@ export function AppContextProvider({
       isInitialMount.current = false
     }
     // We intentionally ignore 'context' here. This effect is a sync-down from Props only.
-  }, [user?.id, initialUser?.id, initialSelectedTeamId, initialTeams, teams])
+  }, [user?.id, initialUser?.id, initialSelectedTeamId, initialTeams, teams, context])
 
-  const setContext = (newContext: AppContext | null) => {
-    setContextState(newContext)
+  const setContext = useCallback(
+    (newContext: AppContext | null) => {
+      setContextState(newContext)
 
-    startTransition(async () => {
-      if (newContext) {
-        if (newContext.type === "team") {
-          await setClientSelectedTeamId(newContext.teamId)
-        } else {
-          await unsetClientSelectedTeamId()
+      startTransition(async () => {
+        if (newContext) {
+          if (newContext.type === "team") {
+            await setClientSelectedTeamId(newContext.teamId)
+          } else {
+            await unsetClientSelectedTeamId()
+          }
+          // Refresh the current page to refetch data with new context
+          router.refresh()
         }
-        // Refresh the current page to refetch data with new context
-        router.refresh()
-      }
-    })
-  }
+      })
+    },
+    [startTransition, router]
+  )
 
-  const switchToPersonal = () => {
+  const switchToPersonal = useCallback(() => {
     if (!user?.id) return
     setContext({
       type: "personal",
       userId: user.id
     })
-  }
+  }, [user?.id, setContext])
 
-  const switchToTeam = (teamId: string) => {
-    if (!user?.id) return
-    setContext({
-      type: "team",
-      teamId,
-      userId: user.id
-    })
-  }
+  const switchToTeam = useCallback(
+    (teamId: string) => {
+      if (!user?.id) return
+      setContext({
+        type: "team",
+        teamId,
+        userId: user.id
+      })
+    },
+    [user?.id, setContext]
+  )
 
   return (
     <AppContextContext.Provider

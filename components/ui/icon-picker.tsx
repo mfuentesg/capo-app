@@ -88,11 +88,7 @@ import {
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { InputGroupButton } from "@/components/ui/input-group"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 
 export const TEAM_ICONS: Record<string, LucideIcon> = {
   // Music & Audio
@@ -110,13 +106,13 @@ export const TEAM_ICONS: Record<string, LucideIcon> = {
   Disc,
   Disc3,
   Album,
-  
+
   // People & Teams
   Users,
   Users2,
   User,
   UserCircle,
-  
+
   // Achievement & Success
   Star,
   Trophy,
@@ -125,7 +121,7 @@ export const TEAM_ICONS: Record<string, LucideIcon> = {
   Crown,
   Target,
   CheckCircle2,
-  
+
   // Energy & Power
   Heart,
   Zap,
@@ -134,17 +130,17 @@ export const TEAM_ICONS: Record<string, LucideIcon> = {
   Sparkle,
   Rocket,
   Lightbulb,
-  
+
   // Protection & Strength
   Shield,
   ShieldCheck,
   Sword,
-  
+
   // Precious & Special
   Gem,
   Diamond,
   Gift,
-  
+
   // Organization & Tools
   LayoutGrid,
   Settings,
@@ -155,7 +151,7 @@ export const TEAM_ICONS: Record<string, LucideIcon> = {
   Calendar,
   Clock,
   Bell,
-  
+
   // Places & Navigation
   Globe,
   Globe2,
@@ -165,7 +161,7 @@ export const TEAM_ICONS: Record<string, LucideIcon> = {
   Home,
   Building,
   Building2,
-  
+
   // Nature & Weather
   Sun,
   Moon,
@@ -174,7 +170,7 @@ export const TEAM_ICONS: Record<string, LucideIcon> = {
   Leaf,
   Flower2,
   Waves,
-  
+
   // Activities & Hobbies
   Coffee,
   Palette,
@@ -182,12 +178,12 @@ export const TEAM_ICONS: Record<string, LucideIcon> = {
   Film,
   Gamepad2,
   Puzzle,
-  
+
   // Maritime & Adventure
   Anchor,
   Ship,
   Umbrella,
-  
+
   // Fun & Playful
   Smile,
   Ghost,
@@ -195,11 +191,11 @@ export const TEAM_ICONS: Record<string, LucideIcon> = {
   Dog,
   Bird,
   Fish,
-  
+
   // Security & Status
   Lock,
   Flag,
-  AlertCircle,
+  AlertCircle
 }
 
 interface IconPickerProps {
@@ -230,8 +226,8 @@ export function IconPicker({ value, onChange, disabled }: IconPickerProps) {
           <span className="sr-only">{value || "Select an icon"}</span>
         </InputGroupButton>
       </PopoverTrigger>
-      <PopoverContent className="w-[560px] p-0" align="start">
-        <div className="h-[480px] p-4 overflow-y-auto">
+      <PopoverContent className="w-140 p-0" align="start">
+        <div className="h-120 p-4 overflow-y-auto">
           <div className="grid grid-cols-8 gap-3">
             {Object.entries(TEAM_ICONS).map(([name, Icon]) => (
               <Button
