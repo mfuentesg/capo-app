@@ -2,16 +2,16 @@
 
 import { useMemo } from "react"
 import { Calendar as CalendarIcon, ListMusic, ArrowLeft, Copy } from "lucide-react"
-import { format } from "date-fns"
 import { toast } from "sonner"
-import { useLocale } from "@/contexts/locale-context"
+import { useLocale } from "@/features/settings"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Empty, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription } from "@/components/ui/empty"
 import Link from "next/link"
 import type { Playlist } from "@/types"
 import type { SongWithPosition } from "@/types/extended"
-import { getSongsByIds } from "@/lib/songs-data"
+import { getSongsByIds } from "@/features/songs"
+import { formatLongDate } from "@/lib/utils"
 
 interface PlaylistShareViewProps {
   playlist: Playlist
@@ -32,7 +32,7 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
       ? `${window.location.origin}/dashboard/playlists/${playlist.shareCode}`
       : ""
 
-  const { t } = useLocale()
+  const { t, locale } = useLocale()
 
   const copyToClipboard = () => {
     if (shareUrl) {
@@ -71,7 +71,7 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
               {playlist.date && (
                 <Badge variant="outline" className="gap-1.5">
                   <CalendarIcon className="h-3.5 w-3.5" />
-                  {format(new Date(playlist.date), "PPP")}
+                  {formatLongDate(new Date(playlist.date), locale)}
                 </Badge>
               )}
               <Badge variant="secondary" className="gap-1.5">
