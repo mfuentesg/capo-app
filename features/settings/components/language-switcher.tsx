@@ -1,6 +1,6 @@
 "use client"
 
-import { useLocale } from "@/contexts/locale-context"
+import { useLocale } from "@/features/settings"
 import { locales, localeNames } from "@/lib/i18n/config"
 import { Button } from "@/components/ui/button"
 import {
