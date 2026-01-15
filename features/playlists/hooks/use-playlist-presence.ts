@@ -21,7 +21,7 @@ interface PresenceUser {
  */
 export function usePlaylistPresence(playlistId: string) {
   const { data: user } = useUser()
-  const [activeUsers, setActiveUsers] = useState<PresenceUser[]>([])
+  const [activeUsers] = useState<PresenceUser[]>([])
 
   useEffect(() => {
     if (!playlistId || !user?.id) return

@@ -19,7 +19,7 @@ import { useUser } from "@/features/auth"
 export function usePlaylistCollaboration(playlistId: string) {
   const queryClient = useQueryClient()
   const { data: user } = useUser()
-  const [isConnected, setIsConnected] = useState(false)
+  const [isConnected] = useState(false)
 
   useEffect(() => {
     if (!playlistId || !user?.id) return

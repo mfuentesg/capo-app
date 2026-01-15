@@ -7,12 +7,6 @@
 
 import { useEffect, useState } from "react"
 import { useQueryClient } from "@tanstack/react-query"
-import { createClient } from "@/lib/supabase/client"
-import { playlistsKeys } from "./query-keys"
-import type { RealtimePostgresChangesPayload } from "@supabase/supabase-js"
-import type { Database } from "@/lib/supabase/database.types"
-
-type PlaylistSong = Database["public"]["Tables"]["playlist_songs"]["Row"]
 
 /**
  * Real-time hook for playlist collaboration
@@ -23,7 +17,7 @@ type PlaylistSong = Database["public"]["Tables"]["playlist_songs"]["Row"]
  */
 export function usePlaylistRealtime(playlistId: string) {
   const queryClient = useQueryClient()
-  const [isConnected, setIsConnected] = useState(false)
+  const [isConnected] = useState(false)
 
   useEffect(() => {
     if (!playlistId) return

@@ -2,9 +2,9 @@
 
 import { useState, useMemo } from "react"
 import { ListMusic } from "lucide-react"
-import { PlaylistItem } from "../playlist-item"
+import { PlaylistItem } from "@/features/playlists/components/playlist-item"
 import { Empty, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription } from "@/components/ui/empty"
-import type { Playlist } from "../../types"
+import type { Playlist } from "@/features/playlists/types"
 import { useTranslation } from "@/hooks/use-translation"
 
 interface PlaylistListProps {

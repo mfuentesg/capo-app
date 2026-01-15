@@ -9,29 +9,34 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
 import { Plus, Search, ListMusic, Settings2, X } from "lucide-react"
-import { PlaylistList } from "./playlist-list"
-import { PlaylistDetail } from "./playlist-detail"
-import type { Playlist } from "../types"
+import { PlaylistList } from "@/features/playlists/components/playlist-list"
+import { PlaylistDetail } from "@/features/playlists/components/playlist-detail"
+import type { Playlist } from "@/features/playlists/types"
 import { useTranslation } from "@/hooks/use-translation"
+import { usePlaylists } from "@/features/playlists/contexts"
 
 interface PlaylistsClientProps {
   initialPlaylists: Playlist[]
-  onUpdatePlaylist: (id: string, updates: Partial<Playlist>) => void
-  onDeletePlaylist: (id: string) => void
 }
 
-export function PlaylistsClient({
-  initialPlaylists,
-  onUpdatePlaylist,
-  onDeletePlaylist
-}: PlaylistsClientProps) {
+export function PlaylistsClient({ initialPlaylists }: PlaylistsClientProps) {
+  const { updatePlaylist, deletePlaylist } = usePlaylists()
   const { t } = useTranslation()
-  const [isMobile, setIsMobile] = useState<boolean | undefined>(undefined)
+  const [isMobile, setIsMobile] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [filterStatus, setFilterStatus] = useState<"all" | "drafts" | "completed">("all")
   const [filterVisibility, setFilterVisibility] = useState<"all" | "public" | "private">("all")
   const [selectedPlaylist, setSelectedPlaylist] = useState<Playlist | null>(null)
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false)
+
+  // Track viewport to render Drawer only after mount and on mobile
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)")
+    const update = () => setIsMobile(mq.matches)
+    update()
+    mq.addEventListener("change", update)
+    return () => mq.removeEventListener("change", update)
+  }, [])
 
   // Calculate active filter count
   const activeFilterCount = useMemo(() => {
@@ -47,15 +52,6 @@ export function PlaylistsClient({
     setFilterVisibility("all")
   }
 
-  // Track viewport to render Drawer only on mobile (md: 768px)
-  useEffect(() => {
-    const mq = window.matchMedia("(max-width: 767px)")
-    const update = () => setIsMobile(mq.matches)
-    update()
-    mq.addEventListener("change", update)
-    return () => mq.removeEventListener("change", update)
-  }, [])
-
   const handleSelectPlaylist = (playlist: Playlist) => {
     setSelectedPlaylist(playlist)
     setIsMobileDrawerOpen(true)
@@ -68,8 +64,9 @@ export function PlaylistsClient({
 
   return (
     <div className="h-[calc(100vh-4rem)] bg-background">
-      <ResizablePanelGroup direction="horizontal" className="h-full">
+      <ResizablePanelGroup id="playlists-layout-group" direction="horizontal" className="h-full">
         <ResizablePanel
+          id="playlists-list-panel"
           defaultSize={35}
           minSize={25}
           maxSize={50}
@@ -226,14 +223,14 @@ export function PlaylistsClient({
 
         <ResizableHandle withHandle className="hidden md:flex" />
 
-        <ResizablePanel defaultSize={65} minSize={40} className="hidden md:flex">
+        <ResizablePanel id="playlists-detail-panel" defaultSize={65} minSize={40} className="hidden md:flex">
           {selectedPlaylist ? (
             <PlaylistDetail
               playlist={selectedPlaylist}
               onClose={handleClosePlaylistDetail}
-              onUpdate={onUpdatePlaylist}
+              onUpdate={updatePlaylist}
               onDelete={(id) => {
-                onDeletePlaylist(id)
+                deletePlaylist(id)
                 handleClosePlaylistDetail()
               }}
             />
@@ -251,7 +248,6 @@ export function PlaylistsClient({
         </ResizablePanel>
       </ResizablePanelGroup>
 
-      {/* Mobile Drawer for Playlist Detail */}
       {isMobile && (
         <Drawer open={isMobileDrawerOpen} onOpenChange={setIsMobileDrawerOpen}>
           <DrawerContent className="flex flex-col mt-0! max-h-dvh! p-0 overflow-hidden">
@@ -264,9 +260,9 @@ export function PlaylistsClient({
                 <PlaylistDetail
                   playlist={selectedPlaylist}
                   onClose={handleClosePlaylistDetail}
-                  onUpdate={onUpdatePlaylist}
+                  onUpdate={updatePlaylist}
                   onDelete={(id) => {
-                    onDeletePlaylist(id)
+                    deletePlaylist(id)
                     handleClosePlaylistDetail()
                   }}
                 />
