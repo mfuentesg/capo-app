@@ -11,8 +11,22 @@ import {
 } from "@/lib/supabase/constants"
 import type { AuthError } from "@supabase/supabase-js"
 import { toast } from "sonner"
-import { useLocale } from "@/contexts/locale-context"
+import { useLocale } from "@/features/settings"
 import type { UserInfo } from "@/features/auth/types"
+
+async function getSession() {
+  const supabase = createClient()
+  const {
+    data: { session },
+    error
+  } = await supabase.auth.getSession()
+
+  if (error) {
+    throw error
+  }
+
+  return session
+}
 
 async function getUser(): Promise<UserInfo | null> {
   const supabase = createClient()
@@ -32,16 +46,26 @@ async function getUser(): Promise<UserInfo | null> {
   return {
     id: user?.id || "",
     email: user?.email,
-    avatarUrl: user?.user_metadata.avatar_url,
-    fullName: user?.user_metadata.full_name,
-    displayName: user?.user_metadata.name
+    avatarUrl: (user?.user_metadata?.avatar_url as string | undefined) || undefined,
+    fullName: (user?.user_metadata?.full_name as string | undefined) || undefined,
+    displayName: (user?.user_metadata?.name as string | undefined) || undefined
   }
 }
 
-export function useUser() {
+export function useSession() {
+  return useQuery({
+    queryKey: authKeys.session(),
+    queryFn: getSession,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: 1
+  })
+}
+
+export function useUser(initialData?: UserInfo | null) {
   return useQuery({
     queryKey: authKeys.user(),
     queryFn: getUser,
+    initialData,
     staleTime: 5 * 60 * 1000, // 5 minutes
     retry: 1
   })

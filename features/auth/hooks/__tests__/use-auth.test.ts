@@ -7,7 +7,7 @@ import { renderHook, waitFor } from "@testing-library/react"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { useSession, useSignInWithGoogle, useSignOut } from "@/features/auth/hooks/use-auth"
 import { authKeys, DEFAULT_REDIRECT_PATH, AUTH_CALLBACK_PATH } from "@/lib/supabase/constants"
-import { LocaleProvider } from "@/contexts/locale-context"
+import { LocaleProvider } from "@/features/settings"
 
 // Mock Supabase client
 jest.mock("@/lib/supabase/client", () => ({

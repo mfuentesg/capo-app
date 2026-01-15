@@ -6,7 +6,7 @@ import { OptimizedLogo } from "@/components/optimized-logo"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Field, FieldGroup } from "@/components/ui/field"
-import { useLocale } from "@/contexts/locale-context"
+import { useLocale } from "@/features/settings"
 import { useSignInWithGoogle } from "@/features/auth/hooks"
 
 export function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
@@ -46,7 +46,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
               <div className="flex items-center justify-center rounded-md">
                 <OptimizedLogo
                   name="capo"
-                  alt="Capo App"
+                  alt={t.common.capoApp}
                   width={150}
                   height={150}
                   priority
@@ -54,7 +54,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
                   style={{ color: "hsl(var(--foreground))" }}
                 />
               </div>
-              <span className="sr-only">Capo App</span>
+              <span className="sr-only">{t.common.capoApp}</span>
             </a>
             <h1 className="text-xl font-bold">{t.auth.welcomeToCapo}</h1>
             <h2 className="text-muted-foreground">{t.auth.signInDescription}</h2>
@@ -81,7 +81,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
                 {isLoading ? (
                   <span>{t.auth.loggingIn}</span>
                 ) : (
-                  <span>{t.auth.loginWith.replace("{provider}", "Google")}</span>
+                  <span>{t.auth.loginWith.replace("{provider}", t.common.google)}</span>
                 )}
               </div>
             </Button>

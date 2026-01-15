@@ -6,7 +6,7 @@ import { render, screen, waitFor, fireEvent } from "@testing-library/react"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { LoginForm } from "@/features/auth/components/login-form"
 import { useSignInWithGoogle } from "@/features/auth/hooks"
-import { LocaleProvider } from "@/contexts/locale-context"
+import { LocaleProvider } from "@/features/settings"
 
 // Mock next/navigation
 const mockSearchParams = new URLSearchParams()
