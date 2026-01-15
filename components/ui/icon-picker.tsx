@@ -259,5 +259,5 @@ export function IconPicker({ value, onChange, disabled }: IconPickerProps) {
 
 export function TeamIcon({ icon, className }: { icon?: string | null; className?: string }) {
   const IconData = icon && TEAM_ICONS[icon] ? TEAM_ICONS[icon] : Users
-  return <IconData className={cn("size-10", className)} />
+  return <IconData className={cn("size-5", className)} />
 }

@@ -12,7 +12,7 @@ import type { Locale } from "@/lib/i18n/config"
 import { QueryProvider } from "@/components/providers/query-provider"
 import { AuthStateProvider } from "@/features/auth"
 import { AppContextProvider } from "@/features/app-context"
-import { getSelectedTeamIdFromCookies } from "@/features/app-context/server"
+import { getInitialAppContextData } from "@/features/app-context/server"
 
 import "./globals.css"
 
@@ -66,8 +66,8 @@ export default async function RootLayout({
   const initialLocale: Locale =
     localeCookie && isValidLocale(localeCookie.value) ? localeCookie.value : defaultLocale
 
-  // Get selected team ID from cookies (server-side)
-  const initialSelectedTeamId = await getSelectedTeamIdFromCookies()
+  // Get selected team ID, user ID, and user teams from the server
+  const appContextData = await getInitialAppContextData()
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -82,9 +82,13 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <QueryProvider>
+          <QueryProvider initialUser={appContextData.user}>
             <AuthStateProvider>
-              <AppContextProvider initialSelectedTeamId={initialSelectedTeamId}>
+              <AppContextProvider 
+                initialSelectedTeamId={appContextData.initialSelectedTeamId}
+                initialTeams={appContextData.teams}
+                initialUser={appContextData.user}
+              >
                 <LocaleProvider initialLocale={initialLocale}>
                   <PlaylistsProvider>
                     <PlaylistDraftProvider>{children}</PlaylistDraftProvider>

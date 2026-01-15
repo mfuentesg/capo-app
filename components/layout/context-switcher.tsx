@@ -62,7 +62,7 @@ export function ContextSwitcher({ teams }: ContextSwitcherProps) {
               )}
             >
               <Avatar className="h-8 w-8">
-                {team.avatar_url ? <AvatarImage src={team.avatar_url} alt={team.name} /> : null}
+                {team.avatar_url && <AvatarImage src={team.avatar_url} alt={team.name} />}
                 <AvatarFallback className="text-xs bg-primary/10">
                   <TeamIcon icon={team.icon} className="h-4 w-4" />
                 </AvatarFallback>

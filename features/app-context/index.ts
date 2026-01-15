@@ -1,11 +1,16 @@
 /**
  * App Context feature public API
  * 
- * TODO: Export context provider and hook when implemented
+ * Note: Server-only utilities (getSelectedTeamIdFromCookies, getAppContextFromCookies, getTeamsFromServer)
+ * are not exported here to avoid bundling server-only code in client components.
+ * Import them directly from "@/features/app-context/server" in server components.
  */
 
 export type { AppContext } from "./types"
-
-// TODO: Export when implemented
-// export { AppContextProvider, useAppContext } from "./context"
+export { AppContextProvider, useAppContext } from "./context"
+export { SELECTED_TEAM_ID_KEY } from "./constants"
+export { 
+  setSelectedTeamId as setClientSelectedTeamId, 
+  unsetSelectedTeamId as unsetClientSelectedTeamId 
+} from "./client"
 

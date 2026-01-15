@@ -2,8 +2,6 @@
  * App Context Types
  * 
  * Defines the context for data access (personal vs team)
- * 
- * TODO: Implement AppContext provider when needed
  */
 
 /**
