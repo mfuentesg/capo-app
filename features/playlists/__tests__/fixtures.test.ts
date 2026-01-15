@@ -2,9 +2,11 @@
  * Test suite for playlist fixtures
  * Validates that mock data is properly structured
  */
-import { mockPlaylist, mockPlaylists } from "./fixtures"
+import { mockPlaylists } from "@/lib/mock-data"
 
 describe("Playlist Fixtures", () => {
+  const mockPlaylist = mockPlaylists[0]
+
   describe("mockPlaylist", () => {
     it("should have required properties", () => {
       expect(mockPlaylist).toHaveProperty("id")

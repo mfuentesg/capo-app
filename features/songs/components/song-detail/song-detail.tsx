@@ -1,3 +1,4 @@
+"use client"
 import { useState, useRef, useEffect } from "react"
 import {
   X,
@@ -16,8 +17,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
-import type { Song } from "../../types"
-import { KeySelect } from "../key-select"
+import type { Song } from "@/features/songs/types"
+import { KeySelect } from "@/features/songs/components/key-select"
 import { usePlaylistDraft } from "@/features/playlist-draft"
 import { transposeKey, calculateCapoKey } from "@/lib/music-theory"
 import { useTranslation } from "@/hooks/use-translation"
@@ -118,7 +119,7 @@ export function SongDetail({ song, onClose, onUpdate }: SongDetailProps) {
               />
               {song.isDraft && (
                 <Badge variant="secondary" className="text-xs">
-                  Draft
+                  {t.songs.draft}
                 </Badge>
               )}
             </div>
@@ -161,7 +162,7 @@ export function SongDetail({ song, onClose, onUpdate }: SongDetailProps) {
                 }}
                 className="h-auto border-0 p-0 font-medium text-sm tabular-nums w-14 text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               />
-              <span className="text-xs text-muted-foreground">BPM</span>
+              <span className="text-xs text-muted-foreground">{t.songs.bpm}</span>
             </div>
           </div>
 

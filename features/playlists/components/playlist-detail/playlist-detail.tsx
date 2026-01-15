@@ -13,7 +13,6 @@ import {
   Copy,
   ExternalLink
 } from "lucide-react"
-import { format } from "date-fns"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -28,13 +27,14 @@ import {
 } from "@/components/ui/empty"
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
 import { Switch } from "@/components/ui/switch"
-import { cn } from "@/lib/utils"
+import { cn, formatLongDate, formatDateISO } from "@/lib/utils"
 import { useTranslation } from "@/hooks/use-translation"
-import type { Playlist } from "../../types"
+import { useLocale } from "@/features/settings"
+import type { Playlist } from "@/features/playlists/types"
 import type { SongWithPosition, PlaylistWithSongs } from "@/types/extended"
-import { DraggablePlaylist } from "../../utils"
-import { usePlaylists } from "../../contexts"
-import { getSongsByIds } from "@/lib/songs-data"
+import { DraggablePlaylist } from "@/features/playlists/utils"
+import { usePlaylists } from "@/features/playlists/contexts"
+import { getSongsByIds } from "@/features/songs"
 
 interface PlaylistDetailProps {
   playlist: Playlist
@@ -48,13 +48,15 @@ function EditableField({
   onSave,
   className,
   inputClassName,
-  multiline = false
+  multiline = false,
+  label
 }: {
   value: string
   onSave: (value: string) => void
   className?: string
   inputClassName?: string
   multiline?: boolean
+  label?: string
 }) {
   const [isEditing, setIsEditing] = useState(false)
   const [editValue, setEditValue] = useState(value)
@@ -125,9 +127,7 @@ function EditableField({
         className
       )}
     >
-      <span className={multiline ? "whitespace-pre-wrap" : "truncate"}>
-        {value || "Click to add"}
-      </span>
+      <span className={multiline ? "whitespace-pre-wrap" : "truncate"}>{value || label}</span>
       <Pencil className="h-3 w-3 opacity-0 group-hover:opacity-50 transition-opacity shrink-0" />
     </button>
   )
@@ -136,6 +136,7 @@ function EditableField({
 export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: PlaylistDetailProps) {
   const { reorderPlaylistSongs } = usePlaylists()
   const { t } = useTranslation()
+  const { locale } = useLocale()
   const [isCalendarOpen, setIsCalendarOpen] = useState(false)
 
   // Convert playlist songs to SongWithPosition format
@@ -169,6 +170,7 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
             value={playlist.name}
             onSave={(value) => onUpdate(playlist.id, { name: value })}
             className="text-lg font-semibold"
+            label={t.common.clickToAdd}
           />
         </div>
         <div className="flex items-center gap-2">
@@ -206,7 +208,7 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
                 >
                   <CalendarIcon className="h-3.5 w-3.5" />
                   {playlist.date
-                    ? format(new Date(playlist.date), "PPP")
+                    ? formatLongDate(new Date(playlist.date), locale)
                     : t.playlistDetail.pickDate}
                 </Button>
               </PopoverTrigger>
@@ -216,7 +218,7 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
                   selected={playlist.date ? new Date(playlist.date) : undefined}
                   onSelect={(date) => {
                     if (date) {
-                      onUpdate(playlist.id, { date: format(date, "yyyy-MM-dd") })
+                      onUpdate(playlist.id, { date: formatDateISO(date) })
                       setIsCalendarOpen(false)
                     }
                   }}

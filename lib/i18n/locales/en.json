@@ -16,7 +16,15 @@
     "toggleTheme": "Toggle theme",
     "toggleMenu": "Toggle menu",
     "poweredBy": "Powered by Capo",
-    "tryDifferentSearch": "Try a different search term"
+    "tryDifferentSearch": "Try a different search term",
+    "capoLogo": "Capo Logo",
+    "capoApp": "Capo App",
+    "clickToAdd": "Click to add",
+    "google": "Google"
+  },
+  "metadata": {
+    "title": "Capo",
+    "description": "A modern song library app for musicians featuring chords and lyrics, built with Next.js and ChordPro format."
   },
   "nav": {
     "home": "Home",
@@ -24,7 +32,17 @@
     "songs": "Songs",
     "playlists": "Playlists",
     "settings": "Settings",
-    "logout": "Logout"
+    "logout": "Logout",
+    "personal": "Personal",
+    "personalAccount": "Your personal account",
+    "switchTeam": "Switch team",
+    "switchContext": "Switch context",
+    "myTeams": "My Teams",
+    "manageTeams": "Manage teams",
+    "createTeam": "Create team",
+    "goToTeamDashboard": "Go to team dashboard",
+    "profile": "Profile",
+    "account": "Account"
   },
   "settings": {
     "title": "Settings",
@@ -37,6 +55,7 @@
   "songs": {
     "title": "Songs",
     "allSongs": "All Songs",
+    "draft": "Draft",
     "addSong": "Add Song",
     "noSongs": "No songs found",
     "selectSong": "Select a song",
@@ -79,6 +98,7 @@
     "editLyrics": "Edit Lyrics",
     "addLyrics": "Add Lyrics",
     "songTitle": "Song Title",
+    "songTitlePlaceholder": "Song title",
     "addLyricsDescription": "Add lyrics to your song using ChordPro format",
     "enterSongDetails": "Enter the basic song information. You can add lyrics in the next step.",
     "songSettingsInfo": "Settings like capo and transpose will be available after the song is created.",
@@ -143,7 +163,10 @@
     "selectPlaylist": "Select a playlist...",
     "clearButton": "Clear",
     "addButton": "Add {count} songs",
-    "selectNewPlaylist": "+ Create new playlist"
+    "selectNewPlaylist": "+ Create new playlist",
+    "exampleSunday7": "Sunday Dec 7",
+    "exampleSunday14": "Sunday Dec 14",
+    "exampleChristmas": "Christmas Special"
   },
   "filters": {
     "clearAll": "Clear all",
@@ -160,7 +183,15 @@
     "playlistDeleted": "Playlist deleted",
     "error": "Something went wrong",
     "accountDeleted": "Account deleted",
-    "accountDeleteFailed": "Failed to delete account"
+    "accountDeleteFailed": "Failed to delete account",
+    "signInFailed": "Failed to sign in with Google. Please try again.",
+    "signOutFailed": "Failed to sign out. Please try again.",
+    "teamCreated": "Team created successfully!",
+    "teamCreatedFailed": "Failed to create team. Please try again.",
+    "teamCreatedAuthRequired": "You must be logged in to create a team",
+    "teamLeft": "You have left the team",
+    "teamLeftFailed": "Failed to leave team. Please try again.",
+    "teamSwitched": "Switched to {name}"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -175,7 +206,9 @@
     "latestSongs": "Latest songs in your library",
     "viewAll": "View all",
     "songsByKey": "Songs by Key",
-    "distributionByKey": "Distribution across musical keys"
+    "distributionByKey": "Distribution across musical keys",
+    "recentActivity": "Recent Activity",
+    "recentActivityDescription": "Your latest actions"
   },
 
   "playlistShare": {
@@ -187,6 +220,7 @@
     "signInDescription": "Sign in to start creating and sharing your music",
     "login": "Login",
     "loginWith": "Login with {provider}",
+    "loggingIn": "Logging in",
     "logout": "Logout",
     "welcome": "Welcome back"
   },
@@ -201,5 +235,55 @@
     "deleteAccountConfirmDescription": "This will permanently delete your account and all your songs, playlists, and data. This action cannot be undone.",
     "confirmDelete": "Yes, delete my account",
     "cancelDelete": "Cancel"
+  },
+  "teams": {
+    "title": "Teams",
+    "createNewTeam": "Create New Team",
+    "createNewTeamDescription": "Set up a new team to collaborate with others",
+    "manageTeams": "Manage your teams and members",
+    "noTeamsFound": "No teams found",
+    "teamName": "Team Name",
+    "teamNamePlaceholder": "e.g. Worship Team Alpha",
+    "teamNameDescription": "Choose a name for your team",
+    "clickIconToChange": ". Click the icon to change it.",
+
+    "description": "Description",
+    "descriptionOptional": "Description (Optional)",
+    "descriptionPlaceholder": "Main worship team for Sunday services",
+    "descriptionDescription": "Add a brief description of your team",
+    "publicTeam": "Public Team",
+    "publicTeamDescription": "Allow others to discover and request to join this team",
+    "teamInformation": "Team Information",
+    "members": "Members",
+    "addMember": "Add Member",
+    "noMembersYet": "No members yet",
+    "leaveTeam": "Leave Team",
+    "leaveTeamConfirm": "Are you sure you want to leave \"{name}\"? You will lose access to all team content.",
+    "leaveTeamWarning": "This action cannot be undone. You will need to be invited again to rejoin the team.",
+    "leaving": "Leaving...",
+    "switchToTeam": "Switch to Team",
+    "deleteTeam": "Delete Team",
+    "deleteTeamDescription": "Once you delete a team, there is no going back. Please be certain.",
+    "creating": "Creating...",
+    "createTeam": "Create Team",
+    "active": "Active",
+    "created": "Created",
+    "user": "User",
+    "joined": "Joined"
+  },
+  "activity": {
+    "noActivity": "No activity yet",
+    "noActivityDescription": "Your recent actions will appear here"
+  },
+  "validation": {
+    "required": "{field} is required",
+    "tooLong": "{field} is too long",
+    "minBpm": "BPM must be at least {min}",
+    "maxBpm": "BPM must be at most {max}",
+    "teamName": "Team name",
+    "description": "Description",
+    "songTitle": "Song title",
+    "artistName": "Artist name",
+    "key": "Key"
   }
 }

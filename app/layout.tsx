@@ -2,14 +2,19 @@ import type { Metadata } from "next"
 import { cookies } from "next/headers"
 import { Geist, Geist_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/react"
-import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/sonner"
 import { PlaylistDraftProvider } from "@/features/playlist-draft"
 import { PlaylistsProvider } from "@/features/playlists"
-import { LocaleProvider } from "@/contexts/locale-context"
+import { LocaleProvider } from "@/features/settings"
 import { defaultLocale, isValidLocale } from "@/lib/i18n/config"
 import type { Locale } from "@/lib/i18n/config"
+import { QueryProvider } from "@/components/providers/query-provider"
+import { AuthStateProvider } from "@/features/auth"
+import { AppContextProvider } from "@/features/app-context"
+import { getInitialAppContextData } from "@/features/app-context/server"
+
+import "./globals.css"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -61,8 +66,15 @@ export default async function RootLayout({
   const initialLocale: Locale =
     localeCookie && isValidLocale(localeCookie.value) ? localeCookie.value : defaultLocale
 
+  // Get selected team ID, user ID, and user teams from the server
+  const appContextData = await getInitialAppContextData()
+
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="preload" href="/img/optimized/capo.webp" as="image" type="image/webp" />
+        <link rel="preload" href="/img/optimized/capo-text.webp" as="image" type="image/webp" />
+      </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <ThemeProvider
           attribute="class"
@@ -70,14 +82,24 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <LocaleProvider initialLocale={initialLocale}>
-            <PlaylistsProvider>
-              <PlaylistDraftProvider>{children}</PlaylistDraftProvider>
-            </PlaylistsProvider>
-          </LocaleProvider>
+          <QueryProvider initialUser={appContextData.user}>
+            <AuthStateProvider>
+              <AppContextProvider 
+                initialSelectedTeamId={appContextData.initialSelectedTeamId}
+                initialTeams={appContextData.teams}
+                initialUser={appContextData.user}
+              >
+                <LocaleProvider initialLocale={initialLocale}>
+                  <PlaylistsProvider>
+                    <PlaylistDraftProvider>{children}</PlaylistDraftProvider>
+                  </PlaylistsProvider>
+                </LocaleProvider>
+              </AppContextProvider>
+            </AuthStateProvider>
+          </QueryProvider>
           <Toaster />
         </ThemeProvider>
-        <Analytics />
+        {process.env.NODE_ENV === "production" && <Analytics />}
       </body>
     </html>
   )

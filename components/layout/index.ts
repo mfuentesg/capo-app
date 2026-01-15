@@ -1,2 +1,6 @@
-export { Navbar } from "./navbar"
-export { ThemeToggle } from "./theme-toggle"
+export { Navbar } from "@/components/layout/navbar"
+export { ThemeToggle } from "@/components/layout/theme-toggle"
+export { LanguageSwitcher } from "@/components/layout/language-switcher"
+export { UserProfileMenu } from "@/components/layout/user-profile-menu"
+export { MobileNavDrawer } from "@/components/layout/mobile-nav-drawer"
+export { NavLinks } from "@/components/layout/nav-links"

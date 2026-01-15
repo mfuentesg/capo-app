@@ -16,7 +16,15 @@
     "toggleTheme": "Alternar tema",
     "toggleMenu": "Alternar menú",
     "poweredBy": "Desarrollado por Capo",
-    "tryDifferentSearch": "Prueba con otro término de búsqueda"
+    "tryDifferentSearch": "Prueba con otro término de búsqueda",
+    "capoLogo": "Logo de Capo",
+    "capoApp": "Aplicación Capo",
+    "clickToAdd": "Haz clic para agregar",
+    "google": "Google"
+  },
+  "metadata": {
+    "title": "Capo",
+    "description": "Una aplicación moderna de biblioteca de canciones para músicos con acordes y letras, construida con Next.js y formato ChordPro."
   },
   "nav": {
     "home": "Inicio",
@@ -24,7 +32,17 @@
     "songs": "Canciones",
     "playlists": "Listas de reproducción",
     "settings": "Configuración",
-    "logout": "Cerrar sesión"
+    "logout": "Cerrar sesión",
+    "personal": "Personal",
+    "personalAccount": "Tu cuenta personal",
+    "switchTeam": "Cambiar equipo",
+    "switchContext": "Cambiar contexto",
+    "myTeams": "Mis Equipos",
+    "manageTeams": "Administrar equipos",
+    "createTeam": "Crear equipo",
+    "goToTeamDashboard": "Ir al panel del equipo",
+    "profile": "Perfil",
+    "account": "Cuenta"
   },
   "settings": {
     "title": "Configuración",
@@ -37,6 +55,7 @@
   "songs": {
     "title": "Canciones",
     "allSongs": "Todas las canciones",
+    "draft": "Borrador",
     "addSong": "Agregar canción",
     "noSongs": "No se encontraron canciones",
     "selectSong": "Selecciona una canción",
@@ -79,6 +98,7 @@
     "editLyrics": "Editar letra",
     "addLyrics": "Agregar letra",
     "songTitle": "Título de la canción",
+    "songTitlePlaceholder": "Título de la canción",
     "addLyricsDescription": "Agrega letra a tu canción usando formato ChordPro",
     "enterSongDetails": "Ingresa la información básica de la canción. Puedes agregar letra en el siguiente paso.",
     "songSettingsInfo": "Configuraciones como capo y transporte estarán disponibles después de crear la canción.",
@@ -143,7 +163,10 @@
     "selectPlaylist": "Selecciona una lista...",
     "clearButton": "Limpiar",
     "addButton": "Agregar {count} canciones",
-    "selectNewPlaylist": "+ Crear nueva lista"
+    "selectNewPlaylist": "+ Crear nueva lista",
+    "exampleSunday7": "Domingo 7 diciembre",
+    "exampleSunday14": "Domingo 14 diciembre",
+    "exampleChristmas": "Especial de Navidad"
   },
   "filters": {
     "clearAll": "Limpiar todo",
@@ -160,7 +183,15 @@
     "playlistDeleted": "Lista eliminada",
     "error": "Algo salió mal",
     "accountDeleted": "Cuenta eliminada",
-    "accountDeleteFailed": "Error al eliminar la cuenta"
+    "accountDeleteFailed": "Error al eliminar la cuenta",
+    "signInFailed": "Error al iniciar sesión con Google. Por favor, inténtalo de nuevo.",
+    "signOutFailed": "Error al cerrar sesión. Por favor, inténtalo de nuevo.",
+    "teamCreated": "¡Equipo creado exitosamente!",
+    "teamCreatedFailed": "Error al crear el equipo. Por favor, inténtalo de nuevo.",
+    "teamCreatedAuthRequired": "Debes iniciar sesión para crear un equipo",
+    "teamLeft": "Has dejado el equipo",
+    "teamLeftFailed": "Error al dejar el equipo. Por favor, inténtalo de nuevo.",
+    "teamSwitched": "Cambiado a {name}"
   },
   "dashboard": {
     "title": "Panel",
@@ -175,7 +206,9 @@
     "latestSongs": "Últimas canciones en tu biblioteca",
     "viewAll": "Ver todas",
     "songsByKey": "Canciones por tonalidad",
-    "distributionByKey": "Distribución por tonalidades"
+    "distributionByKey": "Distribución por tonalidades",
+    "recentActivity": "Actividad Reciente",
+    "recentActivityDescription": "Tus últimas acciones"
   },
 
   "playlistShare": {
@@ -187,6 +220,7 @@
     "signInDescription": "Inicia sesión para comenzar a crear y compartir tu música",
     "login": "Iniciar sesión",
     "loginWith": "Iniciar sesión con {provider}",
+    "loggingIn": "Iniciando sesión",
     "logout": "Cerrar sesión",
     "welcome": "Bienvenido de nuevo"
   },
@@ -201,5 +235,55 @@
     "deleteAccountConfirmDescription": "Esto eliminará permanentemente tu cuenta y todas tus canciones, listas de reproducción y datos. Esta acción no se puede deshacer.",
     "confirmDelete": "Sí, eliminar mi cuenta",
     "cancelDelete": "Cancelar"
+  },
+  "teams": {
+    "title": "Equipos",
+    "createNewTeam": "Crear Nuevo Equipo",
+    "createNewTeamDescription": "Configura un nuevo equipo para colaborar con otros",
+    "manageTeams": "Administra tus equipos y miembros",
+    "noTeamsFound": "No se encontraron equipos",
+    "teamName": "Nombre del Equipo",
+    "teamNamePlaceholder": "ej. Equipo de Adoración Alfa",
+    "teamNameDescription": "Elige un nombre para tu equipo",
+    "clickIconToChange": ". Haz clic en el icono para cambiarlo.",
+
+    "description": "Descripción",
+    "descriptionOptional": "Descripción (Opcional)",
+    "descriptionPlaceholder": "Equipo principal de adoración para servicios dominicales",
+    "descriptionDescription": "Agrega una breve descripción de tu equipo",
+    "publicTeam": "Equipo Público",
+    "publicTeamDescription": "Permitir que otros descubran y soliciten unirse a este equipo",
+    "teamInformation": "Información del Equipo",
+    "members": "Miembros",
+    "addMember": "Agregar Miembro",
+    "noMembersYet": "Aún no hay miembros",
+    "leaveTeam": "Dejar Equipo",
+    "leaveTeamConfirm": "¿Estás seguro de que quieres dejar \"{name}\"? Perderás acceso a todo el contenido del equipo.",
+    "leaveTeamWarning": "Esta acción no se puede deshacer. Necesitarás ser invitado nuevamente para volver a unirte al equipo.",
+    "leaving": "Dejando...",
+    "switchToTeam": "Cambiar a Equipo",
+    "deleteTeam": "Eliminar Equipo",
+    "deleteTeamDescription": "Una vez que elimines un equipo, no hay vuelta atrás. Por favor, asegúrate.",
+    "creating": "Creando...",
+    "createTeam": "Crear equipo",
+    "active": "Activo",
+    "created": "Creado",
+    "user": "Usuario",
+    "joined": "Unido"
+  },
+  "activity": {
+    "noActivity": "Aún no hay actividad",
+    "noActivityDescription": "Tus acciones recientes aparecerán aquí"
+  },
+  "validation": {
+    "required": "{field} es requerido",
+    "tooLong": "{field} es demasiado largo",
+    "minBpm": "El PPM debe ser al menos {min}",
+    "maxBpm": "El PPM debe ser como máximo {max}",
+    "teamName": "El nombre del equipo",
+    "description": "La descripción",
+    "songTitle": "El título de la canción",
+    "artistName": "El nombre del artista",
+    "key": "La tonalidad"
   }
 }

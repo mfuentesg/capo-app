@@ -1,7 +1,8 @@
 "use client"
 
 import { createContext, useContext, useState, useCallback, type ReactNode } from "react"
-import type { Playlist } from "../types"
+import type { Playlist } from "@/features/playlists/types"
+import { mockPlaylists as initialMockPlaylists } from "@/lib/mock-data"
 
 export interface PlaylistsContextType {
   playlists: Playlist[]
@@ -19,74 +20,9 @@ const PlaylistsContext = createContext<PlaylistsContextType | undefined>(undefin
 // - Update playlist
 // - Delete playlist
 // - Reorder songs in playlist
-const mockPlaylists: Playlist[] = [
-  {
-    id: "1",
-    name: "Sunday Morning Worship",
-    description: "Opening worship set for Sunday service",
-    date: "2024-12-08",
-    songs: [
-      "550e8400-e29b-41d4-a716-446655440001",
-      "550e8400-e29b-41d4-a716-446655440002",
-      "550e8400-e29b-41d4-a716-446655440004",
-      "550e8400-e29b-41d4-a716-446655440006"
-    ],
-    createdAt: "2024-12-01T10:00:00Z",
-    updatedAt: "2024-12-01T10:00:00Z",
-    visibility: "public",
-    allowGuestEditing: true,
-    shareCode: "ABC123"
-  },
-  {
-    id: "2",
-    name: "Youth Night",
-    description: "Energetic songs for youth service",
-    date: "2024-12-10",
-    songs: [
-      "550e8400-e29b-41d4-a716-446655440003",
-      "550e8400-e29b-41d4-a716-446655440005",
-      "550e8400-e29b-41d4-a716-446655440007"
-    ],
-    createdAt: "2024-11-28T15:00:00Z",
-    updatedAt: "2024-11-28T15:00:00Z",
-    visibility: "public",
-    allowGuestEditing: false,
-    shareCode: "XYZ789"
-  },
-  {
-    id: "3",
-    name: "Christmas Special",
-    description: "Christmas themed worship songs",
-    date: "2024-12-25",
-    songs: ["550e8400-e29b-41d4-a716-446655440001", "550e8400-e29b-41d4-a716-446655440008"],
-    createdAt: "2024-11-20T12:00:00Z",
-    updatedAt: "2024-11-20T12:00:00Z",
-    visibility: "private"
-  },
-  {
-    id: "4",
-    name: "Evening Service Ideas",
-    description: "Collection of songs to review for evening service",
-    date: "2024-12-15",
-    songs: ["550e8400-e29b-41d4-a716-446655440009", "550e8400-e29b-41d4-a716-446655440010"],
-    createdAt: "2024-12-03T14:00:00Z",
-    updatedAt: "2024-12-03T14:00:00Z",
-    isDraft: true,
-    visibility: "private"
-  },
-  {
-    id: "5",
-    name: "New Songs to Learn",
-    description: "Draft playlist - needs review",
-    songs: [],
-    createdAt: "2024-12-05T09:00:00Z",
-    updatedAt: "2024-12-05T09:00:00Z",
-    isDraft: true
-  }
-]
 
 export function PlaylistsProvider({ children }: { children: ReactNode }) {
-  const [playlists, setPlaylists] = useState<Playlist[]>(mockPlaylists)
+  const [playlists, setPlaylists] = useState<Playlist[]>(initialMockPlaylists)
 
   const addPlaylist = useCallback((playlist: Playlist) => {
     setPlaylists((prev) => [...prev, playlist])

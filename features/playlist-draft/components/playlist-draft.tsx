@@ -132,9 +132,9 @@ export function PlaylistDraft({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="new">{t.playlistDraft.selectNewPlaylist}</SelectItem>
-              <SelectItem value="domingo-7">Domingo 7 diciembre</SelectItem>
-              <SelectItem value="domingo-14">Domingo 14 diciembre</SelectItem>
-              <SelectItem value="navidad">Especial de Navidad</SelectItem>
+              <SelectItem value="domingo-7">{t.playlistDraft.exampleSunday7}</SelectItem>
+              <SelectItem value="domingo-14">{t.playlistDraft.exampleSunday14}</SelectItem>
+              <SelectItem value="navidad">{t.playlistDraft.exampleChristmas}</SelectItem>
             </SelectContent>
           </Select>
           <div className="flex gap-2 w-full">

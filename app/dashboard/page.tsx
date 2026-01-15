@@ -1,57 +1,21 @@
+"use client"
+
 import Link from "next/link"
 import { Music, ListMusic, Plus, Calendar, TrendingUp, Clock, ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import KeyBadge from "@/components/key-badge"
-import { getTranslations } from "@/lib/i18n/translations"
-import { defaultLocale } from "@/lib/i18n/config"
+import { useTranslation } from "@/hooks/use-translation"
+import { ActivityFeed, useActivityRealtime } from "@/features/activity"
+import { mockDashboardStats as stats, mockDashboardRecentSongs as recentSongs } from "@/features/dashboard"
 
-// Mock data - replace with real data later
-const stats = {
-  totalSongs: 24,
-  totalPlaylists: 8,
-  songsThisMonth: 5,
-  upcomingPlaylists: 3
-}
 
-const recentSongs = [
-  {
-    id: "1",
-    title: "Espíritu y verdad",
-    artist: "Marcos Barrientos",
-    key: "A",
-    bpm: 120,
-    addedAt: "2 days ago"
-  },
-  {
-    id: "2",
-    title: "Ven ante su trono",
-    artist: "Elevation Worship",
-    key: "D#",
-    bpm: 120,
-    addedAt: "3 days ago"
-  },
-  {
-    id: "3",
-    title: "Al Que Está Sentado",
-    artist: "Marcos Brunet",
-    key: "A",
-    bpm: 141,
-    addedAt: "5 days ago"
-  }
-]
+export default function DashboardPage() {
+  const { t } = useTranslation()
 
-const keyDistribution = [
-  { key: "A", count: 6, percentage: 25 },
-  { key: "G", count: 5, percentage: 21 },
-  { key: "D", count: 4, percentage: 17 },
-  { key: "E", count: 3, percentage: 12 },
-  { key: "C", count: 3, percentage: 12 },
-  { key: "Other", count: 3, percentage: 13 }
-]
+  // Enable real-time activity updates
+  useActivityRealtime()
 
-export default function Page() {
-  const t = getTranslations(defaultLocale)
   return (
     <div className="min-h-screen bg-background">
       <main className="px-4 py-6 sm:px-8 sm:py-10 lg:px-12 lg:py-12">
@@ -150,8 +114,9 @@ export default function Page() {
               </div>
               <div className="space-y-3 p-4">
                 {recentSongs.map((song) => (
-                  <div
+                  <Link
                     key={song.id}
+                    href={`/dashboard/songs/${song.id}`}
                     className="flex items-center gap-4 rounded-xl p-3 transition-all hover:bg-muted/50 hover:shadow-sm cursor-pointer"
                   >
                     <KeyBadge keyValue={song.key} size="md" />
@@ -168,35 +133,17 @@ export default function Page() {
                         {song.addedAt}
                       </span>
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
             </div>
 
             <div className="rounded-lg border bg-card shadow-sm">
               <div className="p-4 border-b">
-                <h3 className="text-lg font-semibold">{t.dashboard.songsByKey}</h3>
-                <p className="text-sm text-muted-foreground">{t.dashboard.distributionByKey}</p>
+                <h3 className="text-lg font-semibold">{t.dashboard.recentActivity}</h3>
+                <p className="text-sm text-muted-foreground">{t.dashboard.recentActivityDescription}</p>
               </div>
-              <div className="space-y-3 p-4">
-                {keyDistribution.map((item) => (
-                  <div key={item.key} className="space-y-1.5">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="font-medium">{item.key}</span>
-                      <span className="text-muted-foreground">
-                        {item.count}{" "}
-                        {item.count === 1 ? t.playlistDetail.song : t.playlistDetail.songsPlural}
-                      </span>
-                    </div>
-                    <div className="h-2 rounded-full bg-muted overflow-hidden">
-                      <div
-                        className="h-full rounded-full bg-primary transition-all duration-500"
-                        style={{ width: `${item.percentage}%` }}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <ActivityFeed />
             </div>
           </div>
         </div>

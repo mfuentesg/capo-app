@@ -3,8 +3,9 @@
 import { Calendar, Music3, Lock, Globe, Users } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip"
-import type { Playlist } from "../../types"
+import type { Playlist } from "@/features/playlists/types"
 import { useTranslation } from "@/hooks/use-translation"
+import { formatDate } from "@/lib/utils"
 
 interface PlaylistItemProps {
   playlist: Playlist
@@ -69,7 +70,7 @@ export function PlaylistItem({ playlist, isSelected, onSelect }: PlaylistItemPro
             <div className="flex items-center gap-1">
               <Calendar className="h-3 w-3 text-muted-foreground" />
               <p className="text-xs text-muted-foreground">
-                {new Date(playlist.date).toLocaleDateString()}
+                {formatDate(playlist.date)}
               </p>
             </div>
           )}
