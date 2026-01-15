@@ -20,14 +20,12 @@ import {
 import type { Song } from "@/types"
 import { useTranslation } from "@/hooks/use-translation"
 
-const songFormSchema = z.object({
-  title: z.string().min(1, "Song title is required").trim(),
-  artist: z.string().min(1, "Artist name is required").trim(),
-  key: z.string().min(1, "Key is required"),
-  bpm: z.number().int().min(40, "BPM must be at least 40").max(300, "BPM must be at most 300")
-})
-
-type SongFormValues = z.infer<typeof songFormSchema>
+type SongFormValues = {
+  title: string
+  artist: string
+  key: string
+  bpm: number
+}
 
 interface SongDraftFormProps {
   song?: Song
@@ -38,6 +36,21 @@ interface SongDraftFormProps {
 
 export function SongDraftForm({ song, onClose, onSave, onChange }: SongDraftFormProps) {
   const { t } = useTranslation()
+
+  const songFormSchema = z.object({
+    title: z.string().min(1, t.validation.required.replace("{field}", t.validation.songTitle)).trim(),
+    artist: z
+      .string()
+      .min(1, t.validation.required.replace("{field}", t.validation.artistName))
+      .trim(),
+    key: z.string().min(1, t.validation.required.replace("{field}", t.validation.key)),
+    bpm: z
+      .number()
+      .int()
+      .min(40, t.validation.minBpm.replace("{min}", "40"))
+      .max(300, t.validation.maxBpm.replace("{max}", "300"))
+  })
+
   const [showUnsavedPrompt, setShowUnsavedPrompt] = useState(false)
 
   const form = useForm<SongFormValues>({
@@ -138,7 +151,7 @@ export function SongDraftForm({ song, onClose, onSave, onChange }: SongDraftForm
                       <FormLabel>{t.songs.songTitle}</FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="Song title"
+                          placeholder={t.songs.songTitlePlaceholder}
                           {...field}
                           className="shadow-none"
                           autoFocus
@@ -190,7 +203,7 @@ export function SongDraftForm({ song, onClose, onSave, onChange }: SongDraftForm
                   name="bpm"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>BPM</FormLabel>
+                      <FormLabel>{t.songs.bpm}</FormLabel>
                       <FormControl>
                         <Input
                           type="number"
