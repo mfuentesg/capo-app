@@ -1,1 +1,1 @@
-export type { PlaylistDraftContextType } from '../contexts/draft.context'
+export type { PlaylistDraftContextType } from "@/features/playlist-draft/contexts/draft.context"

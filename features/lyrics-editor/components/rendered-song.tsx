@@ -3,7 +3,7 @@
 import { useMemo } from "react"
 import { ChordProParser, TextFormatter } from "chordsheetjs"
 import { Music2 } from "lucide-react"
-import { useLocale } from "@/contexts/locale-context"
+import { useLocale } from "@/features/settings"
 
 interface RenderedSongProps {
   lyrics?: string

@@ -19,9 +19,9 @@ import { useRouter } from "next/navigation"
 import type { Song } from "@/types"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Separator } from "@/components/ui/separator"
-import { useLyricsSettings } from "@/hooks/use-lyrics-settings"
-import { RenderedSong } from "./rendered-song"
-import { LazySongEditor } from "./song-editor"
+import { useLyricsSettings } from "@/features/lyrics-editor"
+import { RenderedSong } from "@/features/lyrics-editor/components/rendered-song"
+import { LazySongEditor } from "@/features/lyrics-editor/components/song-editor"
 import { useTranslation } from "@/hooks/use-translation"
 
 interface LyricsViewProps {
@@ -106,7 +106,7 @@ export function LyricsView({ song }: LyricsViewProps) {
                 <>
                   {hasUnsavedChanges && (
                     <Badge variant="secondary" className="shrink-0">
-                      {t.common.unsavedChanges || "Unsaved Changes"}
+                      {t.common.unsavedChanges}
                     </Badge>
                   )}
                   <Button variant="outline" size="sm" onClick={handleCancel} className="shrink-0">
@@ -147,7 +147,7 @@ export function LyricsView({ song }: LyricsViewProps) {
                 {!transpose.isAtDefault() && (
                   <Badge variant="secondary" className="gap-1">
                     <Music2 className="h-3 w-3" />
-                    {transpose.display()} st
+                    {transpose.display()} {t.songs.semitones}
                   </Badge>
                 )}
                 {!capo.isAtDefault() && (
@@ -248,7 +248,7 @@ export function LyricsView({ song }: LyricsViewProps) {
                         <div className="flex items-center gap-2 px-3 py-1.5 bg-muted rounded-md min-w-20 justify-center">
                           <Music2 className="h-3.5 w-3.5 text-muted-foreground" />
                           <span className="text-sm font-medium">{transpose.display()}</span>
-                          <span className="text-xs text-muted-foreground">st</span>
+                          <span className="text-xs text-muted-foreground">{t.songs.semitones}</span>
                         </div>
                         <Button
                           onClick={transpose.increase}

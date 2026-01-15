@@ -1,78 +1,57 @@
 "use client"
 
-import CodeMirror from "@uiw/react-codemirror"
-import { EditorView, ViewUpdate } from "@codemirror/view"
-import { Fira_Code } from "next/font/google"
+import Editor from "@monaco-editor/react"
 import dynamic from "next/dynamic"
-import React from "react"
+import { useTheme } from "next-themes"
 import { Skeleton } from "@/components/ui/skeleton"
-
-const font = Fira_Code({
-  subsets: ["latin"],
-  weight: ["400"]
-})
-
-const theme = EditorView.theme({
-  "&": {
-    minHeight: "600px"
-  },
-  ".cm-line": {
-    fontSize: "16px",
-    lineHeight: "26px"
-  },
-  "&.cm-focused": {
-    outline: 0
-  },
-  ".cm-gutters": {
-    border: "none",
-    backgroundColor: "#fff"
-  },
-  ".cm-lineNumbers .cm-gutterElement:not(:empty)": {
-    marginTop: "0",
-    paddingRight: "10px",
-    paddingLeft: "10px",
-    lineHeight: "26px"
-  },
-  ".cm-content": font.style,
-  ".cm-selectionMatch": {
-    backgroundColor: "#bdf4e0",
-    borderRadius: "5px",
-    fontWeight: "bold"
-  }
-})
 
 interface Props {
   content: string
-  onChange?(value: string, viewUpdate: ViewUpdate): void
+  onChange?(value: string): void
 }
 
-export function SongEditor({ content, onChange }: Props) {
+function SongEditorClient({ content, onChange }: Props) {
+  const { theme: currentTheme } = useTheme()
+  const monacoTheme = currentTheme === "dark" ? "vs-dark" : "vs"
+
   return (
-    <CodeMirror
+    <Editor
+      height="600px"
+      language="plaintext"
+      theme={monacoTheme}
       value={content}
-      onChange={onChange}
-      theme={theme}
-      data-cy="song-editor"
-      basicSetup={{
-        foldGutter: false
+      onChange={(value) => onChange?.(value || "")}
+      options={{
+        wordWrap: "on",
+        minimap: { enabled: false },
+        fontSize: 16,
+        lineHeight: 26,
+        scrollBeyondLastLine: false
       }}
-      extensions={[EditorView.lineWrapping]}
+      data-cy="song-editor"
     />
   )
 }
 
-const LazyLoader = () => (
-  <div className="flex flex-col p-4 space-y-2">
-    <Skeleton className="w-3/4 h-3" />
-    <Skeleton className="w-full h-3" />
-    <Skeleton className="w-1/2 h-3" />
-    <Skeleton className="w-3/4 h-3" />
-    <Skeleton className="w-1/2 h-3" />
-    <Skeleton className="w-full h-3" />
-    <Skeleton className="w-3/4 h-3" />
+export function SongEditor({ content, onChange }: Props) {
+  return <SongEditorClient content={content} onChange={onChange} />
+}
+
+const EditorLoadingSkeleton = () => (
+  <div className="min-h-150 rounded-lg border bg-card overflow-hidden">
+    <div className="flex flex-col p-4 space-y-2">
+      <Skeleton className="w-3/4 h-4" />
+      <Skeleton className="w-full h-4" />
+      <Skeleton className="w-1/2 h-4" />
+      <Skeleton className="w-3/4 h-4" />
+      <Skeleton className="w-1/2 h-4" />
+      <Skeleton className="w-full h-4" />
+      <Skeleton className="w-3/4 h-4" />
+    </div>
   </div>
 )
 
-export const LazySongEditor = dynamic(() => Promise.resolve(SongEditor), {
-  loading: () => <LazyLoader />
+export const LazySongEditor = dynamic(() => Promise.resolve(SongEditorClient), {
+  ssr: false,
+  loading: () => <EditorLoadingSkeleton />
 })
