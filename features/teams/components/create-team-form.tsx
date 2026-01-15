@@ -22,6 +22,7 @@ import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/in
 import { createTeam } from "@/features/teams"
 import { toast } from "sonner"
 import { useUser } from "@/features/auth"
+import { useAppContext } from "@/features/app-context"
 import { useTranslation } from "@/hooks/use-translation"
 import type { TablesInsert } from "@/lib/supabase/database.types"
 
@@ -35,6 +36,7 @@ type TeamFormValues = {
 export function CreateTeamForm() {
   const router = useRouter()
   const { data: user } = useUser()
+  const { refreshTeams } = useAppContext()
   const { t } = useTranslation()
 
   const teamFormSchema = z.object({
@@ -78,6 +80,7 @@ export function CreateTeamForm() {
       } 
 
       const newTeam = await createTeam(teamData)
+      await refreshTeams()
       toast.success(t.toasts.teamCreated)
       // Redirect to teams page with query parameter to switch to the new team
       router.push(`/dashboard/teams?switchToTeamId=${newTeam.id}`)

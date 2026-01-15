@@ -9,10 +9,10 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
 import { Plus, Search, Music, LayoutList, Music2, Music3, Settings2, X } from "lucide-react"
-import { SongList } from "./song-list"
-import { SongDetail } from "./song-detail"
+import { SongList } from "@/features/songs/components/song-list"
+import { SongDetail } from "@/features/songs/components/song-detail"
 import { SongDraftForm } from "@/features/song-draft"
-import type { Song, GroupBy } from "../types"
+import type { Song, GroupBy } from "@/features/songs/types"
 import { useTranslation } from "@/hooks/use-translation"
 
 interface SongsClientProps {
@@ -23,18 +23,18 @@ type BPMRange = "all" | "slow" | "medium" | "fast"
 
 export function SongsClient({ initialSongs }: SongsClientProps) {
   const { t } = useTranslation()
-  const [isMobile, setIsMobile] = useState<boolean | undefined>(undefined)
+  const [isMobile, setIsMobile] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedSong, setSelectedSong] = useState<Song | null>(null)
   const [groupBy, setGroupBy] = useState<GroupBy>("none")
-  const [filterStatus, setFilterStatus] = useState<"all" | "drafts" | "completed">("all")
+  const [filterStatus, setFilterStatus] = useState<"all" | "drafts" | "completed" | "all">("all")
   const [bpmRange, setBpmRange] = useState<BPMRange>("all")
   const [songs, setSongs] = useState<Song[]>(initialSongs)
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false)
   const [isCreatingNewSong, setIsCreatingNewSong] = useState(false)
   const [previewSong, setPreviewSong] = useState<Song | null>(null)
 
-  // Track viewport to render Drawer only on mobile (md: 768px)
+  // Track viewport to render Drawer only after mount and on mobile
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 767px)")
     const update = () => setIsMobile(mq.matches)
@@ -114,8 +114,9 @@ export function SongsClient({ initialSongs }: SongsClientProps) {
 
   return (
     <div className="h-[calc(100vh-4rem)] bg-background">
-      <ResizablePanelGroup direction="horizontal" className="h-full">
+      <ResizablePanelGroup id="songs-layout-group" direction="horizontal" className="h-full">
         <ResizablePanel
+          id="songs-list-panel"
           defaultSize={35}
           minSize={25}
           maxSize={50}
@@ -164,7 +165,7 @@ export function SongsClient({ initialSongs }: SongsClientProps) {
                 <PopoverTrigger asChild>
                   <Button variant="outline" size="sm" className="relative gap-2 shrink-0">
                     <Settings2 className="h-4 w-4" />
-                    <span className="hidden sm:inline">{t.songs.filters || "Filters"}</span>
+                    <span className="hidden sm:inline">{t.songs.filters}</span>
                     {activeFilterCount > 0 && (
                       <Badge variant="default" className="ml-1 h-5 w-5 rounded-full p-0 text-xs">
                         {activeFilterCount}
@@ -177,9 +178,9 @@ export function SongsClient({ initialSongs }: SongsClientProps) {
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <div className="space-y-1">
-                        <h4 className="font-medium leading-none">{t.songs.filters || "Filters"}</h4>
+                        <h4 className="font-medium leading-none">{t.songs.filters}</h4>
                         <p className="text-xs text-muted-foreground">
-                          {t.songs.filtersDescription || "Filter and organize your songs"}
+                          {t.songs.filtersDescription}
                         </p>
                       </div>
                       {activeFilterCount > 0 && (
@@ -189,7 +190,7 @@ export function SongsClient({ initialSongs }: SongsClientProps) {
                           className="h-7 text-xs"
                           onClick={clearAllFilters}
                         >
-                          Clear all
+                          {t.filters.clearAll}
                         </Button>
                       )}
                     </div>
@@ -200,7 +201,7 @@ export function SongsClient({ initialSongs }: SongsClientProps) {
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
                         <Music className="h-4 w-4" />
-                        <span className="text-sm font-medium">{t.songs.status || "Status"}</span>
+                        <span className="text-sm font-medium">{t.songs.status}</span>
                       </div>
                       <div className="grid grid-cols-3 gap-2">
                         <Button
@@ -339,7 +340,7 @@ export function SongsClient({ initialSongs }: SongsClientProps) {
 
         <ResizableHandle withHandle className="hidden md:flex" />
 
-        <ResizablePanel defaultSize={65} minSize={40} className="hidden md:flex">
+        <ResizablePanel id="songs-detail-panel" defaultSize={65} minSize={40} className="hidden md:flex">
           {isCreatingNewSong ? (
             <SongDraftForm
               song={previewSong || undefined}
@@ -367,7 +368,6 @@ export function SongsClient({ initialSongs }: SongsClientProps) {
         </ResizablePanel>
       </ResizablePanelGroup>
 
-      {/* Mobile Drawer for Song Detail */}
       {isMobile && (
         <Drawer
           open={isMobileDrawerOpen}
@@ -379,10 +379,10 @@ export function SongsClient({ initialSongs }: SongsClientProps) {
         >
           <DrawerContent className="flex flex-col mt-0! max-h-dvh! p-0 overflow-hidden">
             <DrawerTitle className="sr-only">
-              {isCreatingNewSong ? "Create Song" : "Song Details"}
+              {isCreatingNewSong ? t.songs.createSong : t.songs.songDetails}
             </DrawerTitle>
             <DrawerDescription className="sr-only">
-              {isCreatingNewSong ? "Create a new song" : "View and edit song information"}
+              {isCreatingNewSong ? t.songs.enterSongDetails : t.songs.selectSongDescription}
             </DrawerDescription>
             <div className="flex-1 overflow-y-auto">
               {isCreatingNewSong ? (

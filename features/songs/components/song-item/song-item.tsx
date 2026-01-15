@@ -1,7 +1,8 @@
+"use client"
 import { Check, Music3, Music2, Clock } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
-import type { Song } from "../../types"
+import type { Song } from "@/features/songs/types"
 
 interface SongItemProps {
   song: Song

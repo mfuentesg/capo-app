@@ -2,9 +2,11 @@
  * Test suite for song fixtures
  * Validates that mock data is properly structured
  */
-import { mockSong, mockSongs } from "./fixtures"
+import { mockSongs } from "@/lib/mock-data"
 
 describe("Song Fixtures", () => {
+  const mockSong = mockSongs[0]
+
   describe("mockSong", () => {
     it("should have required properties", () => {
       expect(mockSong).toHaveProperty("id")

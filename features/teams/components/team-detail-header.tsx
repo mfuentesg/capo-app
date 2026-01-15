@@ -36,7 +36,7 @@ export function TeamDetailHeader({ team }: TeamDetailHeaderProps) {
       </Button>
       <div className="flex items-center gap-4 flex-1">
         <Avatar className="h-12 w-12">
-          {team.avatar_url ? <AvatarImage src={team.avatar_url} alt={team.name} /> : null}
+          {team.avatar_url && <AvatarImage src={team.avatar_url} alt={team.name} />}
           <AvatarFallback className="bg-primary/10">
             <TeamIcon icon={team.icon} className="h-6 w-6" />
           </AvatarFallback>

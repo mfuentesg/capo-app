@@ -31,7 +31,7 @@ interface TeamCardProps {
 
 export function TeamCard({ team, initialSelectedTeamId = null }: TeamCardProps) {
   const queryClient = useQueryClient()
-  const { context, switchToTeam } = useAppContext()
+  const { context, switchToTeam, refreshTeams } = useAppContext()
   const { t } = useTranslation()
   const [isLeaveDialogOpen, setIsLeaveDialogOpen] = useState(false)
 
@@ -46,7 +46,8 @@ export function TeamCard({ team, initialSelectedTeamId = null }: TeamCardProps) 
       // This would require a server action or API route
       throw new Error("Leave team functionality not yet implemented")
     },
-    onSuccess: () => {
+    onSuccess: async () => {
+      await refreshTeams()
       queryClient.invalidateQueries({ queryKey: teamsKeys.list() })
       setIsLeaveDialogOpen(false)
       toast.success(t.toasts.teamLeft)
@@ -67,7 +68,7 @@ export function TeamCard({ team, initialSelectedTeamId = null }: TeamCardProps) 
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-3 flex-1 min-w-0">
               <Avatar className="h-10 w-10">
-                {team.avatar_url ? <AvatarImage src={team.avatar_url} alt={team.name} /> : null}
+                {team.avatar_url && <AvatarImage src={team.avatar_url} alt={team.name} />}
                 <AvatarFallback className="bg-primary/10">
                   <TeamIcon icon={team.icon} className="h-5 w-5" />
                 </AvatarFallback>

@@ -1,3 +1,4 @@
+"use client"
 import { memo } from "react"
 import {
   Select,
@@ -30,7 +31,7 @@ export const KeySelect = memo(function KeySelect({
       <SelectTrigger id={id} className={cn("w-full shadow-none", className)}>
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
-      <SelectContent className="w-fit max-h-[300px]">
+      <SelectContent className="w-fit max-h-75">
         <SelectGroup>
           {MUSICAL_KEYS.map((key) => (
             <SelectItem value={key} key={key}>
