@@ -56,7 +56,12 @@ function createSupabaseClient(
 
 function applyCookiesToResponse(response: NextResponse, cookiesToSet: CookieToSet[]): void {
   cookiesToSet.forEach(({ name, value, options }) => {
-    response.cookies.set(name, value, options)
+    response.cookies.set(name, value, {
+      ...options,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax"
+    })
   })
 }
 
