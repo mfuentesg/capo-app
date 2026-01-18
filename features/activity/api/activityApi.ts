@@ -38,20 +38,19 @@ function mapDBActivityToFrontend(dbActivity: ActivityLog): Activity {
  * TODO: Replace with real Supabase query when ready
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars -- context parameter kept for API compatibility
-export async function getActivities(_context: AppContext): Promise<Activity[]> {
-  // TODO: Implement real Supabase query
-  // const supabase = createClient()
-  // let query = supabase.from("activity_log").select("*")
-  // if (context.type === "personal") {
-  //   query = query.eq("user_id", context.userId)
-  // } else {
-  //   query = query.eq("team_id", context.teamId)
-  // }
-  // const { data, error } = await query
-  //   .order("created_at", { ascending: false })
-  //   .limit(limit)
-  // if (error) throw error
-  // return (data || []).map(mapDBActivityToFrontend)
+export async function getActivities(context: AppContext, limit = 10): Promise<Activity[]> {
+  const supabase = createClient()
+  const isPersonalContext = context.type === "personal"
 
-  return []
+  const query = supabase
+    .from("activity_log")
+    .select("*")
+    .eq(
+      isPersonalContext ? "user_id" : "team_id",
+      isPersonalContext ? context.userId : context.teamId
+    )
+
+  const { data, error } = await query.order("created_at", { ascending: false }).limit(limit)
+  if (error) throw error
+  return (data || []).map(mapDBActivityToFrontend)
 }

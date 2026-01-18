@@ -1,4 +1,3 @@
-
 export { SongsClient } from "./components/songs-client"
 export { SongDetail } from "./components/song-detail"
 export { SongList } from "./components/song-list"
@@ -9,6 +8,8 @@ export { NewSongsProvider, useNewSongs } from "./contexts"
 export type { NewSongsContextType } from "./contexts"
 
 export { useSongs } from "./hooks/use-songs"
+
+export { getSongs } from "./api"
 
 // Re-export mock data from centralized location
 export { mockSongs, getSongById, getSongsByIds, getAllSongs } from "@/lib/mock-data"

@@ -13,44 +13,7 @@ import type { AuthError } from "@supabase/supabase-js"
 import { toast } from "sonner"
 import { useLocale } from "@/features/settings"
 import type { UserInfo } from "@/features/auth/types"
-
-async function getSession() {
-  const supabase = createClient()
-  const {
-    data: { session },
-    error
-  } = await supabase.auth.getSession()
-
-  if (error) {
-    throw error
-  }
-
-  return session
-}
-
-async function getUser(): Promise<UserInfo | null> {
-  const supabase = createClient()
-  const {
-    data: { user },
-    error
-  } = await supabase.auth.getUser()
-
-  if (error) {
-    throw error
-  }
-
-  if (!user) {
-    return null
-  }
-
-  return {
-    id: user?.id || "",
-    email: user?.email,
-    avatarUrl: (user?.user_metadata?.avatar_url as string | undefined) || undefined,
-    fullName: (user?.user_metadata?.full_name as string | undefined) || undefined,
-    displayName: (user?.user_metadata?.name as string | undefined) || undefined
-  }
-}
+import { getUser, getSession } from "@/features/auth/api"
 
 export function useSession() {
   return useQuery({

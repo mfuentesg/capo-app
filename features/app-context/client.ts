@@ -1,10 +1,10 @@
 "use client"
 
 import { SELECTED_TEAM_ID_KEY } from "./constants"
-import { 
-  setSelectedTeamId as setSelectedTeamIdCookie, 
-  unsetSelectedTeamId as unsetSelectedTeamIdCookie 
-} from "./server"
+import {
+  setSelectedTeamId as setSelectedTeamIdCookie,
+  unsetSelectedTeamId as unsetSelectedTeamIdCookie
+} from "./cookies"
 
 /**
  * Set the selected team ID in both cookies and localStorage.
@@ -15,7 +15,7 @@ export async function setSelectedTeamId(teamId: string) {
   if (typeof window !== "undefined") {
     localStorage.setItem(SELECTED_TEAM_ID_KEY, teamId)
   }
-  
+
   // Update cookie via server action
   await setSelectedTeamIdCookie(teamId)
 }
@@ -28,7 +28,7 @@ export async function unsetSelectedTeamId() {
   if (typeof window !== "undefined") {
     localStorage.removeItem(SELECTED_TEAM_ID_KEY)
   }
-  
+
   // Remove cookie via server action
   await unsetSelectedTeamIdCookie()
 }

@@ -84,7 +84,7 @@ export default async function RootLayout({
         >
           <QueryProvider initialUser={appContextData.user}>
             <AuthStateProvider>
-              <AppContextProvider 
+              <AppContextProvider
                 initialSelectedTeamId={appContextData.initialSelectedTeamId}
                 initialTeams={appContextData.teams}
                 initialUser={appContextData.user}

@@ -11,3 +11,5 @@ export { AuthStateProvider } from "./contexts"
 
 // Types
 export type { AuthSession } from "./types"
+
+export { getUser, getSession } from "./api"

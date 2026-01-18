@@ -13,30 +13,11 @@ import { SELECTED_TEAM_ID_KEY } from "./constants"
 import { createClient } from "@/lib/supabase/server"
 import { getTeamsWithClient } from "@/features/teams/api/teamsApi"
 import type { UserInfo } from "@/features/auth/types"
-export async function setSelectedTeamId(teamId: string) {
-  const cookieStore = await cookies()
-  cookieStore.set(SELECTED_TEAM_ID_KEY, teamId, {
-    path: "/",
-    maxAge: 31536000,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production"
-  })
-}
-
-export async function unsetSelectedTeamId() {
-  const cookieStore = await cookies()
-  cookieStore.delete(SELECTED_TEAM_ID_KEY)
-}
-
-/**
- * Get the selected team ID from cookies (server-side only)
- *
- * @returns The selected team ID, or null if in personal context
- */
-export async function getSelectedTeamIdFromCookies(): Promise<string | null> {
-  const cookieStore = await cookies()
-  return cookieStore.get(SELECTED_TEAM_ID_KEY)?.value ?? null
-}
+import {
+  setSelectedTeamId as setClientSelectedTeamId,
+  unsetSelectedTeamId as unsetClientSelectedTeamId,
+  getSelectedTeamIdFromCookies
+} from "./cookies"
 
 /**
  * Get the AppContext from cookies (server-side only)
@@ -100,9 +81,8 @@ export async function getInitialAppContextData() {
   ])
 
   // Validate selected team ID
-  const validSelectedTeamId = selectedTeamId && teams.some((t) => t.id === selectedTeamId) 
-    ? selectedTeamId 
-    : null
+  const validSelectedTeamId =
+    selectedTeamId && teams.some((t) => t.id === selectedTeamId) ? selectedTeamId : null
 
   return {
     user: userInfo,

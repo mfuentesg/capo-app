@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server"
 import { getTeamsWithClient, TeamsClient } from "@/features/teams"
-import { getSelectedTeamIdFromCookies } from "@/features/app-context/server"
+import { getSelectedTeamIdFromCookies } from "@/features/app-context/cookies"
 
 export default async function TeamsPage() {
   const supabase = await createClient()

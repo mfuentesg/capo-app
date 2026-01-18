@@ -74,7 +74,7 @@ function mapFrontendUpdatesToDB(updates: Partial<FrontendSong>): TablesUpdate<"s
  * @returns Promise<FrontendSong[]> - Array of songs
  */
 export async function getSongs(context: AppContext): Promise<FrontendSong[]> {
-  const supabase = createClient()
+  const supabase = await createClient()
 
   let query = supabase.from("songs").select("*")
 
@@ -97,7 +97,7 @@ export async function getSongs(context: AppContext): Promise<FrontendSong[]> {
  * @returns Promise<FrontendSong | null> - Song or null if not found
  */
 export async function getSong(songId: string): Promise<FrontendSong | null> {
-  const supabase = createClient()
+  const supabase = await createClient()
 
   const { data, error } = await supabase.from("songs").select("*").eq("id", songId).single()
 
@@ -118,7 +118,7 @@ export async function getSong(songId: string): Promise<FrontendSong | null> {
 export async function getSongsByIds(songIds: string[]): Promise<FrontendSong[]> {
   if (songIds.length === 0) return []
 
-  const supabase = createClient()
+  const supabase = await createClient()
 
   const { data, error } = await supabase.from("songs").select("*").in("id", songIds)
 
@@ -137,7 +137,7 @@ export async function createSong(
   song: Partial<FrontendSong>,
   userId: string
 ): Promise<FrontendSong> {
-  const supabase = createClient()
+  const supabase = await createClient()
 
   const dbSong = mapFrontendSongToDB(song, userId)
 
@@ -158,7 +158,7 @@ export async function updateSong(
   songId: string,
   updates: Partial<FrontendSong>
 ): Promise<FrontendSong> {
-  const supabase = createClient()
+  const supabase = await createClient()
 
   const dbUpdates = mapFrontendUpdatesToDB(updates)
 
@@ -180,7 +180,7 @@ export async function updateSong(
  * @returns Promise<void>
  */
 export async function deleteSong(songId: string): Promise<void> {
-  const supabase = createClient()
+  const supabase = await createClient()
 
   const { error } = await supabase.from("songs").delete().eq("id", songId)
 

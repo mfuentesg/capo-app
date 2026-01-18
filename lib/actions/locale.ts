@@ -12,6 +12,7 @@ export async function setLocaleAction(locale: Locale) {
   cookieStore.set("NEXT_LOCALE", locale, {
     path: "/",
     maxAge: 31536000,
+    httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production"
   })
