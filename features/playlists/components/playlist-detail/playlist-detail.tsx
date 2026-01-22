@@ -34,7 +34,8 @@ import type { Playlist } from "@/features/playlists/types"
 import type { SongWithPosition, PlaylistWithSongs } from "@/types/extended"
 import { DraggablePlaylist } from "@/features/playlists/utils"
 import { usePlaylists } from "@/features/playlists/contexts"
-import { getSongsByIds } from "@/features/songs"
+import { api } from "@/features/songs"
+import type { Song } from "@/features/songs/types"
 
 interface PlaylistDetailProps {
   playlist: Playlist
@@ -139,14 +140,18 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
   const { locale } = useLocale()
   const [isCalendarOpen, setIsCalendarOpen] = useState(false)
 
-  // Convert playlist songs to SongWithPosition format
-  // TODO: Replace with backend API call to fetch songs by IDs
-  const songsWithPosition = useMemo<SongWithPosition[]>(() => {
-    const songs = getSongsByIds(playlist.songs)
-    return songs.map((song, index) => ({
-      ...song,
-      position: index
-    }))
+  const [songsWithPosition, setSongsWithPosition] = useState<SongWithPosition[]>([])
+
+  useEffect(() => {
+    async function loadSongs() {
+      const songs = await api.getSongsByIds(playlist.songs)
+      const songsWithPos = (songs as Song[]).map((song, index) => ({
+        ...song,
+        position: index
+      }))
+      setSongsWithPosition(songsWithPos)
+    }
+    loadSongs()
   }, [playlist.songs])
 
   // Create PlaylistWithSongs object
@@ -251,7 +256,6 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
               <Switch
                 defaultChecked={playlist.visibility === "public"}
                 onCheckedChange={(checked) => {
-                  console.log("Visibility changed:", checked)
                   onUpdate(playlist.id, { visibility: checked ? "public" : "private" })
                 }}
               />
@@ -298,7 +302,6 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
               <Switch
                 defaultChecked={playlist.allowGuestEditing || false}
                 onCheckedChange={(checked) => {
-                  console.log("Guest editing changed:", checked)
                   onUpdate(playlist.id, { allowGuestEditing: checked })
                 }}
               />

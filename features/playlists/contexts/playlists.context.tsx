@@ -1,8 +1,11 @@
 "use client"
 
-import { createContext, useContext, useState, useCallback, type ReactNode } from "react"
+import { createContext, useContext, useCallback, type ReactNode } from "react"
 import type { Playlist } from "@/features/playlists/types"
-import { mockPlaylists as initialMockPlaylists } from "@/lib/mock-data"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { api } from "@/features/playlists/api"
+import { useAppContext } from "@/features/app-context"
+import { useUser } from "@/features/auth"
 
 export interface PlaylistsContextType {
   playlists: Playlist[]
@@ -10,64 +13,86 @@ export interface PlaylistsContextType {
   updatePlaylist: (id: string, updates: Partial<Playlist>) => void
   deletePlaylist: (id: string) => void
   reorderPlaylistSongs: (playlistId: string, sourceIndex: number, destinationIndex: number) => void
+  isLoading: boolean
 }
 
 const PlaylistsContext = createContext<PlaylistsContextType | undefined>(undefined)
 
-// TODO: Replace with backend API calls:
-// - Fetch playlists
-// - Create new playlist
-// - Update playlist
-// - Delete playlist
-// - Reorder songs in playlist
-
 export function PlaylistsProvider({ children }: { children: ReactNode }) {
-  const [playlists, setPlaylists] = useState<Playlist[]>(initialMockPlaylists)
+  const { context } = useAppContext()
+  const { data: user } = useUser()
+  const queryClient = useQueryClient()
 
-  const addPlaylist = useCallback((playlist: Playlist) => {
-    setPlaylists((prev) => [...prev, playlist])
-  }, [])
+  const { data: fetchedPlaylists = [], isLoading } = useQuery({
+    queryKey: ["playlists", context],
+    queryFn: () => (context ? api.getPlaylists(context) : Promise.resolve([])),
+    staleTime: 30 * 1000,
+    enabled: !!context
+  })
 
-  const updatePlaylist = useCallback((id: string, updates: Partial<Playlist>) => {
-    setPlaylists((prev) =>
-      prev.map((playlist) => {
-        if (playlist.id !== id) return playlist
+  const playlists = fetchedPlaylists
 
-        // Generate shareCode if visibility is being set to public and shareCode doesn't exist
-        const updatedPlaylist = { ...playlist, ...updates }
-        if (updates.visibility === "public" && !updatedPlaylist.shareCode) {
-          updatedPlaylist.shareCode = Math.random().toString(36).substring(2, 8).toUpperCase()
-        }
+  const createPlaylistMutation = useMutation({
+    mutationFn: (playlist: Playlist) => {
+      if (!user?.id) throw new Error("User not found")
+      return api.createPlaylist(playlist, user.id)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["playlists", context] })
+    }
+  })
 
-        return updatedPlaylist
-      })
-    )
-  }, [])
+  const updatePlaylistMutation = useMutation({
+    mutationFn: ({ id, updates }: { id: string; updates: Partial<Playlist> }) =>
+      api.updatePlaylist(id, updates),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["playlists", context] })
+    }
+  })
 
-  const deletePlaylist = useCallback((id: string) => {
-    setPlaylists((prev) => prev.filter((playlist) => playlist.id !== id))
-  }, [])
+  const deletePlaylistMutation = useMutation({
+    mutationFn: (id: string) => api.deletePlaylist(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["playlists", context] })
+    }
+  })
+
+  const addPlaylist = useCallback(
+    (playlist: Playlist) => {
+      createPlaylistMutation.mutate(playlist)
+    },
+    [createPlaylistMutation]
+  )
+
+  const updatePlaylist = useCallback(
+    (id: string, updates: Partial<Playlist>) => {
+      updatePlaylistMutation.mutate({ id, updates })
+    },
+    [updatePlaylistMutation]
+  )
+
+  const deletePlaylist = useCallback(
+    (id: string) => {
+      deletePlaylistMutation.mutate(id)
+    },
+    [deletePlaylistMutation]
+  )
 
   const reorderPlaylistSongs = useCallback(
     (playlistId: string, sourceIndex: number, destinationIndex: number) => {
-      // TODO: Replace with backend API call to update playlist songs order
-      setPlaylists((prev) =>
-        prev.map((playlist) => {
-          if (playlist.id !== playlistId) return playlist
+      const playlist = playlists.find((p: Playlist) => p.id === playlistId)
+      if (!playlist) return
 
-          const newSongs = Array.from(playlist.songs)
-          const [removed] = newSongs.splice(sourceIndex, 1)
-          newSongs.splice(destinationIndex, 0, removed)
+      const newSongs = Array.from(playlist.songs)
+      const [removed] = newSongs.splice(sourceIndex, 1)
+      newSongs.splice(destinationIndex, 0, removed)
 
-          return {
-            ...playlist,
-            songs: newSongs,
-            updatedAt: new Date().toISOString()
-          }
-        })
-      )
+      updatePlaylistMutation.mutate({
+        id: playlistId,
+        updates: { songs: newSongs }
+      })
     },
-    []
+    [playlists, updatePlaylistMutation]
   )
 
   return (
@@ -77,7 +102,8 @@ export function PlaylistsProvider({ children }: { children: ReactNode }) {
         addPlaylist,
         updatePlaylist,
         deletePlaylist,
-        reorderPlaylistSongs
+        reorderPlaylistSongs,
+        isLoading
       }}
     >
       {children}

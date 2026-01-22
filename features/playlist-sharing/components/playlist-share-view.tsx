@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo } from "react"
+import { useEffect, useState } from "react"
 import { Calendar as CalendarIcon, ListMusic, ArrowLeft, Copy } from "lucide-react"
 import { toast } from "sonner"
 import { useLocale } from "@/features/settings"
@@ -10,21 +10,27 @@ import { Empty, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription } from "@/
 import Link from "next/link"
 import type { Playlist } from "@/types"
 import type { SongWithPosition } from "@/types/extended"
-import { getSongsByIds } from "@/features/songs"
+import { api } from "@/features/songs"
 import { formatLongDate } from "@/lib/utils"
+import type { Song } from "@/features/songs/types"
 
 interface PlaylistShareViewProps {
   playlist: Playlist
 }
 
 export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
-  // Convert playlist songs to SongWithPosition format
-  const songsWithPosition = useMemo<SongWithPosition[]>(() => {
-    const songs = getSongsByIds(playlist.songs)
-    return songs.map((song, index) => ({
-      ...song,
-      position: index
-    }))
+  const [songsWithPosition, setSongsWithPosition] = useState<SongWithPosition[]>([])
+
+  useEffect(() => {
+    async function loadSongs() {
+      const songs = await api.getSongsByIds(playlist.songs)
+      const songsWithPos = (songs as Song[]).map((song, index) => ({
+        ...song,
+        position: index
+      }))
+      setSongsWithPosition(songsWithPos)
+    }
+    loadSongs()
   }, [playlist.songs])
 
   const shareUrl =

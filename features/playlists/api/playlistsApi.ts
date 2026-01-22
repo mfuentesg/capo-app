@@ -5,17 +5,19 @@
  * No React hooks, no side effects beyond Supabase calls.
  */
 
-import { createClient } from "@/lib/supabase/client"
 import type { SupabaseClient } from "@supabase/supabase-js"
 import type { Database, Tables, TablesInsert, TablesUpdate } from "@/lib/supabase/database.types"
 import type { AppContext } from "@/features/app-context"
 import type { Playlist } from "@/features/playlists/types"
+import type { Song } from "@/features/songs"
+import { applyContextFilter } from "@/lib/supabase/apply-context-filter"
 
 type PlaylistRow = Tables<"playlists"> & {
   playlist_songs?: Array<{ song_id: string; position: number }>
 }
 
-type PlaylistWithSongs = Playlist & {
+type PlaylistWithSongs = Omit<Playlist, "songs"> & {
+  songs: Song[]
   playlist_songs?: Array<{ song_id: string; position: number; song: Tables<"songs"> }>
 }
 
@@ -41,25 +43,12 @@ function transformPlaylistRow(row: PlaylistRow): Playlist {
 
 /**
  * Fetch playlists based on context (personal or team)
- * Uses client-side Supabase client
  *
+ * @param supabase - Supabase client instance
  * @param context - App context (personal or team)
  * @returns Promise<Playlist[]> - Array of playlists
  */
-export async function getPlaylists(context: AppContext): Promise<Playlist[]> {
-  const supabase = createClient()
-  return getPlaylistsWithClient(supabase, context)
-}
-
-/**
- * Fetch playlists based on context (personal or team)
- * Accepts a Supabase client for server-side usage
- *
- * @param supabase - Supabase client instance (server or client)
- * @param context - App context (personal or team)
- * @returns Promise<Playlist[]> - Array of playlists
- */
-export async function getPlaylistsWithClient(
+export async function getPlaylists(
   supabase: SupabaseClient<Database>,
   context: AppContext
 ): Promise<Playlist[]> {
@@ -72,12 +61,7 @@ export async function getPlaylistsWithClient(
       )
     `)
 
-  // Filter by context
-  if (context.type === "personal") {
-    query = query.eq("user_id", context.userId)
-  } else {
-    query = query.eq("team_id", context.teamId)
-  }
+  query = applyContextFilter(query, context)
 
   // Order by created_at descending
   const { data, error } = await query.order("created_at", { ascending: false })
@@ -130,44 +114,73 @@ export async function getPlaylistWithSongs(
  * @returns Promise<PlaylistWithSongs | null> - Public playlist or null
  */
 export async function getPublicPlaylistByShareCode(
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  supabase: SupabaseClient<Database>,
   shareCode: string
 ): Promise<PlaylistWithSongs | null> {
-  // TODO: Implement
-  // const supabase = createClient() // Uses anon key for public access
-  //
-  // const { data, error } = await supabase
-  //   .from("playlists")
-  //   .select(`
-  //     *,
-  //     playlist_songs (
-  //       *,
-  //       song:songs (*)
-  //     )
-  //   `)
-  //   .eq("share_code", shareCode)
-  //   .eq("is_public", true)
-  //   .or("share_expires_at.is.null,share_expires_at.gt.now()")
-  //   .single()
-  //
-  // if (error) {
-  //   if (error.code === "PGRST116") return null
-  //   throw error
-  // }
-  //
-  // return data
+  const { data, error } = await supabase
+    .from("playlists")
+    .select(
+      `
+      *,
+      playlist_songs (
+        *,
+        song:songs (*)
+      )
+    `
+    )
+    .eq("share_code", shareCode)
+    .eq("is_public", true)
+    .or("share_expires_at.is.null,share_expires_at.gt.now()")
+    .single()
 
-  throw new Error("Not implemented: getPublicPlaylistByShareCode")
+  if (error) {
+    if (error.code === "PGRST116") return null
+    throw error
+  }
+
+  if (!data) return null
+
+  const sortedPlaylistSongs =
+    data.playlist_songs?.sort(
+      (a: { position: number }, b: { position: number }) => a.position - b.position
+    ) || []
+
+  return {
+    id: data.id,
+    name: data.name,
+    description: data.description || undefined,
+    date: data.date || undefined,
+    songs: sortedPlaylistSongs.map((ps: { song: Tables<"songs"> }): Song => {
+      const song = ps.song
+      return {
+        id: song.id,
+        title: song.title,
+        artist: song.artist || "",
+        key: song.key || "",
+        bpm: song.bpm || 0,
+        lyrics: song.lyrics || undefined,
+        notes: song.notes || undefined,
+        isDraft: song.status === "draft"
+      }
+    }),
+    createdAt: data.created_at,
+    updatedAt: data.updated_at,
+    visibility: data.is_public ? "public" : "private",
+    shareCode: data.share_code || undefined,
+    playlist_songs: sortedPlaylistSongs
+  }
 }
 
 /**
  * Create a new playlist
  *
+ * @param supabase - Supabase client instance
  * @param playlistData - Playlist data to insert (from app Playlist type)
  * @param userId - User ID creating the playlist
  * @returns Promise<Playlist> - Created playlist
  */
 export async function createPlaylist(
+  supabase: SupabaseClient<Database>,
   playlistData: {
     name: string
     description?: string
@@ -177,8 +190,6 @@ export async function createPlaylist(
   },
   userId: string
 ): Promise<Playlist> {
-  const supabase = createClient()
-
   // Convert app Playlist to database Insert type
   const isPublic = playlistData.visibility === "public"
   const playlistInsert: TablesInsert<"playlists"> = {
@@ -263,25 +274,26 @@ export async function createPlaylist(
  * @returns Promise<Playlist> - Updated playlist
  */
 export async function updatePlaylist(
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  supabase: SupabaseClient<Database>,
   playlistId: string,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  updates: TablesUpdate<"playlists">
+  updates: Partial<Playlist>
 ): Promise<Playlist> {
-  // TODO: Implement
-  // const supabase = createClient()
-  //
-  // const { data, error } = await supabase
-  //   .from("playlists")
-  //   .update(updates)
-  //   .eq("id", playlistId)
-  //   .select()
-  //   .single()
-  //
-  // if (error) throw error
-  // return data
+  const dbUpdates: TablesUpdate<"playlists"> = {}
 
-  throw new Error("Not implemented: updatePlaylist")
+  if (updates.name !== undefined) dbUpdates.name = updates.name
+  if (updates.description !== undefined) dbUpdates.description = updates.description || null
+  if (updates.date !== undefined) dbUpdates.date = updates.date || null
+  if (updates.visibility !== undefined) dbUpdates.is_public = updates.visibility === "public"
+
+  const { data, error } = await supabase
+    .from("playlists")
+    .update(dbUpdates)
+    .eq("id", playlistId)
+    .select()
+    .single()
+
+  if (error) throw error
+  return transformPlaylistRow(data)
 }
 
 /**
@@ -291,20 +303,12 @@ export async function updatePlaylist(
  * @returns Promise<void>
  */
 export async function deletePlaylist(
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  supabase: SupabaseClient<Database>,
   playlistId: string
 ): Promise<void> {
-  // TODO: Implement
-  // const supabase = createClient()
-  //
-  // const { error } = await supabase
-  //   .from("playlists")
-  //   .delete()
-  //   .eq("id", playlistId)
-  //
-  // if (error) throw error
+  const { error } = await supabase.from("playlists").delete().eq("id", playlistId)
 
-  throw new Error("Not implemented: deletePlaylist")
+  if (error) throw error
 }
 
 /**
