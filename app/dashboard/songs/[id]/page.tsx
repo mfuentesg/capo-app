@@ -1,10 +1,14 @@
 import { LyricsView } from "@/features/lyrics-editor"
-import { mockSongWithLyrics } from "@/lib/mock-data"
+import { api } from "@/features/songs/api"
+import { notFound } from "next/navigation"
 
 export default async function SongLyricsPage({ params }: { params: Promise<{ id: string }> }) {
-  await params
+  const { id } = await params
+  const song = await api.getSong(id)
 
-  // TODO: Fetch song from database using ID
+  if (!song) {
+    notFound()
+  }
 
-  return <LyricsView song={mockSongWithLyrics} />
+  return <LyricsView song={song} />
 }

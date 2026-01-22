@@ -1,4 +1,3 @@
-
 export { PlaylistsClient } from "./components/playlists-client"
 export { PlaylistDetail } from "./components/playlist-detail"
 export { PlaylistList } from "./components/playlist-list"
@@ -11,4 +10,5 @@ export type { Playlist, PlaylistWithSongs, PlaylistDetailProps, PlaylistListProp
 
 export { DraggablePlaylist } from "./utils"
 
-export { getPlaylistsWithClient } from "./api"
+export { api } from "./api"
+export { getPlaylists } from "./api"

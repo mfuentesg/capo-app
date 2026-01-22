@@ -5,10 +5,11 @@
  * No React hooks, no side effects beyond Supabase calls.
  */
 
-import { createClient } from "@/lib/supabase/client"
+import type { SupabaseClient } from "@supabase/supabase-js"
 import type { Tables, TablesInsert, TablesUpdate } from "@/lib/supabase/database.types"
 import type { AppContext } from "@/features/app-context"
 import type { Song as FrontendSong } from "@/features/songs/types"
+import { applyContextFilter } from "@/lib/supabase/apply-context-filter"
 
 /**
  * Maps database song to frontend song type
@@ -73,16 +74,12 @@ function mapFrontendUpdatesToDB(updates: Partial<FrontendSong>): TablesUpdate<"s
  * @param context - App context (personal or team)
  * @returns Promise<FrontendSong[]> - Array of songs
  */
-export async function getSongs(context: AppContext): Promise<FrontendSong[]> {
-  const supabase = await createClient()
-
+export async function getSongs(
+  supabase: SupabaseClient,
+  context: AppContext
+): Promise<FrontendSong[]> {
   let query = supabase.from("songs").select("*")
-
-  if (context.type === "personal") {
-    query = query.eq("user_id", context.userId)
-  } else {
-    query = query.eq("team_id", context.teamId)
-  }
+  query = applyContextFilter(query, context)
 
   const { data, error } = await query.order("created_at", { ascending: false })
 
@@ -96,17 +93,18 @@ export async function getSongs(context: AppContext): Promise<FrontendSong[]> {
  * @param songId - Song UUID
  * @returns Promise<FrontendSong | null> - Song or null if not found
  */
-export async function getSong(songId: string): Promise<FrontendSong | null> {
-  const supabase = await createClient()
+export async function getSong(
+  supabase: SupabaseClient,
+  songId: string
+): Promise<FrontendSong | null> {
+  const response = await supabase.from("songs").select("*").eq("id", songId).single()
 
-  const { data, error } = await supabase.from("songs").select("*").eq("id", songId).single()
-
-  if (error) {
-    if (error.code === "PGRST116") return null
-    throw error
+  if (response.error) {
+    if (response.error.code === "PGRST116") return null
+    throw response.error
   }
 
-  return data ? mapDBSongToFrontend(data) : null
+  return response.data ? mapDBSongToFrontend(response.data) : null
 }
 
 /**
@@ -115,10 +113,11 @@ export async function getSong(songId: string): Promise<FrontendSong | null> {
  * @param songIds - Array of song UUIDs
  * @returns Promise<FrontendSong[]> - Array of songs
  */
-export async function getSongsByIds(songIds: string[]): Promise<FrontendSong[]> {
+export async function getSongsByIds(
+  supabase: SupabaseClient,
+  songIds: string[]
+): Promise<FrontendSong[]> {
   if (songIds.length === 0) return []
-
-  const supabase = await createClient()
 
   const { data, error } = await supabase.from("songs").select("*").in("id", songIds)
 
@@ -134,17 +133,16 @@ export async function getSongsByIds(songIds: string[]): Promise<FrontendSong[]> 
  * @returns Promise<FrontendSong> - Created song
  */
 export async function createSong(
+  supabase: SupabaseClient,
   song: Partial<FrontendSong>,
   userId: string
 ): Promise<FrontendSong> {
-  const supabase = await createClient()
-
   const dbSong = mapFrontendSongToDB(song, userId)
 
-  const { data, error } = await supabase.from("songs").insert(dbSong).select().single()
+  const response = await supabase.from("songs").insert(dbSong).select().single()
 
-  if (error) throw error
-  return mapDBSongToFrontend(data)
+  if (response.error) throw response.error
+  return mapDBSongToFrontend(response.data)
 }
 
 /**
@@ -155,22 +153,16 @@ export async function createSong(
  * @returns Promise<FrontendSong> - Updated song
  */
 export async function updateSong(
+  supabase: SupabaseClient,
   songId: string,
   updates: Partial<FrontendSong>
 ): Promise<FrontendSong> {
-  const supabase = await createClient()
-
   const dbUpdates = mapFrontendUpdatesToDB(updates)
 
-  const { data, error } = await supabase
-    .from("songs")
-    .update(dbUpdates)
-    .eq("id", songId)
-    .select()
-    .single()
+  const response = await supabase.from("songs").update(dbUpdates).eq("id", songId).select().single()
 
-  if (error) throw error
-  return mapDBSongToFrontend(data)
+  if (response.error) throw response.error
+  return mapDBSongToFrontend(response.data)
 }
 
 /**
@@ -179,9 +171,7 @@ export async function updateSong(
  * @param songId - Song UUID
  * @returns Promise<void>
  */
-export async function deleteSong(songId: string): Promise<void> {
-  const supabase = await createClient()
-
+export async function deleteSong(supabase: SupabaseClient, songId: string): Promise<void> {
   const { error } = await supabase.from("songs").delete().eq("id", songId)
 
   if (error) throw error

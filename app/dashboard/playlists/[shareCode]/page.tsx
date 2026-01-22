@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation"
 import { PlaylistShareView } from "@/features/playlist-sharing"
-import { getPlaylistByShareCode } from "@/lib/mock-data"
+import { api } from "@/features/playlists/api"
+import type { Playlist } from "@/features/playlists/types"
 
 export default async function PlaylistSharePage({
   params
@@ -8,10 +9,15 @@ export default async function PlaylistSharePage({
   params: Promise<{ shareCode: string }>
 }) {
   const { shareCode } = await params
-  const playlist = await getPlaylistByShareCode(shareCode)
+  const playlistWithSongs = await api.getPublicPlaylistByShareCode(shareCode)
 
-  if (!playlist || playlist.visibility !== "public") {
+  if (!playlistWithSongs || playlistWithSongs.visibility !== "public") {
     notFound()
+  }
+
+  const playlist: Playlist = {
+    ...playlistWithSongs,
+    songs: playlistWithSongs.songs.map((song) => song.id)
   }
 
   return <PlaylistShareView playlist={playlist} />

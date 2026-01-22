@@ -9,10 +9,7 @@ export type { NewSongsContextType } from "./contexts"
 
 export { useSongs } from "./hooks/use-songs"
 
-export { getSongs } from "./api"
-
-// Re-export mock data from centralized location
-export { mockSongs, getSongById, getSongsByIds, getAllSongs } from "@/lib/mock-data"
+export { api } from "./api"
 
 export type {
   Song,

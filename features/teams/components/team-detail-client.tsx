@@ -1,7 +1,8 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
-import { getTeamMembers, teamsKeys } from "@/features/teams"
+import { teamsKeys } from "@/features/teams/hooks/query-keys"
+import { api as teamsApi } from "@/features/teams/api"
 import { useUser } from "@/features/auth"
 import type { Tables } from "@/lib/supabase/database.types"
 import { TeamDetailHeader } from "@/features/teams/components/team-detail-header"
@@ -17,9 +18,14 @@ interface TeamDetailClientProps {
 export function TeamDetailClient({ initialTeam, initialMembers }: TeamDetailClientProps) {
   const { data: user } = useUser()
 
-  const { data: members } = useQuery({
+  const { data: members } = useQuery<
+    Tables<"team_members">[],
+    Error,
+    Tables<"team_members">[],
+    readonly unknown[]
+  >({
     queryKey: teamsKeys.members(initialTeam.id),
-    queryFn: () => getTeamMembers(initialTeam.id),
+    queryFn: async () => await teamsApi.getTeamMembers(initialTeam.id),
     initialData: initialMembers,
     staleTime: 30 * 1000
   })

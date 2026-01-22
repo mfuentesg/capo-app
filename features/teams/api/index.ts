@@ -1,2 +1,29 @@
-export * from "./teamsApi"
+import { createApi } from "@/lib/supabase/factory"
+import * as teamsApi from "./teamsApi"
 
+/**
+ * Teams API
+ *
+ * Auto-detects server vs client context and uses appropriate Supabase client.
+ * Can be used in both Server Components and Client Components.
+ */
+export const api = createApi(teamsApi)
+
+// Re-export functions
+export {
+  getTeams,
+  getTeamsWithClient,
+  getTeam,
+  getTeamWithClient,
+  createTeam,
+  updateTeam,
+  getTeamMembers,
+  getTeamMembersWithClient,
+  getTeamInvitations,
+  acceptTeamInvitation,
+  changeTeamMemberRole,
+  transferTeamOwnership
+} from "./teamsApi"
+
+// Re-export types
+export type { Tables, TablesInsert, TablesUpdate } from "@/lib/supabase/database.types"

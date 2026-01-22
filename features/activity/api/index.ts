@@ -1,13 +1,13 @@
 import { createApi } from "@/lib/supabase/factory"
-import * as playlistsApi from "./playlistsApi"
+import * as activityApi from "./activityApi"
 
 /**
- * Playlists API
+ * Activity API
  *
  * Auto-detects server vs client context and uses appropriate Supabase client.
  * Can be used in both Server Components and Client Components.
  */
-export const api = createApi(playlistsApi)
+export const api = createApi(activityApi)
 
-// Re-export all functions
-export * from "./playlistsApi"
+// Re-export types
+export type { Activity, ActivityLog } from "./activityApi"

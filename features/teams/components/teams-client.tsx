@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { useSearchParams, useRouter } from "next/navigation"
-import { getTeams, teamsKeys } from "@/features/teams"
+import { teamsKeys } from "@/features/teams/hooks/query-keys"
 import { useUser } from "@/features/auth"
 import { useAppContext } from "@/features/app-context"
 import { useTranslation } from "@/hooks/use-translation"
@@ -13,6 +13,7 @@ import { TeamsSearch } from "@/features/teams/components/teams-search"
 import { TeamCard } from "@/features/teams/components/team-card"
 import { TeamsEmptyState } from "@/features/teams/components/teams-empty-state"
 import { toast } from "sonner"
+import { api } from "@/features/teams"
 
 interface TeamsClientProps {
   initialTeams: Tables<"teams">[]
@@ -27,7 +28,7 @@ export function TeamsClient({ initialTeams, initialSelectedTeamId = null }: Team
   const searchParams = useSearchParams()
   const { data: teams = initialTeams } = useQuery({
     queryKey: teamsKeys.list(),
-    queryFn: getTeams,
+    queryFn: async () => await api.getTeams(),
     enabled: !!user?.id,
     initialData: initialTeams,
     staleTime: 5 * 60 * 1000

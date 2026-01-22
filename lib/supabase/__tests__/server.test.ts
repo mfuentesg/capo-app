@@ -21,25 +21,34 @@ describe("Supabase Server Client", () => {
     set: jest.fn()
   }
 
-  beforeEach(() => {
-    jest.resetModules()
-    process.env = { ...originalEnv }
-    const { createServerClient } = require("@supabase/ssr")
-    const { cookies } = require("next/headers")
-    createServerClient.mockReturnValue(mockClient)
-    cookies.mockResolvedValue(mockCookieStore)
-  })
-
   afterEach(() => {
     process.env = originalEnv
     jest.clearAllMocks()
   })
 
   describe("createClient", () => {
-    it("should create a server client with valid environment variables", async () => {
-      process.env.NEXT_PUBLIC_SUPABASE_URL = "https://test.supabase.co"
-      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY = "test-key"
+    const requiredEnvVars = {
+      NEXT_PUBLIC_SUPABASE_URL: "https://test.supabase.co",
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "test-key",
+      SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID: "test-google-client-id",
+      SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET: "test-google-secret"
+    }
 
+    beforeEach(() => {
+      jest.resetModules()
+      process.env = { ...originalEnv }
+      Object.entries(requiredEnvVars).forEach(([key, value]) => {
+        process.env[key] = value
+      })
+      const { createServerClient } = require("@supabase/ssr")
+      const { cookies } = require("next/headers")
+      createServerClient.mockReturnValue(mockClient)
+      cookies.mockResolvedValue(mockCookieStore)
+      mockCookieStore.set.mockClear()
+      mockCookieStore.getAll.mockClear()
+    })
+
+    it("should create a server client with valid environment variables", async () => {
       const { createClient } = require("@/lib/supabase/server")
       const { createServerClient } = require("@supabase/ssr")
       const { cookies } = require("next/headers")
@@ -60,9 +69,6 @@ describe("Supabase Server Client", () => {
     })
 
     it("should handle cookie getAll correctly", async () => {
-      process.env.NEXT_PUBLIC_SUPABASE_URL = "https://test.supabase.co"
-      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY = "test-key"
-
       const { createClient } = require("@/lib/supabase/server")
       const { createServerClient } = require("@supabase/ssr")
       const mockCookies = [{ name: "test", value: "value" }]
@@ -77,9 +83,6 @@ describe("Supabase Server Client", () => {
     })
 
     it("should handle cookie setAll correctly", async () => {
-      process.env.NEXT_PUBLIC_SUPABASE_URL = "https://test.supabase.co"
-      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY = "test-key"
-
       const { createClient } = require("@/lib/supabase/server")
       await createClient()
 
@@ -98,9 +101,6 @@ describe("Supabase Server Client", () => {
     })
 
     it("should handle setAll errors gracefully", async () => {
-      process.env.NEXT_PUBLIC_SUPABASE_URL = "https://test.supabase.co"
-      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY = "test-key"
-
       const { createClient } = require("@/lib/supabase/server")
       mockCookieStore.set.mockImplementation(() => {
         throw new Error("Cannot set cookie in Server Component")
@@ -117,21 +117,33 @@ describe("Supabase Server Client", () => {
     })
 
     it("should throw error when NEXT_PUBLIC_SUPABASE_URL is missing", async () => {
-      delete process.env.NEXT_PUBLIC_SUPABASE_URL
+      jest.resetModules()
+      process.env = { ...originalEnv }
       process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY = "test-key"
+      process.env.SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID = "test-google-client-id"
+      process.env.SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET = "test-google-secret"
+      const { createServerClient } = require("@supabase/ssr")
+      const { cookies } = require("next/headers")
+      createServerClient.mockReturnValue(mockClient)
+      cookies.mockResolvedValue(mockCookieStore)
 
-      const { createClient } = require("@/lib/supabase/server")
-      await expect(createClient()).rejects.toThrow(
+      expect(() => require("@/lib/supabase/server")).toThrow(
         "Missing NEXT_PUBLIC_SUPABASE_URL environment variable. Please add it to your .env.local file."
       )
     })
 
     it("should throw error when NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY is missing", async () => {
+      jest.resetModules()
+      process.env = { ...originalEnv }
       process.env.NEXT_PUBLIC_SUPABASE_URL = "https://test.supabase.co"
-      delete process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+      process.env.SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID = "test-google-client-id"
+      process.env.SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET = "test-google-secret"
+      const { createServerClient } = require("@supabase/ssr")
+      const { cookies } = require("next/headers")
+      createServerClient.mockReturnValue(mockClient)
+      cookies.mockResolvedValue(mockCookieStore)
 
-      const { createClient } = require("@/lib/supabase/server")
-      await expect(createClient()).rejects.toThrow(
+      expect(() => require("@/lib/supabase/server")).toThrow(
         "Missing NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY environment variable. Please add it to your .env.local file."
       )
     })

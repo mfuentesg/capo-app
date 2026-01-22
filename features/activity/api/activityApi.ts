@@ -3,8 +3,11 @@
  * Based on database structure: activity_log table
  */
 
+import type { SupabaseClient } from "@supabase/supabase-js"
+import type { Database } from "@/lib/supabase/database.types"
 import type { Tables } from "@/lib/supabase/database.types"
 import type { AppContext } from "@/features/app-context"
+import { applyContextFilter } from "@/lib/supabase/apply-context-filter"
 
 export type ActivityLog = Tables<"activity_log">
 
@@ -19,7 +22,6 @@ export interface Activity {
   createdAt: string
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function mapDBActivityToFrontend(dbActivity: ActivityLog): Activity {
   return {
     id: dbActivity.id,
@@ -35,22 +37,21 @@ function mapDBActivityToFrontend(dbActivity: ActivityLog): Activity {
 
 /**
  * Fetch activities based on context (personal or team)
- * TODO: Replace with real Supabase query when ready
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars -- context parameter kept for API compatibility
-export async function getActivities(context: AppContext, limit = 10): Promise<Activity[]> {
-  const supabase = createClient()
-  const isPersonalContext = context.type === "personal"
-
-  const query = supabase
+export async function getActivities(
+  supabase: SupabaseClient<Database>,
+  context: AppContext,
+  limit = 10
+): Promise<Activity[]> {
+  let query = supabase
     .from("activity_log")
     .select("*")
-    .eq(
-      isPersonalContext ? "user_id" : "team_id",
-      isPersonalContext ? context.userId : context.teamId
-    )
+    .order("created_at", { ascending: false })
+    .limit(limit)
 
-  const { data, error } = await query.order("created_at", { ascending: false }).limit(limit)
+  query = applyContextFilter(query, context)
+
+  const { data, error } = await query
   if (error) throw error
   return (data || []).map(mapDBActivityToFrontend)
 }

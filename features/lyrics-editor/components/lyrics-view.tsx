@@ -60,7 +60,6 @@ export function LyricsView({ song }: LyricsViewProps) {
 
   const handleSave = () => {
     // TODO: Implement save to database
-    console.log("Saving lyrics:", editedLyrics)
     // In real app, this would be an API call to update the song
     // For now, just update the UI state
     setIsEditing(false)

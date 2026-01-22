@@ -14,6 +14,25 @@ jest.mock("@/lib/supabase/client", () => ({
   createClient: jest.fn()
 }))
 
+// Mock the factory to return a client API
+jest.mock("@/lib/supabase/factory", () => ({
+  createApi: (module: Record<string, (...args: unknown[]) => Promise<unknown>>) => {
+    const api = {} as Record<string, unknown>
+    for (const [key, fn] of Object.entries(module)) {
+      if (typeof fn === "function") {
+        api[key] = (...args: unknown[]) => {
+          const { createClient } = require("@/lib/supabase/client")
+          const supabase = createClient()
+          return (fn as (...args: unknown[]) => Promise<unknown>)(supabase, ...args)
+        }
+      }
+    }
+    return api
+  },
+  isServerSide: () => false,
+  isClientSide: () => true
+}))
+
 // Mock next/navigation
 const mockPush = jest.fn()
 jest.mock("next/navigation", () => ({

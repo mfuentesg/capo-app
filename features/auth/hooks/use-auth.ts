@@ -13,21 +13,22 @@ import type { AuthError } from "@supabase/supabase-js"
 import { toast } from "sonner"
 import { useLocale } from "@/features/settings"
 import type { UserInfo } from "@/features/auth/types"
-import { getUser, getSession } from "@/features/auth/api"
+import type { Session } from "@supabase/supabase-js"
+import { api as authApi } from "@/features/auth/api"
 
 export function useSession() {
-  return useQuery({
+  return useQuery<Session | null, Error, Session | null, readonly ["auth", "session"]>({
     queryKey: authKeys.session(),
-    queryFn: getSession,
+    queryFn: async () => authApi.getSession() as Promise<Session | null>,
     staleTime: 5 * 60 * 1000, // 5 minutes
     retry: 1
   })
 }
 
 export function useUser(initialData?: UserInfo | null) {
-  return useQuery({
+  return useQuery<UserInfo | null, Error, UserInfo | null, readonly ["auth", "user"]>({
     queryKey: authKeys.user(),
-    queryFn: getUser,
+    queryFn: async () => authApi.getUser() as Promise<UserInfo | null>,
     initialData,
     staleTime: 5 * 60 * 1000, // 5 minutes
     retry: 1
@@ -60,7 +61,6 @@ export function useSignInWithGoogle() {
       return data
     },
     onSuccess: () => {
-      // Invalidate session query to refetch after redirect
       queryClient.invalidateQueries({ queryKey: authKeys.session() })
     },
     onError: (error: AuthError) => {

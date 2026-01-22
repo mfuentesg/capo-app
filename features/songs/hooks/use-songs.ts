@@ -2,14 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { useUser } from "@/features/auth"
-import {
-  getSongs,
-  getSong,
-  createSong,
-  updateSong,
-  deleteSong,
-  getSongsByIds
-} from "@/features/songs/api/songsApi"
+import { api } from "@/features/songs"
 import { songsKeys } from "@/features/songs/hooks/query-keys"
 import { authKeys } from "@/lib/supabase/constants"
 import type { Song } from "@/features/songs/types"
@@ -32,7 +25,7 @@ export function useSongs() {
       if (!context) {
         return []
       }
-      return getSongs(context)
+      return api.getSongs(context)
     },
     enabled: !!context && !!user?.id
   })
@@ -44,7 +37,7 @@ export function useSongs() {
 export function useSong(songId: string | null) {
   return useQuery({
     queryKey: songsKeys.detail(songId || ""),
-    queryFn: () => getSong(songId!),
+    queryFn: () => api.getSong(songId!),
     enabled: !!songId
   })
 }
@@ -55,7 +48,7 @@ export function useSong(songId: string | null) {
 export function useSongsByIds(songIds: string[]) {
   return useQuery({
     queryKey: [...songsKeys.all, "byIds", songIds.sort().join(",")],
-    queryFn: () => getSongsByIds(songIds),
+    queryFn: () => api.getSongsByIds(songIds),
     enabled: songIds.length > 0
   })
 }
@@ -76,9 +69,10 @@ export function useCreateSong() {
       if (!session?.user?.id) {
         throw new Error("User not authenticated")
       }
-      return createSong(song, session.user.id)
+      return api.createSong(song, session.user.id)
     },
     onSuccess: (newSong) => {
+      const song = newSong
       // Invalidate songs list query based on current context
       if (context) {
         queryClient.invalidateQueries({
@@ -90,7 +84,7 @@ export function useCreateSong() {
         })
       }
       // Add new song to cache
-      queryClient.setQueryData(songsKeys.detail(newSong.id), newSong)
+      queryClient.setQueryData(songsKeys.detail(song.id), song)
       toast.success(t.toasts?.songCreated || "Song created")
     },
     onError: (error) => {
@@ -109,15 +103,16 @@ export function useUpdateSong() {
 
   return useMutation({
     mutationFn: async ({ songId, updates }: { songId: string; updates: Partial<Song> }) => {
-      return updateSong(songId, updates)
+      return api.updateSong(songId, updates)
     },
     onSuccess: (updatedSong) => {
+      const song = updatedSong
       // Invalidate songs list query
       queryClient.invalidateQueries({
         queryKey: songsKeys.lists()
       })
       // Update song detail in cache
-      queryClient.setQueryData(songsKeys.detail(updatedSong.id), updatedSong)
+      queryClient.setQueryData(songsKeys.detail(song.id), song)
       toast.success(t.toasts?.songUpdated || "Song updated")
     },
     onError: (error) => {
@@ -136,7 +131,7 @@ export function useDeleteSong() {
 
   return useMutation({
     mutationFn: async (songId: string) => {
-      return deleteSong(songId)
+      return api.deleteSong(songId)
     },
     onSuccess: (_, songId) => {
       // Invalidate songs list query

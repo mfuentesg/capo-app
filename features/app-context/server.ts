@@ -9,29 +9,65 @@
 
 import { cookies } from "next/headers"
 import type { AppContext } from "./types"
+import type { UserInfo } from "@/features/auth/types"
+import type { Tables } from "@/lib/supabase/database.types"
 import { SELECTED_TEAM_ID_KEY } from "./constants"
 import { createClient } from "@/lib/supabase/server"
-import { getTeamsWithClient } from "@/features/teams/api/teamsApi"
-import type { UserInfo } from "@/features/auth/types"
-import {
-  setSelectedTeamId as setClientSelectedTeamId,
-  unsetSelectedTeamId as unsetClientSelectedTeamId,
-  getSelectedTeamIdFromCookies
-} from "./cookies"
+import { api as teamsApi } from "@/features/teams"
+import { getUser } from "@/features/auth/api/authApi"
 
-/**
- * Get the AppContext from cookies (server-side only)
- *
- * @param userId - The current user ID
- * @returns The AppContext based on cookies (team or personal)
- */
+export async function setSelectedTeamId(teamId: string) {
+  const cookieStore = await cookies()
+  cookieStore.set(SELECTED_TEAM_ID_KEY, teamId, {
+    path: "/",
+    maxAge: 31536000,
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production"
+  })
+}
+
+export async function unsetSelectedTeamId() {
+  const cookieStore = await cookies()
+  cookieStore.delete(SELECTED_TEAM_ID_KEY)
+}
+
+export async function getSelectedTeamId(): Promise<string | null> {
+  const cookieStore = await cookies()
+  return cookieStore.get(SELECTED_TEAM_ID_KEY)?.value ?? null
+}
+
+export async function getAppContext(): Promise<AppContext | null> {
+  const user = await getUser(await createClient())
+  if (!user) {
+    return null
+  }
+  return getAppContextFromCookies(user.id)
+}
+
+export async function isTeamContext(): Promise<boolean> {
+  const context = await getAppContext()
+  return context?.type === "team"
+}
+
+export async function getCurrentUser(): Promise<UserInfo | null> {
+  const supabase = await createClient()
+  return getUser(supabase)
+}
+
+export async function getUserTeams(): Promise<Tables<"teams">[]> {
+  const user = await getUser(await createClient())
+  if (!user) {
+    return []
+  }
+  return teamsApi.getTeams()
+}
+
 export async function getAppContextFromCookies(userId: string): Promise<AppContext> {
-  const selectedTeamId = await getSelectedTeamIdFromCookies()
+  const selectedTeamId = await getSelectedTeamId()
 
   if (selectedTeamId) {
-    // Validate that the user is actually a member of this team
-    const supabase = await createClient()
-    const teams = await getTeamsWithClient(supabase, userId)
+    const teams = await teamsApi.getTeams()
     const isValid = teams.some((t) => t.id === selectedTeamId)
 
     if (isValid) {
@@ -49,44 +85,25 @@ export async function getAppContextFromCookies(userId: string): Promise<AppConte
   }
 }
 
-/**
- * Get the initial context data needed for the AppContextProvider
- * This fetches user, teams, and validates the selected team ID in one pass.
- */
 export async function getInitialAppContextData() {
   const supabase = await createClient()
-  const {
-    data: { user }
-  } = await supabase.auth.getUser()
+  const user = await getUser(supabase)
 
   if (!user) {
     return {
-      user: null as UserInfo | null,
+      user: null,
       teams: [],
       initialSelectedTeamId: null
     }
   }
 
-  const userInfo: UserInfo = {
-    id: user.id,
-    email: user.email,
-    avatarUrl: (user.user_metadata?.avatar_url as string | undefined) || undefined,
-    fullName: (user.user_metadata?.full_name as string | undefined) || undefined,
-    displayName: (user.user_metadata?.name as string | undefined) || undefined
-  }
-
-  const [teams, selectedTeamId] = await Promise.all([
-    getTeamsWithClient(supabase, user.id),
-    getSelectedTeamIdFromCookies()
-  ])
-
-  // Validate selected team ID
-  const validSelectedTeamId =
-    selectedTeamId && teams.some((t) => t.id === selectedTeamId) ? selectedTeamId : null
+  const teams = await teamsApi.getTeams()
+  const context = await getAppContext()
+  const initialSelectedTeamId = context?.type === "team" ? context.teamId : null
 
   return {
-    user: userInfo,
+    user,
     teams,
-    initialSelectedTeamId: validSelectedTeamId
+    initialSelectedTeamId
   }
 }

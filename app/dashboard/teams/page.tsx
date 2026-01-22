@@ -1,16 +1,9 @@
-import { createClient } from "@/lib/supabase/server"
-import { getTeamsWithClient, TeamsClient } from "@/features/teams"
-import { getSelectedTeamIdFromCookies } from "@/features/app-context/cookies"
+import { api, TeamsClient } from "@/features/teams"
+import { getSelectedTeamId } from "@/features/app-context/server"
 
 export default async function TeamsPage() {
-  const supabase = await createClient()
-
-  const {
-    data: { user }
-  } = await supabase.auth.getUser()
-
-  const teams = user ? await getTeamsWithClient(supabase, user.id) : []
-  const initialSelectedTeamId = await getSelectedTeamIdFromCookies()
+  const teams = await api.getTeams()
+  const initialSelectedTeamId = await getSelectedTeamId()
 
   return <TeamsClient initialTeams={teams} initialSelectedTeamId={initialSelectedTeamId} />
 }

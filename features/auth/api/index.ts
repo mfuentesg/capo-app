@@ -1,40 +1,17 @@
-import { createClient } from "@/lib/supabase/client"
-import type { UserInfo } from "@/features/auth/types"
+import { createApi } from "@/lib/supabase/factory"
+import * as authApi from "./authApi"
 
-export async function getUser(): Promise<UserInfo | null> {
-  const supabase = await createClient()
-  const {
-    data: { user },
-    error
-  } = await supabase.auth.getUser()
+/**
+ * Auth API
+ *
+ * Auto-detects server vs client context and uses appropriate Supabase client.
+ * Can be used in both Server Components and Client Components.
+ */
 
-  if (error) {
-    throw error
-  }
+export const api = createApi(authApi)
 
-  if (!user) {
-    return null
-  }
+// Re-export functions
+export { getUser, getSession } from "./authApi"
 
-  return {
-    id: user?.id || "",
-    email: user?.email,
-    avatarUrl: (user?.user_metadata?.avatar_url as string | undefined) || undefined,
-    fullName: (user?.user_metadata?.full_name as string | undefined) || undefined,
-    displayName: (user?.user_metadata?.name as string | undefined) || undefined
-  }
-}
-
-export async function getSession() {
-  const supabase = await createClient()
-  const {
-    data: { session },
-    error
-  } = await supabase.auth.getSession()
-
-  if (error) {
-    throw error
-  }
-
-  return session
-}
+// Re-export types
+export type { UserInfo } from "@/features/auth/types"

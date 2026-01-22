@@ -19,7 +19,7 @@ import {
 import { Switch } from "@/components/ui/switch"
 import { IconPicker } from "@/components/ui/icon-picker"
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group"
-import { createTeam } from "@/features/teams"
+import { api as teamsApi } from "@/features/teams/api"
 import { toast } from "sonner"
 import { useUser } from "@/features/auth"
 import { useAppContext } from "@/features/app-context"
@@ -76,10 +76,10 @@ export function CreateTeamForm() {
         description: values.description || null,
         is_public: values.is_public,
         created_by: user.id,
-        icon: values.icon,
-      } 
+        icon: values.icon
+      }
 
-      const newTeam = await createTeam(teamData)
+      const newTeam = await teamsApi.createTeam(teamData)
       await refreshTeams()
       toast.success(t.toasts.teamCreated)
       // Redirect to teams page with query parameter to switch to the new team
@@ -141,8 +141,6 @@ export function CreateTeamForm() {
               </FormItem>
             )}
           />
-
-
 
           <FormField
             control={form.control}

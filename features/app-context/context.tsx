@@ -20,8 +20,8 @@ import type { Tables } from "@/lib/supabase/database.types"
 import {
   setSelectedTeamId as setClientSelectedTeamId,
   unsetSelectedTeamId as unsetClientSelectedTeamId
-} from "./client"
-import { getTeams } from "@/features/teams/api/teamsApi"
+} from "./server"
+import { api } from "@/features/teams"
 
 interface AppContextContextType {
   context: AppContext | null
@@ -88,7 +88,7 @@ export function AppContextProvider({
     if (!user?.id) return
     setIsLoadingTeams(true)
     try {
-      const updatedTeams = await getTeams()
+      const updatedTeams = await api.getTeams()
       setTeams(updatedTeams)
     } catch (error) {
       console.error("Failed to refresh teams:", error)
