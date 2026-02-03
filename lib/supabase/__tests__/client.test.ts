@@ -27,9 +27,7 @@ describe("Supabase Client", () => {
   describe("createClient", () => {
     const requiredEnvVars = {
       NEXT_PUBLIC_SUPABASE_URL: "https://test.supabase.co",
-      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "test-key",
-      SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID: "test-google-client-id",
-      SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET: "test-google-secret"
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "test-key"
     }
 
     beforeEach(() => {
@@ -69,8 +67,6 @@ describe("Supabase Client", () => {
     it("should throw error when NEXT_PUBLIC_SUPABASE_URL is missing", () => {
       delete process.env.NEXT_PUBLIC_SUPABASE_URL
       process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY = "test-key"
-      process.env.SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID = "test-google-client-id"
-      process.env.SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET = "test-google-secret"
 
       expect(() => require("@/lib/supabase/client")).toThrow(
         "Missing NEXT_PUBLIC_SUPABASE_URL environment variable. Please add it to your .env.local file."
@@ -80,8 +76,6 @@ describe("Supabase Client", () => {
     it("should throw error when NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY is missing", () => {
       process.env.NEXT_PUBLIC_SUPABASE_URL = "https://test.supabase.co"
       delete process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
-      process.env.SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID = "test-google-client-id"
-      process.env.SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET = "test-google-secret"
 
       expect(() => require("@/lib/supabase/client")).toThrow(
         "Missing NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY environment variable. Please add it to your .env.local file."
@@ -91,8 +85,6 @@ describe("Supabase Client", () => {
     it("should throw error when both environment variables are missing", () => {
       delete process.env.NEXT_PUBLIC_SUPABASE_URL
       delete process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
-      process.env.SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID = "test-google-client-id"
-      process.env.SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET = "test-google-secret"
 
       expect(() => require("@/lib/supabase/client")).toThrow(
         "Missing NEXT_PUBLIC_SUPABASE_URL environment variable. Please add it to your .env.local file."

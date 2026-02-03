@@ -1,4 +1,5 @@
 "use client"
+import { memo } from "react"
 import { Check, Music3, Music2, Clock } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
@@ -14,7 +15,7 @@ interface SongItemProps {
   onToggleCart: (song: Song) => void
 }
 
-export function SongItem({
+export const SongItem = memo(function SongItem({
   song,
   isSelected,
   isInCart,
@@ -77,4 +78,4 @@ export function SongItem({
       </div>
     </div>
   )
-}
+})

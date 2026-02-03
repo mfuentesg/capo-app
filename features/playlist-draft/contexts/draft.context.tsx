@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext, useState, useCallback, type ReactNode } from "react"
+import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from "react"
 import type { Song } from "@/features/songs"
 
 export interface PlaylistDraftContextType {
@@ -30,10 +30,9 @@ export function PlaylistDraftProvider({ children }: { children: ReactNode }) {
     })
   }, [])
 
-  const isSongInDraft = useCallback(
-    (songId: string) => playlistDraft.some((s) => s.id === songId),
-    [playlistDraft]
-  )
+  const draftIds = useMemo(() => new Set(playlistDraft.map((s) => s.id)), [playlistDraft])
+
+  const isSongInDraft = useCallback((songId: string) => draftIds.has(songId), [draftIds])
 
   const clearDraft = useCallback(() => {
     setPlaylistDraft([])
@@ -52,19 +51,30 @@ export function PlaylistDraftProvider({ children }: { children: ReactNode }) {
     })
   }, [])
 
+  const value = useMemo(
+    () => ({
+      playlistDraft,
+      isDraftOpen,
+      setIsDraftOpen,
+      toggleSongInDraft,
+      isSongInDraft,
+      clearDraft,
+      removeFromDraft,
+      reorderDraft
+    }),
+    [
+      playlistDraft,
+      isDraftOpen,
+      toggleSongInDraft,
+      isSongInDraft,
+      clearDraft,
+      removeFromDraft,
+      reorderDraft
+    ]
+  )
+
   return (
-    <PlaylistDraftContext.Provider
-      value={{
-        playlistDraft,
-        isDraftOpen,
-        setIsDraftOpen,
-        toggleSongInDraft,
-        isSongInDraft,
-        clearDraft,
-        removeFromDraft,
-        reorderDraft
-      }}
-    >
+    <PlaylistDraftContext.Provider value={value}>
       {children}
     </PlaylistDraftContext.Provider>
   )

@@ -3,37 +3,57 @@ import type { Database } from "@/lib/supabase/database.types"
 import type { UserInfo } from "@/features/auth/types"
 
 export async function getUser(supabase: SupabaseClient<Database>): Promise<UserInfo | null> {
-  const {
-    data: { user },
-    error
-  } = await supabase.auth.getUser()
+  try {
+    const {
+      data: { user },
+      error
+    } = await supabase.auth.getUser()
 
-  if (error) {
-    throw error
-  }
+    if (error) {
+      // If it's an auth session missing error, return null instead of throwing
+      if (error.message?.includes("session") || error.message?.includes("Auth")) {
+        return null
+      }
+      throw error
+    }
 
-  if (!user) {
+    if (!user) {
+      return null
+    }
+
+    return {
+      id: user?.id || "",
+      email: user?.email,
+      avatarUrl: (user?.user_metadata?.avatar_url as string | undefined) || undefined,
+      fullName: (user?.user_metadata?.full_name as string | undefined) || undefined,
+      displayName: (user?.user_metadata?.name as string | undefined) || undefined
+    }
+  } catch (error) {
+    // Handle any auth-related errors gracefully
+    console.debug("Auth error in getUser:", error)
     return null
-  }
-
-  return {
-    id: user?.id || "",
-    email: user?.email,
-    avatarUrl: (user?.user_metadata?.avatar_url as string | undefined) || undefined,
-    fullName: (user?.user_metadata?.full_name as string | undefined) || undefined,
-    displayName: (user?.user_metadata?.name as string | undefined) || undefined
   }
 }
 
 export async function getSession(supabase: SupabaseClient<Database>) {
-  const {
-    data: { session },
-    error
-  } = await supabase.auth.getSession()
+  try {
+    const {
+      data: { session },
+      error
+    } = await supabase.auth.getSession()
 
-  if (error) {
-    throw error
+    if (error) {
+      // If it's an auth session missing error, return null instead of throwing
+      if (error.message?.includes("session") || error.message?.includes("Auth")) {
+        return null
+      }
+      throw error
+    }
+
+    return session
+  } catch (error) {
+    // Handle any auth-related errors gracefully
+    console.debug("Auth error in getSession:", error)
+    return null
   }
-
-  return session
 }

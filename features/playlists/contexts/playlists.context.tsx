@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext, useCallback, type ReactNode } from "react"
+import { createContext, useContext, useCallback, useMemo, type ReactNode } from "react"
 import type { Playlist } from "@/features/playlists/types"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { api } from "@/features/playlists/api"
@@ -95,17 +95,20 @@ export function PlaylistsProvider({ children }: { children: ReactNode }) {
     [playlists, updatePlaylistMutation]
   )
 
+  const value = useMemo(
+    () => ({
+      playlists,
+      addPlaylist,
+      updatePlaylist,
+      deletePlaylist,
+      reorderPlaylistSongs,
+      isLoading
+    }),
+    [playlists, addPlaylist, updatePlaylist, deletePlaylist, reorderPlaylistSongs, isLoading]
+  )
+
   return (
-    <PlaylistsContext.Provider
-      value={{
-        playlists,
-        addPlaylist,
-        updatePlaylist,
-        deletePlaylist,
-        reorderPlaylistSongs,
-        isLoading
-      }}
-    >
+    <PlaylistsContext.Provider value={value}>
       {children}
     </PlaylistsContext.Provider>
   )

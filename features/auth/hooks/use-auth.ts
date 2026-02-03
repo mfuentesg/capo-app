@@ -19,19 +19,35 @@ import { api as authApi } from "@/features/auth/api"
 export function useSession() {
   return useQuery<Session | null, Error, Session | null, readonly ["auth", "session"]>({
     queryKey: authKeys.session(),
-    queryFn: async () => authApi.getSession() as Promise<Session | null>,
+    queryFn: async () => {
+      try {
+        return authApi.getSession()
+      } catch (error) {
+        // Handle AuthSessionMissingError gracefully - return null for no session
+        console.debug("No active session:", error)
+        return null
+      }
+    },
     staleTime: 5 * 60 * 1000, // 5 minutes
-    retry: 1
+    retry: false // Don't retry auth errors
   })
 }
 
 export function useUser(initialData?: UserInfo | null) {
   return useQuery<UserInfo | null, Error, UserInfo | null, readonly ["auth", "user"]>({
     queryKey: authKeys.user(),
-    queryFn: async () => authApi.getUser() as Promise<UserInfo | null>,
+    queryFn: async () => {
+      try {
+        return authApi.getUser()
+      } catch (error) {
+        // Handle AuthSessionMissingError gracefully - return null for no user
+        console.debug("No authenticated user:", error)
+        return null
+      }
+    },
     initialData,
     staleTime: 5 * 60 * 1000, // 5 minutes
-    retry: 1
+    retry: false // Don't retry auth errors
   })
 }
 

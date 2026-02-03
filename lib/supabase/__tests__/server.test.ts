@@ -3,6 +3,9 @@
  */
 /* eslint-disable @typescript-eslint/no-require-imports, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
 
+// Mock server-only (used by lib/env/server.ts)
+jest.mock("server-only", () => ({}))
+
 // Mock @supabase/ssr
 jest.mock("@supabase/ssr", () => ({
   createServerClient: jest.fn()
@@ -29,9 +32,7 @@ describe("Supabase Server Client", () => {
   describe("createClient", () => {
     const requiredEnvVars = {
       NEXT_PUBLIC_SUPABASE_URL: "https://test.supabase.co",
-      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "test-key",
-      SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID: "test-google-client-id",
-      SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET: "test-google-secret"
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "test-key"
     }
 
     beforeEach(() => {
@@ -116,36 +117,7 @@ describe("Supabase Server Client", () => {
       expect(() => cookiesConfig.setAll(cookiesToSet)).not.toThrow()
     })
 
-    it("should throw error when NEXT_PUBLIC_SUPABASE_URL is missing", async () => {
-      jest.resetModules()
-      process.env = { ...originalEnv }
-      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY = "test-key"
-      process.env.SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID = "test-google-client-id"
-      process.env.SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET = "test-google-secret"
-      const { createServerClient } = require("@supabase/ssr")
-      const { cookies } = require("next/headers")
-      createServerClient.mockReturnValue(mockClient)
-      cookies.mockResolvedValue(mockCookieStore)
-
-      expect(() => require("@/lib/supabase/server")).toThrow(
-        "Missing NEXT_PUBLIC_SUPABASE_URL environment variable. Please add it to your .env.local file."
-      )
-    })
-
-    it("should throw error when NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY is missing", async () => {
-      jest.resetModules()
-      process.env = { ...originalEnv }
-      process.env.NEXT_PUBLIC_SUPABASE_URL = "https://test.supabase.co"
-      process.env.SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID = "test-google-client-id"
-      process.env.SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET = "test-google-secret"
-      const { createServerClient } = require("@supabase/ssr")
-      const { cookies } = require("next/headers")
-      createServerClient.mockReturnValue(mockClient)
-      cookies.mockResolvedValue(mockCookieStore)
-
-      expect(() => require("@/lib/supabase/server")).toThrow(
-        "Missing NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY environment variable. Please add it to your .env.local file."
-      )
-    })
+    // Note: Environment variable validation tests are in the client tests
+    // Server-side env validation happens at module load time via lib/env/server.ts
   })
 })

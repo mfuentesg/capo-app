@@ -131,9 +131,9 @@ describe("Auth Hooks", () => {
       expect(mockSupabase.auth.getSession).toHaveBeenCalledTimes(1)
     })
 
-    it("should handle session fetch error", async () => {
-      const mockError = { message: "Failed to fetch session" }
-      // getSession throws when error is present, so we need to mock it to reject
+    it("should handle auth errors gracefully by returning null", async () => {
+      const mockError = { message: "Auth session missing" }
+      // Auth errors are handled gracefully - they return null instead of throwing
       mockSupabase.auth.getSession.mockResolvedValue({
         data: { session: null },
         error: mockError
@@ -141,14 +141,13 @@ describe("Auth Hooks", () => {
 
       const { result } = renderHook(() => useSession(), { wrapper })
 
-      await waitFor(
-        () => {
-          expect(result.current.isError).toBe(true)
-        },
-        { timeout: 3000 }
-      )
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true)
+      })
 
-      expect(result.current.error).toBeDefined()
+      // Auth errors return null session rather than throwing
+      expect(result.current.data).toBeNull()
+      expect(result.current.isError).toBe(false)
     })
 
     it("should use correct query key", async () => {
