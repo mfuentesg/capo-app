@@ -7,7 +7,6 @@
 
 import type { SupabaseClient } from "@supabase/supabase-js"
 import type { Database, Tables, TablesInsert, TablesUpdate } from "@/lib/supabase/database.types"
-import { mockTeams } from "@/lib/mock-data"
 
 export async function getTeams(supabase: SupabaseClient<Database>): Promise<Tables<"teams">[]> {
   const {
@@ -16,16 +15,10 @@ export async function getTeams(supabase: SupabaseClient<Database>): Promise<Tabl
   } = await supabase.auth.getUser()
 
   if (userError) {
-    if (process.env.NODE_ENV === "development") {
-      return mockTeams
-    }
     throw userError
   }
 
   if (!user) {
-    if (process.env.NODE_ENV === "development") {
-      return mockTeams
-    }
     return []
   }
 
@@ -58,9 +51,6 @@ export async function getTeamsWithClient(
     .order("joined_at", { ascending: false })
 
   if (error) {
-    if (process.env.NODE_ENV === "development") {
-      return mockTeams
-    }
     throw error
   }
 
@@ -70,10 +60,6 @@ export async function getTeamsWithClient(
     if (team) {
       teams.push(team)
     }
-  }
-
-  if (teams.length === 0 && process.env.NODE_ENV === "development") {
-    return mockTeams
   }
 
   return teams
@@ -90,37 +76,14 @@ export async function getTeamWithClient(
   supabase: SupabaseClient<Database>,
   teamId: string
 ): Promise<Tables<"teams"> | null> {
-  try {
-    const response = await supabase.from("teams").select("*").eq("id", teamId).single()
-    const { data, error } = response
+  const { data, error } = await supabase.from("teams").select("*").eq("id", teamId).single()
 
-    if (error) {
-      if (error.code === "PGRST116" && process.env.NODE_ENV === "development") {
-        const mockTeam = mockTeams.find((t) => t.id === teamId)
-        if (mockTeam) return mockTeam
-        return null
-      }
-      if (error.code === "PGRST116") return null
-      if (process.env.NODE_ENV === "development") {
-        const mockTeam = mockTeams.find((t) => t.id === teamId)
-        if (mockTeam) return mockTeam
-      }
-      throw error
-    }
-
-    if (!data && process.env.NODE_ENV === "development") {
-      const mockTeam = mockTeams.find((t) => t.id === teamId)
-      if (mockTeam) return mockTeam
-    }
-
-    return data || null
-  } catch (error) {
-    if (process.env.NODE_ENV === "development") {
-      const mockTeam = mockTeams.find((t) => t.id === teamId)
-      if (mockTeam) return mockTeam
-    }
+  if (error) {
+    if (error.code === "PGRST116") return null
     throw error
   }
+
+  return data || null
 }
 
 export async function createTeam(
@@ -167,9 +130,6 @@ export async function getTeamMembersWithClient(
     .order("joined_at", { ascending: true })
 
   if (error) {
-    if (process.env.NODE_ENV === "development") {
-      return []
-    }
     throw error
   }
   return data || []

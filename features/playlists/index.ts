@@ -3,6 +3,7 @@ export { PlaylistDetail } from "./components/playlist-detail"
 export { PlaylistList } from "./components/playlist-list"
 export { PlaylistItem } from "./components/playlist-item"
 export { PlaylistSongItem } from "./components/playlist-song-item"
+export { PlaylistCreateForm } from "./components/playlist-create-form"
 
 export { usePlaylists, PlaylistsProvider } from "./contexts"
 

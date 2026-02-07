@@ -19,6 +19,7 @@ export interface SongDetailProps {
   song: Song
   onClose: () => void
   onUpdate: (songId: string, updates: Partial<Song>) => void
+  onDelete: (songId: string) => void
 }
 
 export interface SongListProps {

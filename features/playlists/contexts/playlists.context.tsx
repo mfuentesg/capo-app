@@ -9,7 +9,7 @@ import { useUser } from "@/features/auth"
 
 export interface PlaylistsContextType {
   playlists: Playlist[]
-  addPlaylist: (playlist: Playlist) => void
+  addPlaylist: (playlist: Playlist) => Promise<Playlist>
   updatePlaylist: (id: string, updates: Partial<Playlist>) => void
   deletePlaylist: (id: string) => void
   reorderPlaylistSongs: (playlistId: string, sourceIndex: number, destinationIndex: number) => void
@@ -45,7 +45,20 @@ export function PlaylistsProvider({ children }: { children: ReactNode }) {
   const updatePlaylistMutation = useMutation({
     mutationFn: ({ id, updates }: { id: string; updates: Partial<Playlist> }) =>
       api.updatePlaylist(id, updates),
-    onSuccess: () => {
+    onMutate: async ({ id, updates }) => {
+      await queryClient.cancelQueries({ queryKey: ["playlists", context] })
+      const previousPlaylists = queryClient.getQueryData<Playlist[]>(["playlists", context])
+      queryClient.setQueryData<Playlist[]>(["playlists", context], (old) =>
+        old?.map((p) => (p.id === id ? { ...p, ...updates } : p)) ?? []
+      )
+      return { previousPlaylists }
+    },
+    onError: (_err, _vars, rollback) => {
+      if (rollback?.previousPlaylists) {
+        queryClient.setQueryData(["playlists", context], rollback.previousPlaylists)
+      }
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["playlists", context] })
     }
   })
@@ -59,7 +72,7 @@ export function PlaylistsProvider({ children }: { children: ReactNode }) {
 
   const addPlaylist = useCallback(
     (playlist: Playlist) => {
-      createPlaylistMutation.mutate(playlist)
+      return createPlaylistMutation.mutateAsync(playlist)
     },
     [createPlaylistMutation]
   )

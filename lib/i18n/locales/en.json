@@ -97,6 +97,9 @@
     "createSong": "Create Song",
     "editLyrics": "Edit Lyrics",
     "addLyrics": "Add Lyrics",
+    "deleteSong": "Delete Song",
+    "deleteSongConfirmTitle": "Delete this song?",
+    "deleteSongConfirmDescription": "This will permanently delete \"{title}\". This action cannot be undone.",
     "songTitle": "Song Title",
     "songTitlePlaceholder": "Song title",
     "addLyricsDescription": "Add lyrics to your song using ChordPro format",
@@ -130,7 +133,9 @@
     "playlistDetails": "Playlist Details",
     "addToPlaylist": "Add to Playlist",
     "draft": "Draft",
-    "searchPlaceholder": "Search playlists..."
+    "searchPlaceholder": "Search playlists...",
+    "playlistName": "Playlist Name",
+    "playlistNamePlaceholder": "e.g. Sunday Worship"
   },
   "playlistDetail": {
     "details": "Details",
@@ -150,7 +155,8 @@
     "song": "song",
     "songsPlural": "songs",
     "pickDate": "Pick a date",
-    "editDescription": "View and edit playlist"
+    "editDescription": "View and edit playlist",
+    "addDescription": "Add a description..."
   },
   "playlistItem": {
     "privatePlaylist": "Private playlist",

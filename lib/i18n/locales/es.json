@@ -97,6 +97,9 @@
     "createSong": "Crear canción",
     "editLyrics": "Editar letra",
     "addLyrics": "Agregar letra",
+    "deleteSong": "Eliminar canción",
+    "deleteSongConfirmTitle": "¿Eliminar esta canción?",
+    "deleteSongConfirmDescription": "Esto eliminará permanentemente \"{title}\". Esta acción no se puede deshacer.",
     "songTitle": "Título de la canción",
     "songTitlePlaceholder": "Título de la canción",
     "addLyricsDescription": "Agrega letra a tu canción usando formato ChordPro",
@@ -130,7 +133,9 @@
     "playlistDetails": "Detalles de la lista",
     "addToPlaylist": "Agregar a lista",
     "draft": "Borrador",
-    "searchPlaceholder": "Buscar listas..."
+    "searchPlaceholder": "Buscar listas...",
+    "playlistName": "Nombre de la lista",
+    "playlistNamePlaceholder": "ej. Adoración del Domingo"
   },
   "playlistDetail": {
     "details": "Detalles",
@@ -150,7 +155,8 @@
     "song": "canción",
     "songsPlural": "canciones",
     "pickDate": "Selecciona una fecha",
-    "editDescription": "Ver y editar lista"
+    "editDescription": "Ver y editar lista",
+    "addDescription": "Agregar una descripción..."
   },
   "playlistItem": {
     "privatePlaylist": "Lista privada",

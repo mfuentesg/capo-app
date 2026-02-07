@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge"
 import { Plus, Search, ListMusic, Settings2, X } from "lucide-react"
 import { PlaylistList } from "@/features/playlists/components/playlist-list"
 import { PlaylistDetail } from "@/features/playlists/components/playlist-detail"
+import { PlaylistCreateForm } from "@/features/playlists/components/playlist-create-form"
 import type { Playlist } from "@/features/playlists/types"
 import { useTranslation } from "@/hooks/use-translation"
 import { usePlaylists } from "@/features/playlists/contexts"
@@ -20,14 +21,20 @@ interface PlaylistsClientProps {
 }
 
 export function PlaylistsClient({ initialPlaylists }: PlaylistsClientProps) {
-  const { updatePlaylist, deletePlaylist } = usePlaylists()
+  const { playlists, addPlaylist, updatePlaylist, deletePlaylist } = usePlaylists()
   const { t } = useTranslation()
   const [isMobile, setIsMobile] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [filterStatus, setFilterStatus] = useState<"all" | "drafts" | "completed">("all")
   const [filterVisibility, setFilterVisibility] = useState<"all" | "public" | "private">("all")
-  const [selectedPlaylist, setSelectedPlaylist] = useState<Playlist | null>(null)
+  const [selectedPlaylistId, setSelectedPlaylistId] = useState<string | null>(null)
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false)
+  const [isCreating, setIsCreating] = useState(false)
+
+  const effectivePlaylists = playlists.length > 0 ? playlists : initialPlaylists
+  const selectedPlaylist = selectedPlaylistId
+    ? effectivePlaylists.find((p) => p.id === selectedPlaylistId) ?? null
+    : null
 
   // Track viewport to render Drawer only after mount and on mobile
   useEffect(() => {
@@ -53,12 +60,31 @@ export function PlaylistsClient({ initialPlaylists }: PlaylistsClientProps) {
   }
 
   const handleSelectPlaylist = (playlist: Playlist) => {
-    setSelectedPlaylist(playlist)
+    setIsCreating(false)
+    setSelectedPlaylistId(playlist.id)
     setIsMobileDrawerOpen(true)
   }
 
   const handleClosePlaylistDetail = () => {
-    setSelectedPlaylist(null)
+    setSelectedPlaylistId(null)
+    setIsCreating(false)
+    setIsMobileDrawerOpen(false)
+  }
+
+  const handleCreateClick = () => {
+    setSelectedPlaylistId(null)
+    setIsCreating(true)
+    setIsMobileDrawerOpen(true)
+  }
+
+  const handleCreateSubmit = async (playlist: Playlist) => {
+    const created = await addPlaylist(playlist)
+    setIsCreating(false)
+    setSelectedPlaylistId(created.id)
+  }
+
+  const handleCreateCancel = () => {
+    setIsCreating(false)
     setIsMobileDrawerOpen(false)
   }
 
@@ -78,9 +104,9 @@ export function PlaylistsClient({ initialPlaylists }: PlaylistsClientProps) {
                 <h1 className="text-xl font-semibold tracking-tight lg:text-2xl">
                   {t.playlists.title}
                 </h1>
-                <Badge variant="secondary">{initialPlaylists.length}</Badge>
+                <Badge variant="secondary">{effectivePlaylists.length}</Badge>
               </div>
-              <Button size="sm" className="gap-1.5 rounded-full">
+              <Button size="sm" className="gap-1.5 rounded-full" onClick={handleCreateClick}>
                 <Plus className="h-4 w-4" />
                 {t.playlists.createPlaylist}
               </Button>
@@ -212,7 +238,7 @@ export function PlaylistsClient({ initialPlaylists }: PlaylistsClientProps) {
 
           <div className="flex-1 overflow-y-auto">
             <PlaylistList
-              playlists={initialPlaylists}
+              playlists={effectivePlaylists}
               searchQuery={searchQuery}
               filterStatus={filterStatus}
               filterVisibility={filterVisibility}
@@ -224,7 +250,12 @@ export function PlaylistsClient({ initialPlaylists }: PlaylistsClientProps) {
         <ResizableHandle withHandle className="hidden md:flex" />
 
         <ResizablePanel id="playlists-detail-panel" defaultSize={65} minSize={40} className="hidden md:flex">
-          {selectedPlaylist ? (
+          {isCreating ? (
+            <PlaylistCreateForm
+              onSubmit={handleCreateSubmit}
+              onCancel={handleCreateCancel}
+            />
+          ) : selectedPlaylist ? (
             <PlaylistDetail
               playlist={selectedPlaylist}
               onClose={handleClosePlaylistDetail}
@@ -256,7 +287,12 @@ export function PlaylistsClient({ initialPlaylists }: PlaylistsClientProps) {
               {t.playlistDetail.editDescription}
             </DrawerDescription>
             <div className="flex-1 overflow-y-auto">
-              {selectedPlaylist && (
+              {isCreating ? (
+                <PlaylistCreateForm
+                  onSubmit={handleCreateSubmit}
+                  onCancel={handleCreateCancel}
+                />
+              ) : selectedPlaylist ? (
                 <PlaylistDetail
                   playlist={selectedPlaylist}
                   onClose={handleClosePlaylistDetail}
@@ -266,7 +302,7 @@ export function PlaylistsClient({ initialPlaylists }: PlaylistsClientProps) {
                     handleClosePlaylistDetail()
                   }}
                 />
-              )}
+              ) : null}
             </div>
           </DrawerContent>
         </Drawer>

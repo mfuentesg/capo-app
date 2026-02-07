@@ -3,10 +3,9 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { useUser } from "@/features/auth"
 import { api } from "@/features/songs"
+import { createSongAction, updateSongAction, deleteSongAction } from "@/features/songs/api/actions"
 import { songsKeys } from "@/features/songs/hooks/query-keys"
-import { authKeys } from "@/lib/supabase/constants"
 import type { Song } from "@/features/songs/types"
-import type { Session } from "@supabase/supabase-js"
 import { toast } from "sonner"
 import { useLocale } from "@/features/settings"
 import { useAppContext } from "@/features/app-context"
@@ -62,14 +61,8 @@ export function useCreateSong() {
   const { context } = useAppContext()
 
   return useMutation({
-    mutationFn: async (song: Partial<Song>) => {
-      // Get session from query cache at mutation time (not closure time)
-      const session = queryClient.getQueryData<Session | null>(authKeys.session())
-
-      if (!session?.user?.id) {
-        throw new Error("User not authenticated")
-      }
-      return api.createSong(song, session.user.id)
+    mutationFn: async ({ song, userId }: { song: Partial<Song>; userId: string }) => {
+      return createSongAction(song, userId)
     },
     onSuccess: (newSong) => {
       const song = newSong
@@ -103,7 +96,7 @@ export function useUpdateSong() {
 
   return useMutation({
     mutationFn: async ({ songId, updates }: { songId: string; updates: Partial<Song> }) => {
-      return api.updateSong(songId, updates)
+      return updateSongAction(songId, updates)
     },
     onSuccess: (updatedSong) => {
       const song = updatedSong
@@ -131,7 +124,7 @@ export function useDeleteSong() {
 
   return useMutation({
     mutationFn: async (songId: string) => {
-      return api.deleteSong(songId)
+      return deleteSongAction(songId)
     },
     onSuccess: (_, songId) => {
       // Invalidate songs list query

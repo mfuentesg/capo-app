@@ -32,10 +32,6 @@ The teams feature manages teams, allowing users to create, manage, and collabora
 - `changeTeamMemberRole(teamId, userId, newRole)` - Change member role
 - `transferTeamOwnership(teamId, newOwnerId)` - Transfer ownership
 
-### Data
-
-- `mockTeams` - Mock teams data for development
-
 ### Types
 
 All types are exported from `@/features/teams/types`
@@ -81,6 +77,5 @@ features/teams/
 ├── components/       # UI components
 ├── hooks/           # Custom hooks
 ├── types/           # TypeScript types
-├── api/             # API functions (Supabase queries)
-└── data/            # Mock data for development
+└── api/             # API functions (Supabase queries)
 ```

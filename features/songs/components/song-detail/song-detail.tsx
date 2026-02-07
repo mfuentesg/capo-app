@@ -16,6 +16,17 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger
+} from "@/components/ui/alert-dialog"
 import { cn } from "@/lib/utils"
 import type { Song } from "@/features/songs/types"
 import { KeySelect } from "@/features/songs/components/key-select"
@@ -96,9 +107,10 @@ interface SongDetailProps {
   song: Song
   onClose: () => void
   onUpdate: (songId: string, updates: Partial<Song>) => void
+  onDelete: (songId: string) => void
 }
 
-export function SongDetail({ song, onClose, onUpdate }: SongDetailProps) {
+export function SongDetail({ song, onClose, onUpdate, onDelete }: SongDetailProps) {
   const { t } = useTranslation()
   const { isSongInDraft, toggleSongInDraft } = usePlaylistDraft()
   const isInCart = isSongInDraft(song.id)
@@ -301,14 +313,32 @@ export function SongDetail({ song, onClose, onUpdate }: SongDetailProps) {
                 </Button>
               </Link>
             )}
-            <Button
-              variant="outline"
-              size="sm"
-              className="gap-2 text-destructive hover:text-destructive bg-transparent"
-            >
-              <Trash2 className="h-3.5 w-3.5" />
-              {t.common.delete}
-            </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-2 text-destructive hover:text-destructive bg-transparent"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                  {t.common.delete}
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>{t.songs.deleteSongConfirmTitle}</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    {t.songs.deleteSongConfirmDescription.replace("{title}", song.title)}
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>{t.common.cancel}</AlertDialogCancel>
+                  <AlertDialogAction variant="destructive" onClick={() => onDelete(song.id)}>
+                    {t.songs.deleteSong}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </div>
       </div>

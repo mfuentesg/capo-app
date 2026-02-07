@@ -75,36 +75,65 @@ export async function getPlaylists(
 /**
  * Fetch playlist with songs (nested query)
  *
+ * @param supabase - Supabase client instance
  * @param playlistId - Playlist UUID
  * @returns Promise<PlaylistWithSongs | null> - Playlist with nested songs or null
  */
 export async function getPlaylistWithSongs(
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _playlistId: string
+  supabase: SupabaseClient<Database>,
+  playlistId: string
 ): Promise<PlaylistWithSongs | null> {
-  // TODO: Implement
-  // const supabase = createClient()
-  //
-  // const { data, error } = await supabase
-  //   .from("playlists")
-  //   .select(`
-  //     *,
-  //     playlist_songs (
-  //       *,
-  //       song:songs (*)
-  //     )
-  //   `)
-  //   .eq("id", playlistId)
-  //   .single()
-  //
-  // if (error) {
-  //   if (error.code === "PGRST116") return null
-  //   throw error
-  // }
-  //
-  // return data
+  const { data, error } = await supabase
+    .from("playlists")
+    .select(
+      `
+      *,
+      playlist_songs (
+        song_id,
+        position,
+        song:songs (*)
+      )
+    `
+    )
+    .eq("id", playlistId)
+    .single()
 
-  throw new Error("Not implemented: getPlaylistWithSongs")
+  if (error) {
+    if (error.code === "PGRST116") return null
+    throw error
+  }
+
+  if (!data) return null
+
+  const sortedPlaylistSongs =
+    data.playlist_songs?.sort(
+      (a: { position: number }, b: { position: number }) => a.position - b.position
+    ) || []
+
+  return {
+    id: data.id,
+    name: data.name,
+    description: data.description || undefined,
+    date: data.date || undefined,
+    songs: sortedPlaylistSongs.map((ps: { song: Tables<"songs"> }): Song => {
+      const song = ps.song
+      return {
+        id: song.id,
+        title: song.title,
+        artist: song.artist || "",
+        key: song.key || "",
+        bpm: song.bpm || 0,
+        lyrics: song.lyrics || undefined,
+        notes: song.notes || undefined,
+        isDraft: song.status === "draft"
+      }
+    }),
+    createdAt: data.created_at,
+    updatedAt: data.updated_at,
+    visibility: data.is_public ? "public" : "private",
+    shareCode: data.share_code || undefined,
+    playlist_songs: sortedPlaylistSongs
+  }
 }
 
 /**
@@ -314,95 +343,90 @@ export async function deletePlaylist(
 /**
  * Add a song to a playlist
  *
+ * @param supabase - Supabase client instance
  * @param playlistId - Playlist UUID
  * @param songId - Song UUID
- * @param position - Position in playlist
+ * @param position - Position in playlist (optional, defaults to end)
  * @returns Promise<void>
  */
 export async function addSongToPlaylist(
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _playlistId: string,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _songId: string,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _position: number
+  supabase: SupabaseClient<Database>,
+  playlistId: string,
+  songId: string,
+  position?: number
 ): Promise<void> {
-  // TODO: Implement
-  // const supabase = createClient()
-  //
-  // const { error } = await supabase
-  //   .from("playlist_songs")
-  //   .insert({
-  //     playlist_id: playlistId,
-  //     song_id: songId,
-  //     position,
-  //   })
-  //
-  // if (error) throw error
+  // If no position specified, get the max position and add at end
+  let insertPosition = position
+  if (insertPosition === undefined) {
+    const { data: existing } = await supabase
+      .from("playlist_songs")
+      .select("position")
+      .eq("playlist_id", playlistId)
+      .order("position", { ascending: false })
+      .limit(1)
 
-  throw new Error("Not implemented: addSongToPlaylist")
+    insertPosition = existing && existing.length > 0 ? existing[0].position + 1 : 0
+  }
+
+  const { error } = await supabase.from("playlist_songs").insert({
+    playlist_id: playlistId,
+    song_id: songId,
+    position: insertPosition
+  })
+
+  if (error) throw error
 }
 
 /**
  * Remove a song from a playlist
  *
+ * @param supabase - Supabase client instance
  * @param playlistId - Playlist UUID
  * @param songId - Song UUID
  * @returns Promise<void>
  */
 export async function removeSongFromPlaylist(
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  supabase: SupabaseClient<Database>,
   playlistId: string,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   songId: string
 ): Promise<void> {
-  // TODO: Implement
-  // const supabase = createClient()
-  //
-  // const { error } = await supabase
-  //   .from("playlist_songs")
-  //   .delete()
-  //   .eq("playlist_id", playlistId)
-  //   .eq("song_id", songId)
-  //
-  // if (error) throw error
+  const { error } = await supabase
+    .from("playlist_songs")
+    .delete()
+    .eq("playlist_id", playlistId)
+    .eq("song_id", songId)
 
-  throw new Error("Not implemented: removeSongFromPlaylist")
+  if (error) throw error
 }
 
 /**
  * Reorder songs in a playlist
  *
+ * @param supabase - Supabase client instance
  * @param playlistId - Playlist UUID
  * @param updates - Array of { songId, position } updates
  * @returns Promise<void>
  */
 export async function reorderPlaylistSongs(
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  supabase: SupabaseClient<Database>,
   playlistId: string,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   updates: Array<{ songId: string; position: number }>
 ): Promise<void> {
-  // TODO: Implement
-  // const supabase = createClient()
-  //
-  // // Update positions in batch
-  // const promises = updates.map(({ songId, position }) =>
-  //   supabase
-  //     .from("playlist_songs")
-  //     .update({ position })
-  //     .eq("playlist_id", playlistId)
-  //     .eq("song_id", songId)
-  // )
-  //
-  // const results = await Promise.all(promises)
-  //
-  // // Check for errors
-  // for (const { error } of results) {
-  //   if (error) throw error
-  // }
+  // Update positions in batch
+  const promises = updates.map(({ songId, position }) =>
+    supabase
+      .from("playlist_songs")
+      .update({ position })
+      .eq("playlist_id", playlistId)
+      .eq("song_id", songId)
+  )
 
-  throw new Error("Not implemented: reorderPlaylistSongs")
+  const results = await Promise.all(promises)
+
+  // Check for errors
+  for (const { error } of results) {
+    if (error) throw error
+  }
 }
 
 /**
@@ -410,22 +434,18 @@ export async function reorderPlaylistSongs(
  * Uses the ensure_share_code RPC function from the database
  * Auto-generates share_code if missing when playlist becomes public
  *
+ * @param supabase - Supabase client instance
  * @param playlistId - Playlist UUID
  * @returns Promise<string> - Share code
  */
 export async function ensurePlaylistShareCode(
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _playlistId: string
+  supabase: SupabaseClient<Database>,
+  playlistId: string
 ): Promise<string> {
-  // TODO: Implement when ready
-  // const supabase = createClient()
-  //
-  // const { data, error } = await supabase.rpc("ensure_share_code", {
-  //   playlist_id: playlistId,
-  // })
-  //
-  // if (error) throw error
-  // return data as string
+  const { data, error } = await supabase.rpc("ensure_share_code", {
+    playlist_id: playlistId
+  })
 
-  throw new Error("Not implemented: ensurePlaylistShareCode")
+  if (error) throw error
+  return data as string
 }

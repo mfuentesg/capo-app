@@ -12,6 +12,8 @@ import { Plus, Search, Music, LayoutList, Music2, Music3, Settings2, X } from "l
 import { SongList } from "@/features/songs/components/song-list"
 import { SongDetail } from "@/features/songs/components/song-detail"
 import { SongDraftForm } from "@/features/song-draft"
+import { useCreateSong, useUpdateSong, useDeleteSong } from "@/features/songs/hooks/use-songs"
+import { useUser } from "@/features/auth"
 import type { Song, GroupBy } from "@/features/songs/types"
 import { useTranslation } from "@/hooks/use-translation"
 
@@ -23,6 +25,10 @@ type BPMRange = "all" | "slow" | "medium" | "fast"
 
 export function SongsClient({ initialSongs }: SongsClientProps) {
   const { t } = useTranslation()
+  const { data: user } = useUser()
+  const createSongMutation = useCreateSong()
+  const updateSongMutation = useUpdateSong()
+  const deleteSongMutation = useDeleteSong()
   const [isMobile, setIsMobile] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedSong, setSelectedSong] = useState<Song | null>(null)
@@ -44,10 +50,20 @@ export function SongsClient({ initialSongs }: SongsClientProps) {
   }, [])
 
   const updateSong = (songId: string, updates: Partial<Song>) => {
+    // Optimistic local update for instant UX
     setSongs((prev) => prev.map((song) => (song.id === songId ? { ...song, ...updates } : song)))
     if (selectedSong?.id === songId) {
       setSelectedSong((prev) => (prev ? { ...prev, ...updates } : null))
     }
+    // Persist to database
+    updateSongMutation.mutate({ songId, updates })
+  }
+
+  const handleDeleteSong = (songId: string) => {
+    deleteSongMutation.mutate(songId)
+    setSongs((prev) => prev.filter((song) => song.id !== songId))
+    setSelectedSong(null)
+    setIsMobileDrawerOpen(false)
   }
 
   const handleSelectSong = (song: Song) => {
@@ -87,13 +103,22 @@ export function SongsClient({ initialSongs }: SongsClientProps) {
     }
   }
 
-  const handleSaveSong = (song: Song) => {
-    setSongs((prev) => [song, ...prev])
-    setIsCreatingNewSong(false)
-    setPreviewSong(null)
-    setSelectedSong(song)
-    // Keep drawer open on mobile to show the new song detail
-    setIsMobileDrawerOpen(true)
+  const handleSaveSong = async (song: Song) => {
+    if (!user?.id) {
+      return // User not authenticated
+    }
+    try {
+      const createdSong = await createSongMutation.mutateAsync({ song, userId: user.id })
+      setSongs((prev) => [createdSong, ...prev])
+      setIsCreatingNewSong(false)
+      setPreviewSong(null)
+      setSelectedSong(createdSong)
+      // Keep drawer open on mobile to show the new song detail
+      setIsMobileDrawerOpen(true)
+    } catch {
+      // Error is handled by the mutation's onError callback (toast)
+      // Keep the form open so user can retry
+    }
   }
 
   // Calculate active filter count
@@ -340,7 +365,12 @@ export function SongsClient({ initialSongs }: SongsClientProps) {
 
         <ResizableHandle withHandle className="hidden md:flex" />
 
-        <ResizablePanel id="songs-detail-panel" defaultSize={65} minSize={40} className="hidden md:flex">
+        <ResizablePanel
+          id="songs-detail-panel"
+          defaultSize={65}
+          minSize={40}
+          className="hidden md:flex"
+        >
           {isCreatingNewSong ? (
             <SongDraftForm
               song={previewSong || undefined}
@@ -353,7 +383,12 @@ export function SongsClient({ initialSongs }: SongsClientProps) {
               onChange={handleUpdatePreview}
             />
           ) : selectedSong ? (
-            <SongDetail song={selectedSong} onClose={handleCloseSongDetail} onUpdate={updateSong} />
+            <SongDetail
+              song={selectedSong}
+              onClose={handleCloseSongDetail}
+              onUpdate={updateSong}
+              onDelete={handleDeleteSong}
+            />
           ) : (
             <div className="flex flex-1 flex-col items-center justify-center bg-muted/30 p-8 text-center">
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted">
@@ -397,6 +432,7 @@ export function SongsClient({ initialSongs }: SongsClientProps) {
                   song={selectedSong}
                   onClose={handleCloseSongDetail}
                   onUpdate={updateSong}
+                  onDelete={handleDeleteSong}
                 />
               ) : null}
             </div>

@@ -35,7 +35,7 @@ import type { SongWithPosition, PlaylistWithSongs } from "@/types/extended"
 import { DraggablePlaylist } from "@/features/playlists/utils"
 import { usePlaylists } from "@/features/playlists/contexts"
 import { api } from "@/features/songs"
-import type { Song } from "@/features/songs/types"
+import type { Song } from "@/features/songs"
 
 interface PlaylistDetailProps {
   playlist: Playlist
@@ -50,6 +50,7 @@ function EditableField({
   className,
   inputClassName,
   multiline = false,
+  allowEmpty = false,
   label
 }: {
   value: string
@@ -57,6 +58,7 @@ function EditableField({
   className?: string
   inputClassName?: string
   multiline?: boolean
+  allowEmpty?: boolean
   label?: string
 }) {
   const [isEditing, setIsEditing] = useState(false)
@@ -73,8 +75,9 @@ function EditableField({
   }, [isEditing, multiline])
 
   const handleSave = () => {
-    if (editValue.trim() && editValue !== value) {
-      onSave(editValue.trim())
+    const trimmed = editValue.trim()
+    if (trimmed !== value && (trimmed || allowEmpty)) {
+      onSave(trimmed)
     } else {
       setEditValue(value)
     }
@@ -169,20 +172,31 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
 
   return (
     <div className="flex flex-1 flex-col bg-muted/30">
-      <div className="shrink-0 flex items-center justify-between border-b bg-background p-4 lg:p-6">
-        <div className="flex-1 min-w-0">
-          <EditableField
-            value={playlist.name}
-            onSave={(value) => onUpdate(playlist.id, { name: value })}
-            className="text-lg font-semibold"
-            label={t.common.clickToAdd}
-          />
+      <div className="shrink-0 flex flex-col border-b bg-background p-4 lg:p-6">
+        <div className="flex items-center justify-between">
+          <div className="flex-1 min-w-0">
+            <EditableField
+              value={playlist.name}
+              onSave={(value) => onUpdate(playlist.id, { name: value })}
+              className="text-lg font-semibold"
+              label={t.common.clickToAdd}
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="icon" onClick={onClose}>
+              <X className="h-5 w-5" />
+            </Button>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" onClick={onClose}>
-            <X className="h-5 w-5" />
-          </Button>
-        </div>
+        <EditableField
+          value={playlist.description || ""}
+          onSave={(value) => onUpdate(playlist.id, { description: value || undefined })}
+          className="text-sm text-muted-foreground mt-1"
+          inputClassName="text-sm"
+          multiline
+          allowEmpty
+          label={t.playlistDetail.addDescription}
+        />
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 lg:p-6 space-y-6">

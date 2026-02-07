@@ -6,7 +6,7 @@
 
 import type { Database } from "./database.types"
 import type { SupabaseClient } from "@supabase/supabase-js"
-import { createBrowserClient } from "@supabase/ssr"
+import { createClient } from "./client"
 import { env } from "@/lib/env"
 
 type ContextType = "server" | "client"
@@ -16,10 +16,8 @@ function getContext(): ContextType {
 }
 
 function getBrowserClient(): SupabaseClient<Database> {
-  return createBrowserClient<Database>(
-    env.required.supabaseUrl,
-    env.required.supabasePublishableKey
-  )
+  // Use the singleton from client.ts to share auth state with AuthStateProvider
+  return createClient()
 }
 
 type AnyFunction = (...args: any[]) => any // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -82,14 +80,14 @@ function createServerApi<M extends Record<string, AnyFunction>>(module: M): M {
 }
 
 function createClientApi<M extends Record<string, AnyFunction>>(module: M): M {
-  const supabase = getBrowserClient()
-
   const api = {} as M
 
   for (const [key, fn] of Object.entries(module)) {
     if (typeof fn === "function") {
       ;(api as Record<string, unknown>)[key] = (...args: Parameters<typeof fn>) => {
-        return fn(supabase as Parameters<typeof fn>[0], ...args.slice(1))
+        // Get client at call time, not at module load time, to ensure auth is initialized
+        const supabase = getBrowserClient()
+        return fn(supabase as Parameters<typeof fn>[0], ...args)
       }
     }
   }
