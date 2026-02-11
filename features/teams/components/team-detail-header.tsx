@@ -142,9 +142,9 @@ export function TeamDetailHeader({ team, onUpdate, isOwner }: TeamDetailHeaderPr
       </Button>
       <div className="flex items-center gap-4 flex-1">
         {isOwner ? (
-          <IconPicker value={editingIcon} onChange={handleIconChange} />
+          <IconPicker value={editingIcon} onChange={handleIconChange} iconClassName="h-6 w-6" />
         ) : (
-          <Avatar className="h-12 w-12">
+          <Avatar className="h-12 w-12 border border-border">
             {team.avatar_url && <AvatarImage src={team.avatar_url} alt={team.name} />}
             <AvatarFallback className="bg-primary/10">
               <TeamIcon icon={editingIcon} className="h-6 w-6" />

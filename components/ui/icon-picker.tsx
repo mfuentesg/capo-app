@@ -87,7 +87,6 @@ import {
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { InputGroupButton } from "@/components/ui/input-group"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 
 export const TEAM_ICONS: Record<string, LucideIcon> = {
@@ -202,9 +201,10 @@ interface IconPickerProps {
   value?: string
   onChange: (iconName: string) => void
   disabled?: boolean
+  iconClassName?: string
 }
 
-export function IconPicker({ value, onChange, disabled }: IconPickerProps) {
+export function IconPicker({ value, onChange, disabled, iconClassName }: IconPickerProps) {
   const [open, setOpen] = React.useState(false)
 
   const selectedIconName = value && TEAM_ICONS[value] ? value : "Users"
@@ -213,18 +213,17 @@ export function IconPicker({ value, onChange, disabled }: IconPickerProps) {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <InputGroupButton
+        <button
           role="combobox"
           aria-expanded={open}
-          size="icon-sm"
           disabled={disabled}
           type="button"
-          className="border-r hover:bg-accent/50 transition-colors"
+          className="inline-flex items-center justify-center rounded-full bg-primary/10 border border-border hover:bg-primary/20 transition-colors p-2"
           title="Click to change icon"
         >
-          <SelectedIcon className="h-4 w-4" />
+          <SelectedIcon className={iconClassName || "h-6 w-6"} />
           <span className="sr-only">{value || "Select an icon"}</span>
-        </InputGroupButton>
+        </button>
       </PopoverTrigger>
       <PopoverContent className="w-140 p-0" align="start">
         <div className="h-120 p-4 overflow-y-auto">

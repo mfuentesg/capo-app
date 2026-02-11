@@ -17,12 +17,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Users as UsersIcon, Wrench, LogOut, ArrowLeftRight, Trash2 } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { useLeaveTeam, useDeleteTeam } from "@/features/teams"
+import { useLeaveTeam, useDeleteTeam, useUpdateTeam } from "@/features/teams"
 import { useAppContext } from "@/features/app-context"
 import { useUser } from "@/features/auth"
 import { useTranslation } from "@/hooks/use-translation"
 import type { Tables } from "@/lib/supabase/database.types"
-import { TeamIcon } from "@/components/ui/icon-picker"
+import { TeamIcon, IconPicker } from "@/components/ui/icon-picker"
 
 interface TeamCardProps {
   team: Tables<"teams">
@@ -37,8 +37,10 @@ export function TeamCard({ team, memberCount = 1, initialSelectedTeamId = null }
   const router = useRouter()
   const [isLeaveDialogOpen, setIsLeaveDialogOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [editingIcon, setEditingIcon] = useState(team.icon || "")
   const leaveTeamMutation = useLeaveTeam()
   const deleteTeamMutation = useDeleteTeam()
+  const updateTeamMutation = useUpdateTeam()
 
   const isCurrentTeam = context
     ? context.type === "team" && context.teamId === team.id
@@ -46,6 +48,11 @@ export function TeamCard({ team, memberCount = 1, initialSelectedTeamId = null }
 
   const isOwner = user?.id === team.created_by
   const isOnlyMember = memberCount <= 1
+
+  const handleIconChange = (newIcon: string) => {
+    setEditingIcon(newIcon)
+    updateTeamMutation.mutate({ teamId: team.id, updates: { icon: newIcon } })
+  }
 
   const handleLeaveOrDelete = () => {
     if (isOwner) {
@@ -70,12 +77,20 @@ export function TeamCard({ team, memberCount = 1, initialSelectedTeamId = null }
         <CardHeader>
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-3 flex-1 min-w-0">
-              <Avatar className="h-10 w-10">
-                {team.avatar_url && <AvatarImage src={team.avatar_url} alt={team.name} />}
-                <AvatarFallback className="bg-primary/10">
-                  <TeamIcon icon={team.icon} className="h-5 w-5" />
-                </AvatarFallback>
-              </Avatar>
+              {isOwner ? (
+                <IconPicker
+                  value={editingIcon}
+                  onChange={handleIconChange}
+                  iconClassName="h-5 w-5"
+                />
+              ) : (
+                <Avatar className="h-10 w-10 border border-border">
+                  {team.avatar_url && <AvatarImage src={team.avatar_url} alt={team.name} />}
+                  <AvatarFallback className="bg-primary/10">
+                    <TeamIcon icon={editingIcon} className="h-5 w-5" />
+                  </AvatarFallback>
+                </Avatar>
+              )}
               <div className="flex-1 min-w-0">
                 <CardTitle className="text-lg truncate">{team.name}</CardTitle>
               </div>
