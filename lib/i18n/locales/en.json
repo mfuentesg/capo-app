@@ -222,7 +222,9 @@
     "songsByKey": "Songs by Key",
     "distributionByKey": "Distribution across musical keys",
     "recentActivity": "Recent Activity",
-    "recentActivityDescription": "Your latest actions"
+    "recentActivityDescription": "Your latest actions",
+    "noSongsYet": "No songs yet",
+    "addYourFirstSong": "Add your first song"
   },
 
   "playlistShare": {

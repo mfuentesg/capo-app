@@ -222,7 +222,9 @@
     "songsByKey": "Canciones por tonalidad",
     "distributionByKey": "Distribución por tonalidades",
     "recentActivity": "Actividad Reciente",
-    "recentActivityDescription": "Tus últimas acciones"
+    "recentActivityDescription": "Tus últimas acciones",
+    "noSongsYet": "Aún no hay canciones",
+    "addYourFirstSong": "Agrega tu primera canción"
   },
 
   "playlistShare": {

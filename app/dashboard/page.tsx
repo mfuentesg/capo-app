@@ -188,9 +188,9 @@ export default function DashboardPage() {
                 ) : (
                   <div className="text-center py-8 text-muted-foreground">
                     <Music className="mx-auto h-8 w-8 mb-2 opacity-50" />
-                    <p>No songs yet</p>
+                    <p>{t.dashboard.noSongsYet}</p>
                     <Button variant="link" asChild className="mt-2">
-                      <Link href="/dashboard/songs">Add your first song</Link>
+                      <Link href="/dashboard/songs">{t.dashboard.addYourFirstSong}</Link>
                     </Button>
                   </div>
                 )}
