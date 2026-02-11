@@ -156,7 +156,9 @@
     "songsPlural": "canciones",
     "pickDate": "Selecciona una fecha",
     "editDescription": "Ver y editar lista",
-    "addDescription": "Agregar una descripción..."
+    "addDescription": "Agregar una descripción...",
+    "deletePlaylistConfirmTitle": "¿Eliminar esta lista?",
+    "deletePlaylistConfirmDescription": "Esto eliminará permanentemente \"{name}\". Esta acción no se puede deshacer."
   },
   "playlistItem": {
     "privatePlaylist": "Lista privada",
@@ -195,9 +197,15 @@
     "teamCreated": "¡Equipo creado exitosamente!",
     "teamCreatedFailed": "Error al crear el equipo. Por favor, inténtalo de nuevo.",
     "teamCreatedAuthRequired": "Debes iniciar sesión para crear un equipo",
+    "teamUpdated": "Equipo actualizado",
+    "teamUpdatedFailed": "Error al actualizar el equipo. Por favor, inténtalo de nuevo.",
+    "teamDeleted": "Equipo eliminado",
+    "teamDeletedFailed": "Error al eliminar el equipo. Por favor, inténtalo de nuevo.",
     "teamLeft": "Has dejado el equipo",
     "teamLeftFailed": "Error al dejar el equipo. Por favor, inténtalo de nuevo.",
-    "teamSwitched": "Cambiado a {name}"
+    "teamSwitched": "Cambiado a {name}",
+    "ownershipTransferred": "Propiedad transferida exitosamente",
+    "ownershipTransferFailed": "Error al transferir la propiedad. Por favor intenta de nuevo."
   },
   "dashboard": {
     "title": "Panel",
@@ -252,11 +260,6 @@
     "teamNamePlaceholder": "ej. Equipo de Adoración Alfa",
     "teamNameDescription": "Elige un nombre para tu equipo",
     "clickIconToChange": ". Haz clic en el icono para cambiarlo.",
-
-    "description": "Descripción",
-    "descriptionOptional": "Descripción (Opcional)",
-    "descriptionPlaceholder": "Equipo principal de adoración para servicios dominicales",
-    "descriptionDescription": "Agrega una breve descripción de tu equipo",
     "publicTeam": "Equipo Público",
     "publicTeamDescription": "Permitir que otros descubran y soliciten unirse a este equipo",
     "teamInformation": "Información del Equipo",
@@ -270,12 +273,21 @@
     "switchToTeam": "Cambiar a Equipo",
     "deleteTeam": "Eliminar Equipo",
     "deleteTeamDescription": "Una vez que elimines un equipo, no hay vuelta atrás. Por favor, asegúrate.",
+    "deleteTeamConfirmTitle": "Eliminar Equipo",
+    "deleteTeamConfirmDescription": "Esto eliminará permanentemente \"{name}\" y todos los datos asociados. Esta acción no se puede deshacer.",
     "creating": "Creando...",
     "createTeam": "Crear equipo",
     "active": "Activo",
     "created": "Creado",
     "user": "Usuario",
-    "joined": "Unido"
+    "joined": "Unido",
+    "transferOwnership": "Transferir Propiedad",
+    "transferOwnershipDescription": "Transfiere la propiedad a otro miembro antes de salir",
+    "selectNewOwner": "Seleccionar Nuevo Propietario",
+    "transferAndLeave": "Transferir y Salir",
+    "leaveAsOwner": "Como propietario, debes transferir la propiedad a otro miembro antes de salir.",
+    "noOtherMembers": "Eres el único miembro. Salir eliminará este equipo.",
+    "deleteAndLeave": "Eliminar Equipo"
   },
   "activity": {
     "noActivity": "Aún no hay actividad",

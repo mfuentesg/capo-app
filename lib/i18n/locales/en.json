@@ -156,7 +156,9 @@
     "songsPlural": "songs",
     "pickDate": "Pick a date",
     "editDescription": "View and edit playlist",
-    "addDescription": "Add a description..."
+    "addDescription": "Add a description...",
+    "deletePlaylistConfirmTitle": "Delete this playlist?",
+    "deletePlaylistConfirmDescription": "This will permanently delete \"{name}\". This action cannot be undone."
   },
   "playlistItem": {
     "privatePlaylist": "Private playlist",
@@ -195,9 +197,15 @@
     "teamCreated": "Team created successfully!",
     "teamCreatedFailed": "Failed to create team. Please try again.",
     "teamCreatedAuthRequired": "You must be logged in to create a team",
+    "teamUpdated": "Team updated",
+    "teamUpdatedFailed": "Failed to update team. Please try again.",
+    "teamDeleted": "Team deleted",
+    "teamDeletedFailed": "Failed to delete team. Please try again.",
     "teamLeft": "You have left the team",
     "teamLeftFailed": "Failed to leave team. Please try again.",
-    "teamSwitched": "Switched to {name}"
+    "teamSwitched": "Switched to {name}",
+    "ownershipTransferred": "Ownership transferred successfully",
+    "ownershipTransferFailed": "Failed to transfer ownership. Please try again."
   },
   "dashboard": {
     "title": "Dashboard",
@@ -252,11 +260,6 @@
     "teamNamePlaceholder": "e.g. Worship Team Alpha",
     "teamNameDescription": "Choose a name for your team",
     "clickIconToChange": ". Click the icon to change it.",
-
-    "description": "Description",
-    "descriptionOptional": "Description (Optional)",
-    "descriptionPlaceholder": "Main worship team for Sunday services",
-    "descriptionDescription": "Add a brief description of your team",
     "publicTeam": "Public Team",
     "publicTeamDescription": "Allow others to discover and request to join this team",
     "teamInformation": "Team Information",
@@ -270,12 +273,21 @@
     "switchToTeam": "Switch to Team",
     "deleteTeam": "Delete Team",
     "deleteTeamDescription": "Once you delete a team, there is no going back. Please be certain.",
+    "deleteTeamConfirmTitle": "Delete Team",
+    "deleteTeamConfirmDescription": "This will permanently delete \"{name}\" and all associated data. This action cannot be undone.",
     "creating": "Creating...",
     "createTeam": "Create Team",
     "active": "Active",
     "created": "Created",
     "user": "User",
-    "joined": "Joined"
+    "joined": "Joined",
+    "transferOwnership": "Transfer Ownership",
+    "transferOwnershipDescription": "Transfer ownership to another member before leaving",
+    "selectNewOwner": "Select New Owner",
+    "transferAndLeave": "Transfer & Leave",
+    "leaveAsOwner": "As the owner, you must transfer ownership to another member before leaving.",
+    "noOtherMembers": "You are the only member. Leaving will delete this team.",
+    "deleteAndLeave": "Delete Team"
   },
   "activity": {
     "noActivity": "No activity yet",
