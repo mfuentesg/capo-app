@@ -9,12 +9,12 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
 import { Plus, Search, ListMusic, Settings2, X } from "lucide-react"
-import { PlaylistList } from "@/features/playlists/components/playlist-list"
-import { PlaylistDetail } from "@/features/playlists/components/playlist-detail"
-import { PlaylistCreateForm } from "@/features/playlists/components/playlist-create-form"
-import type { Playlist } from "@/features/playlists/types"
+import { PlaylistList } from "./playlist-list"
+import { PlaylistDetail } from "./playlist-detail"
+import { PlaylistCreateForm } from "./playlist-create-form"
+import type { Playlist } from "../types"
 import { useTranslation } from "@/hooks/use-translation"
-import { usePlaylists } from "@/features/playlists/contexts"
+import { usePlaylists } from "../contexts"
 
 interface PlaylistsClientProps {
   initialPlaylists: Playlist[]
@@ -33,7 +33,7 @@ export function PlaylistsClient({ initialPlaylists }: PlaylistsClientProps) {
 
   const effectivePlaylists = playlists.length > 0 ? playlists : initialPlaylists
   const selectedPlaylist = selectedPlaylistId
-    ? effectivePlaylists.find((p) => p.id === selectedPlaylistId) ?? null
+    ? (effectivePlaylists.find((p) => p.id === selectedPlaylistId) ?? null)
     : null
 
   // Track viewport to render Drawer only after mount and on mobile
@@ -249,12 +249,14 @@ export function PlaylistsClient({ initialPlaylists }: PlaylistsClientProps) {
 
         <ResizableHandle withHandle className="hidden md:flex" />
 
-        <ResizablePanel id="playlists-detail-panel" defaultSize={65} minSize={40} className="hidden md:flex">
+        <ResizablePanel
+          id="playlists-detail-panel"
+          defaultSize={65}
+          minSize={40}
+          className="hidden md:flex"
+        >
           {isCreating ? (
-            <PlaylistCreateForm
-              onSubmit={handleCreateSubmit}
-              onCancel={handleCreateCancel}
-            />
+            <PlaylistCreateForm onSubmit={handleCreateSubmit} onCancel={handleCreateCancel} />
           ) : selectedPlaylist ? (
             <PlaylistDetail
               playlist={selectedPlaylist}
@@ -288,10 +290,7 @@ export function PlaylistsClient({ initialPlaylists }: PlaylistsClientProps) {
             </DrawerDescription>
             <div className="flex-1 overflow-y-auto">
               {isCreating ? (
-                <PlaylistCreateForm
-                  onSubmit={handleCreateSubmit}
-                  onCancel={handleCreateCancel}
-                />
+                <PlaylistCreateForm onSubmit={handleCreateSubmit} onCancel={handleCreateCancel} />
               ) : selectedPlaylist ? (
                 <PlaylistDetail
                   playlist={selectedPlaylist}

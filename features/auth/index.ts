@@ -10,6 +10,6 @@ export { useSession, useSignInWithGoogle, useSignOut, useUser } from "./hooks"
 export { AuthStateProvider } from "./contexts"
 
 // Types
-export type { AuthSession } from "./types"
+export type { AuthSession, UserInfo } from "./types"
 
 export { getUser, getSession } from "./api"

@@ -60,8 +60,7 @@ function MyComponent() {
 // Using the API directly
 const teams = await getTeams()
 const newTeam = await createTeam({
-  name: "My Team",
-  description: "Team description"
+  name: "My Team"
 })
 ```
 

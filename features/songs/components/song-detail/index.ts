@@ -1,1 +1,1 @@
-export { SongDetail } from "@/features/songs/components/song-detail/song-detail"
+export { SongDetail } from "./song-detail"

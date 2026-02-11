@@ -34,8 +34,8 @@ import { PlaylistsClient } from "@/features/playlists"
 import { usePlaylistDraft } from "@/features/playlist-draft"
 
 // ❌ WRONG - never import from internal paths
-import { SongsClient } from "@/features/songs/components/songs-client"
-import { PlaylistsClient } from "@/features/playlists/components/playlists-client"
+import { SongsClient } from "@/features/songs"
+import { PlaylistsClient } from "@/features/playlists"
 ```
 
 ---
@@ -275,7 +275,7 @@ export function SongDetail({ song }: { song: Song }) {
 import { usePlaylistDraft } from "@/features/playlist-draft/contexts/playlist-draft.context"
 
 // ❌ WRONG - Direct component import
-import { SongDetail } from "@/features/songs/components/song-detail/song-detail"
+import { SongDetail } from "@/features/songs"
 ```
 
 ### Managing Dependencies
@@ -469,7 +469,7 @@ git push origin debug/fba-issues
 
 ```typescript
 // ❌ WRONG
-import { SongsClient } from "@/features/songs/components/songs-client"
+import { SongsClient } from "@/features/songs"
 
 // ✅ CORRECT
 import { SongsClient } from "@/features/songs"

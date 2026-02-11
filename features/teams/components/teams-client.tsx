@@ -3,20 +3,20 @@
 import { useState, useMemo, useEffect } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { useSearchParams, useRouter } from "next/navigation"
-import { teamsKeys } from "@/features/teams/hooks/query-keys"
+import { teamsKeys } from "../hooks/query-keys"
 import { useUser } from "@/features/auth"
 import { useAppContext } from "@/features/app-context"
 import { useTranslation } from "@/hooks/use-translation"
-import type { Tables } from "@/lib/supabase/database.types"
-import { TeamsHeader } from "@/features/teams/components/teams-header"
-import { TeamsSearch } from "@/features/teams/components/teams-search"
-import { TeamCard } from "@/features/teams/components/team-card"
-import { TeamsEmptyState } from "@/features/teams/components/teams-empty-state"
+import type { TeamWithMemberCount } from "../api"
+import { TeamsHeader } from "@/features/teams"
+import { TeamsSearch } from "@/features/teams"
+import { TeamCard } from "@/features/teams"
+import { TeamsEmptyState } from "@/features/teams"
 import { toast } from "sonner"
 import { api } from "@/features/teams"
 
 interface TeamsClientProps {
-  initialTeams: Tables<"teams">[]
+  initialTeams: TeamWithMemberCount[]
   initialSelectedTeamId?: string | null
 }
 
@@ -64,7 +64,12 @@ export function TeamsClient({ initialTeams, initialSelectedTeamId = null }: Team
         {filteredTeams.length > 0 ? (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {filteredTeams.map((team) => (
-              <TeamCard key={team.id} team={team} initialSelectedTeamId={initialSelectedTeamId} />
+              <TeamCard
+                key={team.id}
+                team={team}
+                memberCount={team.member_count}
+                initialSelectedTeamId={initialSelectedTeamId}
+              />
             ))}
           </div>
         ) : (

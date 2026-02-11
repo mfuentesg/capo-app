@@ -20,8 +20,8 @@ import type { Song } from "@/types"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Separator } from "@/components/ui/separator"
 import { useLyricsSettings } from "@/features/lyrics-editor"
-import { RenderedSong } from "@/features/lyrics-editor/components/rendered-song"
-import { LazySongEditor } from "@/features/lyrics-editor/components/song-editor"
+import { RenderedSong } from "./rendered-song"
+import { LazySongEditor } from "./song-editor"
 import { useTranslation } from "@/hooks/use-translation"
 
 interface LyricsViewProps {

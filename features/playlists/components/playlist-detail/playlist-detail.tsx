@@ -18,6 +18,17 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Calendar } from "@/components/ui/calendar"
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger
+} from "@/components/ui/alert-dialog"
+import {
   Empty,
   EmptyHeader,
   EmptyMedia,
@@ -202,15 +213,31 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
       <div className="flex-1 overflow-y-auto p-4 lg:p-6 space-y-6">
         {/* Delete Button */}
         <div>
-          <Button
-            variant="destructive"
-            size="sm"
-            className="gap-2 w-full sm:w-auto"
-            onClick={() => onDelete(playlist.id)}
-          >
-            <Trash2 className="h-3.5 w-3.5" />
-            <span>{t.playlistDetail.deletePlaylist}</span>
-          </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="destructive" size="sm" className="gap-2 w-full sm:w-auto">
+                <Trash2 className="h-3.5 w-3.5" />
+                <span>{t.playlistDetail.deletePlaylist}</span>
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>{t.playlistDetail.deletePlaylistConfirmTitle}</AlertDialogTitle>
+                <AlertDialogDescription>
+                  {t.playlistDetail.deletePlaylistConfirmDescription.replace(
+                    "{name}",
+                    playlist.name
+                  )}
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>{t.common.cancel}</AlertDialogCancel>
+                <AlertDialogAction variant="destructive" onClick={() => onDelete(playlist.id)}>
+                  {t.playlistDetail.deletePlaylist}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
         {/* Details Section */}
         <div className="space-y-3">

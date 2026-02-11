@@ -2,4 +2,6 @@
 
 export { PlaylistShareView } from './components/playlist-share-view'
 
-export type { ShareOptions } from './types'
+export * from "./components"
+export * from "./types"
+

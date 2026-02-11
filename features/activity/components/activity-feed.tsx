@@ -1,11 +1,11 @@
 "use client"
 
 import Link from "next/link"
-import { useActivities } from "@/features/activity/hooks/use-activities"
+import { useActivities } from "../hooks/use-activities"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Music, ListMusic, Users, Clock } from "lucide-react"
 import { useTranslation } from "@/hooks/use-translation"
-import type { Activity } from "@/features/activity/api/activityApi"
+import type { Activity } from "../api/activityApi"
 
 /**
  * Format a date as relative time using native Intl.RelativeTimeFormat

@@ -4,7 +4,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { render, screen, waitFor, fireEvent } from "@testing-library/react"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import { LoginForm } from "@/features/auth/components/login-form"
+import { LoginForm } from "@/features/auth"
 import { useSignInWithGoogle } from "@/features/auth/hooks"
 import { LocaleProvider } from "@/features/settings"
 

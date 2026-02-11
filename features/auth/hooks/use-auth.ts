@@ -9,6 +9,7 @@ import {
   DEFAULT_REDIRECT_PATH,
   LOGIN_PATH
 } from "@/lib/supabase/constants"
+import { SELECTED_TEAM_ID_KEY } from "@/features/app-context/constants"
 import type { AuthError } from "@supabase/supabase-js"
 import { toast } from "sonner"
 import { useLocale } from "@/features/settings"
@@ -104,7 +105,15 @@ export function useSignOut() {
       }
     },
     onSuccess: () => {
+      // Clear auth queries
       queryClient.removeQueries({ queryKey: authKeys.all })
+      // Also invalidate all team-related queries to clear any cached team data
+      queryClient.removeQueries({ queryKey: ["teams"] })
+      // Clear team selection from localStorage
+      if (typeof window !== "undefined") {
+        localStorage.removeItem(SELECTED_TEAM_ID_KEY)
+      }
+      // Redirect to login
       router.push(LOGIN_PATH)
     },
     onError: (error: AuthError) => {

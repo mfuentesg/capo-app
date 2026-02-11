@@ -1,1 +1,1 @@
-export { useLyricsSettings } from "@/features/lyrics-editor/hooks/use-lyrics-settings"
+export { useLyricsSettings } from "./use-lyrics-settings"

@@ -3,10 +3,10 @@
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
+import { useQueryClient } from "@tanstack/react-query"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import {
   Form,
   FormControl,
@@ -19,7 +19,8 @@ import {
 import { Switch } from "@/components/ui/switch"
 import { IconPicker } from "@/components/ui/icon-picker"
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group"
-import { api as teamsApi } from "@/features/teams/api"
+import { createTeamAction } from "../api/actions"
+import { teamsKeys } from "../hooks/query-keys"
 import { toast } from "sonner"
 import { useUser } from "@/features/auth"
 import { useAppContext } from "@/features/app-context"
@@ -28,13 +29,13 @@ import type { TablesInsert } from "@/lib/supabase/database.types"
 
 type TeamFormValues = {
   name: string
-  description?: string
   is_public: boolean
   icon?: string
 }
 
 export function CreateTeamForm() {
   const router = useRouter()
+  const queryClient = useQueryClient()
   const { data: user } = useUser()
   const { refreshTeams } = useAppContext()
   const { t } = useTranslation()
@@ -45,11 +46,6 @@ export function CreateTeamForm() {
       .min(1, t.validation.required.replace("{field}", t.validation.teamName))
       .max(100, t.validation.tooLong.replace("{field}", t.validation.teamName))
       .trim(),
-    description: z
-      .string()
-      .max(500, t.validation.tooLong.replace("{field}", t.validation.description))
-      .optional()
-      .or(z.literal("")),
     is_public: z.boolean(),
     icon: z.string().optional()
   })
@@ -58,7 +54,6 @@ export function CreateTeamForm() {
     resolver: zodResolver(teamFormSchema),
     defaultValues: {
       name: "",
-      description: "",
       is_public: false,
       icon: "Users"
     }
@@ -73,17 +68,18 @@ export function CreateTeamForm() {
     try {
       const teamData: TablesInsert<"teams"> = {
         name: values.name,
-        description: values.description || null,
         is_public: values.is_public,
-        created_by: user.id,
-        icon: values.icon
+        icon: values.icon,
+        created_by: user.id // DB function will override this with auth.uid()
       }
 
-      const newTeam = await teamsApi.createTeam(teamData)
+      const teamId = await createTeamAction(teamData)
       await refreshTeams()
+      // Invalidate the React Query teams list cache to ensure fresh data
+      await queryClient.invalidateQueries({ queryKey: teamsKeys.list() })
       toast.success(t.toasts.teamCreated)
       // Redirect to teams page with query parameter to switch to the new team
-      router.push(`/dashboard/teams?switchToTeamId=${newTeam.id}`)
+      router.push(`/dashboard/teams?switchToTeamId=${teamId}`)
     } catch (error) {
       console.error("Error creating team:", error)
       toast.error(t.toasts.teamCreatedFailed)
@@ -122,21 +118,6 @@ export function CreateTeamForm() {
                   {t.teams.teamNameDescription}
                   {t.teams.clickIconToChange}
                 </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{t.teams.description}</FormLabel>
-                <FormControl>
-                  <Input placeholder={t.teams.descriptionPlaceholder} {...field} />
-                </FormControl>
-                <FormDescription>{t.teams.descriptionDescription}</FormDescription>
                 <FormMessage />
               </FormItem>
             )}

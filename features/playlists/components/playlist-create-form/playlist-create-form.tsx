@@ -75,7 +75,7 @@ export function PlaylistCreateForm({ onSubmit, onCancel }: PlaylistCreateFormPro
 
           <div className="space-y-2">
             <Label htmlFor="playlist-description">
-              {t.teams.descriptionOptional}
+              {t.playlistDetail.addDescription}
             </Label>
             <Textarea
               id="playlist-description"

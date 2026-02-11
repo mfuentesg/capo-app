@@ -2,7 +2,7 @@
 
 import { useMemo } from "react"
 import { Music } from "lucide-react"
-import { SongItem } from "@/features/songs/components/song-item"
+import { SongItem } from "@/features/songs"
 import { Empty, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription } from "@/components/ui/empty"
 import type { Song, GroupBy } from "@/features/songs/types"
 import { usePlaylistDraft } from "@/features/playlist-draft"

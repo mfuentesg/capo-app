@@ -1,11 +1,14 @@
 "use client"
 
 import { createContext, useContext, useCallback, useMemo, type ReactNode } from "react"
-import type { Playlist } from "@/features/playlists/types"
+import type { Playlist } from "../types"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { api } from "@/features/playlists/api"
+import { api } from "../api"
+import { createPlaylistAction, updatePlaylistAction, deletePlaylistAction } from "../api/actions"
 import { useAppContext } from "@/features/app-context"
 import { useUser } from "@/features/auth"
+import { useLocale } from "@/features/settings"
+import { toast } from "sonner"
 
 export interface PlaylistsContextType {
   playlists: Playlist[]
@@ -21,6 +24,7 @@ const PlaylistsContext = createContext<PlaylistsContextType | undefined>(undefin
 export function PlaylistsProvider({ children }: { children: ReactNode }) {
   const { context } = useAppContext()
   const { data: user } = useUser()
+  const { t } = useLocale()
   const queryClient = useQueryClient()
 
   const { data: fetchedPlaylists = [], isLoading } = useQuery({
@@ -35,21 +39,27 @@ export function PlaylistsProvider({ children }: { children: ReactNode }) {
   const createPlaylistMutation = useMutation({
     mutationFn: (playlist: Playlist) => {
       if (!user?.id) throw new Error("User not found")
-      return api.createPlaylist(playlist, user.id)
+      return createPlaylistAction(playlist, user.id)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["playlists", context] })
+      toast.success(t.toasts?.playlistCreated || "Playlist created")
+    },
+    onError: (error) => {
+      console.error("Error creating playlist:", error)
+      toast.error(t.toasts?.error || "Something went wrong")
     }
   })
 
   const updatePlaylistMutation = useMutation({
     mutationFn: ({ id, updates }: { id: string; updates: Partial<Playlist> }) =>
-      api.updatePlaylist(id, updates),
+      updatePlaylistAction(id, updates),
     onMutate: async ({ id, updates }) => {
       await queryClient.cancelQueries({ queryKey: ["playlists", context] })
       const previousPlaylists = queryClient.getQueryData<Playlist[]>(["playlists", context])
-      queryClient.setQueryData<Playlist[]>(["playlists", context], (old) =>
-        old?.map((p) => (p.id === id ? { ...p, ...updates } : p)) ?? []
+      queryClient.setQueryData<Playlist[]>(
+        ["playlists", context],
+        (old) => old?.map((p) => (p.id === id ? { ...p, ...updates } : p)) ?? []
       )
       return { previousPlaylists }
     },
@@ -57,6 +67,10 @@ export function PlaylistsProvider({ children }: { children: ReactNode }) {
       if (rollback?.previousPlaylists) {
         queryClient.setQueryData(["playlists", context], rollback.previousPlaylists)
       }
+      toast.error(t.toasts?.error || "Something went wrong")
+    },
+    onSuccess: () => {
+      toast.success(t.toasts?.playlistUpdated || "Playlist updated")
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["playlists", context] })
@@ -64,8 +78,26 @@ export function PlaylistsProvider({ children }: { children: ReactNode }) {
   })
 
   const deletePlaylistMutation = useMutation({
-    mutationFn: (id: string) => api.deletePlaylist(id),
+    mutationFn: (id: string) => deletePlaylistAction(id),
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey: ["playlists", context] })
+      const previousPlaylists = queryClient.getQueryData<Playlist[]>(["playlists", context])
+      queryClient.setQueryData<Playlist[]>(
+        ["playlists", context],
+        (old) => old?.filter((p) => p.id !== id) ?? []
+      )
+      return { previousPlaylists }
+    },
+    onError: (_err, _vars, rollback) => {
+      if (rollback?.previousPlaylists) {
+        queryClient.setQueryData(["playlists", context], rollback.previousPlaylists)
+      }
+      toast.error(t.toasts?.error || "Something went wrong")
+    },
     onSuccess: () => {
+      toast.success(t.toasts?.playlistDeleted || "Playlist deleted")
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["playlists", context] })
     }
   })
@@ -120,11 +152,7 @@ export function PlaylistsProvider({ children }: { children: ReactNode }) {
     [playlists, addPlaylist, updatePlaylist, deletePlaylist, reorderPlaylistSongs, isLoading]
   )
 
-  return (
-    <PlaylistsContext.Provider value={value}>
-      {children}
-    </PlaylistsContext.Provider>
-  )
+  return <PlaylistsContext.Provider value={value}>{children}</PlaylistsContext.Provider>
 }
 
 export function usePlaylists() {

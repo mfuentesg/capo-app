@@ -9,12 +9,12 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
 import { Plus, Search, Music, LayoutList, Music2, Music3, Settings2, X } from "lucide-react"
-import { SongList } from "@/features/songs/components/song-list"
-import { SongDetail } from "@/features/songs/components/song-detail"
+import { SongList } from "@/features/songs"
+import { SongDetail } from "@/features/songs"
 import { SongDraftForm } from "@/features/song-draft"
-import { useCreateSong, useUpdateSong, useDeleteSong } from "@/features/songs/hooks/use-songs"
+import { useCreateSong, useUpdateSong, useDeleteSong } from "../hooks/use-songs"
 import { useUser } from "@/features/auth"
-import type { Song, GroupBy } from "@/features/songs/types"
+import type { Song, GroupBy } from "../types"
 import { useTranslation } from "@/hooks/use-translation"
 
 interface SongsClientProps {

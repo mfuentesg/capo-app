@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { useState } from "react"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -13,51 +13,54 @@ import {
   DialogHeader,
   DialogTitle
 } from "@/components/ui/dialog"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Users as UsersIcon, Wrench, LogOut, ArrowLeftRight } from "lucide-react"
+import { Users as UsersIcon, Wrench, LogOut, ArrowLeftRight, Trash2 } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { teamsKeys } from "@/features/teams"
+import { useLeaveTeam, useDeleteTeam } from "@/features/teams"
 import { useAppContext } from "@/features/app-context"
-import { toast } from "sonner"
+import { useUser } from "@/features/auth"
 import { useTranslation } from "@/hooks/use-translation"
 import type { Tables } from "@/lib/supabase/database.types"
 import { TeamIcon } from "@/components/ui/icon-picker"
 
 interface TeamCardProps {
   team: Tables<"teams">
+  memberCount?: number
   initialSelectedTeamId?: string | null
 }
 
-export function TeamCard({ team, initialSelectedTeamId = null }: TeamCardProps) {
-  const queryClient = useQueryClient()
-  const { context, switchToTeam, refreshTeams } = useAppContext()
+export function TeamCard({ team, memberCount = 1, initialSelectedTeamId = null }: TeamCardProps) {
+  const { context, switchToTeam } = useAppContext()
+  const { data: user } = useUser()
   const { t } = useTranslation()
+  const router = useRouter()
   const [isLeaveDialogOpen, setIsLeaveDialogOpen] = useState(false)
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const leaveTeamMutation = useLeaveTeam()
+  const deleteTeamMutation = useDeleteTeam()
 
   const isCurrentTeam = context
     ? context.type === "team" && context.teamId === team.id
     : initialSelectedTeamId === team.id
 
-  const leaveTeamMutation = useMutation({
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- teamId will be used when implementing the functionality
-    mutationFn: async (teamId: string) => {
-      // TODO: Implement leave team functionality via backend API
-      // This would require a server action or API route
-      throw new Error("Leave team functionality not yet implemented")
-    },
-    onSuccess: async () => {
-      await refreshTeams()
-      queryClient.invalidateQueries({ queryKey: teamsKeys.list() })
-      setIsLeaveDialogOpen(false)
-      toast.success(t.toasts.teamLeft)
-    },
-    onError: (error: unknown) => {
-      console.error("Error leaving team:", error)
-      const errorMessage = error instanceof Error ? error.message : t.toasts.teamLeftFailed
-      toast.error(errorMessage)
+  const isOwner = user?.id === team.created_by
+  const isOnlyMember = memberCount <= 1
+
+  const handleLeaveOrDelete = () => {
+    if (isOwner) {
+      if (isOnlyMember) {
+        // Owner is alone - show delete dialog
+        setIsDeleteDialogOpen(true)
+      } else {
+        // Owner has other members - redirect to team detail for transfer
+        router.push(`/dashboard/teams/${team.id}`)
+      }
+    } else {
+      // Non-owner can leave directly
+      setIsLeaveDialogOpen(true)
     }
-  })
+  }
 
   return (
     <>
@@ -75,9 +78,6 @@ export function TeamCard({ team, initialSelectedTeamId = null }: TeamCardProps) 
               </Avatar>
               <div className="flex-1 min-w-0">
                 <CardTitle className="text-lg truncate">{team.name}</CardTitle>
-                {team.description && (
-                  <CardDescription className="truncate">{team.description}</CardDescription>
-                )}
               </div>
             </div>
             {isCurrentTeam ? (
@@ -90,7 +90,6 @@ export function TeamCard({ team, initialSelectedTeamId = null }: TeamCardProps) 
                 size="icon"
                 onClick={() => {
                   switchToTeam(team.id)
-                  toast.success(t.toasts.teamSwitched.replace("{name}", team.name))
                 }}
                 className="ml-2 shrink-0"
                 aria-label={`${t.teams.switchToTeam}: ${team.name}`}
@@ -106,7 +105,9 @@ export function TeamCard({ team, initialSelectedTeamId = null }: TeamCardProps) 
             <div className="flex items-center gap-4 text-sm text-muted-foreground">
               <div className="flex items-center gap-1">
                 <UsersIcon className="h-4 w-4" />
-                <span>{t.teams.members}</span>
+                <span>
+                  {memberCount} {t.teams.members}
+                </span>
               </div>
               {team.is_public && (
                 <Badge variant="secondary" className="text-xs">
@@ -118,10 +119,15 @@ export function TeamCard({ team, initialSelectedTeamId = null }: TeamCardProps) 
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setIsLeaveDialogOpen(true)}
+                onClick={handleLeaveOrDelete}
                 className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                title={isOwner && isOnlyMember ? t.teams.deleteTeam : t.teams.leaveTeam}
               >
-                <LogOut className="h-4 w-4" />
+                {isOwner && isOnlyMember ? (
+                  <Trash2 className="h-4 w-4" />
+                ) : (
+                  <LogOut className="h-4 w-4" />
+                )}
               </Button>
               <Button variant="ghost" size="sm" asChild>
                 <Link href={`/dashboard/teams/${team.id}`}>
@@ -133,6 +139,7 @@ export function TeamCard({ team, initialSelectedTeamId = null }: TeamCardProps) 
         </CardContent>
       </Card>
 
+      {/* Leave Team Dialog (for non-owners) */}
       <Dialog open={isLeaveDialogOpen} onOpenChange={setIsLeaveDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -156,10 +163,48 @@ export function TeamCard({ team, initialSelectedTeamId = null }: TeamCardProps) 
             <Button
               type="button"
               variant="destructive"
-              onClick={() => leaveTeamMutation.mutate(team.id)}
+              onClick={() =>
+                leaveTeamMutation.mutate(team.id, {
+                  onSuccess: () => setIsLeaveDialogOpen(false)
+                })
+              }
               disabled={leaveTeamMutation.isPending}
             >
               {leaveTeamMutation.isPending ? t.teams.leaving : t.teams.leaveTeam}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Team Dialog (for owners with no other members) */}
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t.teams.deleteTeamConfirmTitle}</DialogTitle>
+            <DialogDescription>
+              {t.teams.deleteTeamConfirmDescription.replace("{name}", team.name)}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setIsDeleteDialogOpen(false)}
+              disabled={deleteTeamMutation.isPending}
+            >
+              {t.common.cancel}
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={() =>
+                deleteTeamMutation.mutate(team.id, {
+                  onSuccess: () => setIsDeleteDialogOpen(false)
+                })
+              }
+              disabled={deleteTeamMutation.isPending}
+            >
+              {t.teams.deleteTeam}
             </Button>
           </DialogFooter>
         </DialogContent>

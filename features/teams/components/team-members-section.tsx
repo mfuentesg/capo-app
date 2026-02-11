@@ -9,7 +9,7 @@ import type { Tables } from "@/lib/supabase/database.types"
 import { formatDate } from "@/lib/utils"
 
 interface TeamMembersSectionProps {
-  members: Tables<"team_members">[]
+  members: (Tables<"team_members"> & { user_full_name: string | null })[]
   isOwner: boolean
   // teamId is kept in interface for API compatibility but not used in implementation
   teamId?: string
@@ -45,7 +45,9 @@ export function TeamMembersSection({ members, isOwner }: TeamMembersSectionProps
                   </AvatarFallback>
                 </Avatar>
                 <div>
-                  <p className="text-sm font-medium">User {member.user_id.slice(0, 8)}</p>
+                  <p className="text-sm font-medium">
+                    {member.user_full_name || `User ${member.user_id.slice(0, 8)}`}
+                  </p>
                   <p className="text-xs text-muted-foreground">
                     Joined {formatDate(member.joined_at)}
                   </p>

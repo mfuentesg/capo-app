@@ -29,7 +29,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { cn } from "@/lib/utils"
 import type { Song } from "@/features/songs/types"
-import { KeySelect } from "@/features/songs/components/key-select"
+import { KeySelect } from "@/features/songs"
 import { usePlaylistDraft } from "@/features/playlist-draft"
 import { transposeKey, calculateCapoKey } from "@/lib/music-theory"
 import { useTranslation } from "@/hooks/use-translation"

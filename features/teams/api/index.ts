@@ -17,6 +17,8 @@ export {
   getTeamWithClient,
   createTeam,
   updateTeam,
+  deleteTeam,
+  leaveTeam,
   getTeamMembers,
   getTeamMembersWithClient,
   getTeamInvitations,
@@ -27,3 +29,4 @@ export {
 
 // Re-export types
 export type { Tables, TablesInsert, TablesUpdate } from "@/lib/supabase/database.types"
+export type { TeamWithMemberCount } from "./teamsApi"

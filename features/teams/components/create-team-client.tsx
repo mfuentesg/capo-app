@@ -4,7 +4,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft } from "lucide-react"
 import { useTranslation } from "@/hooks/use-translation"
-import { CreateTeamForm } from "@/features/teams/components/create-team-form"
+import { CreateTeamForm } from "@/features/teams"
 
 export function CreateTeamClient() {
   const { t } = useTranslation()

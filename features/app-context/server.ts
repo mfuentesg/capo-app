@@ -9,7 +9,7 @@
 
 import { cookies } from "next/headers"
 import type { AppContext } from "./types"
-import type { UserInfo } from "@/features/auth/types"
+import type { UserInfo } from "@/features/auth"
 import type { Tables } from "@/lib/supabase/database.types"
 import { SELECTED_TEAM_ID_KEY } from "./constants"
 import { createClient } from "@/lib/supabase/server"
