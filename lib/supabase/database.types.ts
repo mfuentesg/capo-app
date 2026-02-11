@@ -381,38 +381,32 @@ export type Database = {
       teams: {
         Row: {
           avatar_url: string | null
-          icon: string | null
           created_at: string
           created_by: string
-          description: string | null
+          icon: string | null
           id: string
           is_public: boolean
           name: string
-
           updated_at: string
         }
         Insert: {
           avatar_url?: string | null
-          icon?: string | null
           created_at?: string
           created_by: string
-          description?: string | null
+          icon?: string | null
           id?: string
           is_public?: boolean
           name: string
-
           updated_at?: string
         }
         Update: {
           avatar_url?: string | null
-          icon?: string | null
           created_at?: string
           created_by?: string
-          description?: string | null
+          icon?: string | null
           id?: string
           is_public?: boolean
           name?: string
-
           updated_at?: string
         }
         Relationships: [
@@ -443,6 +437,23 @@ export type Database = {
         Returns: undefined
       }
       cleanup_expired_shares: { Args: never; Returns: number }
+      create_team_with_owner: {
+        Args: {
+          team_icon?: string
+          team_is_public?: boolean
+          team_name: string
+        }
+        Returns: {
+          avatar_url: string
+          created_at: string
+          created_by: string
+          icon: string
+          id: string
+          is_public: boolean
+          name: string
+          updated_at: string
+        }[]
+      }
       ensure_share_code: { Args: { playlist_id: string }; Returns: string }
       get_team_role: {
         Args: { team_id: string; user_id: string }
@@ -460,6 +471,7 @@ export type Database = {
         Args: { team_id: string; user_id: string }
         Returns: boolean
       }
+      leave_team: { Args: { target_team_id: string }; Returns: undefined }
       transfer_team_ownership: {
         Args: { new_owner_id: string; target_team_id: string }
         Returns: undefined
