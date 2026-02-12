@@ -10,7 +10,15 @@ const __dirname = dirname(__filename)
 
 const eslintConfig = [
   {
-    ignores: ["node_modules/**", ".next/**", "out/**", "build/**", "next-env.d.ts", "coverage"]
+    ignores: [
+      "node_modules/**",
+      ".next/**",
+      "out/**",
+      "build/**",
+      "next-env.d.ts",
+      "coverage",
+      "supabase/functions/**"
+    ]
   },
   ...nextVitals,
   ...nextTs,
