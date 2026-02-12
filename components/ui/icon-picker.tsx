@@ -213,6 +213,7 @@ export function IconPicker({
   triggerClassName
 }: IconPickerProps) {
   const [open, setOpen] = React.useState(false)
+  const contentId = React.useId()
 
   const selectedIconName = value && TEAM_ICONS[value] ? value : "Users"
   const SelectedIcon = TEAM_ICONS[selectedIconName] || Users
@@ -223,6 +224,7 @@ export function IconPicker({
         <button
           role="combobox"
           aria-expanded={open}
+          aria-controls={contentId}
           aria-label="Select team icon"
           disabled={disabled}
           type="button"
@@ -237,7 +239,7 @@ export function IconPicker({
           <span className="sr-only">{value || "Select an icon"}</span>
         </button>
       </PopoverTrigger>
-      <PopoverContent className="w-140 p-0" align="start">
+      <PopoverContent id={contentId} className="w-140 p-0" align="start">
         <div className="h-120 p-4 overflow-y-auto">
           <div className="grid grid-cols-8 gap-3">
             {Object.entries(TEAM_ICONS).map(([name, Icon]) => (
