@@ -136,8 +136,8 @@ BEGIN
     user_id,
     team_id,
     'team_invitation_accepted',
-    'team',
-    team_id,
+    'team_invitation',
+    invitation_record.id,
     jsonb_build_object('role', invitation_record.role)
   );
 

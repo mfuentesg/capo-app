@@ -467,11 +467,39 @@ export type Database = {
         }
         Returns: boolean
       }
+      invite_team_member: {
+        Args: {
+          member_email: string
+          member_role?: Database["public"]["Enums"]["team_role_enum"]
+          target_team_id: string
+        }
+        Returns: {
+          accepted_at: string | null
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          invited_by: string
+          role: Database["public"]["Enums"]["team_role_enum"]
+          team_id: string
+          token: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "team_invitations"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       is_team_member: {
         Args: { team_id: string; user_id: string }
         Returns: boolean
       }
       leave_team: { Args: { target_team_id: string }; Returns: undefined }
+      remove_team_member: {
+        Args: { target_team_id: string; target_user_id: string }
+        Returns: undefined
+      }
       transfer_team_ownership: {
         Args: { new_owner_id: string; target_team_id: string }
         Returns: undefined
