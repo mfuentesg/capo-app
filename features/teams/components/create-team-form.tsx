@@ -102,8 +102,13 @@ export function CreateTeamForm() {
                       control={form.control}
                       name="icon"
                       render={({ field: iconField }) => (
-                        <InputGroupAddon>
-                          <IconPicker value={iconField.value} onChange={iconField.onChange} />
+                        <InputGroupAddon className="pl-2 pr-2 [&>button]:ml-0">
+                          <IconPicker
+                            value={iconField.value}
+                            onChange={iconField.onChange}
+                            iconClassName="h-5 w-5"
+                            triggerClassName="h-8 w-8 rounded-md border-border/60 bg-muted/60 hover:bg-muted"
+                          />
                         </InputGroupAddon>
                       )}
                     />

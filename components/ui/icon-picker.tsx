@@ -202,9 +202,16 @@ interface IconPickerProps {
   onChange: (iconName: string) => void
   disabled?: boolean
   iconClassName?: string
+  triggerClassName?: string
 }
 
-export function IconPicker({ value, onChange, disabled, iconClassName }: IconPickerProps) {
+export function IconPicker({
+  value,
+  onChange,
+  disabled,
+  iconClassName,
+  triggerClassName
+}: IconPickerProps) {
   const [open, setOpen] = React.useState(false)
 
   const selectedIconName = value && TEAM_ICONS[value] ? value : "Users"
@@ -216,9 +223,14 @@ export function IconPicker({ value, onChange, disabled, iconClassName }: IconPic
         <button
           role="combobox"
           aria-expanded={open}
+          aria-label="Select team icon"
           disabled={disabled}
           type="button"
-          className="inline-flex items-center justify-center rounded-full bg-primary/10 border border-border hover:bg-primary/20 transition-colors p-2"
+          className={cn(
+            "inline-flex items-center justify-center rounded-full bg-primary/10 border border-border hover:bg-primary/20 transition-colors p-2",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
+            triggerClassName
+          )}
           title="Click to change icon"
         >
           <SelectedIcon className={iconClassName || "h-6 w-6"} />
