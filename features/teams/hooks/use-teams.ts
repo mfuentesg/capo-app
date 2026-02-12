@@ -289,15 +289,17 @@ export function useChangeTeamMemberRole() {
       console.error("Error changing member role:", error)
       const message = error instanceof Error ? error.message : "Failed to change role"
       if (message.includes("Cannot demote team owner")) {
-        toast.error("Cannot change the team owner")
+        toast.error(t.toasts?.roleChangeOwnerNotAllowed || "Cannot change the team owner")
         return
       }
       if (message.includes("Only owners and admins")) {
-        toast.error("You do not have permission to change roles")
+        toast.error(
+          t.toasts?.roleChangePermissionDenied || "You do not have permission to change roles"
+        )
         return
       }
       if (message.includes("Admins can only")) {
-        toast.error("Admins can only assign Member or Viewer")
+        toast.error(t.toasts?.roleChangeAdminLimit || "Admins can only assign Member or Viewer")
         return
       }
       toast.error(message)

@@ -278,7 +278,7 @@ export async function inviteTeamMember(
 ): Promise<Tables<"team_invitations">> {
   // invite_team_member RPC exists in DB but is not yet in generated types.
   // Regenerate types with `pnpm types:generate` to remove this cast.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
   const { data, error } = await (supabase.rpc as any)("invite_team_member", {
     target_team_id: teamId,
     member_email: email,
@@ -297,7 +297,7 @@ export async function removeTeamMember(
 ): Promise<void> {
   // remove_team_member RPC exists in DB but is not yet in generated types.
   // Regenerate types with `pnpm types:generate` to remove this cast.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
   const { error } = await (supabase.rpc as any)("remove_team_member", {
     target_team_id: teamId,
     target_user_id: userId
