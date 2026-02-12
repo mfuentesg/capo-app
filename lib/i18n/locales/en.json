@@ -20,7 +20,9 @@
     "capoLogo": "Capo Logo",
     "capoApp": "Capo App",
     "clickToAdd": "Click to add",
-    "google": "Google"
+    "google": "Google",
+    "email": "Email",
+    "role": "Role"
   },
   "metadata": {
     "title": "Capo",
@@ -205,7 +207,13 @@
     "teamLeftFailed": "Failed to leave team. Please try again.",
     "teamSwitched": "Switched to {name}",
     "ownershipTransferred": "Ownership transferred successfully",
-    "ownershipTransferFailed": "Failed to transfer ownership. Please try again."
+    "ownershipTransferFailed": "Failed to transfer ownership. Please try again.",
+    "invitationSent": "Invitation sent successfully",
+    "invitationCanceled": "Invitation canceled",
+    "memberRemoved": "Member removed from team",
+    "memberRemovalFailed": "Failed to remove member. Please try again.",
+    "roleChanged": "Member role updated successfully",
+    "roleChangeFailed": "Failed to change member role. Please try again."
   },
   "dashboard": {
     "title": "Dashboard",
@@ -267,7 +275,20 @@
     "teamInformation": "Team Information",
     "members": "Members",
     "addMember": "Add Member",
+    "inviteMember": "Invite Member",
+    "sendInvitationTo": "Send an invitation to",
+    "newTeamMember": "a new team member",
+    "sendInvitation": "Send Invitation",
+    "roleMember": "Member",
+    "roleAdmin": "Admin",
+    "roleViewer": "Viewer",
     "noMembersYet": "No members yet",
+    "pendingInvitations": "Pending Invitations",
+    "invitationPending": "Pending",
+    "invitedOn": "Invited {date}",
+    "cancelInvitation": "Cancel Invitation",
+    "cancelInvitationConfirm": "Are you sure you want to cancel the invitation for {email}?",
+    "cancelInvitationWarning": "They will need a new invite to join the team.",
     "leaveTeam": "Leave Team",
     "leaveTeamConfirm": "Are you sure you want to leave \"{name}\"? You will lose access to all team content.",
     "leaveTeamWarning": "This action cannot be undone. You will need to be invited again to rejoin the team.",
@@ -289,7 +310,11 @@
     "transferAndLeave": "Transfer & Leave",
     "leaveAsOwner": "As the owner, you must transfer ownership to another member before leaving.",
     "noOtherMembers": "You are the only member. Leaving will delete this team.",
-    "deleteAndLeave": "Delete Team"
+    "deleteAndLeave": "Delete Team",
+    "changeRole": "Change Role",
+    "removeMember": "Remove Member",
+    "removeMemberConfirm": "Are you sure you want to remove {name} from the team?",
+    "removeMemberWarning": "This action cannot be undone. They will need to be invited again to rejoin."
   },
   "activity": {
     "noActivity": "No activity yet",

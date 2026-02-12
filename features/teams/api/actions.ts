@@ -7,7 +7,11 @@ import {
   updateTeam as updateTeamApi,
   deleteTeam as deleteTeamApi,
   leaveTeam as leaveTeamApi,
-  transferTeamOwnership as transferTeamOwnershipApi
+  transferTeamOwnership as transferTeamOwnershipApi,
+  inviteTeamMember as inviteTeamMemberApi,
+  removeTeamMember as removeTeamMemberApi,
+  changeTeamMemberRole as changeTeamMemberRoleApi,
+  deleteTeamInvitation as deleteTeamInvitationApi
 } from "./teamsApi"
 
 export async function createTeamAction(teamData: TablesInsert<"teams">): Promise<string> {
@@ -40,4 +44,32 @@ export async function transferTeamOwnershipAction(
 ): Promise<void> {
   const supabase = await createClient()
   await transferTeamOwnershipApi(supabase, teamId, newOwnerId)
+}
+
+export async function inviteTeamMemberAction(
+  teamId: string,
+  email: string,
+  role: "member" | "admin" | "owner" | "viewer" = "member"
+): Promise<void> {
+  const supabase = await createClient()
+  await inviteTeamMemberApi(supabase, teamId, email, role)
+}
+
+export async function removeTeamMemberAction(teamId: string, userId: string): Promise<void> {
+  const supabase = await createClient()
+  await removeTeamMemberApi(supabase, teamId, userId)
+}
+
+export async function changeTeamMemberRoleAction(
+  teamId: string,
+  userId: string,
+  newRole: "member" | "admin" | "owner" | "viewer"
+): Promise<void> {
+  const supabase = await createClient()
+  await changeTeamMemberRoleApi(supabase, teamId, userId, newRole)
+}
+
+export async function deleteTeamInvitationAction(invitationId: string): Promise<void> {
+  const supabase = await createClient()
+  await deleteTeamInvitationApi(supabase, invitationId)
 }

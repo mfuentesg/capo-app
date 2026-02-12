@@ -233,6 +233,15 @@ export async function acceptTeamInvitation(
   return data as string
 }
 
+export async function deleteTeamInvitation(
+  supabase: SupabaseClient<Database>,
+  invitationId: string
+): Promise<void> {
+  const { error } = await supabase.from("team_invitations").delete().eq("id", invitationId)
+
+  if (error) throw error
+}
+
 export async function changeTeamMemberRole(
   supabase: SupabaseClient<Database>,
   teamId: string,
@@ -256,6 +265,42 @@ export async function transferTeamOwnership(
   const { error } = await supabase.rpc("transfer_team_ownership", {
     target_team_id: teamId,
     new_owner_id: newOwnerId
+  })
+
+  if (error) throw error
+}
+
+export async function inviteTeamMember(
+  supabase: SupabaseClient<Database>,
+  teamId: string,
+  email: string,
+  role: Tables<"team_invitations">["role"] = "member"
+): Promise<Tables<"team_invitations">> {
+  // invite_team_member RPC exists in DB but is not yet in generated types.
+  // Regenerate types with `pnpm types:generate` to remove this cast.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase.rpc as any)("invite_team_member", {
+    target_team_id: teamId,
+    member_email: email,
+    member_role: role
+  })
+
+  if (error) throw error
+  if (!data) throw new Error("Failed to create invitation")
+  return data
+}
+
+export async function removeTeamMember(
+  supabase: SupabaseClient<Database>,
+  teamId: string,
+  userId: string
+): Promise<void> {
+  // remove_team_member RPC exists in DB but is not yet in generated types.
+  // Regenerate types with `pnpm types:generate` to remove this cast.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabase.rpc as any)("remove_team_member", {
+    target_team_id: teamId,
+    target_user_id: userId
   })
 
   if (error) throw error

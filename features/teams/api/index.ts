@@ -23,6 +23,7 @@ export {
   getTeamMembersWithClient,
   getTeamInvitations,
   acceptTeamInvitation,
+  deleteTeamInvitation,
   changeTeamMemberRole,
   transferTeamOwnership
 } from "./teamsApi"

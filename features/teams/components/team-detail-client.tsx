@@ -14,9 +14,14 @@ import { TeamDangerZone } from "@/features/teams"
 interface TeamDetailClientProps {
   initialTeam: Tables<"teams">
   initialMembers: (Tables<"team_members"> & { user_full_name: string | null })[]
+  initialInvitations: Tables<"team_invitations">[]
 }
 
-export function TeamDetailClient({ initialTeam, initialMembers }: TeamDetailClientProps) {
+export function TeamDetailClient({
+  initialTeam,
+  initialMembers,
+  initialInvitations
+}: TeamDetailClientProps) {
   const { data: user } = useUser()
   const deleteTeamMutation = useDeleteTeam()
   const updateTeamMutation = useUpdateTeam()
@@ -51,7 +56,20 @@ export function TeamDetailClient({ initialTeam, initialMembers }: TeamDetailClie
     staleTime: 30 * 1000
   })
 
+  const { data: invitations } = useQuery<
+    Tables<"team_invitations">[],
+    Error,
+    Tables<"team_invitations">[],
+    readonly unknown[]
+  >({
+    queryKey: teamsKeys.invitations(initialTeam.id),
+    queryFn: async () => await teamsApi.getTeamInvitations(initialTeam.id),
+    initialData: initialInvitations,
+    staleTime: 30 * 1000
+  })
+
   const isOwner = user?.id === team.created_by
+  const currentUserRole = members?.find((member) => member.user_id === user?.id)?.role
 
   const handleUpdate = (updates: TablesUpdate<"teams">) => {
     updateTeamMutation.mutate({ teamId: team.id, updates })
@@ -70,7 +88,13 @@ export function TeamDetailClient({ initialTeam, initialMembers }: TeamDetailClie
       <div className="mx-auto max-w-4xl space-y-6">
         <TeamDetailHeader team={team} onUpdate={handleUpdate} isOwner={isOwner} />
         <TeamInfoSection team={team} />
-        <TeamMembersSection members={members || []} isOwner={isOwner} teamId={team.id} />
+        <TeamMembersSection
+          members={members || []}
+          invitations={invitations || []}
+          teamId={team.id}
+          currentUserId={user?.id}
+          currentUserRole={currentUserRole}
+        />
         {isOwner && user && (
           <TeamDangerZone
             teamName={team.name}

@@ -4,6 +4,10 @@ export {
   useDeleteTeam,
   useLeaveTeam,
   useTransferOwnership,
-  useTransferAndLeave
+  useTransferAndLeave,
+  useInviteTeamMember,
+  useRemoveTeamMember,
+  useChangeTeamMemberRole,
+  useCancelTeamInvitation
 } from "./use-teams"
 export { teamsKeys } from "./query-keys"

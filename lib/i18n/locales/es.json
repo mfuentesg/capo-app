@@ -20,7 +20,9 @@
     "capoLogo": "Logo de Capo",
     "capoApp": "Aplicación Capo",
     "clickToAdd": "Haz clic para agregar",
-    "google": "Google"
+    "google": "Google",
+    "email": "Correo electrónico",
+    "role": "Rol"
   },
   "metadata": {
     "title": "Capo",
@@ -205,7 +207,13 @@
     "teamLeftFailed": "Error al dejar el equipo. Por favor, inténtalo de nuevo.",
     "teamSwitched": "Cambiado a {name}",
     "ownershipTransferred": "Propiedad transferida exitosamente",
-    "ownershipTransferFailed": "Error al transferir la propiedad. Por favor intenta de nuevo."
+    "ownershipTransferFailed": "Error al transferir la propiedad. Por favor intenta de nuevo.",
+    "invitationSent": "Invitación enviada exitosamente",
+    "invitationCanceled": "Invitación cancelada",
+    "memberRemoved": "Miembro eliminado del equipo",
+    "memberRemovalFailed": "Error al eliminar el miembro. Por favor intenta de nuevo.",
+    "roleChanged": "Rol del miembro actualizado exitosamente",
+    "roleChangeFailed": "Error al cambiar el rol del miembro. Por favor intenta de nuevo."
   },
   "dashboard": {
     "title": "Panel",
@@ -267,7 +275,20 @@
     "teamInformation": "Información del Equipo",
     "members": "Miembros",
     "addMember": "Agregar Miembro",
+    "inviteMember": "Invitar Miembro",
+    "sendInvitationTo": "Envía una invitación a",
+    "newTeamMember": "un nuevo miembro del equipo",
+    "sendInvitation": "Enviar Invitación",
+    "roleMember": "Miembro",
+    "roleAdmin": "Administrador",
+    "roleViewer": "Espectador",
     "noMembersYet": "Aún no hay miembros",
+    "pendingInvitations": "Invitaciones Pendientes",
+    "invitationPending": "Pendiente",
+    "invitedOn": "Invitado el {date}",
+    "cancelInvitation": "Cancelar invitación",
+    "cancelInvitationConfirm": "¿Estás seguro de que deseas cancelar la invitación para {email}?",
+    "cancelInvitationWarning": "Necesitarán una nueva invitación para unirse al equipo.",
     "leaveTeam": "Dejar Equipo",
     "leaveTeamConfirm": "¿Estás seguro de que quieres dejar \"{name}\"? Perderás acceso a todo el contenido del equipo.",
     "leaveTeamWarning": "Esta acción no se puede deshacer. Necesitarás ser invitado nuevamente para volver a unirte al equipo.",
@@ -289,7 +310,11 @@
     "transferAndLeave": "Transferir y Salir",
     "leaveAsOwner": "Como propietario, debes transferir la propiedad a otro miembro antes de salir.",
     "noOtherMembers": "Eres el único miembro. Salir eliminará este equipo.",
-    "deleteAndLeave": "Eliminar Equipo"
+    "deleteAndLeave": "Eliminar Equipo",
+    "changeRole": "Cambiar Rol",
+    "removeMember": "Eliminar Miembro",
+    "removeMemberConfirm": "¿Estás seguro de que deseas eliminar a {name} del equipo?",
+    "removeMemberWarning": "Esta acción no se puede deshacer. Necesitarán ser invitados de nuevo para volver a unirse."
   },
   "activity": {
     "noActivity": "Aún no hay actividad",

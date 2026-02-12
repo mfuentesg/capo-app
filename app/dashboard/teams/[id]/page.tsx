@@ -4,16 +4,23 @@ import type { Tables } from "@/lib/supabase/database.types"
 
 export default async function TeamDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const [team, members] = await Promise.all([
+  const [team, members, invitations] = await Promise.all([
     api.getTeam(id),
     api.getTeamMembers(id) as Promise<
       (Tables<"team_members"> & { user_full_name: string | null })[]
-    >
+    >,
+    api.getTeamInvitations(id)
   ])
 
   if (!team) {
     notFound()
   }
 
-  return <TeamDetailClient initialTeam={team} initialMembers={members} />
+  return (
+    <TeamDetailClient
+      initialTeam={team}
+      initialMembers={members}
+      initialInvitations={invitations}
+    />
+  )
 }

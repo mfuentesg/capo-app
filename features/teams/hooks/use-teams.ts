@@ -7,7 +7,11 @@ import {
   updateTeamAction,
   deleteTeamAction,
   leaveTeamAction,
-  transferTeamOwnershipAction
+  transferTeamOwnershipAction,
+  inviteTeamMemberAction,
+  removeTeamMemberAction,
+  changeTeamMemberRoleAction,
+  deleteTeamInvitationAction
 } from "../api/actions"
 import { teamsKeys } from "./query-keys"
 import { useUser } from "@/features/auth"
@@ -199,6 +203,127 @@ export function useTransferAndLeave() {
     onError: (error) => {
       console.error("Error transferring and leaving team:", error)
       toast.error(t.toasts?.teamLeftFailed || "Failed to leave team")
+    }
+  })
+}
+
+/**
+ * Hook to invite a member to a team
+ */
+export function useInviteTeamMember() {
+  const queryClient = useQueryClient()
+  const { t } = useLocale()
+
+  return useMutation({
+    mutationFn: async ({
+      teamId,
+      email,
+      role = "member"
+    }: {
+      teamId: string
+      email: string
+      role?: Tables<"team_invitations">["role"]
+    }) => {
+      return inviteTeamMemberAction(teamId, email, role)
+    },
+    onSuccess: async (_, { teamId }) => {
+      queryClient.invalidateQueries({ queryKey: teamsKeys.members(teamId) })
+      queryClient.invalidateQueries({ queryKey: teamsKeys.invitations(teamId) })
+      toast.success(t.toasts?.invitationSent || "Invitation sent successfully")
+    },
+    onError: (error) => {
+      console.error("Error inviting team member:", error)
+      const message = error instanceof Error ? error.message : "Failed to send invitation"
+      toast.error(message)
+    }
+  })
+}
+
+/**
+ * Hook to remove a member from a team
+ */
+export function useRemoveTeamMember() {
+  const queryClient = useQueryClient()
+  const { t } = useLocale()
+
+  return useMutation({
+    mutationFn: async ({ teamId, userId }: { teamId: string; userId: string }) => {
+      return removeTeamMemberAction(teamId, userId)
+    },
+    onSuccess: async (_, { teamId }) => {
+      queryClient.invalidateQueries({ queryKey: teamsKeys.members(teamId) })
+      toast.success(t.toasts?.memberRemoved || "Member removed successfully")
+    },
+    onError: (error) => {
+      console.error("Error removing team member:", error)
+      const message = error instanceof Error ? error.message : "Failed to remove member"
+      toast.error(message)
+    }
+  })
+}
+
+/**
+ * Hook to change a team member's role
+ */
+export function useChangeTeamMemberRole() {
+  const queryClient = useQueryClient()
+  const { t } = useLocale()
+
+  return useMutation({
+    mutationFn: async ({
+      teamId,
+      userId,
+      newRole
+    }: {
+      teamId: string
+      userId: string
+      newRole: Tables<"team_members">["role"]
+    }) => {
+      return changeTeamMemberRoleAction(teamId, userId, newRole)
+    },
+    onSuccess: async (_, { teamId }) => {
+      queryClient.invalidateQueries({ queryKey: teamsKeys.members(teamId) })
+      toast.success(t.toasts?.roleChanged || "Member role updated")
+    },
+    onError: (error) => {
+      console.error("Error changing member role:", error)
+      const message = error instanceof Error ? error.message : "Failed to change role"
+      if (message.includes("Cannot demote team owner")) {
+        toast.error("Cannot change the team owner")
+        return
+      }
+      if (message.includes("Only owners and admins")) {
+        toast.error("You do not have permission to change roles")
+        return
+      }
+      if (message.includes("Admins can only")) {
+        toast.error("Admins can only assign Member or Viewer")
+        return
+      }
+      toast.error(message)
+    }
+  })
+}
+
+/**
+ * Hook to cancel a pending invitation
+ */
+export function useCancelTeamInvitation() {
+  const queryClient = useQueryClient()
+  const { t } = useLocale()
+
+  return useMutation({
+    mutationFn: async ({ invitationId }: { invitationId: string; teamId: string }) => {
+      return deleteTeamInvitationAction(invitationId)
+    },
+    onSuccess: async (_, { teamId }) => {
+      queryClient.invalidateQueries({ queryKey: teamsKeys.invitations(teamId) })
+      toast.success(t.toasts?.invitationCanceled || "Invitation canceled")
+    },
+    onError: (error) => {
+      console.error("Error canceling invitation:", error)
+      const message = error instanceof Error ? error.message : "Failed to cancel invitation"
+      toast.error(message)
     }
   })
 }
