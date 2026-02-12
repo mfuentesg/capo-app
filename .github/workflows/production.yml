@@ -1,4 +1,4 @@
-name: Deploy Migrations to Production
+name: Deploy to Production
 
 on:
   push:
@@ -24,5 +24,11 @@ jobs:
         with:
           version: latest
 
-      - run: supabase link --project-ref $SUPABASE_PROJECT_ID
-      - run: supabase db push
+      - name: Link Supabase project
+        run: supabase link --project-ref $SUPABASE_PROJECT_ID
+
+      - name: Deploy database migrations
+        run: supabase db push
+
+      - name: Deploy edge functions
+        run: supabase functions deploy --project-ref $SUPABASE_PROJECT_ID
