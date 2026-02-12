@@ -22,6 +22,7 @@
     "clickToAdd": "Click to add",
     "google": "Google",
     "email": "Email",
+    "emailPlaceholder": "member@example.com",
     "role": "Role"
   },
   "metadata": {
@@ -44,7 +45,8 @@
     "createTeam": "Create team",
     "goToTeamDashboard": "Go to team dashboard",
     "profile": "Profile",
-    "account": "Account"
+    "account": "Account",
+    "invitations": "Invitations"
   },
   "settings": {
     "title": "Settings",
@@ -213,7 +215,10 @@
     "memberRemoved": "Member removed from team",
     "memberRemovalFailed": "Failed to remove member. Please try again.",
     "roleChanged": "Member role updated successfully",
-    "roleChangeFailed": "Failed to change member role. Please try again."
+    "roleChangeFailed": "Failed to change member role. Please try again.",
+    "roleChangeOwnerNotAllowed": "Cannot change the team owner",
+    "roleChangePermissionDenied": "You do not have permission to change roles",
+    "roleChangeAdminLimit": "Admins can only assign Member or Viewer"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -315,6 +320,41 @@
     "removeMember": "Remove Member",
     "removeMemberConfirm": "Are you sure you want to remove {name} from the team?",
     "removeMemberWarning": "This action cannot be undone. They will need to be invited again to rejoin."
+  },
+  "invitations": {
+    "title": "Team Invitation",
+    "pendingTitle": "Pending Invitations",
+    "pendingDescription": "Review and accept team invitations sent to you.",
+    "emptyTitle": "No pending invitations",
+    "emptyDescription": "You don't have any pending team invitations at the moment.",
+    "goToTeams": "Go to Teams",
+    "backToTeams": "Back to Teams",
+    "invitationFrom": "Invitation from {name}",
+    "expires": "Expires {date}",
+    "expired": "This invitation has expired",
+    "accepting": "Accepting...",
+    "accept": "Accept",
+    "view": "View",
+    "processing": "Processing your invitation...",
+    "welcome": "Welcome to the team!",
+    "unableToAccept": "Unable to accept invitation",
+    "invalid": "Invalid invitation",
+    "signInToContinue": "Sign in to continue",
+    "acceptingDescription": "Accepting your invitation...",
+    "acceptedTitle": "Invitation accepted successfully! 🎉",
+    "redirecting": "Redirecting you to your teams...",
+    "failedToAccept": "Failed to accept invitation",
+    "goToDashboard": "Go to Dashboard",
+    "invalidLinkTitle": "Invalid invitation link",
+    "invalidLinkDescription": "This invitation link is invalid or has already been used.",
+    "signInRequiredTitle": "Sign in required",
+    "signInRequiredDescription": "You need to be signed in with the email address that matches this invitation.",
+    "signIn": "Sign In",
+    "createAccountOrSignIn": "Create Account or Sign In",
+    "goHome": "Go Home",
+    "missingToken": "No invitation token provided",
+    "fetchFailed": "Failed to fetch invitations",
+    "loadFailed": "Failed to load invitations"
   },
   "activity": {
     "noActivity": "No activity yet",

@@ -22,6 +22,7 @@
     "clickToAdd": "Haz clic para agregar",
     "google": "Google",
     "email": "Correo electrónico",
+    "emailPlaceholder": "miembro@ejemplo.com",
     "role": "Rol"
   },
   "metadata": {
@@ -44,7 +45,8 @@
     "createTeam": "Crear equipo",
     "goToTeamDashboard": "Ir al panel del equipo",
     "profile": "Perfil",
-    "account": "Cuenta"
+    "account": "Cuenta",
+    "invitations": "Invitaciones"
   },
   "settings": {
     "title": "Configuración",
@@ -213,7 +215,10 @@
     "memberRemoved": "Miembro eliminado del equipo",
     "memberRemovalFailed": "Error al eliminar el miembro. Por favor intenta de nuevo.",
     "roleChanged": "Rol del miembro actualizado exitosamente",
-    "roleChangeFailed": "Error al cambiar el rol del miembro. Por favor intenta de nuevo."
+    "roleChangeFailed": "Error al cambiar el rol del miembro. Por favor intenta de nuevo.",
+    "roleChangeOwnerNotAllowed": "No se puede cambiar el propietario del equipo",
+    "roleChangePermissionDenied": "No tienes permiso para cambiar roles",
+    "roleChangeAdminLimit": "Los administradores solo pueden asignar Miembro o Espectador"
   },
   "dashboard": {
     "title": "Panel",
@@ -315,6 +320,41 @@
     "removeMember": "Eliminar Miembro",
     "removeMemberConfirm": "¿Estás seguro de que deseas eliminar a {name} del equipo?",
     "removeMemberWarning": "Esta acción no se puede deshacer. Necesitarán ser invitados de nuevo para volver a unirse."
+  },
+  "invitations": {
+    "title": "Invitación de equipo",
+    "pendingTitle": "Invitaciones pendientes",
+    "pendingDescription": "Revisa y acepta las invitaciones de equipo enviadas a ti.",
+    "emptyTitle": "No hay invitaciones pendientes",
+    "emptyDescription": "No tienes invitaciones de equipo pendientes en este momento.",
+    "goToTeams": "Ir a Equipos",
+    "backToTeams": "Volver a Equipos",
+    "invitationFrom": "Invitación de {name}",
+    "expires": "Expira {date}",
+    "expired": "Esta invitación ha expirado",
+    "accepting": "Aceptando...",
+    "accept": "Aceptar",
+    "view": "Ver",
+    "processing": "Procesando tu invitación...",
+    "welcome": "¡Bienvenido al equipo!",
+    "unableToAccept": "No se pudo aceptar la invitación",
+    "invalid": "Invitación inválida",
+    "signInToContinue": "Inicia sesión para continuar",
+    "acceptingDescription": "Aceptando tu invitación...",
+    "acceptedTitle": "¡Invitación aceptada con éxito! 🎉",
+    "redirecting": "Redirigiéndote a tus equipos...",
+    "failedToAccept": "Error al aceptar la invitación",
+    "goToDashboard": "Ir al panel",
+    "invalidLinkTitle": "Enlace de invitación inválido",
+    "invalidLinkDescription": "Este enlace de invitación es inválido o ya se ha usado.",
+    "signInRequiredTitle": "Inicio de sesión requerido",
+    "signInRequiredDescription": "Debes iniciar sesión con el correo electrónico que coincide con esta invitación.",
+    "signIn": "Iniciar sesión",
+    "createAccountOrSignIn": "Crear cuenta o iniciar sesión",
+    "goHome": "Ir al inicio",
+    "missingToken": "No se proporcionó un token de invitación",
+    "fetchFailed": "Error al obtener las invitaciones",
+    "loadFailed": "Error al cargar las invitaciones"
   },
   "activity": {
     "noActivity": "Aún no hay actividad",
