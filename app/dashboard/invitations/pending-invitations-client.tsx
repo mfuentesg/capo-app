@@ -69,10 +69,6 @@ export function PendingInvitationsClient() {
       await api.acceptTeamInvitation(token)
 
       setInvitations(invitations.filter((inv) => inv.id !== invitationId))
-
-      setTimeout(() => {
-        router.push("/dashboard/teams")
-      }, 1000)
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : t.invitations.failedToAccept
       setError(errorMessage)

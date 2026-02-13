@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { DEFAULT_REDIRECT_PATH } from "@/lib/supabase/constants"
 
+const INVITATION_TOKEN_COOKIE = "_invitation_token"
+
 /**
  * Validates redirect URL to prevent open redirects
  * Only allows same-origin URLs or relative paths
@@ -52,7 +54,19 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(loginUrl)
     }
 
-    return NextResponse.redirect(new URL(redirectTo, requestUrl.origin))
+    // Check if user was logging in to accept an invitation
+    const invitationToken = request.cookies.get(INVITATION_TOKEN_COOKIE)?.value
+    const response = NextResponse.redirect(new URL(redirectTo, requestUrl.origin))
+
+    if (invitationToken) {
+      // Redirect to invitation page with token and clear the cookie
+      const invitationUrl = new URL("/teams/accept-invitation", requestUrl.origin)
+      invitationUrl.searchParams.set("token", invitationToken)
+      response.cookies.delete(INVITATION_TOKEN_COOKIE)
+      return NextResponse.redirect(invitationUrl)
+    }
+
+    return response
   } catch (error) {
     console.error("Unexpected error during auth callback:", error)
     // Redirect to login with error

@@ -1,32 +1,23 @@
-"use client"
-
 import type React from "react"
 import { Navbar } from "@/components/layout"
-import { PlaylistDraft } from "@/features/playlist-draft"
-import { usePlaylistDraft } from "@/features/playlist-draft"
-
-import "../globals.css"
+import { DraftIndicator } from "@/components/layout/draft-indicator"
+import { PlaylistsProvider } from "@/features/playlists"
+import { PlaylistDraftProvider } from "@/features/playlist-draft"
 
 export default function DashboardLayout({
   children
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const { playlistDraft, isDraftOpen, setIsDraftOpen, clearDraft, removeFromDraft, reorderDraft } =
-    usePlaylistDraft()
-
   return (
-    <main className="flex-1">
-      <Navbar />
-      {children}
-      <PlaylistDraft
-        songs={playlistDraft}
-        isOpen={isDraftOpen}
-        onOpenChange={setIsDraftOpen}
-        onClear={clearDraft}
-        onRemove={removeFromDraft}
-        onReorder={reorderDraft}
-      />
-    </main>
+    <PlaylistsProvider>
+      <PlaylistDraftProvider>
+        <main className="flex-1">
+          <Navbar />
+          {children}
+          <DraftIndicator />
+        </main>
+      </PlaylistDraftProvider>
+    </PlaylistsProvider>
   )
 }

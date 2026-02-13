@@ -4,8 +4,6 @@ import { Geist, Geist_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/react"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/sonner"
-import { PlaylistDraftProvider } from "@/features/playlist-draft"
-import { PlaylistsProvider } from "@/features/playlists"
 import { LocaleProvider } from "@/features/settings"
 import { defaultLocale, isValidLocale } from "@/lib/i18n/config"
 import type { Locale } from "@/lib/i18n/config"
@@ -89,11 +87,7 @@ export default async function RootLayout({
                 initialTeams={appContextData.teams}
                 initialUser={appContextData.user}
               >
-                <LocaleProvider initialLocale={initialLocale}>
-                  <PlaylistsProvider>
-                    <PlaylistDraftProvider>{children}</PlaylistDraftProvider>
-                  </PlaylistsProvider>
-                </LocaleProvider>
+                <LocaleProvider initialLocale={initialLocale}>{children}</LocaleProvider>
               </AppContextProvider>
             </AuthStateProvider>
           </QueryProvider>

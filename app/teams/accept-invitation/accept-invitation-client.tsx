@@ -8,10 +8,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Spinner } from "@/components/ui/spinner"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
-import { CheckCircle, XCircle, AlertCircle, LogIn } from "lucide-react"
+import { CheckCircle, XCircle, AlertCircle } from "lucide-react"
 import { useTranslation } from "@/hooks/use-translation"
 
-type InvitationStatus = "loading" | "success" | "error" | "invalid" | "not-authenticated"
+type InvitationStatus = "loading" | "success" | "error" | "invalid"
 
 export function AcceptInvitationClient() {
   const router = useRouter()
@@ -32,12 +32,6 @@ export function AcceptInvitationClient() {
       if (!token) {
         setStatus("invalid")
         setError(t.invitations.missingToken)
-        return
-      }
-
-      // Check if user is authenticated
-      if (!user) {
-        setStatus("not-authenticated")
         return
       }
 
@@ -70,7 +64,6 @@ export function AcceptInvitationClient() {
             {status === "success" && t.invitations.welcome}
             {status === "error" && t.invitations.unableToAccept}
             {status === "invalid" && t.invitations.invalid}
-            {status === "not-authenticated" && t.invitations.signInToContinue}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -140,31 +133,6 @@ export function AcceptInvitationClient() {
                   className="w-full"
                 >
                   {t.invitations.goToDashboard}
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {status === "not-authenticated" && (
-            <div className="space-y-4">
-              <Alert className="border-amber-500/50 bg-amber-500/10">
-                <LogIn className="h-4 w-4 text-amber-600" />
-                <AlertDescription className="ml-2">
-                  <div className="space-y-2">
-                    <p className="font-medium">{t.invitations.signInRequiredTitle}</p>
-                    <p className="text-sm">{t.invitations.signInRequiredDescription}</p>
-                  </div>
-                </AlertDescription>
-              </Alert>
-              <div className="flex flex-col gap-2">
-                <Button onClick={() => router.push("/")} className="w-full">
-                  {t.invitations.signIn}
-                </Button>
-                <Button onClick={() => router.push("/")} variant="outline" className="w-full">
-                  {t.invitations.createAccountOrSignIn}
-                </Button>
-                <Button variant="ghost" onClick={() => router.push("/")} className="w-full">
-                  {t.invitations.goHome}
                 </Button>
               </div>
             </div>
