@@ -1,7 +1,8 @@
 "use server"
 
+import { revalidatePath } from "next/cache"
 import { createClient } from "@/lib/supabase/server"
-import type { Playlist } from "@/features/playlists/types"
+import type { Playlist } from "../types"
 import {
   createPlaylist as createPlaylistApi,
   updatePlaylist as updatePlaylistApi,
@@ -22,7 +23,9 @@ export async function createPlaylistAction(
   userId: string
 ): Promise<Playlist> {
   const supabase = await createClient()
-  return createPlaylistApi(supabase, playlistData, userId)
+  const result = await createPlaylistApi(supabase, playlistData, userId)
+  revalidatePath("/dashboard/playlists")
+  return result
 }
 
 export async function updatePlaylistAction(
@@ -30,12 +33,16 @@ export async function updatePlaylistAction(
   updates: Partial<Playlist>
 ): Promise<Playlist> {
   const supabase = await createClient()
-  return updatePlaylistApi(supabase, playlistId, updates)
+  const result = await updatePlaylistApi(supabase, playlistId, updates)
+  revalidatePath("/dashboard/playlists")
+  revalidatePath(`/dashboard/playlists/${playlistId}`)
+  return result
 }
 
 export async function deletePlaylistAction(playlistId: string): Promise<void> {
   const supabase = await createClient()
-  return deletePlaylistApi(supabase, playlistId)
+  await deletePlaylistApi(supabase, playlistId)
+  revalidatePath("/dashboard/playlists")
 }
 
 export async function addSongToPlaylistAction(
@@ -44,7 +51,8 @@ export async function addSongToPlaylistAction(
   position?: number
 ): Promise<void> {
   const supabase = await createClient()
-  return addSongToPlaylistApi(supabase, playlistId, songId, position)
+  await addSongToPlaylistApi(supabase, playlistId, songId, position)
+  revalidatePath(`/dashboard/playlists/${playlistId}`)
 }
 
 export async function removeSongFromPlaylistAction(
@@ -52,7 +60,8 @@ export async function removeSongFromPlaylistAction(
   songId: string
 ): Promise<void> {
   const supabase = await createClient()
-  return removeSongFromPlaylistApi(supabase, playlistId, songId)
+  await removeSongFromPlaylistApi(supabase, playlistId, songId)
+  revalidatePath(`/dashboard/playlists/${playlistId}`)
 }
 
 export async function reorderPlaylistSongsAction(
@@ -60,5 +69,6 @@ export async function reorderPlaylistSongsAction(
   updates: Array<{ songId: string; position: number }>
 ): Promise<void> {
   const supabase = await createClient()
-  return reorderPlaylistSongsApi(supabase, playlistId, updates)
+  await reorderPlaylistSongsApi(supabase, playlistId, updates)
+  revalidatePath(`/dashboard/playlists/${playlistId}`)
 }
