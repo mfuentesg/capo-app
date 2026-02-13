@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext, useState, useCallback, type ReactNode } from "react"
+import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from "react"
 import type { Song } from "@/types"
 
 export interface NewSongsContextType {
@@ -32,11 +32,12 @@ export function NewSongsProvider({ children }: { children: ReactNode }) {
     [newSongs]
   )
 
-  return (
-    <NewSongsContext.Provider value={{ newSongs, addNewSong, removeSong, isNewSong }}>
-      {children}
-    </NewSongsContext.Provider>
+  const value = useMemo(
+    () => ({ newSongs, addNewSong, removeSong, isNewSong }),
+    [newSongs, addNewSong, removeSong, isNewSong]
   )
+
+  return <NewSongsContext.Provider value={value}>{children}</NewSongsContext.Provider>
 }
 
 export function useNewSongs() {

@@ -14,7 +14,7 @@ import {
 import type { AppContext } from "./types"
 import { SELECTED_TEAM_ID_KEY } from "./constants"
 import { useUser } from "@/features/auth"
-import type { UserInfo } from "@/features/auth/types"
+import type { UserInfo } from "@/features/auth"
 import { useRouter } from "next/navigation"
 import type { Tables } from "@/lib/supabase/database.types"
 import {
@@ -71,10 +71,21 @@ export function AppContextProvider({
   const [teams, setTeams] = useState<Tables<"teams">[]>(initialTeams)
   const [isLoadingTeams, setIsLoadingTeams] = useState(false)
   const [, startTransition] = useTransition()
+  const [storedTeamId, setStoredTeamId] = useState<string | null>(null)
 
   // Track the server-provided initialSelectedTeamId to detect when the server actually changes it
   const lastServerIdRef = useRef(initialSelectedTeamId)
   const isInitialMount = useRef(true)
+
+  // Read from localStorage after client-side hydration
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(SELECTED_TEAM_ID_KEY)
+      setStoredTeamId(stored)
+    } catch (error) {
+      console.warn("Failed to read from localStorage:", error)
+    }
+  }, [])
 
   // Keep teams state in sync with server-provided initialTeams
   useEffect(() => {
@@ -116,13 +127,13 @@ export function AppContextProvider({
 
       // Post-mount fallback to localStorage ONLY if the server is agnostic (null)
       if (!finalTeamId && isInitialMount.current && typeof window !== "undefined") {
-        const storageTeamId = localStorage.getItem(SELECTED_TEAM_ID_KEY)
+        // Use the value from useLocalStorage hook
         if (
-          storageTeamId &&
-          (initialTeams.some((t) => t.id === storageTeamId) ||
-            teams.some((t) => t.id === storageTeamId))
+          storedTeamId &&
+          (initialTeams.some((t) => t.id === storedTeamId) ||
+            teams.some((t) => t.id === storedTeamId))
         ) {
-          finalTeamId = storageTeamId
+          finalTeamId = storedTeamId
         }
       }
 
@@ -147,7 +158,23 @@ export function AppContextProvider({
       isInitialMount.current = false
     }
     // We intentionally ignore 'context' here. This effect is a sync-down from Props only.
-  }, [user?.id, initialUser?.id, initialSelectedTeamId, initialTeams, teams, context])
+  }, [user?.id, initialUser?.id, initialSelectedTeamId, initialTeams, teams, context, storedTeamId])
+
+  // Sync context changes to localStorage for cross-tab communication
+  useEffect(() => {
+    if (!context) return
+    try {
+      if (context.type === "team") {
+        localStorage.setItem(SELECTED_TEAM_ID_KEY, context.teamId)
+        setStoredTeamId(context.teamId)
+      } else {
+        localStorage.removeItem(SELECTED_TEAM_ID_KEY)
+        setStoredTeamId(null)
+      }
+    } catch (error) {
+      console.warn("Failed to sync context to localStorage:", error)
+    }
+  }, [context])
 
   const setContext = useCallback(
     (newContext: AppContext | null) => {
