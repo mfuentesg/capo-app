@@ -2,7 +2,7 @@
 
 export { LyricsView } from "./components/lyrics-view"
 export { RenderedSong } from "./components/rendered-song"
-export { SongEditor, LazySongEditor } from "./components/song-editor"
+export { LazySongEditor } from "./components/song-editor"
 
 export { useLyricsSettings } from "./hooks"
 
