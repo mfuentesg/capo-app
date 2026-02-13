@@ -23,7 +23,14 @@
     "google": "Google",
     "email": "Email",
     "emailPlaceholder": "member@example.com",
-    "role": "Role"
+    "role": "Role",
+    "goBack": "Go back",
+    "memberOptions": "Member options",
+    "tryAgain": "Try again",
+    "userMenu": "User menu",
+    "removeSong": "Remove song",
+    "clearSearch": "Clear search",
+    "copyToClipboardFailed": "Failed to copy to clipboard"
   },
   "metadata": {
     "title": "Capo",
@@ -178,7 +185,8 @@
     "selectNewPlaylist": "+ Create new playlist",
     "exampleSunday7": "Sunday Dec 7",
     "exampleSunday14": "Sunday Dec 14",
-    "exampleChristmas": "Christmas Special"
+    "exampleChristmas": "Christmas Special",
+    "openDraft": "Open playlist draft"
   },
   "filters": {
     "clearAll": "Clear all",
@@ -219,6 +227,11 @@
     "roleChangeOwnerNotAllowed": "Cannot change the team owner",
     "roleChangePermissionDenied": "You do not have permission to change roles",
     "roleChangeAdminLimit": "Admins can only assign Member or Viewer"
+  },
+  "errors": {
+    "unexpectedError": "An unexpected error occurred. Please try again.",
+    "loadingError": "There was a problem loading this page. Please try again.",
+    "goToDashboard": "Go to Dashboard"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -328,6 +341,7 @@
     "emptyTitle": "No pending invitations",
     "emptyDescription": "You don't have any pending team invitations at the moment.",
     "goToTeams": "Go to Teams",
+    "goToDashboard": "Go to Dashboard",
     "backToTeams": "Back to Teams",
     "invitationFrom": "Invitation from {name}",
     "expires": "Expires {date}",
@@ -344,7 +358,6 @@
     "acceptedTitle": "Invitation accepted successfully! 🎉",
     "redirecting": "Redirecting you to your teams...",
     "failedToAccept": "Failed to accept invitation",
-    "goToDashboard": "Go to Dashboard",
     "invalidLinkTitle": "Invalid invitation link",
     "invalidLinkDescription": "This invitation link is invalid or has already been used.",
     "signInRequiredTitle": "Sign in required",
