@@ -341,6 +341,7 @@
     "emptyTitle": "No hay invitaciones pendientes",
     "emptyDescription": "No tienes invitaciones de equipo pendientes en este momento.",
     "goToTeams": "Ir a Equipos",
+    "goToDashboard": "Ir al Panel",
     "backToTeams": "Volver a Equipos",
     "invitationFrom": "Invitación de {name}",
     "expires": "Expira {date}",

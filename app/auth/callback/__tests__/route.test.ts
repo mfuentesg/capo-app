@@ -19,6 +19,11 @@ jest.mock("next/server", () => {
 
   class MockNextRequest {
     url: string
+    cookies = {
+      get: jest.fn(() => undefined),
+      set: jest.fn(),
+      delete: jest.fn()
+    }
     constructor(url: string) {
       this.url = url
     }
@@ -27,6 +32,11 @@ jest.mock("next/server", () => {
   class MockNextResponse {
     status: number
     headers: MockHeaders
+    cookies = {
+      get: jest.fn(() => undefined),
+      set: jest.fn(),
+      delete: jest.fn()
+    }
 
     constructor(status: number, headers: MockHeaders) {
       this.status = status
