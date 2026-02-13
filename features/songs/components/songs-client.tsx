@@ -199,7 +199,7 @@ export function SongsClient({ initialSongs }: SongsClientProps) {
                   </Button>
                 </PopoverTrigger>
 
-                <PopoverContent className="w-80 max-h-[500px] overflow-y-auto" align="end">
+                <PopoverContent className="w-80 max-h-125 overflow-y-auto" align="end">
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <div className="space-y-1">

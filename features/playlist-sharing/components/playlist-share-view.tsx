@@ -40,10 +40,14 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
 
   const { t, locale } = useLocale()
 
-  const copyToClipboard = () => {
+  const copyToClipboard = async () => {
     if (shareUrl) {
-      navigator.clipboard.writeText(shareUrl)
-      toast.success(t.playlistDetail.copied)
+      try {
+        await navigator.clipboard.writeText(shareUrl)
+        toast.success(t.playlistDetail.copied)
+      } catch {
+        toast.error(t.common.copyToClipboardFailed)
+      }
     }
   }
 

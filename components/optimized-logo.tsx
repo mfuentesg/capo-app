@@ -1,5 +1,3 @@
-"use client"
-
 import Image, { type ImageProps } from "next/image"
 
 interface OptimizedLogoProps extends Omit<ImageProps, "src" | "srcSet"> {
