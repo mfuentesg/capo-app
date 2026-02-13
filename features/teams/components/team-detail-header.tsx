@@ -93,7 +93,13 @@ function EditableField({
             className={cn("h-8 px-2", inputClassName)}
           />
         )}
-        <Button size="icon" variant="ghost" className="h-8 w-8 shrink-0" onClick={handleSave}>
+        <Button
+          size="icon"
+          variant="ghost"
+          className="h-8 w-8 shrink-0"
+          onClick={handleSave}
+          aria-label="Save"
+        >
           <Check className="h-5 w-5 text-green-600" />
         </Button>
       </div>
@@ -135,7 +141,7 @@ export function TeamDetailHeader({ team, onUpdate, isOwner }: TeamDetailHeaderPr
 
   return (
     <div className="flex items-center gap-4">
-      <Button variant="ghost" size="icon" asChild>
+      <Button variant="ghost" size="icon" asChild aria-label={t.invitations.backToTeams}>
         <Link href="/dashboard/teams">
           <ArrowLeft className="h-4 w-4" />
         </Link>

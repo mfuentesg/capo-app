@@ -82,7 +82,13 @@ function EditableField({ value, onSave, className, inputClassName }: EditableFie
           onBlur={handleSave}
           className={cn("h-8 px-2", inputClassName)}
         />
-        <Button size="icon" variant="ghost" className="h-8 w-8 shrink-0" onClick={handleSave}>
+        <Button
+          size="icon"
+          variant="ghost"
+          className="h-8 w-8 shrink-0"
+          onClick={handleSave}
+          aria-label="Save"
+        >
           <Check className="h-4 w-4 text-green-600" />
         </Button>
       </div>
@@ -143,7 +149,7 @@ export function SongDetail({ song, onClose, onUpdate, onDelete }: SongDetailProp
             />
           </div>
         </div>
-        <Button variant="ghost" size="icon" onClick={onClose}>
+        <Button variant="ghost" size="icon" onClick={onClose} aria-label={t.common.close}>
           <X className="h-4 w-4" />
         </Button>
       </div>

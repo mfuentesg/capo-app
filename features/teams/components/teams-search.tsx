@@ -2,6 +2,7 @@
 
 import { Input } from "@/components/ui/input"
 import { Search, X } from "lucide-react"
+import { useTranslation } from "@/hooks/use-translation"
 
 interface TeamsSearchProps {
   value: string
@@ -9,7 +10,13 @@ interface TeamsSearchProps {
   placeholder?: string
 }
 
-export function TeamsSearch({ value, onChange, placeholder = "Search teams..." }: TeamsSearchProps) {
+export function TeamsSearch({
+  value,
+  onChange,
+  placeholder = "Search teams..."
+}: TeamsSearchProps) {
+  const { t } = useTranslation()
+
   return (
     <div className="relative">
       <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
@@ -23,6 +30,7 @@ export function TeamsSearch({ value, onChange, placeholder = "Search teams..." }
         <button
           onClick={() => onChange("")}
           className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+          aria-label={t.common.clearSearch}
         >
           <X className="h-4 w-4" />
         </button>

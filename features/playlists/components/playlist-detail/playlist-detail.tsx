@@ -127,7 +127,13 @@ function EditableField({
             className={cn("h-8 px-2", inputClassName)}
           />
         )}
-        <Button size="icon" variant="ghost" className="h-8 w-8 shrink-0" onClick={handleSave}>
+        <Button
+          size="icon"
+          variant="ghost"
+          className="h-8 w-8 shrink-0"
+          onClick={handleSave}
+          aria-label="Save"
+        >
           <Check className="h-5 w-5 text-green-600" />
         </Button>
       </div>
@@ -194,7 +200,7 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
             />
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" onClick={onClose}>
+            <Button variant="ghost" size="icon" onClick={onClose} aria-label={t.common.close}>
               <X className="h-5 w-5" />
             </Button>
           </div>

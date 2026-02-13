@@ -12,7 +12,7 @@ export function CreateTeamClient() {
     <div className="min-h-screen bg-background p-4 sm:p-6 lg:p-8">
       <div className="mx-auto max-w-2xl space-y-6">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" asChild>
+          <Button variant="ghost" size="icon" asChild aria-label={t.invitations.backToTeams}>
             <Link href="/dashboard/teams">
               <ArrowLeft className="h-4 w-4" />
             </Link>

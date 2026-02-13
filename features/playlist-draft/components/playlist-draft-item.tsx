@@ -1,6 +1,9 @@
+"use client"
+
 import { X, GripVertical, Music2, Clock } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { useTranslation } from "@/hooks/use-translation"
 import type { Song } from "@/types"
 
 interface PlaylistDraftItemProps {
@@ -10,6 +13,8 @@ interface PlaylistDraftItemProps {
 }
 
 export function PlaylistDraftItem({ song, index, onRemove }: PlaylistDraftItemProps) {
+  const { t } = useTranslation()
+
   return (
     <div className="flex items-start gap-3 rounded-lg border bg-card p-3">
       <GripVertical className="h-4 w-4 mt-1 text-muted-foreground cursor-grab shrink-0" />
@@ -40,6 +45,7 @@ export function PlaylistDraftItem({ song, index, onRemove }: PlaylistDraftItemPr
         variant="ghost"
         size="icon"
         className="h-8 w-8 shrink-0"
+        aria-label={t.common.removeSong}
         onClick={() => onRemove(song.id)}
       >
         <X className="h-4 w-4" />

@@ -69,6 +69,7 @@ export function PlaylistDraft({
             <Button
               className="h-14 w-14 rounded-full shadow-lg p-0 flex items-center justify-center"
               size="lg"
+              aria-label={t.playlistDraft.openDraft}
             >
               {/* Music playlist icon */}
               <ListMusic className="h-6 w-6" />

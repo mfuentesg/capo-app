@@ -219,7 +219,12 @@ export function TeamMembersSection({
                       </DropdownMenu>
                     )}
                     {canManageMember(member) && availableRoles.length === 0 && (
-                      <Button variant="ghost" size="icon" disabled>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        disabled
+                        aria-label={t.common.memberOptions}
+                      >
                         <MoreVertical className="h-4 w-4" />
                       </Button>
                     )}
@@ -292,7 +297,7 @@ export function TeamMembersSection({
 
       <AlertDialog
         open={!!memberToRemove}
-        onOpenChange={(open) => !open && setMemberToRemove(null)}
+        onOpenChange={(open: boolean) => !open && setMemberToRemove(null)}
       >
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -325,7 +330,7 @@ export function TeamMembersSection({
 
       <AlertDialog
         open={!!invitationToCancel}
-        onOpenChange={(open) => !open && setInvitationToCancel(null)}
+        onOpenChange={(open: boolean) => !open && setInvitationToCancel(null)}
       >
         <AlertDialogContent>
           <AlertDialogHeader>

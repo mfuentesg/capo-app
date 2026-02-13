@@ -38,7 +38,10 @@ export function SongDraftForm({ song, onClose, onSave, onChange }: SongDraftForm
   const { t } = useTranslation()
 
   const songFormSchema = z.object({
-    title: z.string().min(1, t.validation.required.replace("{field}", t.validation.songTitle)).trim(),
+    title: z
+      .string()
+      .min(1, t.validation.required.replace("{field}", t.validation.songTitle))
+      .trim(),
     artist: z
       .string()
       .min(1, t.validation.required.replace("{field}", t.validation.artistName))
@@ -133,6 +136,7 @@ export function SongDraftForm({ song, onClose, onSave, onChange }: SongDraftForm
         <button
           onClick={handleCancelClick}
           className="text-muted-foreground hover:text-foreground transition-colors"
+          aria-label={t.common.close}
         >
           <X className="h-5 w-5" />
         </button>

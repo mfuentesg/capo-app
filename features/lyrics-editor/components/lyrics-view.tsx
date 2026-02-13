@@ -83,6 +83,7 @@ export function LyricsView({ song }: LyricsViewProps) {
                 size="icon"
                 onClick={() => router.back()}
                 className="shrink-0"
+                aria-label={t.common.goBack}
               >
                 <ArrowLeft className="h-5 w-5" />
               </Button>

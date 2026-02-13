@@ -3,6 +3,7 @@
 import * as React from "react"
 
 import { Button } from "@/components/ui/button"
+import { useTranslation } from "@/hooks/use-translation"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   DropdownMenu,
@@ -18,6 +19,7 @@ import { ProfileMenuActions } from "@/components/layout/profile-menu-actions"
 import { TeamIcon } from "@/components/ui/icon-picker"
 
 export function UserProfileMenu() {
+  const { t } = useTranslation()
   const { data: user } = useUser()
   const { context, teams } = useAppContext()
 
@@ -33,6 +35,7 @@ export function UserProfileMenu() {
           variant="ghost"
           className="relative h-9 w-9 rounded-full select-none"
           id="user-profile-trigger"
+          aria-label={t.common.userMenu}
         >
           <Avatar className="h-9 w-9 ring-2 ring-background transition-all">
             {context?.type === "team" && currentTeam ? (
