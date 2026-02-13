@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useToggle } from "@uidotdev/usehooks"
 import {
   Music,
   Music2,
@@ -212,14 +213,14 @@ export function IconPicker({
   iconClassName,
   triggerClassName
 }: IconPickerProps) {
-  const [open, setOpen] = React.useState(false)
+  const [open, toggleOpen] = useToggle(false)
   const contentId = React.useId()
 
   const selectedIconName = value && TEAM_ICONS[value] ? value : "Users"
   const SelectedIcon = TEAM_ICONS[selectedIconName] || Users
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={toggleOpen}>
       <PopoverTrigger asChild>
         <button
           role="combobox"
@@ -252,7 +253,7 @@ export function IconPicker({
                 )}
                 onClick={() => {
                   onChange(name)
-                  setOpen(false)
+                  toggleOpen(false)
                 }}
               >
                 <Icon className="size-6" />

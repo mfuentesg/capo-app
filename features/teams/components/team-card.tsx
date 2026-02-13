@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { useState } from "react"
+import { useToggle } from "@uidotdev/usehooks"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -35,8 +36,8 @@ export function TeamCard({ team, memberCount = 1, initialSelectedTeamId = null }
   const { data: user } = useUser()
   const { t } = useTranslation()
   const router = useRouter()
-  const [isLeaveDialogOpen, setIsLeaveDialogOpen] = useState(false)
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [isLeaveDialogOpen, toggleIsLeaveDialogOpen] = useToggle(false)
+  const [isDeleteDialogOpen, toggleIsDeleteDialogOpen] = useToggle(false)
   const [editingIcon, setEditingIcon] = useState(team.icon || "")
   const leaveTeamMutation = useLeaveTeam()
   const deleteTeamMutation = useDeleteTeam()
@@ -58,14 +59,14 @@ export function TeamCard({ team, memberCount = 1, initialSelectedTeamId = null }
     if (isOwner) {
       if (isOnlyMember) {
         // Owner is alone - show delete dialog
-        setIsDeleteDialogOpen(true)
+        toggleIsDeleteDialogOpen(true)
       } else {
         // Owner has other members - redirect to team detail for transfer
         router.push(`/dashboard/teams/${team.id}`)
       }
     } else {
       // Non-owner can leave directly
-      setIsLeaveDialogOpen(true)
+      toggleIsLeaveDialogOpen(true)
     }
   }
 
@@ -155,7 +156,7 @@ export function TeamCard({ team, memberCount = 1, initialSelectedTeamId = null }
       </Card>
 
       {/* Leave Team Dialog (for non-owners) */}
-      <Dialog open={isLeaveDialogOpen} onOpenChange={setIsLeaveDialogOpen}>
+      <Dialog open={isLeaveDialogOpen} onOpenChange={toggleIsLeaveDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{t.teams.leaveTeam}</DialogTitle>
@@ -170,7 +171,7 @@ export function TeamCard({ team, memberCount = 1, initialSelectedTeamId = null }
             <Button
               type="button"
               variant="outline"
-              onClick={() => setIsLeaveDialogOpen(false)}
+              onClick={() => toggleIsLeaveDialogOpen(false)}
               disabled={leaveTeamMutation.isPending}
             >
               {t.common.cancel}
@@ -180,7 +181,7 @@ export function TeamCard({ team, memberCount = 1, initialSelectedTeamId = null }
               variant="destructive"
               onClick={() =>
                 leaveTeamMutation.mutate(team.id, {
-                  onSuccess: () => setIsLeaveDialogOpen(false)
+                  onSuccess: () => toggleIsLeaveDialogOpen(false)
                 })
               }
               disabled={leaveTeamMutation.isPending}
@@ -192,7 +193,7 @@ export function TeamCard({ team, memberCount = 1, initialSelectedTeamId = null }
       </Dialog>
 
       {/* Delete Team Dialog (for owners with no other members) */}
-      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+      <Dialog open={isDeleteDialogOpen} onOpenChange={toggleIsDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{t.teams.deleteTeamConfirmTitle}</DialogTitle>
@@ -204,7 +205,7 @@ export function TeamCard({ team, memberCount = 1, initialSelectedTeamId = null }
             <Button
               type="button"
               variant="outline"
-              onClick={() => setIsDeleteDialogOpen(false)}
+              onClick={() => toggleIsDeleteDialogOpen(false)}
               disabled={deleteTeamMutation.isPending}
             >
               {t.common.cancel}
@@ -214,7 +215,7 @@ export function TeamCard({ team, memberCount = 1, initialSelectedTeamId = null }
               variant="destructive"
               onClick={() =>
                 deleteTeamMutation.mutate(team.id, {
-                  onSuccess: () => setIsDeleteDialogOpen(false)
+                  onSuccess: () => toggleIsDeleteDialogOpen(false)
                 })
               }
               disabled={deleteTeamMutation.isPending}

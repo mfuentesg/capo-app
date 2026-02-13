@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useMemo, useEffect } from "react"
+import { useDebounce } from "@uidotdev/usehooks"
 import { useQuery } from "@tanstack/react-query"
 import { useSearchParams, useRouter } from "next/navigation"
 import { teamsKeys } from "../hooks/query-keys"
@@ -34,6 +35,7 @@ export function TeamsClient({ initialTeams, initialSelectedTeamId = null }: Team
     staleTime: 5 * 60 * 1000
   })
   const [searchQuery, setSearchQuery] = useState("")
+  const debouncedSearchQuery = useDebounce(searchQuery, 300)
 
   // Handle switching to a team from query parameter
   useEffect(() => {
@@ -51,8 +53,9 @@ export function TeamsClient({ initialTeams, initialSelectedTeamId = null }: Team
   }, [searchParams, user?.id, teams, switchToTeam, router, t])
 
   const filteredTeams = useMemo(
-    () => teams.filter((team) => team.name.toLowerCase().includes(searchQuery.toLowerCase())),
-    [teams, searchQuery]
+    () =>
+      teams.filter((team) => team.name.toLowerCase().includes(debouncedSearchQuery.toLowerCase())),
+    [teams, debouncedSearchQuery]
   )
 
   return (

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useToggle } from "@uidotdev/usehooks"
 import { Calendar as CalendarIcon, ListMusic } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -24,7 +25,7 @@ export function PlaylistCreateForm({ onSubmit, onCancel }: PlaylistCreateFormPro
   const [name, setName] = useState("")
   const [description, setDescription] = useState("")
   const [date, setDate] = useState<Date | undefined>(undefined)
-  const [isCalendarOpen, setIsCalendarOpen] = useState(false)
+  const [isCalendarOpen, toggleIsCalendarOpen] = useToggle(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const canSubmit = name.trim().length > 0 && !isSubmitting
@@ -43,7 +44,7 @@ export function PlaylistCreateForm({ onSubmit, onCancel }: PlaylistCreateFormPro
         songs: [],
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-        visibility: "private",
+        visibility: "private"
       }
       await onSubmit(playlist)
     } finally {
@@ -74,9 +75,7 @@ export function PlaylistCreateForm({ onSubmit, onCancel }: PlaylistCreateFormPro
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="playlist-description">
-              {t.playlistDetail.addDescription}
-            </Label>
+            <Label htmlFor="playlist-description">{t.playlistDetail.addDescription}</Label>
             <Textarea
               id="playlist-description"
               value={description}
@@ -87,7 +86,7 @@ export function PlaylistCreateForm({ onSubmit, onCancel }: PlaylistCreateFormPro
 
           <div className="space-y-2">
             <Label>{t.playlistDetail.pickDate}</Label>
-            <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+            <Popover open={isCalendarOpen} onOpenChange={toggleIsCalendarOpen}>
               <PopoverTrigger asChild>
                 <Button
                   type="button"
@@ -98,9 +97,7 @@ export function PlaylistCreateForm({ onSubmit, onCancel }: PlaylistCreateFormPro
                   )}
                 >
                   <CalendarIcon className="h-4 w-4" />
-                  {date
-                    ? formatLongDate(date, locale)
-                    : t.playlistDetail.pickDate}
+                  {date ? formatLongDate(date, locale) : t.playlistDetail.pickDate}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
@@ -109,7 +106,7 @@ export function PlaylistCreateForm({ onSubmit, onCancel }: PlaylistCreateFormPro
                   selected={date}
                   onSelect={(d) => {
                     setDate(d)
-                    setIsCalendarOpen(false)
+                    toggleIsCalendarOpen(false)
                   }}
                   autoFocus
                 />
@@ -121,12 +118,7 @@ export function PlaylistCreateForm({ onSubmit, onCancel }: PlaylistCreateFormPro
             <Button type="submit" disabled={!canSubmit}>
               {isSubmitting ? t.common.loading : t.playlists.createPlaylist}
             </Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onCancel}
-              disabled={isSubmitting}
-            >
+            <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
               {t.common.cancel}
             </Button>
           </div>
