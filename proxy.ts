@@ -73,6 +73,11 @@ function shouldRedirectToLogin(user: unknown, error: unknown): boolean {
   return !!error || !user
 }
 
+function extractInvitationToken(request: NextRequest): string | null {
+  const url = new URL(request.url)
+  return url.searchParams.get("token")
+}
+
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
   const envVars = validateEnvVars()
@@ -96,6 +101,21 @@ export async function proxy(request: NextRequest) {
       response = NextResponse.redirect(new URL(DEFAULT_REDIRECT_PATH, request.url))
     } else if (pathname.startsWith("/dashboard") && shouldRedirectToLogin(user, error)) {
       response = NextResponse.redirect(new URL(LOGIN_PATH, request.url))
+    } else if (pathname.startsWith("/teams/accept-invitation") && shouldRedirectToLogin(user, error)) {
+      // Unauthenticated user accessing invitation link
+      const token = extractInvitationToken(request)
+      const redirectUrl = new URL(LOGIN_PATH, request.url)
+
+      if (token) {
+        // Store invitation token for retrieval after authentication
+        cookiesToSet.push({
+          name: "_invitation_token",
+          value: token,
+          options: { path: "/" }
+        })
+      }
+
+      response = NextResponse.redirect(redirectUrl)
     }
 
     applyCookiesToResponse(response, cookiesToSet)
@@ -107,5 +127,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/dashboard/:path*"]
+  matcher: ["/", "/dashboard/:path*", "/teams/accept-invitation:path*"]
 }
