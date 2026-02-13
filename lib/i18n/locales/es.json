@@ -23,7 +23,14 @@
     "google": "Google",
     "email": "Correo electrónico",
     "emailPlaceholder": "miembro@ejemplo.com",
-    "role": "Rol"
+    "role": "Rol",
+    "goBack": "Volver",
+    "memberOptions": "Opciones de miembro",
+    "tryAgain": "Intentar de nuevo",
+    "userMenu": "Menú de usuario",
+    "removeSong": "Eliminar canción",
+    "clearSearch": "Limpiar búsqueda",
+    "copyToClipboardFailed": "No se pudo copiar al portapapeles"
   },
   "metadata": {
     "title": "Capo",
@@ -178,7 +185,8 @@
     "selectNewPlaylist": "+ Crear nueva lista",
     "exampleSunday7": "Domingo 7 diciembre",
     "exampleSunday14": "Domingo 14 diciembre",
-    "exampleChristmas": "Especial de Navidad"
+    "exampleChristmas": "Especial de Navidad",
+    "openDraft": "Abrir borrador de lista"
   },
   "filters": {
     "clearAll": "Limpiar todo",
@@ -219,6 +227,11 @@
     "roleChangeOwnerNotAllowed": "No se puede cambiar el propietario del equipo",
     "roleChangePermissionDenied": "No tienes permiso para cambiar roles",
     "roleChangeAdminLimit": "Los administradores solo pueden asignar Miembro o Espectador"
+  },
+  "errors": {
+    "unexpectedError": "Ocurrió un error inesperado. Por favor, inténtelo de nuevo.",
+    "loadingError": "Hubo un problema al cargar esta página. Por favor, inténtelo de nuevo.",
+    "goToDashboard": "Ir al Panel"
   },
   "dashboard": {
     "title": "Panel",
@@ -344,7 +357,7 @@
     "acceptedTitle": "¡Invitación aceptada con éxito! 🎉",
     "redirecting": "Redirigiéndote a tus equipos...",
     "failedToAccept": "Error al aceptar la invitación",
-    "goToDashboard": "Ir al panel",
+
     "invalidLinkTitle": "Enlace de invitación inválido",
     "invalidLinkDescription": "Este enlace de invitación es inválido o ya se ha usado.",
     "signInRequiredTitle": "Inicio de sesión requerido",

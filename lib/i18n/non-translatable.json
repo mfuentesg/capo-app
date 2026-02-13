@@ -1,0 +1,19 @@
+{
+  "description": "Non-translatable strings that should not be flagged as hardcoded UI strings",
+  "categories": {
+    "brand_names": ["English", "Español", "Capo", "ChordPro"],
+    "technical_terms": ["Next.js", "Google", "TypeScript", "JavaScript"],
+    "abbreviations": ["HTML", "CSS", "JSON", "XML", "API", "UUID", "URL"],
+    "proper_nouns": []
+  },
+  "whitelist": [
+    "English",
+    "Español",
+    "Capo",
+    "ChordPro",
+    "Next.js",
+    "Google",
+    "TypeScript",
+    "JavaScript"
+  ]
+}
