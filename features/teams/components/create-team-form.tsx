@@ -16,7 +16,6 @@ import {
   FormMessage,
   FormDescription
 } from "@/components/ui/form"
-import { Switch } from "@/components/ui/switch"
 import { IconPicker } from "@/components/ui/icon-picker"
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group"
 import { createTeamAction } from "../api/actions"
