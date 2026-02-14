@@ -29,7 +29,6 @@ import type { TablesInsert } from "@/lib/supabase/database.types"
 
 type TeamFormValues = {
   name: string
-  is_public: boolean
   icon?: string
 }
 
@@ -46,7 +45,6 @@ export function CreateTeamForm() {
       .min(1, t.validation.required.replace("{field}", t.validation.teamName))
       .max(100, t.validation.tooLong.replace("{field}", t.validation.teamName))
       .trim(),
-    is_public: z.boolean(),
     icon: z.string().optional()
   })
 
@@ -54,7 +52,6 @@ export function CreateTeamForm() {
     resolver: zodResolver(teamFormSchema),
     defaultValues: {
       name: "",
-      is_public: false,
       icon: "Users"
     }
   })
@@ -68,7 +65,7 @@ export function CreateTeamForm() {
     try {
       const teamData: TablesInsert<"teams"> = {
         name: values.name,
-        is_public: values.is_public,
+        is_public: false, // Teams are private by default until discovery feature is implemented
         icon: values.icon,
         created_by: user.id // DB function will override this with auth.uid()
       }
@@ -124,22 +121,6 @@ export function CreateTeamForm() {
                   {t.teams.clickIconToChange}
                 </FormDescription>
                 <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="is_public"
-            render={({ field }) => (
-              <FormItem className="flex items-center justify-between rounded-lg border p-4">
-                <div className="space-y-0.5">
-                  <FormLabel>{t.teams.publicTeam}</FormLabel>
-                  <FormDescription>{t.teams.publicTeamDescription}</FormDescription>
-                </div>
-                <FormControl>
-                  <Switch checked={field.value} onCheckedChange={field.onChange} />
-                </FormControl>
               </FormItem>
             )}
           />
