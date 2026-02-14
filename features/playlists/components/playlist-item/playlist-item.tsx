@@ -69,9 +69,7 @@ export function PlaylistItem({ playlist, isSelected, onSelect }: PlaylistItemPro
           {playlist.date && (
             <div className="flex items-center gap-1">
               <Calendar className="h-3 w-3 text-muted-foreground" />
-              <p className="text-xs text-muted-foreground">
-                {formatDate(playlist.date)}
-              </p>
+              <p className="text-xs text-muted-foreground">{formatDate(playlist.date)}</p>
             </div>
           )}
           {playlist.songs.length >= 0 && (

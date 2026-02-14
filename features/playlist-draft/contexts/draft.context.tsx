@@ -73,11 +73,7 @@ export function PlaylistDraftProvider({ children }: { children: ReactNode }) {
     ]
   )
 
-  return (
-    <PlaylistDraftContext.Provider value={value}>
-      {children}
-    </PlaylistDraftContext.Provider>
-  )
+  return <PlaylistDraftContext.Provider value={value}>{children}</PlaylistDraftContext.Provider>
 }
 
 export function usePlaylistDraft() {

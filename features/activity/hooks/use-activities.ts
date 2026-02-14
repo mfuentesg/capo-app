@@ -26,7 +26,6 @@ export function useActivities(limit = 10) {
         userId: user.id
       }
 
-       
       return (await api.getActivities(context, limit)) as Activity[]
     },
     enabled: !!user?.id

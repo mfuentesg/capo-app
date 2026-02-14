@@ -1,1 +1,6 @@
-export type { Playlist, PlaylistWithSongs, PlaylistDetailProps, PlaylistListProps } from './playlist.types'
+export type {
+  Playlist,
+  PlaylistWithSongs,
+  PlaylistDetailProps,
+  PlaylistListProps
+} from "./playlist.types"

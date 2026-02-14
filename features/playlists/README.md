@@ -33,11 +33,11 @@ The playlists feature manages playlists, allowing users to create, edit, organiz
 ## Usage
 
 ```typescript
-import { 
-  PlaylistsClient, 
-  PlaylistDetail, 
+import {
+  PlaylistsClient,
+  PlaylistDetail,
   usePlaylists,
-  PlaylistsProvider 
+  PlaylistsProvider
 } from "@/features/playlists"
 
 // Wrap your app with the provider

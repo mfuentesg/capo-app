@@ -1,6 +1,6 @@
 /**
  * App Context Types
- * 
+ *
  * Defines the context for data access (personal vs team)
  */
 
@@ -17,4 +17,3 @@ export type AppContext =
       teamId: string
       userId: string // Current user ID for permissions
     }
-
