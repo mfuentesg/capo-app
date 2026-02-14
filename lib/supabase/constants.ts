@@ -14,4 +14,3 @@ export const authKeys = {
   session: () => [...authKeys.all, "session"] as const,
   user: () => [...authKeys.all, "user"] as const
 } as const
-

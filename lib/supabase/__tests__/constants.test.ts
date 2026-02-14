@@ -1,7 +1,12 @@
 /**
  * Tests for Supabase auth constants
  */
-import { AUTH_CALLBACK_PATH, DEFAULT_REDIRECT_PATH, LOGIN_PATH, authKeys } from "@/lib/supabase/constants"
+import {
+  AUTH_CALLBACK_PATH,
+  DEFAULT_REDIRECT_PATH,
+  LOGIN_PATH,
+  authKeys
+} from "@/lib/supabase/constants"
 
 describe("Supabase Constants", () => {
   describe("Path constants", () => {
@@ -41,4 +46,3 @@ describe("Supabase Constants", () => {
     })
   })
 })
-

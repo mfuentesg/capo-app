@@ -101,7 +101,10 @@ export async function proxy(request: NextRequest) {
       response = NextResponse.redirect(new URL(DEFAULT_REDIRECT_PATH, request.url))
     } else if (pathname.startsWith("/dashboard") && shouldRedirectToLogin(user, error)) {
       response = NextResponse.redirect(new URL(LOGIN_PATH, request.url))
-    } else if (pathname.startsWith("/teams/accept-invitation") && shouldRedirectToLogin(user, error)) {
+    } else if (
+      pathname.startsWith("/teams/accept-invitation") &&
+      shouldRedirectToLogin(user, error)
+    ) {
       // Unauthenticated user accessing invitation link
       const token = extractInvitationToken(request)
       const redirectUrl = new URL(LOGIN_PATH, request.url)
