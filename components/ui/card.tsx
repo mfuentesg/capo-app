@@ -14,7 +14,11 @@ function Card({ className, ...props }: React.ComponentProps<"div">) {
 
 function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
-    <div data-slot="card-header" className={cn("flex flex-col space-y-1.5 p-6", className)} {...props} />
+    <div
+      data-slot="card-header"
+      className={cn("flex flex-col space-y-1.5 p-6", className)}
+      {...props}
+    />
   )
 }
 
@@ -30,7 +34,11 @@ function CardTitle({ className, ...props }: React.ComponentProps<"h3">) {
 
 function CardDescription({ className, ...props }: React.ComponentProps<"p">) {
   return (
-    <p data-slot="card-description" className={cn("text-sm text-muted-foreground", className)} {...props} />
+    <p
+      data-slot="card-description"
+      className={cn("text-sm text-muted-foreground", className)}
+      {...props}
+    />
   )
 }
 
@@ -40,7 +48,11 @@ function CardContent({ className, ...props }: React.ComponentProps<"div">) {
 
 function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
   return (
-    <div data-slot="card-footer" className={cn("flex items-center p-6 pt-0", className)} {...props} />
+    <div
+      data-slot="card-footer"
+      className={cn("flex items-center p-6 pt-0", className)}
+      {...props}
+    />
   )
 }
 
