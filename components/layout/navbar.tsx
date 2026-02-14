@@ -9,7 +9,7 @@ import { NavLinks } from "@/components/layout/nav-links"
 import { LanguageSwitcher } from "@/components/layout/language-switcher"
 import { UserProfileMenu } from "@/components/layout/user-profile-menu"
 import { useLocale } from "@/features/settings"
-import { Music, ListMusic } from "lucide-react"
+import { Music, ListMusic, Users } from "lucide-react"
 
 export function Navbar() {
   const { t } = useLocale()
@@ -17,7 +17,8 @@ export function Navbar() {
 
   const navItems = [
     { title: t.nav.songs, href: "/dashboard/songs", icon: Music },
-    { title: t.nav.playlists, href: "/dashboard/playlists", icon: ListMusic }
+    { title: t.nav.playlists, href: "/dashboard/playlists", icon: ListMusic },
+    { title: t.nav.teams, href: "/dashboard/teams", icon: Users }
   ]
 
   return (

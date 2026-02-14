@@ -6,6 +6,8 @@
  */
 
 import type { Tables } from "@/lib/supabase/database.types"
+import type { LucideIcon } from "lucide-react"
+import { KeyRound, User, UserLock, UserSearch } from "lucide-react"
 
 export type TeamRole = Tables<"team_members">["role"]
 
@@ -151,4 +153,11 @@ export const ROLE_LABELS: Record<TeamRole, string> = {
   admin: "Admin",
   member: "Member",
   viewer: "Viewer"
+}
+
+export const ROLE_ICONS: Record<TeamRole, LucideIcon> = {
+  owner: UserLock,
+  admin: KeyRound,
+  member: User,
+  viewer: UserSearch
 }

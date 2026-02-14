@@ -4,16 +4,25 @@ import { useQuery } from "@tanstack/react-query"
 import { teamsKeys } from "../hooks/query-keys"
 import { api as teamsApi } from "../api"
 import { useUser } from "@/features/auth"
-import { useDeleteTeam, useUpdateTeam, useTransferAndLeave } from "../hooks"
+import {
+  useDeleteTeam,
+  useLeaveTeam,
+  useUpdateTeam,
+  useTransferOwnershipAndStay,
+  useTransferAndLeave
+} from "../hooks"
 import type { Tables, TablesUpdate } from "@/lib/supabase/database.types"
 import { TeamDetailHeader } from "@/features/teams"
-import { TeamInfoSection } from "@/features/teams"
 import { TeamMembersSection } from "@/features/teams"
 import { TeamDangerZone } from "@/features/teams"
 
 interface TeamDetailClientProps {
   initialTeam: Tables<"teams">
-  initialMembers: (Tables<"team_members"> & { user_full_name: string | null })[]
+  initialMembers: (Tables<"team_members"> & {
+    user_full_name: string | null
+    user_email: string | null
+    user_avatar_url: string | null
+  })[]
   initialInvitations: Tables<"team_invitations">[]
 }
 
@@ -24,7 +33,9 @@ export function TeamDetailClient({
 }: TeamDetailClientProps) {
   const { data: user } = useUser()
   const deleteTeamMutation = useDeleteTeam()
+  const leaveTeamMutation = useLeaveTeam()
   const updateTeamMutation = useUpdateTeam()
+  const transferOwnershipMutation = useTransferOwnershipAndStay()
   const transferAndLeaveMutation = useTransferAndLeave()
 
   // Use React Query to manage team data for optimistic updates
@@ -45,14 +56,26 @@ export function TeamDetailClient({
   })
 
   const { data: members } = useQuery<
-    (Tables<"team_members"> & { user_full_name: string | null })[],
+    (Tables<"team_members"> & {
+      user_full_name: string | null
+      user_email: string | null
+      user_avatar_url: string | null
+    })[],
     Error,
-    (Tables<"team_members"> & { user_full_name: string | null })[],
+    (Tables<"team_members"> & {
+      user_full_name: string | null
+      user_email: string | null
+      user_avatar_url: string | null
+    })[],
     readonly unknown[]
   >({
     queryKey: teamsKeys.members(initialTeam.id),
     queryFn: async () => await teamsApi.getTeamMembers(initialTeam.id),
-    initialData: initialMembers as (Tables<"team_members"> & { user_full_name: string | null })[],
+    initialData: initialMembers as (Tables<"team_members"> & {
+      user_full_name: string | null
+      user_email: string | null
+      user_avatar_url: string | null
+    })[],
     staleTime: 30 * 1000
   })
 
@@ -79,6 +102,17 @@ export function TeamDetailClient({
     deleteTeamMutation.mutate(team.id)
   }
 
+  const handleLeave = () => {
+    leaveTeamMutation.mutate(team.id)
+  }
+
+  const handleTransferOwnership = (newOwnerId: string) => {
+    transferOwnershipMutation.mutate({
+      teamId: team.id,
+      newOwnerId
+    })
+  }
+
   const handleTransferAndLeave = (newOwnerId: string) => {
     transferAndLeaveMutation.mutate({ teamId: team.id, newOwnerId })
   }
@@ -87,7 +121,6 @@ export function TeamDetailClient({
     <div className="min-h-screen bg-background p-4 sm:p-6 lg:p-8">
       <div className="mx-auto max-w-4xl space-y-6">
         <TeamDetailHeader team={team} onUpdate={handleUpdate} isOwner={isOwner} />
-        <TeamInfoSection team={team} />
         <TeamMembersSection
           members={members || []}
           invitations={invitations || []}
@@ -95,15 +128,21 @@ export function TeamDetailClient({
           currentUserId={user?.id}
           currentUserRole={currentUserRole}
         />
-        {isOwner && user && (
+        {user && (
           <TeamDangerZone
             teamName={team.name}
             members={members || []}
             currentUserId={user.id}
+            isOwner={isOwner}
+            onLeave={handleLeave}
             onDelete={handleDelete}
+            onTransferOwnership={handleTransferOwnership}
             onTransferAndLeave={handleTransferAndLeave}
             isDeleting={deleteTeamMutation.isPending}
-            isTransferring={transferAndLeaveMutation.isPending}
+            isTransferring={
+              transferOwnershipMutation.isPending || transferAndLeaveMutation.isPending
+            }
+            isLeaving={leaveTeamMutation.isPending}
           />
         )}
       </div>

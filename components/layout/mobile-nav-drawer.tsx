@@ -12,7 +12,7 @@ import { OptimizedLogo } from "@/components/optimized-logo"
 import { Menu } from "lucide-react"
 import { NavLinks } from "@/components/layout/nav-links"
 import { useLocale } from "@/features/settings"
-import { Music, ListMusic } from "lucide-react"
+import { Music, ListMusic, Users } from "lucide-react"
 
 interface MobileNavDrawerProps {
   isOpen: boolean
@@ -24,7 +24,8 @@ export function MobileNavDrawer({ isOpen, onOpenChange }: MobileNavDrawerProps) 
 
   const navItems = [
     { title: t.nav.songs, href: "/dashboard/songs", icon: Music },
-    { title: t.nav.playlists, href: "/dashboard/playlists", icon: ListMusic }
+    { title: t.nav.playlists, href: "/dashboard/playlists", icon: ListMusic },
+    { title: t.nav.teams, href: "/dashboard/teams", icon: Users }
   ]
 
   return (

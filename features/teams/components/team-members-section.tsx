@@ -3,7 +3,16 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemGroup,
+  ItemMedia,
+  ItemTitle
+} from "@/components/ui/item"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -39,14 +48,20 @@ import { useRemoveTeamMember, useChangeTeamMemberRole, useCancelTeamInvitation }
 import {
   getAvailableRolesForTarget,
   ROLE_HIERARCHY,
+  ROLE_ICONS,
   ROLE_LABELS,
   ROLE_PERMISSIONS
 } from "../constants"
+import { RoleBadge } from "./role-badge"
 import type { Tables } from "@/lib/supabase/database.types"
-import { formatDate } from "@/lib/utils"
+import { cn, formatDate } from "@/lib/utils"
 
 interface TeamMembersSectionProps {
-  members: (Tables<"team_members"> & { user_full_name: string | null })[]
+  members: (Tables<"team_members"> & {
+    user_full_name: string | null
+    user_email: string | null
+    user_avatar_url: string | null
+  })[]
   invitations: Tables<"team_invitations">[]
   teamId: string
   currentUserId?: string
@@ -154,33 +169,44 @@ export function TeamMembersSection({
         </div>
 
         {members.length > 0 || invitations.length > 0 ? (
-          <div className="space-y-2">
+          <ItemGroup className="gap-2">
             {members.map((member) => {
               const availableRoles = getAvailableRoles(member)
 
+              const isCurrentUser = member.user_id === currentUserId
+
               return (
-                <div
+                <Item
                   key={member.id}
-                  className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50"
+                  variant="outline"
+                  size="sm"
+                  className={cn(
+                    "hover:bg-muted/50",
+                    isCurrentUser && "border-primary/40 bg-primary/5"
+                  )}
                 >
-                  <div className="flex items-center gap-3">
+                  <ItemMedia>
                     <Avatar className="h-8 w-8">
+                      {member.user_avatar_url && (
+                        <AvatarImage
+                          src={member.user_avatar_url}
+                          alt={member.user_full_name || "Team member"}
+                        />
+                      )}
                       <AvatarFallback className="bg-primary/10">
                         <CircleUserRound className="h-4 w-4 text-muted-foreground" />
                       </AvatarFallback>
                     </Avatar>
-                    <div>
-                      <p className="text-sm font-medium">
-                        {member.user_full_name || `User ${member.user_id.slice(0, 8)}`}
-                        {member.user_id === currentUserId && " (you)"}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        Joined {formatDate(member.joined_at)}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="outline">{member.role}</Badge>
+                  </ItemMedia>
+                  <ItemContent>
+                    <ItemTitle>
+                      {member.user_full_name || `User ${member.user_id.slice(0, 8)}`}
+                      {isCurrentUser && " (you)"}
+                    </ItemTitle>
+                    <ItemDescription>Joined {formatDate(member.joined_at)}</ItemDescription>
+                  </ItemContent>
+                  <ItemActions>
+                    <RoleBadge role={member.role} />
                     {canManageMember(member) && availableRoles.length > 0 && (
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -197,16 +223,20 @@ export function TeamMembersSection({
                         <DropdownMenuContent align="end" className="w-64">
                           <DropdownMenuLabel>{t.teams.changeRole}</DropdownMenuLabel>
                           <DropdownMenuSeparator />
-                          {availableRoles.map((role) => (
-                            <DropdownMenuItem
-                              key={role}
-                              onClick={() => handleChangeRole(member.user_id, role)}
-                              disabled={roleChangeInProgress === member.user_id}
-                            >
-                              <Shield className="h-4 w-4 mr-2" />
-                              {ROLE_LABELS[role]}
-                            </DropdownMenuItem>
-                          ))}
+                          {availableRoles.map((role) => {
+                            const RoleIcon = ROLE_ICONS[role]
+
+                            return (
+                              <DropdownMenuItem
+                                key={role}
+                                onClick={() => handleChangeRole(member.user_id, role)}
+                                disabled={roleChangeInProgress === member.user_id}
+                              >
+                                <RoleIcon className="h-4 w-4 mr-2" />
+                                {ROLE_LABELS[role]}
+                              </DropdownMenuItem>
+                            )
+                          })}
                           <DropdownMenuSeparator />
                           <DropdownMenuItem
                             onClick={() => setMemberToRemove(member)}
@@ -228,8 +258,8 @@ export function TeamMembersSection({
                         <MoreVertical className="h-4 w-4" />
                       </Button>
                     )}
-                  </div>
-                </div>
+                  </ItemActions>
+                </Item>
               )
             })}
             {invitations?.length > 0 && (
@@ -239,28 +269,25 @@ export function TeamMembersSection({
                   <span>{t.teams.pendingInvitations}</span>
                   <Badge variant="outline">{invitations.length}</Badge>
                 </div>
-                <div className="space-y-2">
+                <ItemGroup className="gap-2">
                   {invitations.map((invitation) => (
-                    <div
-                      key={invitation.id}
-                      className="flex items-center justify-between p-3 rounded-lg border bg-muted/40"
-                    >
-                      <div className="flex items-center gap-3">
+                    <Item key={invitation.id} variant="outline" size="sm" className="bg-muted/40">
+                      <ItemMedia>
                         <Avatar className="h-8 w-8">
                           <AvatarFallback className="bg-primary/10">
                             <Mail className="h-4 w-4 text-muted-foreground" />
                           </AvatarFallback>
                         </Avatar>
-                        <div>
-                          <p className="text-sm font-medium">{invitation.email}</p>
-                          <p className="text-xs text-muted-foreground flex items-center gap-1">
-                            <Clock className="h-3 w-3" />
-                            {t.teams.invitedOn.replace("{date}", formatDate(invitation.created_at))}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline">{invitation.role}</Badge>
+                      </ItemMedia>
+                      <ItemContent>
+                        <ItemTitle>{invitation.email}</ItemTitle>
+                        <ItemDescription className="flex items-center gap-1">
+                          <Clock className="h-3 w-3" />
+                          {t.teams.invitedOn.replace("{date}", formatDate(invitation.created_at))}
+                        </ItemDescription>
+                      </ItemContent>
+                      <ItemActions>
+                        <RoleBadge role={invitation.role} />
                         <Badge variant="secondary">{t.teams.invitationPending}</Badge>
                         {canManageTeamMembers() && (
                           <Button
@@ -273,13 +300,13 @@ export function TeamMembersSection({
                             {t.teams.cancelInvitation}
                           </Button>
                         )}
-                      </div>
-                    </div>
+                      </ItemActions>
+                    </Item>
                   ))}
-                </div>
+                </ItemGroup>
               </div>
             )}
-          </div>
+          </ItemGroup>
         ) : (
           <div className="text-center py-8 text-muted-foreground">
             <UsersIcon className="h-12 w-12 mx-auto mb-2 opacity-50" />

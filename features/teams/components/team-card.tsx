@@ -22,11 +22,12 @@ import { useLeaveTeam, useDeleteTeam, useUpdateTeam } from "@/features/teams"
 import { useAppContext } from "@/features/app-context"
 import { useUser } from "@/features/auth"
 import { useTranslation } from "@/hooks/use-translation"
-import type { Tables } from "@/lib/supabase/database.types"
+import type { TeamWithMemberCount } from "@/features/teams"
 import { TeamIcon, IconPicker } from "@/components/ui/icon-picker"
+import { RoleBadge } from "./role-badge"
 
 interface TeamCardProps {
-  team: Tables<"teams">
+  team: TeamWithMemberCount
   memberCount?: number
   initialSelectedTeamId?: string | null
 }
@@ -125,6 +126,7 @@ export function TeamCard({ team, memberCount = 1, initialSelectedTeamId = null }
                   {memberCount} {t.teams.members}
                 </span>
               </div>
+              {team.role && <RoleBadge role={team.role} className="text-[10px]" />}
               {team.is_public && (
                 <Badge variant="secondary" className="text-xs">
                   Public

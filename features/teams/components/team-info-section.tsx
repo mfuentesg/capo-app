@@ -14,7 +14,6 @@ export function TeamInfoSection({ team }: TeamInfoSectionProps) {
     <div className="rounded-lg border bg-card p-6">
       <h2 className="text-lg font-semibold mb-4">{t.teams.teamInformation}</h2>
       <div className="grid gap-4 sm:grid-cols-2">
-
         <div>
           <p className="text-sm font-medium text-muted-foreground">{t.teams.created}</p>
           <p className="text-sm">{formatDate(team.created_at)}</p>

@@ -18,9 +18,7 @@ export function TeamsEmptyState({ searchQuery }: TeamsEmptyStateProps) {
         <Building2 className="h-12 w-12 text-muted-foreground mb-4" />
         <h3 className="text-lg font-semibold mb-2">{t.teams.noTeamsFound}</h3>
         <p className="text-sm text-muted-foreground mb-4 text-center max-w-sm">
-          {searchQuery
-            ? t.common.tryDifferentSearch
-            : t.teams.createNewTeamDescription}
+          {searchQuery ? t.common.tryDifferentSearch : t.teams.createNewTeamDescription}
         </p>
         {!searchQuery && (
           <Button asChild>

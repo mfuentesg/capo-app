@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ArrowLeft, Pencil, Check } from "lucide-react"
 import { toast } from "sonner"
-import { cn } from "@/lib/utils"
+import { cn, formatDate } from "@/lib/utils"
 import { useAppContext } from "@/features/app-context"
 import { useTranslation } from "@/hooks/use-translation"
 import type { Tables, TablesUpdate } from "@/lib/supabase/database.types"
@@ -157,20 +157,19 @@ export function TeamDetailHeader({ team, onUpdate, isOwner }: TeamDetailHeaderPr
             </AvatarFallback>
           </Avatar>
         )}
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 space-y-1">
           {isOwner && onUpdate ? (
-            <>
-              <EditableField
-                value={team.name}
-                onSave={(value) => onUpdate({ name: value })}
-                className="text-lg font-bold tracking-tight sm:text-xl"
-              />
-            </>
+            <EditableField
+              value={team.name}
+              onSave={(value) => onUpdate({ name: value })}
+              className="text-lg font-bold tracking-tight sm:text-xl"
+            />
           ) : (
-            <>
-              <h1 className="text-lg font-bold tracking-tight sm:text-xl truncate">{team.name}</h1>
-            </>
+            <h1 className="text-lg font-bold tracking-tight sm:text-xl truncate">{team.name}</h1>
           )}
+          <p className="text-xs text-muted-foreground">
+            {t.teams.created} {formatDate(team.created_at)}
+          </p>
         </div>
         <div className="flex items-center gap-2">
           {team.is_public && <Badge variant="secondary">{t.filters.public}</Badge>}

@@ -8,7 +8,10 @@
 import type { SupabaseClient } from "@supabase/supabase-js"
 import type { Database, Tables, TablesInsert, TablesUpdate } from "@/lib/supabase/database.types"
 
-export type TeamWithMemberCount = Tables<"teams"> & { member_count: number }
+export type TeamWithMemberCount = Tables<"teams"> & {
+  member_count: number
+  role: Tables<"team_members">["role"]
+}
 
 export async function getTeams(supabase: SupabaseClient<Database>): Promise<TeamWithMemberCount[]> {
   const {
@@ -55,11 +58,11 @@ export async function getTeamsWithClient(
     throw error
   }
 
-  const teams: Tables<"teams">[] = []
+  const teams: { team: Tables<"teams">; role: Tables<"team_members">["role"] }[] = []
   for (const item of data || []) {
     const team = item.team as unknown as Tables<"teams"> | null
-    if (team) {
-      teams.push(team)
+    if (team && item.role) {
+      teams.push({ team, role: item.role })
     }
   }
 
@@ -68,7 +71,7 @@ export async function getTeamsWithClient(
     return []
   }
 
-  const teamIds = teams.map((t) => t.id)
+  const teamIds = teams.map((t) => t.team.id)
   const { data: memberCounts, error: countError } = await supabase
     .from("team_members")
     .select("team_id")
@@ -84,8 +87,9 @@ export async function getTeamsWithClient(
     countMap.set(row.team_id, (countMap.get(row.team_id) || 0) + 1)
   }
 
-  return teams.map((team) => ({
+  return teams.map(({ team, role }) => ({
     ...team,
+    role,
     member_count: countMap.get(team.id) || 1
   }))
 }
@@ -162,30 +166,36 @@ export async function deleteTeam(
 }
 
 export async function leaveTeam(supabase: SupabaseClient<Database>, teamId: string): Promise<void> {
-  // leave_team RPC exists in DB but is not yet in generated types.
-  // Regenerate types with `pnpm types:generate` to remove this cast.
-  const rpc = supabase.rpc as unknown as (
-    fn: string,
-    args: Record<string, unknown>
-  ) => Promise<{ error: { message: string; code: string } | null }>
-  const { error } = await rpc("leave_team", { target_team_id: teamId })
+  const { error } = await supabase.rpc("leave_team", { target_team_id: teamId })
   if (error) throw error
 }
 
 export async function getTeamMembers(
   supabase: SupabaseClient<Database>,
   teamId: string
-): Promise<(Tables<"team_members"> & { user_full_name: string | null })[]> {
+): Promise<
+  (Tables<"team_members"> & {
+    user_full_name: string | null
+    user_email: string | null
+    user_avatar_url: string | null
+  })[]
+> {
   return getTeamMembersWithClient(supabase, teamId)
 }
 
 export async function getTeamMembersWithClient(
   supabase: SupabaseClient<Database>,
   teamId: string
-): Promise<(Tables<"team_members"> & { user_full_name: string | null })[]> {
+): Promise<
+  (Tables<"team_members"> & {
+    user_full_name: string | null
+    user_email: string | null
+    user_avatar_url: string | null
+  })[]
+> {
   const { data, error } = await supabase
     .from("team_members")
-    .select(`*, profiles!user_id(full_name)`)
+    .select(`*, profiles!user_id(full_name,email,avatar_url)`)
     .eq("team_id", teamId)
     .order("joined_at", { ascending: true })
 
@@ -193,14 +203,16 @@ export async function getTeamMembersWithClient(
     throw error
   }
 
-  // Map results to include user_full_name at the top level
+  // Map results to include user_full_name/user_email at the top level
   type MemberWithProfile = Tables<"team_members"> & {
-    profiles: { full_name: string | null } | null
+    profiles: { full_name: string | null; email: string | null; avatar_url: string | null } | null
   }
   return (
     (data as MemberWithProfile[] | null)?.map((item) => ({
       ...item,
-      user_full_name: item.profiles?.full_name || null
+      user_full_name: item.profiles?.full_name || null,
+      user_email: item.profiles?.email || null,
+      user_avatar_url: item.profiles?.avatar_url || null
     })) || []
   )
 }

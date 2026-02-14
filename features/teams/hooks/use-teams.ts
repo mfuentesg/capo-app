@@ -128,6 +128,7 @@ export function useDeleteTeam() {
  */
 export function useLeaveTeam() {
   const queryClient = useQueryClient()
+  const router = useRouter()
   const { t } = useLocale()
   const { context, switchToPersonal, refreshTeams } = useAppContext()
 
@@ -143,6 +144,7 @@ export function useLeaveTeam() {
       queryClient.invalidateQueries({ queryKey: teamsKeys.list() })
       await refreshTeams()
       toast.success(t.toasts?.teamLeft || "You have left the team")
+      router.push("/dashboard/teams")
     },
     onError: (error) => {
       console.error("Error leaving team:", error)
@@ -175,7 +177,32 @@ export function useTransferOwnership() {
 }
 
 /**
- * Hook to transfer ownership and leave team in one operation (for owners)
+ * Hook to transfer ownership and stay on the team as admin (for owners)
+ */
+export function useTransferOwnershipAndStay() {
+  const queryClient = useQueryClient()
+  const { t } = useLocale()
+
+  return useMutation({
+    mutationFn: async ({ teamId, newOwnerId }: { teamId: string; newOwnerId: string }) => {
+      // transfer_team_ownership already demotes the current owner to admin.
+      await transferTeamOwnershipAction(teamId, newOwnerId)
+    },
+    onSuccess: async (_, { teamId }) => {
+      queryClient.invalidateQueries({ queryKey: teamsKeys.list() })
+      queryClient.invalidateQueries({ queryKey: teamsKeys.detail(teamId) })
+      queryClient.invalidateQueries({ queryKey: teamsKeys.members(teamId) })
+      toast.success(t.toasts?.ownershipTransferred || "Ownership transferred successfully")
+    },
+    onError: (error) => {
+      console.error("Error transferring ownership:", error)
+      toast.error(t.toasts?.ownershipTransferFailed || "Failed to transfer ownership")
+    }
+  })
+}
+
+/**
+ * Hook to transfer ownership and leave the team (for owners)
  */
 export function useTransferAndLeave() {
   const queryClient = useQueryClient()
@@ -185,12 +212,10 @@ export function useTransferAndLeave() {
 
   return useMutation({
     mutationFn: async ({ teamId, newOwnerId }: { teamId: string; newOwnerId: string }) => {
-      // First transfer ownership, then leave
       await transferTeamOwnershipAction(teamId, newOwnerId)
       await leaveTeamAction(teamId)
     },
     onSuccess: async (_, { teamId }) => {
-      // If the left team was active, switch to personal
       if (context?.type === "team" && context.teamId === teamId) {
         switchToPersonal()
       }

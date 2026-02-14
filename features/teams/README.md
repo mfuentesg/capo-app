@@ -39,11 +39,11 @@ All types are exported from `@/features/teams/types`
 ## Usage
 
 ```typescript
-import { 
-  TeamsClient, 
+import {
+  TeamsClient,
   useTeams,
   getTeams,
-  createTeam 
+  createTeam
 } from "@/features/teams"
 
 // Using the component

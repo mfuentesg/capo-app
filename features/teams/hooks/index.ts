@@ -4,6 +4,7 @@ export {
   useDeleteTeam,
   useLeaveTeam,
   useTransferOwnership,
+  useTransferOwnershipAndStay,
   useTransferAndLeave,
   useInviteTeamMember,
   useRemoveTeamMember,
