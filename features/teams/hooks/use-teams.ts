@@ -227,7 +227,9 @@ export function useInviteTeamMember() {
       return inviteTeamMemberAction(teamId, email, role)
     },
     onSuccess: async (_, { teamId }) => {
-      queryClient.invalidateQueries({ queryKey: teamsKeys.members(teamId) })
+      // Only invalidate invitations — inviting doesn't change the members list.
+      // Invalidating members caused a flash of "No members" because the
+      // client-side refetch could return an empty array momentarily.
       queryClient.invalidateQueries({ queryKey: teamsKeys.invitations(teamId) })
       toast.success(t.toasts?.invitationSent || "Invitation sent successfully")
     },

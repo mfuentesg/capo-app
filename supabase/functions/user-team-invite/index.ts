@@ -2,7 +2,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts"
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY")
-const SITE_URL = Deno.env.get("SITE_URL") || "http://localhost:3000"
+const SITE_URL = Deno.env.get("SITE_URL") || "https://capo.mfuentesg.dev"
 
 interface InvitationRequest {
   to: string
