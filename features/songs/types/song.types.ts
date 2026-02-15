@@ -22,17 +22,21 @@ export interface SongDetailProps {
   onDelete: (songId: string) => void
 }
 
+export type SongFilterStatus = "all" | "drafts" | "completed"
+
+export type BPMRange = "all" | "slow" | "medium" | "fast"
+
 export interface SongListProps {
   songs: Song[]
   previewSong?: Song | null
   selectedSong?: Song | null
   searchQuery: string
   groupBy: GroupBy
+  filterStatus: SongFilterStatus
+  bpmRange: BPMRange
   isCreatingNewSong?: boolean
   onSelectSong: (song: Song) => void
 }
-
-export type BPMRange = "all" | "slow" | "medium" | "fast"
 
 export type MusicalKey =
   | "A"

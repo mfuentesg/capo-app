@@ -14,6 +14,7 @@ import type { Tables } from "@/lib/supabase/database.types"
 import { SELECTED_TEAM_ID_KEY } from "./constants"
 import { createClient } from "@/lib/supabase/server"
 import { api as teamsApi } from "@/features/teams"
+import { getTeamsWithClient } from "@/features/teams/api"
 import { getUser } from "@/features/auth/api/authApi"
 
 export async function setSelectedTeamId(teamId: string) {
@@ -97,9 +98,10 @@ export async function getInitialAppContextData() {
     }
   }
 
-  const teams = await teamsApi.getTeams()
-  const context = await getAppContext()
-  const initialSelectedTeamId = context?.type === "team" ? context.teamId : null
+  const teams = await getTeamsWithClient(supabase, user.id)
+  const selectedTeamId = await getSelectedTeamId()
+  const initialSelectedTeamId =
+    selectedTeamId && teams.some((team) => team.id === selectedTeamId) ? selectedTeamId : null
 
   return {
     user,

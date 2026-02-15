@@ -14,10 +14,8 @@ import { SongDetail } from "@/features/songs"
 import { SongDraftForm } from "@/features/song-draft"
 import { useSongs, useCreateSong, useUpdateSong, useDeleteSong } from "../hooks/use-songs"
 import { useUser } from "@/features/auth"
-import type { Song, GroupBy } from "../types"
+import type { Song, GroupBy, BPMRange, SongFilterStatus } from "../types"
 import { useTranslation } from "@/hooks/use-translation"
-
-type BPMRange = "all" | "slow" | "medium" | "fast"
 
 export function SongsClient() {
   const { t } = useTranslation()
@@ -30,7 +28,7 @@ export function SongsClient() {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedSong, setSelectedSong] = useState<Song | null>(null)
   const [groupBy, setGroupBy] = useState<GroupBy>("none")
-  const [filterStatus, setFilterStatus] = useState<"all" | "drafts" | "completed" | "all">("all")
+  const [filterStatus, setFilterStatus] = useState<SongFilterStatus>("all")
   const [bpmRange, setBpmRange] = useState<BPMRange>("all")
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false)
   const [isCreatingNewSong, setIsCreatingNewSong] = useState(false)
@@ -348,6 +346,8 @@ export function SongsClient() {
               selectedSong={selectedSong}
               searchQuery={searchQuery}
               groupBy={groupBy}
+              filterStatus={filterStatus}
+              bpmRange={bpmRange}
               isCreatingNewSong={isCreatingNewSong}
               onSelectSong={handleSelectSong}
             />

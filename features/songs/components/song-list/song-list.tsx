@@ -4,19 +4,9 @@ import { useMemo } from "react"
 import { Music } from "lucide-react"
 import { SongItem } from "@/features/songs"
 import { Empty, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription } from "@/components/ui/empty"
-import type { Song, GroupBy } from "@/features/songs/types"
+import type { Song, SongListProps } from "@/features/songs/types"
 import { usePlaylistDraft } from "@/features/playlist-draft"
 import { useTranslation } from "@/hooks/use-translation"
-
-interface SongListProps {
-  songs: Song[]
-  previewSong?: Song | null
-  selectedSong?: Song | null
-  searchQuery: string
-  groupBy: GroupBy
-  isCreatingNewSong?: boolean
-  onSelectSong: (song: Song) => void
-}
 
 export function SongList({
   songs,
@@ -24,6 +14,8 @@ export function SongList({
   selectedSong,
   searchQuery,
   groupBy,
+  filterStatus,
+  bpmRange,
   isCreatingNewSong = false,
   onSelectSong
 }: SongListProps) {
@@ -31,14 +23,31 @@ export function SongList({
   const { t } = useTranslation()
 
   const filteredSongs = useMemo(() => {
-    const filtered = songs.filter(
-      (song) =>
-        song.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        song.artist.toLowerCase().includes(searchQuery.toLowerCase())
-    )
+    const normalizedQuery = searchQuery.trim().toLowerCase()
+    const filtered = songs.filter((song) => {
+      const matchesSearch =
+        normalizedQuery.length === 0 ||
+        song.title.toLowerCase().includes(normalizedQuery) ||
+        song.artist.toLowerCase().includes(normalizedQuery)
+
+      const matchesStatus =
+        filterStatus === "all" ||
+        (filterStatus === "drafts" ? song.isDraft === true : song.isDraft !== true)
+
+      const bpm = song.bpm ?? 0
+      const matchesBpm =
+        bpmRange === "all" ||
+        (bpmRange === "slow"
+          ? bpm < 100
+          : bpmRange === "medium"
+            ? bpm >= 100 && bpm <= 140
+            : bpm > 140)
+
+      return matchesSearch && matchesStatus && matchesBpm
+    })
 
     return filtered
-  }, [searchQuery, songs])
+  }, [bpmRange, filterStatus, searchQuery, songs])
 
   const groupedSongs = useMemo(() => {
     if (groupBy === "none") {

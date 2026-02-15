@@ -46,7 +46,7 @@ export function useSong(songId: string | null) {
  */
 export function useSongsByIds(songIds: string[]) {
   return useQuery({
-    queryKey: [...songsKeys.all, "byIds", songIds.sort().join(",")],
+    queryKey: [...songsKeys.all, "byIds", [...songIds].sort().join(",")],
     queryFn: () => api.getSongsByIds(songIds),
     enabled: songIds.length > 0
   })

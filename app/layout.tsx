@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import { cookies } from "next/headers"
-import { Geist, Geist_Mono } from "next/font/google"
+import localFont from "next/font/local"
 import { Analytics } from "@vercel/analytics/react"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/sonner"
@@ -14,14 +14,16 @@ import { getInitialAppContextData } from "@/features/app-context/server"
 
 import "./globals.css"
 
-const geistSans = Geist({
+const geistSans = localFont({
+  src: "./fonts/GeistVF.woff2",
   variable: "--font-geist-sans",
-  subsets: ["latin"]
+  weight: "100 900"
 })
 
-const geistMono = Geist_Mono({
+const geistMono = localFont({
+  src: "./fonts/GeistMonoVF.woff2",
   variable: "--font-geist-mono",
-  subsets: ["latin"]
+  weight: "100 900"
 })
 
 export const metadata: Metadata = {

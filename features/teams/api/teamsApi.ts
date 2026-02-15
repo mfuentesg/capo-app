@@ -119,20 +119,11 @@ export async function createTeam(
   supabase: SupabaseClient<Database>,
   team: TablesInsert<"teams">
 ): Promise<Tables<"teams">> {
-  // Use the database function instead of direct insert
-  // This ensures proper authentication context and creates team membership
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
-  const result: { data: Tables<"teams">[] | null; error: any } = await (supabase.rpc as any)(
-    "create_team_with_owner",
-    {
-      team_name: team.name,
-      team_is_public: team.is_public || false,
-      team_icon: team.icon || null
-    }
-  )
-
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  const { data, error: rpcError } = result
+  const { data, error: rpcError } = await supabase.rpc("create_team_with_owner", {
+    team_name: team.name,
+    team_is_public: team.is_public || false,
+    team_icon: team.icon || undefined
+  })
 
   if (rpcError) throw rpcError
   if (!Array.isArray(data) || data.length === 0) throw new Error("Failed to create team")
@@ -288,10 +279,7 @@ export async function inviteTeamMember(
   email: string,
   role: Tables<"team_invitations">["role"] = "member"
 ): Promise<Tables<"team_invitations">> {
-  // invite_team_member RPC exists in DB but is not yet in generated types.
-  // Regenerate types with `pnpm types:generate` to remove this cast.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
-  const { data, error } = await (supabase.rpc as any)("invite_team_member", {
+  const { data, error } = await supabase.rpc("invite_team_member", {
     target_team_id: teamId,
     member_email: email,
     member_role: role
@@ -307,10 +295,7 @@ export async function removeTeamMember(
   teamId: string,
   userId: string
 ): Promise<void> {
-  // remove_team_member RPC exists in DB but is not yet in generated types.
-  // Regenerate types with `pnpm types:generate` to remove this cast.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
-  const { error } = await (supabase.rpc as any)("remove_team_member", {
+  const { error } = await supabase.rpc("remove_team_member", {
     target_team_id: teamId,
     target_user_id: userId
   })
