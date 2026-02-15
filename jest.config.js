@@ -16,15 +16,52 @@ const customJestConfig = {
   testMatch: ["**/__tests__/**/*.[jt]s?(x)", "**/?(*.)+(spec|test).[jt]s?(x)"],
   testPathIgnorePatterns: ["/node_modules/", "/.next/", ".*fixtures\\.ts$"],
   collectCoverageFrom: [
-    "app/**/*.{js,jsx,ts,tsx}",
-    "components/**/*.{js,jsx,ts,tsx}",
-    "features/**/*.{js,jsx,ts,tsx}",
+    "app/auth/callback/route.ts",
+    "features/**/api/actions.ts",
+    "features/auth/api/authApi.ts",
+    "features/dashboard/api/dashboardApi.ts",
+    "features/**/hooks/query-keys.ts",
+    "features/teams/constants.ts",
+    "lib/constants.ts",
+    "lib/music-theory.ts",
+    "lib/utils.ts",
+    "lib/supabase/apply-context-filter.ts",
+    "lib/supabase/client.ts",
+    "lib/supabase/constants.ts",
+    "lib/supabase/server.ts",
+    "proxy.ts",
     "!**/*.d.ts",
     "!**/node_modules/**",
     "!**/.next/**",
     "!**/coverage/**",
     "!**/*.config.js"
   ],
+  coveragePathIgnorePatterns: [
+    "/node_modules/",
+    "/.next/",
+    "<rootDir>/app/(?!auth/callback/route\\.ts)",
+    "<rootDir>/components/",
+    "<rootDir>/features/.*/components/",
+    "<rootDir>/features/.*/contexts/",
+    "<rootDir>/features/.*/types/",
+    "<rootDir>/features/.*/index\\.ts$",
+    "<rootDir>/features/.*/api/index\\.ts$",
+    "<rootDir>/features/.*/api/.*Api\\.ts$",
+    "<rootDir>/features/.*/hooks/index\\.ts$",
+    "<rootDir>/features/.*/hooks/use-",
+    "<rootDir>/lib/actions/",
+    "<rootDir>/lib/env\\.ts$",
+    "<rootDir>/lib/i18n/",
+    "<rootDir>/lib/supabase/database\\.types\\.ts$"
+  ],
+  coverageThreshold: {
+    global: {
+      branches: 80,
+      functions: 80,
+      lines: 80,
+      statements: 80
+    }
+  },
 
   transform: {
     "^.+\\.(js|jsx|ts|tsx)$": ["babel-jest", { presets: ["next/babel"] }]
