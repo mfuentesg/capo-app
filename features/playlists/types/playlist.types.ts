@@ -26,7 +26,7 @@ export interface PlaylistDetailProps {
 
 export interface PlaylistListProps {
   playlists: Playlist[]
-  selectedPlaylist?: Playlist | null
+  selectedPlaylistId?: string | null
   searchQuery: string
   onSelectPlaylist: (playlist: Playlist) => void
 }

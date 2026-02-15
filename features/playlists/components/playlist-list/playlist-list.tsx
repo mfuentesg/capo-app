@@ -1,8 +1,8 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useMemo } from "react"
 import { ListMusic } from "lucide-react"
-import { PlaylistItem } from "@/features/playlists"
+import { PlaylistItem } from "../playlist-item"
 import { Empty, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription } from "@/components/ui/empty"
 import type { Playlist } from "@/features/playlists/types"
 import { useTranslation } from "@/hooks/use-translation"
@@ -12,6 +12,7 @@ interface PlaylistListProps {
   searchQuery: string
   filterStatus: "all" | "drafts" | "completed"
   filterVisibility?: "all" | "public" | "private"
+  selectedPlaylistId?: string | null
   onSelectPlaylist: (playlist: Playlist) => void
 }
 
@@ -20,9 +21,9 @@ export function PlaylistList({
   searchQuery,
   filterStatus,
   filterVisibility = "all",
+  selectedPlaylistId = null,
   onSelectPlaylist
 }: PlaylistListProps) {
-  const [selectedPlaylist, setSelectedPlaylist] = useState<Playlist | null>(null)
   const { t } = useTranslation()
 
   const filteredPlaylists = useMemo(() => {
@@ -47,11 +48,6 @@ export function PlaylistList({
     return filtered
   }, [searchQuery, playlists, filterStatus, filterVisibility])
 
-  const handleSelectPlaylist = (playlist: Playlist) => {
-    setSelectedPlaylist(playlist)
-    onSelectPlaylist(playlist)
-  }
-
   if (filteredPlaylists.length === 0) {
     return (
       <Empty>
@@ -72,8 +68,8 @@ export function PlaylistList({
         <PlaylistItem
           key={playlist.id}
           playlist={playlist}
-          isSelected={selectedPlaylist?.id === playlist.id}
-          onSelect={handleSelectPlaylist}
+          isSelected={selectedPlaylistId === playlist.id}
+          onSelect={onSelectPlaylist}
         />
       ))}
     </div>

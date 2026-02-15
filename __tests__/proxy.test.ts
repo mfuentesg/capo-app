@@ -158,6 +158,19 @@ describe("Proxy", () => {
       expect(response.status).toBe(200)
     })
 
+    it("should allow unauthenticated users to access legacy dashboard playlist share links", async () => {
+      mockSupabase.auth.getUser.mockResolvedValue({
+        data: { user: null },
+        error: null
+      })
+
+      const request = new NextRequest("http://localhost:3000/dashboard/playlists/share-code-123")
+      const response = await proxy(request)
+
+      expect(response.status).toBe(200)
+      expect(response.headers.get("location")).toBeNull()
+    })
+
     it("should handle missing environment variables gracefully", async () => {
       delete process.env.NEXT_PUBLIC_SUPABASE_URL
       delete process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY

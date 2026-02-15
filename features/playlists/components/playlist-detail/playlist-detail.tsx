@@ -46,7 +46,6 @@ import type { SongWithPosition, PlaylistWithSongs } from "@/types/extended"
 import { DraggablePlaylist } from "@/features/playlists/utils"
 import { useReorderPlaylistSongs } from "../../hooks"
 import { api } from "@/features/songs"
-import type { Song } from "@/features/songs"
 
 interface PlaylistDetailProps {
   playlist: Playlist
@@ -163,15 +162,33 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
   const [songsWithPosition, setSongsWithPosition] = useState<SongWithPosition[]>([])
 
   useEffect(() => {
+    let isCancelled = false
+
     async function loadSongs() {
-      const songs = await api.getSongsByIds(playlist.songs)
-      const songsWithPos = (songs as Song[]).map((song, index) => ({
-        ...song,
-        position: index
-      }))
-      setSongsWithPosition(songsWithPos)
+      if (playlist.songs.length === 0) {
+        if (!isCancelled) {
+          setSongsWithPosition([])
+        }
+        return
+      }
+
+      const fetchedSongs = await api.getSongsByIds(playlist.songs)
+      const songsById = new Map(fetchedSongs.map((song) => [song.id, song]))
+      const orderedSongs = playlist.songs.flatMap((songId, position) => {
+        const song = songsById.get(songId)
+        return song ? [{ ...song, position }] : []
+      })
+
+      if (!isCancelled) {
+        setSongsWithPosition(orderedSongs)
+      }
     }
+
     loadSongs()
+
+    return () => {
+      isCancelled = true
+    }
   }, [playlist.songs])
 
   // Create PlaylistWithSongs object
@@ -301,7 +318,7 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
                 </p>
               </div>
               <Switch
-                defaultChecked={playlist.visibility === "public"}
+                checked={playlist.visibility === "public"}
                 onCheckedChange={(checked) => {
                   onUpdate(playlist.id, { visibility: checked ? "public" : "private" })
                 }}
@@ -320,7 +337,7 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
                     className="gap-1.5"
                     onClick={() => {
                       navigator.clipboard.writeText(
-                        `${window.location.origin}/dashboard/playlists/${playlist.shareCode}`
+                        `${window.location.origin}/playlists/${playlist.shareCode}`
                       )
                       toast.success(t.playlistDetail.copied)
                     }}
@@ -330,7 +347,7 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
                   </Button>
                   <Button size="sm" variant="outline" asChild>
                     <a
-                      href={`/dashboard/playlists/${playlist.shareCode}`}
+                      href={`/playlists/${playlist.shareCode}`}
                       target="_blank"
                       rel="noopener noreferrer"
                     >

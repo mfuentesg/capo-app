@@ -13,8 +13,8 @@ function isValidRedirect(url: string | null, requestOrigin: string): boolean {
     return false
   }
 
-  // Allow relative paths (starting with /)
-  if (url.startsWith("/")) {
+  // Allow relative paths that are not protocol-relative (//example.com)
+  if (url.startsWith("/") && !url.startsWith("//")) {
     return true
   }
 
@@ -62,8 +62,9 @@ export async function GET(request: NextRequest) {
       // Redirect to invitation page with token and clear the cookie
       const invitationUrl = new URL("/teams/accept-invitation", requestUrl.origin)
       invitationUrl.searchParams.set("token", invitationToken)
-      response.cookies.delete(INVITATION_TOKEN_COOKIE)
-      return NextResponse.redirect(invitationUrl)
+      const invitationResponse = NextResponse.redirect(invitationUrl)
+      invitationResponse.cookies.delete(INVITATION_TOKEN_COOKIE)
+      return invitationResponse
     }
 
     return response

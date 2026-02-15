@@ -78,6 +78,10 @@ function extractInvitationToken(request: NextRequest): string | null {
   return url.searchParams.get("token")
 }
 
+function isLegacyPublicSharePath(pathname: string): boolean {
+  return /^\/dashboard\/playlists\/[^/]+\/?$/.test(pathname)
+}
+
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
   const envVars = validateEnvVars()
@@ -99,7 +103,11 @@ export async function proxy(request: NextRequest) {
 
     if (pathname === "/" && shouldRedirectToDashboard(user)) {
       response = NextResponse.redirect(new URL(DEFAULT_REDIRECT_PATH, request.url))
-    } else if (pathname.startsWith("/dashboard") && shouldRedirectToLogin(user, error)) {
+    } else if (
+      pathname.startsWith("/dashboard") &&
+      shouldRedirectToLogin(user, error) &&
+      !isLegacyPublicSharePath(pathname)
+    ) {
       response = NextResponse.redirect(new URL(LOGIN_PATH, request.url))
     } else if (
       pathname.startsWith("/teams/accept-invitation") &&

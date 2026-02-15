@@ -243,6 +243,7 @@ export function PlaylistsClient() {
               searchQuery={searchQuery}
               filterStatus={filterStatus}
               filterVisibility={filterVisibility}
+              selectedPlaylistId={selectedPlaylistId}
               onSelectPlaylist={handleSelectPlaylist}
             />
           </div>

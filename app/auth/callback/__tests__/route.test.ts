@@ -120,6 +120,28 @@ describe("Auth Callback Route", () => {
       expect(response.headers.get("location")).toBe("http://localhost:3000/dashboard")
     })
 
+    it("should reject protocol-relative redirect URLs", async () => {
+      mockSupabase.auth.exchangeCodeForSession.mockResolvedValue({ error: null })
+
+      const request = new NextRequest(
+        "http://localhost:3000/auth/callback?code=test-code&next=//evil.com/phish"
+      )
+      const response = await GET(request)
+
+      expect(response.headers.get("location")).toBe("http://localhost:3000/dashboard")
+    })
+
+    it("should allow absolute same-origin redirect URLs", async () => {
+      mockSupabase.auth.exchangeCodeForSession.mockResolvedValue({ error: null })
+
+      const request = new NextRequest(
+        "http://localhost:3000/auth/callback?code=test-code&next=http://localhost:3000/teams"
+      )
+      const response = await GET(request)
+
+      expect(response.headers.get("location")).toBe("http://localhost:3000/teams")
+    })
+
     it("should redirect to login with error when exchange fails", async () => {
       mockSupabase.auth.exchangeCodeForSession.mockResolvedValue({
         error: { message: "Invalid code" }
@@ -168,6 +190,20 @@ describe("Auth Callback Route", () => {
       const response = await GET(request)
 
       expect(response.headers.get("location")).toBe("http://localhost:3000/dashboard")
+    })
+
+    it("should clear invitation token cookie on the returned invitation redirect response", async () => {
+      mockSupabase.auth.exchangeCodeForSession.mockResolvedValue({ error: null })
+
+      const request = new NextRequest("http://localhost:3000/auth/callback?code=test-code")
+      request.cookies.get.mockReturnValue({ value: "invite-token-123" })
+
+      const response = await GET(request)
+
+      expect(response.headers.get("location")).toBe(
+        "http://localhost:3000/teams/accept-invitation?token=invite-token-123"
+      )
+      expect(response.cookies.delete).toHaveBeenCalledWith("_invitation_token")
     })
   })
 })
