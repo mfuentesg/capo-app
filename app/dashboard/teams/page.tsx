@@ -1,9 +1,21 @@
-import { api, TeamsClient } from "@/features/teams"
+import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query"
 import { getSelectedTeamId } from "@/features/app-context/server"
+import { TeamsClient, api, teamsKeys } from "@/features/teams"
 
 export default async function TeamsPage() {
-  const teams = await api.getTeams()
-  const initialSelectedTeamId = await getSelectedTeamId()
+  const queryClient = new QueryClient()
 
-  return <TeamsClient initialTeams={teams} initialSelectedTeamId={initialSelectedTeamId} />
+  const [, initialSelectedTeamId] = await Promise.all([
+    queryClient.prefetchQuery({
+      queryKey: teamsKeys.list(),
+      queryFn: () => api.getTeams()
+    }),
+    getSelectedTeamId()
+  ])
+
+  return (
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <TeamsClient initialSelectedTeamId={initialSelectedTeamId} />
+    </HydrationBoundary>
+  )
 }

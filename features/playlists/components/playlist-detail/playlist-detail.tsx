@@ -44,7 +44,7 @@ import { useLocale } from "@/features/settings"
 import type { Playlist } from "@/features/playlists/types"
 import type { SongWithPosition, PlaylistWithSongs } from "@/types/extended"
 import { DraggablePlaylist } from "@/features/playlists/utils"
-import { usePlaylists } from "@/features/playlists/contexts"
+import { useReorderPlaylistSongs } from "../../hooks"
 import { api } from "@/features/songs"
 import type { Song } from "@/features/songs"
 
@@ -155,7 +155,7 @@ function EditableField({
 }
 
 export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: PlaylistDetailProps) {
-  const { reorderPlaylistSongs } = usePlaylists()
+  const reorderMutation = useReorderPlaylistSongs()
   const { t } = useTranslation()
   const { locale } = useLocale()
   const [isCalendarOpen, setIsCalendarOpen] = useState(false)
@@ -184,7 +184,7 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
   )
 
   const handleSongReorder = async (sourceIndex: number, destinationIndex: number) => {
-    reorderPlaylistSongs(playlist.id, sourceIndex, destinationIndex)
+    reorderMutation.mutate({ playlistId: playlist.id, sourceIndex, destinationIndex })
   }
 
   return (

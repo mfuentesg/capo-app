@@ -8,7 +8,6 @@ import { teamsKeys } from "../hooks/query-keys"
 import { useUser } from "@/features/auth"
 import { useAppContext } from "@/features/app-context"
 import { useTranslation } from "@/hooks/use-translation"
-import type { TeamWithMemberCount } from "../api"
 import { TeamsHeader } from "@/features/teams"
 import { TeamsSearch } from "@/features/teams"
 import { TeamCard } from "@/features/teams"
@@ -17,21 +16,19 @@ import { toast } from "sonner"
 import { api } from "@/features/teams"
 
 interface TeamsClientProps {
-  initialTeams: TeamWithMemberCount[]
   initialSelectedTeamId?: string | null
 }
 
-export function TeamsClient({ initialTeams, initialSelectedTeamId = null }: TeamsClientProps) {
+export function TeamsClient({ initialSelectedTeamId = null }: TeamsClientProps) {
   const { data: user } = useUser()
   const { switchToTeam } = useAppContext()
   const { t } = useTranslation()
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { data: teams = initialTeams } = useQuery({
+  const { data: teams = [] } = useQuery({
     queryKey: teamsKeys.list(),
     queryFn: async () => await api.getTeams(),
     enabled: !!user?.id,
-    initialData: initialTeams,
     staleTime: 5 * 60 * 1000
   })
   const [searchQuery, setSearchQuery] = useState("")

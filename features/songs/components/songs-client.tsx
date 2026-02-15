@@ -12,20 +12,17 @@ import { Plus, Search, Music, LayoutList, Music2, Music3, Settings2, X } from "l
 import { SongList } from "@/features/songs"
 import { SongDetail } from "@/features/songs"
 import { SongDraftForm } from "@/features/song-draft"
-import { useCreateSong, useUpdateSong, useDeleteSong } from "../hooks/use-songs"
+import { useSongs, useCreateSong, useUpdateSong, useDeleteSong } from "../hooks/use-songs"
 import { useUser } from "@/features/auth"
 import type { Song, GroupBy } from "../types"
 import { useTranslation } from "@/hooks/use-translation"
 
-interface SongsClientProps {
-  initialSongs: Song[]
-}
-
 type BPMRange = "all" | "slow" | "medium" | "fast"
 
-export function SongsClient({ initialSongs }: SongsClientProps) {
+export function SongsClient() {
   const { t } = useTranslation()
   const { data: user } = useUser()
+  const { data: songs = [] } = useSongs()
   const createSongMutation = useCreateSong()
   const updateSongMutation = useUpdateSong()
   const deleteSongMutation = useDeleteSong()
@@ -35,7 +32,6 @@ export function SongsClient({ initialSongs }: SongsClientProps) {
   const [groupBy, setGroupBy] = useState<GroupBy>("none")
   const [filterStatus, setFilterStatus] = useState<"all" | "drafts" | "completed" | "all">("all")
   const [bpmRange, setBpmRange] = useState<BPMRange>("all")
-  const [songs, setSongs] = useState<Song[]>(initialSongs)
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false)
   const [isCreatingNewSong, setIsCreatingNewSong] = useState(false)
   const [previewSong, setPreviewSong] = useState<Song | null>(null)
@@ -50,18 +46,14 @@ export function SongsClient({ initialSongs }: SongsClientProps) {
   }, [])
 
   const updateSong = (songId: string, updates: Partial<Song>) => {
-    // Optimistic local update for instant UX
-    setSongs((prev) => prev.map((song) => (song.id === songId ? { ...song, ...updates } : song)))
     if (selectedSong?.id === songId) {
       setSelectedSong((prev) => (prev ? { ...prev, ...updates } : null))
     }
-    // Persist to database
     updateSongMutation.mutate({ songId, updates })
   }
 
   const handleDeleteSong = (songId: string) => {
     deleteSongMutation.mutate(songId)
-    setSongs((prev) => prev.filter((song) => song.id !== songId))
     setSelectedSong(null)
     setIsMobileDrawerOpen(false)
   }
@@ -109,7 +101,6 @@ export function SongsClient({ initialSongs }: SongsClientProps) {
     }
     try {
       const createdSong = await createSongMutation.mutateAsync({ song, userId: user.id })
-      setSongs((prev) => [createdSong, ...prev])
       setIsCreatingNewSong(false)
       setPreviewSong(null)
       setSelectedSong(createdSong)

@@ -4,6 +4,7 @@ export { NewSongsProvider, useNewSongs } from "./contexts"
 export type { NewSongsContextType } from "./contexts"
 
 export { useSongs } from "./hooks/use-songs"
+export { songsKeys } from "./hooks/query-keys"
 
 export { api } from "./api"
 
@@ -12,7 +13,6 @@ export type {
   GroupBy,
   SongDetailProps,
   SongListProps,
-  SongsClientProps,
   BPMRange,
   MusicalKey
 } from "./types"

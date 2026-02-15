@@ -1,3 +1,5 @@
+"use client"
+
 /**
  * Combined real-time hook for playlist collaboration
  * Handles both data changes and presence

@@ -21,7 +21,8 @@ import {
   setSelectedTeamId as setClientSelectedTeamId,
   unsetSelectedTeamId as unsetClientSelectedTeamId
 } from "./server"
-import { api } from "@/features/teams"
+import { api, teamsKeys } from "@/features/teams"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 
 interface AppContextContextType {
   context: AppContext | null
@@ -54,6 +55,7 @@ export function AppContextProvider({
 }: AppContextProviderProps) {
   const { data: user } = useUser(initialUser)
   const router = useRouter()
+  const queryClient = useQueryClient()
 
   const [context, setContextState] = useState<AppContext | null>(() => {
     // CRITICAL: For hydration, we MUST initialize strictly from props.
@@ -68,8 +70,15 @@ export function AppContextProvider({
     return null
   })
 
-  const [teams, setTeams] = useState<Tables<"teams">[]>(initialTeams)
-  const [isLoadingTeams, setIsLoadingTeams] = useState(false)
+  // Teams from React Query cache — single source of truth
+  const { data: teams = [], isLoading: isLoadingTeams } = useQuery({
+    queryKey: teamsKeys.list(),
+    queryFn: () => api.getTeams(),
+    enabled: !!user?.id,
+    initialData: initialTeams.length > 0 ? initialTeams : undefined,
+    staleTime: 5 * 60 * 1000
+  })
+
   const [, startTransition] = useTransition()
   const [storedTeamId, setStoredTeamId] = useState<string | null>(null)
 
@@ -81,40 +90,22 @@ export function AppContextProvider({
   useEffect(() => {
     try {
       const stored = localStorage.getItem(SELECTED_TEAM_ID_KEY)
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Syncing from external storage after hydration
       setStoredTeamId(stored)
     } catch (error) {
       console.warn("Failed to read from localStorage:", error)
     }
   }, [])
 
-  // Keep teams state in sync with server-provided initialTeams
-  useEffect(() => {
-    // Only update if teams actually changed and we have data
-    if (initialTeams && initialTeams.length > 0) {
-      setTeams(initialTeams)
-    }
-  }, [initialTeams])
-
   const refreshTeams = useCallback(async () => {
-    if (!user?.id) return
-    setIsLoadingTeams(true)
-    try {
-      const updatedTeams = await api.getTeams()
-      setTeams(updatedTeams)
-    } catch (error) {
-      console.error("Failed to refresh teams:", error)
-    } finally {
-      setIsLoadingTeams(false)
-    }
-  }, [user?.id])
-
-  // No need to fetch teams on mount if we have them from the server!
-  // refreshTeams is available for manual updates (actions) only.
+    await queryClient.invalidateQueries({ queryKey: teamsKeys.list() })
+  }, [queryClient])
 
   // Initialize/Sync context from server-provided initialSelectedTeamId
   useEffect(() => {
     const currentUserId = user?.id || initialUser?.id
     if (!currentUserId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Resetting context when user logs out
       setContextState(null)
       return
     }
@@ -166,6 +157,7 @@ export function AppContextProvider({
     try {
       if (context.type === "team") {
         localStorage.setItem(SELECTED_TEAM_ID_KEY, context.teamId)
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- Syncing to external storage
         setStoredTeamId(context.teamId)
       } else {
         localStorage.removeItem(SELECTED_TEAM_ID_KEY)
@@ -201,7 +193,7 @@ export function AppContextProvider({
       type: "personal",
       userId: user.id
     })
-  }, [user?.id, setContext])
+  }, [user, setContext])
 
   const switchToTeam = useCallback(
     (teamId: string) => {
@@ -212,7 +204,7 @@ export function AppContextProvider({
         userId: user.id
       })
     },
-    [user?.id, setContext]
+    [user, setContext]
   )
 
   return (

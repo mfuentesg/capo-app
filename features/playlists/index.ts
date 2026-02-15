@@ -1,6 +1,13 @@
 export * from "./components"
 
-export { usePlaylists, PlaylistsProvider } from "./contexts"
+export {
+  usePlaylists,
+  useCreatePlaylist,
+  useUpdatePlaylist,
+  useDeletePlaylist,
+  useReorderPlaylistSongs,
+  playlistsKeys
+} from "./hooks"
 
 export type { Playlist, PlaylistWithSongs, PlaylistDetailProps, PlaylistListProps } from "./types"
 

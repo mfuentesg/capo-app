@@ -1,3 +1,5 @@
+"use client"
+
 /**
  * Real-time presence hook - shows who's currently viewing a playlist
  *

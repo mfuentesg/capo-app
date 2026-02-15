@@ -88,58 +88,93 @@ export function useCreateSong() {
 }
 
 /**
- * Hook to update a song
+ * Hook to update a song with optimistic updates
  */
 export function useUpdateSong() {
   const queryClient = useQueryClient()
   const { t } = useLocale()
+  const { context } = useAppContext()
 
   return useMutation({
     mutationFn: async ({ songId, updates }: { songId: string; updates: Partial<Song> }) => {
       return updateSongAction(songId, updates)
     },
+    onMutate: async ({ songId, updates }) => {
+      const queryKey = context ? songsKeys.list(context) : songsKeys.lists()
+      await queryClient.cancelQueries({ queryKey })
+      const previousSongs = queryClient.getQueryData<Song[]>(queryKey)
+      queryClient.setQueryData<Song[]>(
+        queryKey,
+        (old) => old?.map((s) => (s.id === songId ? { ...s, ...updates } : s)) ?? []
+      )
+      // Also update detail cache
+      const previousDetail = queryClient.getQueryData<Song>(songsKeys.detail(songId))
+      if (previousDetail) {
+        queryClient.setQueryData(songsKeys.detail(songId), { ...previousDetail, ...updates })
+      }
+      return { previousSongs, previousDetail, queryKey }
+    },
+    onError: (_err, { songId }, rollbackContext) => {
+      if (rollbackContext?.previousSongs) {
+        queryClient.setQueryData(rollbackContext.queryKey, rollbackContext.previousSongs)
+      }
+      if (rollbackContext?.previousDetail) {
+        queryClient.setQueryData(songsKeys.detail(songId), rollbackContext.previousDetail)
+      }
+      toast.error(t.toasts?.error || "Failed to update song")
+    },
     onSuccess: (updatedSong) => {
-      const song = updatedSong
-      // Invalidate songs list query
-      queryClient.invalidateQueries({
-        queryKey: songsKeys.lists()
-      })
-      // Update song detail in cache
-      queryClient.setQueryData(songsKeys.detail(song.id), song)
+      queryClient.setQueryData(songsKeys.detail(updatedSong.id), updatedSong)
       toast.success(t.toasts?.songUpdated || "Song updated")
     },
-    onError: (error) => {
-      console.error("Error updating song:", error)
-      toast.error(t.toasts?.error || "Failed to update song")
+    onSettled: () => {
+      if (context) {
+        queryClient.invalidateQueries({ queryKey: songsKeys.list(context) })
+      } else {
+        queryClient.invalidateQueries({ queryKey: songsKeys.lists() })
+      }
     }
   })
 }
 
 /**
- * Hook to delete a song
+ * Hook to delete a song with optimistic updates
  */
 export function useDeleteSong() {
   const queryClient = useQueryClient()
   const { t } = useLocale()
+  const { context } = useAppContext()
 
   return useMutation({
     mutationFn: async (songId: string) => {
       return deleteSongAction(songId)
     },
+    onMutate: async (songId) => {
+      const queryKey = context ? songsKeys.list(context) : songsKeys.lists()
+      await queryClient.cancelQueries({ queryKey })
+      const previousSongs = queryClient.getQueryData<Song[]>(queryKey)
+      queryClient.setQueryData<Song[]>(
+        queryKey,
+        (old) => old?.filter((s) => s.id !== songId) ?? []
+      )
+      return { previousSongs, queryKey }
+    },
+    onError: (_err, _songId, rollbackContext) => {
+      if (rollbackContext?.previousSongs) {
+        queryClient.setQueryData(rollbackContext.queryKey, rollbackContext.previousSongs)
+      }
+      toast.error(t.toasts?.error || "Failed to delete song")
+    },
     onSuccess: (_, songId) => {
-      // Invalidate songs list query
-      queryClient.invalidateQueries({
-        queryKey: songsKeys.lists()
-      })
-      // Remove song from cache
-      queryClient.removeQueries({
-        queryKey: songsKeys.detail(songId)
-      })
+      queryClient.removeQueries({ queryKey: songsKeys.detail(songId) })
       toast.success(t.toasts?.songDeleted || "Song deleted")
     },
-    onError: (error) => {
-      console.error("Error deleting song:", error)
-      toast.error(t.toasts?.error || "Failed to delete song")
+    onSettled: () => {
+      if (context) {
+        queryClient.invalidateQueries({ queryKey: songsKeys.list(context) })
+      } else {
+        queryClient.invalidateQueries({ queryKey: songsKeys.lists() })
+      }
     }
   })
 }

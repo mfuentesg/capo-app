@@ -99,7 +99,7 @@ export function useDeleteTeam() {
   const queryClient = useQueryClient()
   const router = useRouter()
   const { t } = useLocale()
-  const { context, switchToPersonal, refreshTeams } = useAppContext()
+  const { context, switchToPersonal } = useAppContext()
 
   return useMutation({
     mutationFn: async (teamId: string) => {
@@ -112,7 +112,6 @@ export function useDeleteTeam() {
       }
       queryClient.invalidateQueries({ queryKey: teamsKeys.list() })
       queryClient.removeQueries({ queryKey: teamsKeys.detail(teamId) })
-      await refreshTeams()
       toast.success(t.toasts?.teamDeleted || "Team deleted")
       router.push("/dashboard/teams")
     },
@@ -130,7 +129,7 @@ export function useLeaveTeam() {
   const queryClient = useQueryClient()
   const router = useRouter()
   const { t } = useLocale()
-  const { context, switchToPersonal, refreshTeams } = useAppContext()
+  const { context, switchToPersonal } = useAppContext()
 
   return useMutation({
     mutationFn: async (teamId: string) => {
@@ -142,7 +141,6 @@ export function useLeaveTeam() {
         switchToPersonal()
       }
       queryClient.invalidateQueries({ queryKey: teamsKeys.list() })
-      await refreshTeams()
       toast.success(t.toasts?.teamLeft || "You have left the team")
       router.push("/dashboard/teams")
     },
@@ -208,7 +206,7 @@ export function useTransferAndLeave() {
   const queryClient = useQueryClient()
   const router = useRouter()
   const { t } = useLocale()
-  const { context, switchToPersonal, refreshTeams } = useAppContext()
+  const { context, switchToPersonal } = useAppContext()
 
   return useMutation({
     mutationFn: async ({ teamId, newOwnerId }: { teamId: string; newOwnerId: string }) => {
@@ -221,7 +219,6 @@ export function useTransferAndLeave() {
       }
       queryClient.invalidateQueries({ queryKey: teamsKeys.list() })
       queryClient.removeQueries({ queryKey: teamsKeys.detail(teamId) })
-      await refreshTeams()
       toast.success(t.toasts?.teamLeft || "You have left the team")
       router.push("/dashboard/teams")
     },

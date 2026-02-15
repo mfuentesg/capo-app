@@ -22,7 +22,6 @@ import { createTeamAction } from "../api/actions"
 import { teamsKeys } from "../hooks/query-keys"
 import { toast } from "sonner"
 import { useUser } from "@/features/auth"
-import { useAppContext } from "@/features/app-context"
 import { useTranslation } from "@/hooks/use-translation"
 import type { TablesInsert } from "@/lib/supabase/database.types"
 
@@ -35,7 +34,6 @@ export function CreateTeamForm() {
   const router = useRouter()
   const queryClient = useQueryClient()
   const { data: user } = useUser()
-  const { refreshTeams } = useAppContext()
   const { t } = useTranslation()
 
   const teamFormSchema = z.object({
@@ -70,8 +68,6 @@ export function CreateTeamForm() {
       }
 
       const teamId = await createTeamAction(teamData)
-      await refreshTeams()
-      // Invalidate the React Query teams list cache to ensure fresh data
       await queryClient.invalidateQueries({ queryKey: teamsKeys.list() })
       toast.success(t.toasts.teamCreated)
       // Redirect to teams page with query parameter to switch to the new team

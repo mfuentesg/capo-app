@@ -3,7 +3,6 @@ export type {
   GroupBy,
   SongDetailProps,
   SongListProps,
-  SongsClientProps,
   BPMRange,
   MusicalKey
 } from "./song.types"

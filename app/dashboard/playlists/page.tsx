@@ -1,13 +1,24 @@
 import { redirect } from "next/navigation"
+import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query"
 import { getAppContext } from "@/features/app-context/server"
-import { api, PlaylistsClient } from "@/features/playlists"
+import { PlaylistsClient, api, playlistsKeys } from "@/features/playlists"
 
 export default async function PlaylistsPage() {
   const context = await getAppContext()
   if (!context) {
     redirect("/")
   }
-  const playlists = await api.getPlaylists(context)
 
-  return <PlaylistsClient initialPlaylists={playlists} />
+  const queryClient = new QueryClient()
+
+  await queryClient.prefetchQuery({
+    queryKey: playlistsKeys.list(context),
+    queryFn: () => api.getPlaylists(context)
+  })
+
+  return (
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <PlaylistsClient />
+    </HydrationBoundary>
+  )
 }

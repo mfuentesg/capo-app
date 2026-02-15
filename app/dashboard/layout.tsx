@@ -1,7 +1,6 @@
 import type React from "react"
 import { Navbar } from "@/components/layout"
 import { DraftIndicator } from "@/components/layout/draft-indicator"
-import { PlaylistsProvider } from "@/features/playlists"
 import { PlaylistDraftProvider } from "@/features/playlist-draft"
 
 export default function DashboardLayout({
@@ -10,14 +9,12 @@ export default function DashboardLayout({
   children: React.ReactNode
 }>) {
   return (
-    <PlaylistsProvider>
-      <PlaylistDraftProvider>
-        <main className="flex-1">
-          <Navbar />
-          {children}
-          <DraftIndicator />
-        </main>
-      </PlaylistDraftProvider>
-    </PlaylistsProvider>
+    <PlaylistDraftProvider>
+      <main className="flex-1">
+        <Navbar />
+        {children}
+        <DraftIndicator />
+      </main>
+    </PlaylistDraftProvider>
   )
 }

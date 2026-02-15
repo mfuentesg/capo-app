@@ -32,10 +32,6 @@ export interface SongListProps {
   onSelectSong: (song: Song) => void
 }
 
-export interface SongsClientProps {
-  initialSongs: Song[]
-}
-
 export type BPMRange = "all" | "slow" | "medium" | "fast"
 
 export type MusicalKey =

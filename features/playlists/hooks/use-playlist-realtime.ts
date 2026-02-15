@@ -1,3 +1,5 @@
+"use client"
+
 /**
  * Real-time hook for playlist collaboration
  * Subscribes to changes in playlist_songs table

@@ -14,14 +14,15 @@ import { PlaylistDetail } from "./playlist-detail"
 import { PlaylistCreateForm } from "./playlist-create-form"
 import type { Playlist } from "../types"
 import { useTranslation } from "@/hooks/use-translation"
-import { usePlaylists } from "../contexts"
+import { usePlaylists, useCreatePlaylist, useUpdatePlaylist, useDeletePlaylist } from "../hooks"
+import { useUser } from "@/features/auth"
 
-interface PlaylistsClientProps {
-  initialPlaylists: Playlist[]
-}
-
-export function PlaylistsClient({ initialPlaylists }: PlaylistsClientProps) {
-  const { playlists, addPlaylist, updatePlaylist, deletePlaylist } = usePlaylists()
+export function PlaylistsClient() {
+  const { data: playlists = [] } = usePlaylists()
+  const { data: user } = useUser()
+  const createPlaylistMutation = useCreatePlaylist()
+  const updatePlaylistMutation = useUpdatePlaylist()
+  const deletePlaylistMutation = useDeletePlaylist()
   const { t } = useTranslation()
   const [isMobile, setIsMobile] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
@@ -31,9 +32,8 @@ export function PlaylistsClient({ initialPlaylists }: PlaylistsClientProps) {
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false)
   const [isCreating, setIsCreating] = useState(false)
 
-  const effectivePlaylists = playlists.length > 0 ? playlists : initialPlaylists
   const selectedPlaylist = selectedPlaylistId
-    ? (effectivePlaylists.find((p) => p.id === selectedPlaylistId) ?? null)
+    ? (playlists.find((p) => p.id === selectedPlaylistId) ?? null)
     : null
 
   // Track viewport to render Drawer only after mount and on mobile
@@ -78,7 +78,8 @@ export function PlaylistsClient({ initialPlaylists }: PlaylistsClientProps) {
   }
 
   const handleCreateSubmit = async (playlist: Playlist) => {
-    const created = await addPlaylist(playlist)
+    if (!user?.id) return
+    const created = await createPlaylistMutation.mutateAsync({ playlist, userId: user.id })
     setIsCreating(false)
     setSelectedPlaylistId(created.id)
   }
@@ -104,7 +105,7 @@ export function PlaylistsClient({ initialPlaylists }: PlaylistsClientProps) {
                 <h1 className="text-xl font-semibold tracking-tight lg:text-2xl">
                   {t.playlists.title}
                 </h1>
-                <Badge variant="secondary">{effectivePlaylists.length}</Badge>
+                <Badge variant="secondary">{playlists.length}</Badge>
               </div>
               <Button size="sm" className="gap-1.5 rounded-full" onClick={handleCreateClick}>
                 <Plus className="h-4 w-4" />
@@ -238,7 +239,7 @@ export function PlaylistsClient({ initialPlaylists }: PlaylistsClientProps) {
 
           <div className="flex-1 overflow-y-auto">
             <PlaylistList
-              playlists={effectivePlaylists}
+              playlists={playlists}
               searchQuery={searchQuery}
               filterStatus={filterStatus}
               filterVisibility={filterVisibility}
@@ -261,9 +262,11 @@ export function PlaylistsClient({ initialPlaylists }: PlaylistsClientProps) {
             <PlaylistDetail
               playlist={selectedPlaylist}
               onClose={handleClosePlaylistDetail}
-              onUpdate={updatePlaylist}
+              onUpdate={(playlistId, updates) =>
+                updatePlaylistMutation.mutate({ playlistId, updates })
+              }
               onDelete={(id) => {
-                deletePlaylist(id)
+                deletePlaylistMutation.mutate(id)
                 handleClosePlaylistDetail()
               }}
             />
@@ -295,9 +298,11 @@ export function PlaylistsClient({ initialPlaylists }: PlaylistsClientProps) {
                 <PlaylistDetail
                   playlist={selectedPlaylist}
                   onClose={handleClosePlaylistDetail}
-                  onUpdate={updatePlaylist}
+                  onUpdate={(playlistId, updates) =>
+                    updatePlaylistMutation.mutate({ playlistId, updates })
+                  }
                   onDelete={(id) => {
-                    deletePlaylist(id)
+                    deletePlaylistMutation.mutate(id)
                     handleClosePlaylistDetail()
                   }}
                 />
