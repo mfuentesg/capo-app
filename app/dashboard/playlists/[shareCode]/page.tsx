@@ -1,4 +1,6 @@
-import { redirect } from "next/navigation"
+import { notFound } from "next/navigation"
+import { PlaylistShareView } from "@/features/playlist-sharing"
+import { api } from "@/features/playlists/api"
 
 export default async function PlaylistSharePage({
   params
@@ -6,5 +8,11 @@ export default async function PlaylistSharePage({
   params: Promise<{ shareCode: string }>
 }) {
   const { shareCode } = await params
-  redirect(`/playlists/${shareCode}`)
+  const playlist = await api.getPublicPlaylistByShareCode(shareCode)
+
+  if (!playlist || playlist.visibility !== "public") {
+    notFound()
+  }
+
+  return <PlaylistShareView playlist={playlist} />
 }

@@ -24,18 +24,24 @@ import { RenderedSong } from "./rendered-song"
 import { LazySongEditor } from "./song-editor"
 import { useTranslation } from "@/hooks/use-translation"
 import { createOverlayIds } from "@/lib/ui/stable-overlay-ids"
+import { cn } from "@/lib/utils"
 
 interface LyricsViewProps {
   song: Song
+  mode?: "page" | "panel"
+  readOnly?: boolean
+  onClose?: () => void
 }
 
-export function LyricsView({ song }: LyricsViewProps) {
+export function LyricsView({ song, mode = "page", readOnly = false, onClose }: LyricsViewProps) {
   const { t } = useTranslation()
   const router = useRouter()
   const [isEditing, setIsEditing] = useState(false)
   const [editedLyrics, setEditedLyrics] = useState(song.lyrics || "")
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
   const settingsPopoverIds = createOverlayIds(`lyrics-settings-${song.id}`)
+  const isPanel = mode === "panel"
+  const canEdit = !readOnly
 
   const { font, transpose, capo, hasModifications, resetAll } = useLyricsSettings({
     initialFontSize: song.fontSize,
@@ -44,6 +50,7 @@ export function LyricsView({ song }: LyricsViewProps) {
   })
 
   const handleEdit = () => {
+    if (!canEdit) return
     setIsEditing(true)
     setEditedLyrics(song.lyrics || "")
   }
@@ -69,25 +76,34 @@ export function LyricsView({ song }: LyricsViewProps) {
   }
 
   const handleLyricsChange = (value: string) => {
+    if (!canEdit) return
     setEditedLyrics(value)
     setHasUnsavedChanges(value !== song.lyrics)
   }
 
+  const handleBack = () => {
+    if (onClose) {
+      onClose()
+      return
+    }
+    router.back()
+  }
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className={cn("bg-background", isPanel ? "h-full" : "min-h-screen")}>
       {/* Header */}
       <div className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
-        <div className="container mx-auto px-4 py-4">
+        <div className={cn("px-4 py-4", !isPanel && "container mx-auto")}>
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => router.back()}
+                onClick={handleBack}
                 className="shrink-0"
                 aria-label={t.common.goBack}
               >
-                <ArrowLeft className="h-5 w-5" />
+                {onClose ? <X className="h-5 w-5" /> : <ArrowLeft className="h-5 w-5" />}
               </Button>
               <div className="flex-1 min-w-0">
                 <h1 className="text-xl font-semibold truncate">{song.title}</h1>
@@ -104,34 +120,40 @@ export function LyricsView({ song }: LyricsViewProps) {
               </Badge>
 
               {/* Edit/View Toggle */}
-              {isEditing ? (
-                <>
-                  {hasUnsavedChanges && (
-                    <Badge variant="secondary" className="shrink-0">
-                      {t.common.unsavedChanges}
-                    </Badge>
-                  )}
-                  <Button variant="outline" size="sm" onClick={handleCancel} className="shrink-0">
-                    <X className="h-4 w-4 mr-2" />
-                    {t.common.cancel}
+              {canEdit &&
+                (isEditing ? (
+                  <>
+                    {hasUnsavedChanges && (
+                      <Badge variant="secondary" className="shrink-0">
+                        {t.common.unsavedChanges}
+                      </Badge>
+                    )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleCancel}
+                      className="shrink-0"
+                    >
+                      <X className="h-4 w-4 mr-2" />
+                      {t.common.cancel}
+                    </Button>
+                    <Button
+                      variant="default"
+                      size="sm"
+                      onClick={handleSave}
+                      disabled={!hasUnsavedChanges}
+                      className="shrink-0"
+                    >
+                      <Save className="h-4 w-4 mr-2" />
+                      {t.common.save}
+                    </Button>
+                  </>
+                ) : (
+                  <Button variant="outline" size="sm" onClick={handleEdit} className="shrink-0">
+                    <Pencil className="h-4 w-4 mr-2" />
+                    {t.songs.editLyrics}
                   </Button>
-                  <Button
-                    variant="default"
-                    size="sm"
-                    onClick={handleSave}
-                    disabled={!hasUnsavedChanges}
-                    className="shrink-0"
-                  >
-                    <Save className="h-4 w-4 mr-2" />
-                    {t.common.save}
-                  </Button>
-                </>
-              ) : (
-                <Button variant="outline" size="sm" onClick={handleEdit} className="shrink-0">
-                  <Pencil className="h-4 w-4 mr-2" />
-                  {t.songs.editLyrics}
-                </Button>
-              )}
+                ))}
             </div>
           </div>
 
@@ -332,9 +354,9 @@ export function LyricsView({ song }: LyricsViewProps) {
       </div>
 
       {/* Lyrics Content */}
-      <div className="container mx-auto px-4 py-8">
+      <div className={cn("px-4 py-8", !isPanel && "container mx-auto")}>
         <div className="w-full">
-          {isEditing ? (
+          {isEditing && canEdit ? (
             <div className="max-w-5xl mx-auto">
               <div className="mb-4">
                 <h3 className="text-sm font-medium text-muted-foreground mb-2">
