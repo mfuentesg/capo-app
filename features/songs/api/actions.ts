@@ -5,10 +5,16 @@ import { createClient } from "@/lib/supabase/server"
 import type { Song } from "../types"
 import type { AppContext } from "@/features/app-context"
 import {
+  getSongs as getSongsApi,
   createSong as createSongApi,
   updateSong as updateSongApi,
   deleteSong as deleteSongApi
 } from "./songsApi"
+
+export async function getSongsAction(context: AppContext): Promise<Song[]> {
+  const supabase = await createClient()
+  return getSongsApi(supabase, context)
+}
 
 export async function createSongAction(
   song: Partial<Song>,

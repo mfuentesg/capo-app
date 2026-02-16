@@ -3,7 +3,12 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { useUser } from "@/features/auth"
 import { api } from "../api"
-import { createSongAction, updateSongAction, deleteSongAction } from "../api/actions"
+import {
+  getSongsAction,
+  createSongAction,
+  updateSongAction,
+  deleteSongAction
+} from "../api/actions"
 import { songsKeys } from "./query-keys"
 import type { Song } from "../types"
 import { toast } from "sonner"
@@ -24,9 +29,11 @@ export function useSongs() {
       if (!context) {
         return []
       }
-      return api.getSongs(context)
+      return getSongsAction(context)
     },
-    enabled: !!context && !!user?.id
+    enabled: !!context && !!user?.id,
+    staleTime: 30 * 1000,
+    placeholderData: (previousData) => previousData
   })
 }
 
