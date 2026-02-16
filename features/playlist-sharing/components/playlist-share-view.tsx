@@ -31,7 +31,6 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
   const playlistPath = playlist.shareCode
     ? `/dashboard/playlists/${playlist.shareCode}`
     : "/dashboard/playlists"
-  const [shareUrl, setShareUrl] = useState("")
   const [activeIndex, setActiveIndex] = useState<number | null>(null)
   const bodyOverflowRef = useRef<string>("")
 
@@ -75,11 +74,6 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
   ]
 
   useEffect(() => {
-    if (!playlist.shareCode) return
-    setShareUrl(`${window.location.origin}${playlistPath}`)
-  }, [playlist.shareCode, playlistPath])
-
-  useEffect(() => {
     if (activeIndex === null) return
 
     bodyOverflowRef.current = document.body.style.overflow
@@ -110,7 +104,8 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
   }
 
   const copyToClipboard = async () => {
-    if (!shareUrl) return
+    if (!playlist.shareCode) return
+    const shareUrl = `${window.location.origin}${playlistPath}`
 
     try {
       await navigator.clipboard.writeText(shareUrl)
@@ -170,7 +165,7 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
                   className="gap-2"
                   onClick={copyToClipboard}
                   aria-label={t.playlistShare.share}
-                  disabled={!shareUrl}
+                  disabled={!playlist.shareCode}
                 >
                   <Share2 className="h-4 w-4" />
                   {t.playlistShare.share}
