@@ -256,7 +256,11 @@
 
   "playlistShare": {
     "publicPlaylist": "Public Playlist",
-    "emptyDescription": "This playlist is currently empty"
+    "emptyDescription": "This playlist is currently empty",
+    "guestEditing": "Guest Editing",
+    "share": "Share",
+    "editSongs": "Edit songs",
+    "editSongsHint": "Guest editing from shared links is coming soon."
   },
   "auth": {
     "welcomeToCapo": "Welcome to Capo",

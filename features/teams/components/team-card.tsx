@@ -84,6 +84,7 @@ export function TeamCard({ team, memberCount = 1, initialSelectedTeamId = null }
                   value={editingIcon}
                   onChange={handleIconChange}
                   iconClassName="h-5 w-5"
+                  idBase={`team-card-${team.id}-icon-picker`}
                 />
               ) : (
                 <Avatar className="h-10 w-10 border border-border">
@@ -94,7 +95,11 @@ export function TeamCard({ team, memberCount = 1, initialSelectedTeamId = null }
                 </Avatar>
               )}
               <div className="flex-1 min-w-0">
-                <CardTitle className="text-lg truncate">{team.name}</CardTitle>
+                <Link href={`/dashboard/teams/${team.id}`}>
+                  <CardTitle className="text-lg truncate hover:underline cursor-pointer">
+                    {team.name}
+                  </CardTitle>
+                </Link>
               </div>
             </div>
             {isCurrentTeam ? (

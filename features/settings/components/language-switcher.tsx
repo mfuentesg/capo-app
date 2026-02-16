@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu"
 import { Languages, Check } from "lucide-react"
+import { createOverlayIds } from "@/lib/ui/stable-overlay-ids"
 
 /**
  * LanguageSwitcher Component
@@ -34,16 +35,23 @@ import { Languages, Check } from "lucide-react"
  */
 export function LanguageSwitcher() {
   const { locale, setLocale, t } = useLocale()
+  const menuIds = createOverlayIds("settings-language-menu")
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-9 w-9">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-9 w-9"
+          id={menuIds.triggerId}
+          aria-controls={menuIds.contentId}
+        >
           <Languages className="h-4 w-4" />
           <span className="sr-only">{t.settings.language}</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
+      <DropdownMenuContent align="end" id={menuIds.contentId} aria-labelledby={menuIds.triggerId}>
         <DropdownMenuLabel>{t.settings.language}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         {locales.map((loc) => (

@@ -13,6 +13,7 @@ import { Menu } from "lucide-react"
 import { NavLinks } from "@/components/layout/nav-links"
 import { useLocale } from "@/features/settings"
 import { Music, ListMusic, Users } from "lucide-react"
+import { createOverlayIds } from "@/lib/ui/stable-overlay-ids"
 
 interface MobileNavDrawerProps {
   isOpen: boolean
@@ -21,6 +22,7 @@ interface MobileNavDrawerProps {
 
 export function MobileNavDrawer({ isOpen, onOpenChange }: MobileNavDrawerProps) {
   const { t } = useLocale()
+  const drawerIds = createOverlayIds("mobile-nav-drawer")
 
   const navItems = [
     { title: t.nav.songs, href: "/dashboard/songs", icon: Music },
@@ -31,12 +33,21 @@ export function MobileNavDrawer({ isOpen, onOpenChange }: MobileNavDrawerProps) 
   return (
     <Drawer open={isOpen} onOpenChange={onOpenChange} direction="left">
       <DrawerTrigger asChild>
-        <Button variant="ghost" size="icon" className="mr-2 md:hidden">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="mr-2 md:hidden"
+          id={drawerIds.triggerId}
+          aria-controls={drawerIds.contentId}
+        >
           <Menu className="h-5 w-5" />
           <span className="sr-only">{t.common.toggleMenu}</span>
         </Button>
       </DrawerTrigger>
-      <DrawerContent className="w-64">
+      <DrawerContent
+        className="w-64"
+        id={drawerIds.contentId}
+      >
         <DrawerHeader>
           <DrawerTitle className="flex items-center gap-2">
             <OptimizedLogo

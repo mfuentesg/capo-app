@@ -33,6 +33,7 @@ import { KeySelect } from "@/features/songs"
 import { usePlaylistDraft } from "@/features/playlist-draft"
 import { transposeKey, calculateCapoKey } from "@/lib/music-theory"
 import { useTranslation } from "@/hooks/use-translation"
+import { createOverlayIds } from "@/lib/ui/stable-overlay-ids"
 
 interface EditableFieldProps {
   value: string
@@ -120,8 +121,52 @@ export function SongDetail({ song, onClose, onUpdate, onDelete }: SongDetailProp
   const { t } = useTranslation()
   const { isSongInDraft, toggleSongInDraft } = usePlaylistDraft()
   const isInCart = isSongInDraft(song.id)
-  const [transpose, setTranspose] = useState(0)
-  const [capoPosition, setCapoPosition] = useState(0)
+  const transpose = song.transpose ?? 0
+  const capoPosition = song.capo ?? 0
+  const deleteDialogIds = createOverlayIds(`song-detail-delete-${song.id}`)
+  const [bpmDraftBySongId, setBpmDraftBySongId] = useState<Record<string, string>>({})
+  const bpmDraft = bpmDraftBySongId[song.id]
+  const bpmInputValue = bpmDraft ?? String(song.bpm ?? 0)
+
+  const updateTranspose = (nextValue: number) => {
+    const clampedValue = Math.max(-6, Math.min(nextValue, 6))
+    if (clampedValue === transpose) return
+    onUpdate(song.id, { transpose: clampedValue })
+  }
+
+  const updateCapoPosition = (nextValue: number) => {
+    const clampedValue = Math.max(0, Math.min(nextValue, 12))
+    if (clampedValue === capoPosition) return
+    onUpdate(song.id, { capo: clampedValue })
+  }
+
+  const setBpmDraft = (nextValue: string) => {
+    setBpmDraftBySongId((prev) => ({ ...prev, [song.id]: nextValue }))
+  }
+
+  const clearBpmDraft = () => {
+    setBpmDraftBySongId((prev) => {
+      if (!(song.id in prev)) return prev
+      const next = { ...prev }
+      delete next[song.id]
+      return next
+    })
+  }
+
+  const commitBpmUpdate = () => {
+    if (bpmDraft === undefined) return
+
+    const parsedValue = Number.parseInt(bpmDraft, 10)
+    if (Number.isNaN(parsedValue)) {
+      clearBpmDraft()
+      return
+    }
+
+    const clampedValue = Math.max(20, Math.min(parsedValue, 500))
+    clearBpmDraft()
+    if (clampedValue === song.bpm) return
+    onUpdate(song.id, { bpm: clampedValue })
+  }
 
   return (
     <div className="flex flex-1 flex-col bg-muted/30">
@@ -168,14 +213,29 @@ export function SongDetail({ song, onClose, onUpdate, onDelete }: SongDetailProp
             <div className="flex items-center gap-2 rounded-full bg-background border px-3 py-1.5">
               <Clock className="h-3.5 w-3.5 text-muted-foreground" />
               <Input
-                type="number"
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
                 min={20}
                 max={500}
-                value={song.bpm}
+                value={bpmInputValue}
                 onChange={(e) => {
-                  const value = Number.parseInt(e.target.value)
-                  if (!isNaN(value) && value >= 20 && value <= 500) {
-                    onUpdate(song.id, { bpm: value })
+                  const nextValue = e.target.value
+                  if (/^\d*$/.test(nextValue)) {
+                    setBpmDraft(nextValue)
+                  }
+                }}
+                onBlur={commitBpmUpdate}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault()
+                    e.currentTarget.blur()
+                    return
+                  }
+
+                  if (e.key === "Escape") {
+                    e.preventDefault()
+                    clearBpmDraft()
                   }
                 }}
                 className="h-auto border-0 p-0 font-medium text-sm tabular-nums w-14 text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
@@ -194,7 +254,7 @@ export function SongDetail({ song, onClose, onUpdate, onDelete }: SongDetailProp
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setTranspose((prev) => Math.max(prev - 1, -6))}
+                onClick={() => updateTranspose(transpose - 1)}
                 disabled={transpose <= -6}
                 className="h-8"
               >
@@ -209,7 +269,7 @@ export function SongDetail({ song, onClose, onUpdate, onDelete }: SongDetailProp
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setTranspose((prev) => Math.min(prev + 1, 6))}
+                onClick={() => updateTranspose(transpose + 1)}
                 disabled={transpose >= 6}
                 className="h-8"
               >
@@ -219,7 +279,7 @@ export function SongDetail({ song, onClose, onUpdate, onDelete }: SongDetailProp
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => setTranspose(0)}
+                  onClick={() => updateTranspose(0)}
                   className="text-xs h-8"
                 >
                   {t.songs.reset}
@@ -248,7 +308,7 @@ export function SongDetail({ song, onClose, onUpdate, onDelete }: SongDetailProp
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCapoPosition((prev) => Math.max(prev - 1, 0))}
+                onClick={() => updateCapoPosition(capoPosition - 1)}
                 disabled={capoPosition <= 0}
                 className="h-8"
               >
@@ -262,7 +322,7 @@ export function SongDetail({ song, onClose, onUpdate, onDelete }: SongDetailProp
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCapoPosition((prev) => Math.min(prev + 1, 12))}
+                onClick={() => updateCapoPosition(capoPosition + 1)}
                 disabled={capoPosition >= 12}
                 className="h-8"
               >
@@ -272,7 +332,7 @@ export function SongDetail({ song, onClose, onUpdate, onDelete }: SongDetailProp
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => setCapoPosition(0)}
+                  onClick={() => updateCapoPosition(0)}
                   className="text-xs h-8"
                 >
                   {t.songs.reset}
@@ -325,15 +385,23 @@ export function SongDetail({ song, onClose, onUpdate, onDelete }: SongDetailProp
                   variant="outline"
                   size="sm"
                   className="gap-2 text-destructive hover:text-destructive bg-transparent"
+                  id={deleteDialogIds.triggerId}
+                  aria-controls={deleteDialogIds.contentId}
                 >
                   <Trash2 className="h-3.5 w-3.5" />
                   {t.common.delete}
                 </Button>
               </AlertDialogTrigger>
-              <AlertDialogContent>
+              <AlertDialogContent
+                id={deleteDialogIds.contentId}
+                aria-labelledby={deleteDialogIds.titleId}
+                aria-describedby={deleteDialogIds.descriptionId}
+              >
                 <AlertDialogHeader>
-                  <AlertDialogTitle>{t.songs.deleteSongConfirmTitle}</AlertDialogTitle>
-                  <AlertDialogDescription>
+                  <AlertDialogTitle id={deleteDialogIds.titleId}>
+                    {t.songs.deleteSongConfirmTitle}
+                  </AlertDialogTitle>
+                  <AlertDialogDescription id={deleteDialogIds.descriptionId}>
                     {t.songs.deleteSongConfirmDescription.replace("{title}", song.title)}
                   </AlertDialogDescription>
                 </AlertDialogHeader>

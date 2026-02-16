@@ -1,13 +1,35 @@
 "use client"
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { api } from "../api"
-import { createPlaylistAction, updatePlaylistAction, deletePlaylistAction } from "../api/actions"
+import {
+  getPlaylistsAction,
+  createPlaylistAction,
+  updatePlaylistAction,
+  deletePlaylistAction,
+  reorderPlaylistSongsAction
+} from "../api/actions"
 import { playlistsKeys } from "./query-keys"
 import type { Playlist } from "../types"
 import { toast } from "sonner"
 import { useLocale } from "@/features/settings"
 import { useAppContext } from "@/features/app-context"
+
+type PlaylistQuerySnapshot = Array<[readonly unknown[], Playlist[] | undefined]>
+
+function snapshotPlaylistQueries(queryClient: ReturnType<typeof useQueryClient>): PlaylistQuerySnapshot {
+  return queryClient.getQueriesData<Playlist[]>({ queryKey: playlistsKeys.lists() })
+}
+
+function restorePlaylistQueries(
+  queryClient: ReturnType<typeof useQueryClient>,
+  snapshots?: PlaylistQuerySnapshot
+) {
+  if (!snapshots) return
+
+  for (const [queryKey, data] of snapshots) {
+    queryClient.setQueryData(queryKey, data)
+  }
+}
 
 /**
  * Hook to fetch playlists for the current context (personal or team)
@@ -21,10 +43,11 @@ export function usePlaylists() {
       if (!context) {
         return []
       }
-      return api.getPlaylists(context)
+      return getPlaylistsAction(context)
     },
     enabled: !!context,
-    staleTime: 30 * 1000
+    staleTime: 30 * 1000,
+    placeholderData: (previousData) => previousData
   })
 }
 
@@ -38,14 +61,10 @@ export function useCreatePlaylist() {
 
   return useMutation({
     mutationFn: async ({ playlist, userId }: { playlist: Playlist; userId: string }) => {
-      return createPlaylistAction(playlist, userId)
+      return createPlaylistAction(playlist, userId, context ?? undefined)
     },
     onSuccess: () => {
-      if (context) {
-        queryClient.invalidateQueries({ queryKey: playlistsKeys.list(context) })
-      } else {
-        queryClient.invalidateQueries({ queryKey: playlistsKeys.lists() })
-      }
+      queryClient.invalidateQueries({ queryKey: playlistsKeys.lists() })
       toast.success(t.toasts?.playlistCreated || "Playlist created")
     },
     onError: (error) => {
@@ -61,7 +80,6 @@ export function useCreatePlaylist() {
 export function useUpdatePlaylist() {
   const queryClient = useQueryClient()
   const { t } = useLocale()
-  const { context } = useAppContext()
 
   return useMutation({
     mutationFn: async ({
@@ -74,30 +92,25 @@ export function useUpdatePlaylist() {
       return updatePlaylistAction(playlistId, updates)
     },
     onMutate: async ({ playlistId, updates }) => {
-      const queryKey = context ? playlistsKeys.list(context) : playlistsKeys.lists()
-      await queryClient.cancelQueries({ queryKey })
-      const previousPlaylists = queryClient.getQueryData<Playlist[]>(queryKey)
-      queryClient.setQueryData<Playlist[]>(
-        queryKey,
-        (old) => old?.map((p) => (p.id === playlistId ? { ...p, ...updates } : p)) ?? []
+      await queryClient.cancelQueries({ queryKey: playlistsKeys.lists() })
+      const snapshots = snapshotPlaylistQueries(queryClient)
+      queryClient.setQueriesData<Playlist[]>({ queryKey: playlistsKeys.lists() }, (old) =>
+        old?.map((p) => (p.id === playlistId ? { ...p, ...updates } : p))
       )
-      return { previousPlaylists, queryKey }
+      return { snapshots }
     },
     onError: (_err, _vars, rollbackContext) => {
-      if (rollbackContext?.previousPlaylists) {
-        queryClient.setQueryData(rollbackContext.queryKey, rollbackContext.previousPlaylists)
-      }
+      restorePlaylistQueries(queryClient, rollbackContext?.snapshots)
       toast.error(t.toasts?.error || "Something went wrong")
     },
-    onSuccess: () => {
+    onSuccess: (updatedPlaylist) => {
+      queryClient.setQueriesData<Playlist[]>({ queryKey: playlistsKeys.lists() }, (old) =>
+        old?.map((p) => (p.id === updatedPlaylist.id ? updatedPlaylist : p))
+      )
       toast.success(t.toasts?.playlistUpdated || "Playlist updated")
     },
     onSettled: () => {
-      if (context) {
-        queryClient.invalidateQueries({ queryKey: playlistsKeys.list(context) })
-      } else {
-        queryClient.invalidateQueries({ queryKey: playlistsKeys.lists() })
-      }
+      queryClient.invalidateQueries({ queryKey: playlistsKeys.lists() })
     }
   })
 }
@@ -108,37 +121,28 @@ export function useUpdatePlaylist() {
 export function useDeletePlaylist() {
   const queryClient = useQueryClient()
   const { t } = useLocale()
-  const { context } = useAppContext()
 
   return useMutation({
     mutationFn: async (playlistId: string) => {
       return deletePlaylistAction(playlistId)
     },
     onMutate: async (playlistId) => {
-      const queryKey = context ? playlistsKeys.list(context) : playlistsKeys.lists()
-      await queryClient.cancelQueries({ queryKey })
-      const previousPlaylists = queryClient.getQueryData<Playlist[]>(queryKey)
-      queryClient.setQueryData<Playlist[]>(
-        queryKey,
-        (old) => old?.filter((p) => p.id !== playlistId) ?? []
+      await queryClient.cancelQueries({ queryKey: playlistsKeys.lists() })
+      const snapshots = snapshotPlaylistQueries(queryClient)
+      queryClient.setQueriesData<Playlist[]>({ queryKey: playlistsKeys.lists() }, (old) =>
+        old?.filter((p) => p.id !== playlistId)
       )
-      return { previousPlaylists, queryKey }
+      return { snapshots }
     },
     onError: (_err, _vars, rollbackContext) => {
-      if (rollbackContext?.previousPlaylists) {
-        queryClient.setQueryData(rollbackContext.queryKey, rollbackContext.previousPlaylists)
-      }
+      restorePlaylistQueries(queryClient, rollbackContext?.snapshots)
       toast.error(t.toasts?.error || "Something went wrong")
     },
     onSuccess: () => {
       toast.success(t.toasts?.playlistDeleted || "Playlist deleted")
     },
     onSettled: () => {
-      if (context) {
-        queryClient.invalidateQueries({ queryKey: playlistsKeys.list(context) })
-      } else {
-        queryClient.invalidateQueries({ queryKey: playlistsKeys.lists() })
-      }
+      queryClient.invalidateQueries({ queryKey: playlistsKeys.lists() })
     }
   })
 }
@@ -148,57 +152,47 @@ export function useDeletePlaylist() {
  */
 export function useReorderPlaylistSongs() {
   const queryClient = useQueryClient()
-  const { context } = useAppContext()
 
   return useMutation({
     mutationFn: async ({
       playlistId,
       sourceIndex,
-      destinationIndex
+      destinationIndex,
+      currentSongs
     }: {
       playlistId: string
       sourceIndex: number
       destinationIndex: number
+      currentSongs: string[]
     }) => {
-      const queryKey = context ? playlistsKeys.list(context) : playlistsKeys.lists()
-      const playlists = queryClient.getQueryData<Playlist[]>(queryKey)
-      const playlist = playlists?.find((p) => p.id === playlistId)
-      if (!playlist) throw new Error("Playlist not found")
-
-      const newSongs = Array.from(playlist.songs)
+      const newSongs = Array.from(currentSongs)
       const [removed] = newSongs.splice(sourceIndex, 1)
       newSongs.splice(destinationIndex, 0, removed)
 
-      return updatePlaylistAction(playlistId, { songs: newSongs })
+      const updates = newSongs.map((songId, position) => ({ songId, position }))
+      return reorderPlaylistSongsAction(playlistId, updates)
     },
-    onMutate: async ({ playlistId, sourceIndex, destinationIndex }) => {
-      const queryKey = context ? playlistsKeys.list(context) : playlistsKeys.lists()
-      await queryClient.cancelQueries({ queryKey })
-      const previousPlaylists = queryClient.getQueryData<Playlist[]>(queryKey)
+    onMutate: async ({ playlistId, sourceIndex, destinationIndex, currentSongs }) => {
+      await queryClient.cancelQueries({ queryKey: playlistsKeys.lists() })
+      const snapshots = snapshotPlaylistQueries(queryClient)
+      const newSongs = Array.from(currentSongs)
+      const [removed] = newSongs.splice(sourceIndex, 1)
+      newSongs.splice(destinationIndex, 0, removed)
 
-      queryClient.setQueryData<Playlist[]>(queryKey, (old) =>
+      queryClient.setQueriesData<Playlist[]>({ queryKey: playlistsKeys.lists() }, (old) =>
         old?.map((p) => {
           if (p.id !== playlistId) return p
-          const newSongs = Array.from(p.songs)
-          const [removed] = newSongs.splice(sourceIndex, 1)
-          newSongs.splice(destinationIndex, 0, removed)
           return { ...p, songs: newSongs }
-        }) ?? []
+        })
       )
 
-      return { previousPlaylists, queryKey }
+      return { snapshots }
     },
     onError: (_err, _vars, rollbackContext) => {
-      if (rollbackContext?.previousPlaylists) {
-        queryClient.setQueryData(rollbackContext.queryKey, rollbackContext.previousPlaylists)
-      }
+      restorePlaylistQueries(queryClient, rollbackContext?.snapshots)
     },
     onSettled: () => {
-      if (context) {
-        queryClient.invalidateQueries({ queryKey: playlistsKeys.list(context) })
-      } else {
-        queryClient.invalidateQueries({ queryKey: playlistsKeys.lists() })
-      }
+      queryClient.invalidateQueries({ queryKey: playlistsKeys.lists() })
     }
   })
 }

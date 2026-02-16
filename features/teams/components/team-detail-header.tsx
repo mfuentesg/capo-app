@@ -148,7 +148,12 @@ export function TeamDetailHeader({ team, onUpdate, isOwner }: TeamDetailHeaderPr
       </Button>
       <div className="flex items-center gap-4 flex-1">
         {isOwner ? (
-          <IconPicker value={editingIcon} onChange={handleIconChange} iconClassName="h-6 w-6" />
+          <IconPicker
+            value={editingIcon}
+            onChange={handleIconChange}
+            iconClassName="h-6 w-6"
+            idBase={`team-detail-${team.id}-icon-picker`}
+          />
         ) : (
           <Avatar className="h-12 w-12 border border-border">
             {team.avatar_url && <AvatarImage src={team.avatar_url} alt={team.name} />}
@@ -171,9 +176,11 @@ export function TeamDetailHeader({ team, onUpdate, isOwner }: TeamDetailHeaderPr
             {t.teams.created} {formatDate(team.created_at)}
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           {team.is_public && <Badge variant="secondary">{t.filters.public}</Badge>}
-          <Button onClick={handleSwitchToTeam}>{t.teams.switchToTeam}</Button>
+          <Button size="sm" onClick={handleSwitchToTeam}>
+            {t.teams.switchToTeam}
+          </Button>
         </div>
       </div>
     </div>

@@ -23,6 +23,7 @@ import { useLyricsSettings } from "@/features/lyrics-editor"
 import { RenderedSong } from "./rendered-song"
 import { LazySongEditor } from "./song-editor"
 import { useTranslation } from "@/hooks/use-translation"
+import { createOverlayIds } from "@/lib/ui/stable-overlay-ids"
 
 interface LyricsViewProps {
   song: Song
@@ -34,6 +35,7 @@ export function LyricsView({ song }: LyricsViewProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [editedLyrics, setEditedLyrics] = useState(song.lyrics || "")
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+  const settingsPopoverIds = createOverlayIds(`lyrics-settings-${song.id}`)
 
   const { font, transpose, capo, hasModifications, resetAll } = useLyricsSettings({
     initialFontSize: song.fontSize,
@@ -167,7 +169,13 @@ export function LyricsView({ song }: LyricsViewProps) {
               {/* Settings Button */}
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" size="sm" className="relative">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="relative"
+                    id={settingsPopoverIds.triggerId}
+                    aria-controls={settingsPopoverIds.contentId}
+                  >
                     <Settings2 className="h-4 w-4 mr-2" />
                     {t.songs.lyrics.settings}
                     {hasModifications() && (
@@ -178,7 +186,12 @@ export function LyricsView({ song }: LyricsViewProps) {
                     )}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto mr-2.5" align="start">
+                <PopoverContent
+                  className="w-auto mr-2.5"
+                  align="start"
+                  id={settingsPopoverIds.contentId}
+                  aria-labelledby={settingsPopoverIds.triggerId}
+                >
                   <div className="space-y-4">
                     <div className="space-y-2">
                       <h4 className="font-medium leading-none">{t.songs.lyrics.displaySettings}</h4>

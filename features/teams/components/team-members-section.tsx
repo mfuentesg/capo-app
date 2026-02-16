@@ -55,6 +55,7 @@ import {
 import { RoleBadge } from "./role-badge"
 import type { Tables } from "@/lib/supabase/database.types"
 import { cn, formatDate } from "@/lib/utils"
+import { createOverlayIds } from "@/lib/ui/stable-overlay-ids"
 
 interface TeamMembersSectionProps {
   members: (Tables<"team_members"> & {
@@ -162,8 +163,8 @@ export function TeamMembersSection({
           </div>
           {canManageTeamMembers() && (
             <Button size="sm" onClick={() => setIsInviteDialogOpen(true)}>
-              <UserPlus className="h-4 w-4 mr-2" />
-              {t.teams.addMember}
+              <UserPlus className="h-4 w-4 sm:mr-2" />
+              <span className="hidden sm:inline">{t.teams.addMember}</span>
             </Button>
           )}
         </div>
@@ -172,6 +173,7 @@ export function TeamMembersSection({
           <ItemGroup className="gap-2">
             {members.map((member) => {
               const availableRoles = getAvailableRoles(member)
+              const roleMenuIds = createOverlayIds(`team-member-role-${member.user_id}`)
 
               const isCurrentUser = member.user_id === currentUserId
 
@@ -214,13 +216,20 @@ export function TeamMembersSection({
                             variant="outline"
                             size="sm"
                             disabled={roleChangeInProgress === member.user_id}
+                            id={roleMenuIds.triggerId}
+                            aria-controls={roleMenuIds.contentId}
                           >
                             <Shield className="h-4 w-4 mr-2" />
                             {getRoleButtonLabel(member)}
                             <ChevronDown className="h-3 w-3 ml-2" />
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-64">
+                        <DropdownMenuContent
+                          align="end"
+                          className="w-64"
+                          id={roleMenuIds.contentId}
+                          aria-labelledby={roleMenuIds.triggerId}
+                        >
                           <DropdownMenuLabel>{t.teams.changeRole}</DropdownMenuLabel>
                           <DropdownMenuSeparator />
                           {availableRoles.map((role) => {
@@ -288,7 +297,9 @@ export function TeamMembersSection({
                       </ItemContent>
                       <ItemActions>
                         <RoleBadge role={invitation.role} />
-                        <Badge variant="secondary">{t.teams.invitationPending}</Badge>
+                        <Badge variant="secondary" className="hidden sm:inline-flex">
+                          {t.teams.invitationPending}
+                        </Badge>
                         {canManageTeamMembers() && (
                           <Button
                             variant="outline"
@@ -296,8 +307,8 @@ export function TeamMembersSection({
                             onClick={() => setInvitationToCancel(invitation)}
                             disabled={cancelTeamInvitation.isPending}
                           >
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            {t.teams.cancelInvitation}
+                            <Trash2 className="h-4 w-4 sm:mr-2" />
+                            <span className="hidden sm:inline">{t.teams.cancelInvitation}</span>
                           </Button>
                         )}
                       </ItemActions>

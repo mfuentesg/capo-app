@@ -62,7 +62,7 @@ export function useCreateSong() {
 
   return useMutation({
     mutationFn: async ({ song, userId }: { song: Partial<Song>; userId: string }) => {
-      return createSongAction(song, userId)
+      return createSongAction(song, userId, context ?? undefined)
     },
     onSuccess: (newSong) => {
       const song = newSong
@@ -123,16 +123,16 @@ export function useUpdateSong() {
       }
       toast.error(t.toasts?.error || "Failed to update song")
     },
-    onSuccess: (updatedSong) => {
+    onSuccess: (updatedSong, _variables, mutationContext) => {
+      const queryKey =
+        mutationContext?.queryKey ?? (context ? songsKeys.list(context) : songsKeys.lists())
+
+      queryClient.setQueryData<Song[]>(
+        queryKey,
+        (old) => old?.map((s) => (s.id === updatedSong.id ? { ...s, ...updatedSong } : s)) ?? []
+      )
       queryClient.setQueryData(songsKeys.detail(updatedSong.id), updatedSong)
       toast.success(t.toasts?.songUpdated || "Song updated")
-    },
-    onSettled: () => {
-      if (context) {
-        queryClient.invalidateQueries({ queryKey: songsKeys.list(context) })
-      } else {
-        queryClient.invalidateQueries({ queryKey: songsKeys.lists() })
-      }
     }
   })
 }

@@ -1,6 +1,5 @@
 "use client"
 
-import * as React from "react"
 import { useToggle } from "@uidotdev/usehooks"
 import {
   Music,
@@ -89,6 +88,7 @@ import {
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { createOverlayIds } from "@/lib/ui/stable-overlay-ids"
 
 export const TEAM_ICONS: Record<string, LucideIcon> = {
   // Music & Audio
@@ -204,6 +204,7 @@ interface IconPickerProps {
   disabled?: boolean
   iconClassName?: string
   triggerClassName?: string
+  idBase?: string
 }
 
 export function IconPicker({
@@ -211,10 +212,11 @@ export function IconPicker({
   onChange,
   disabled,
   iconClassName,
-  triggerClassName
+  triggerClassName,
+  idBase
 }: IconPickerProps) {
   const [open, toggleOpen] = useToggle(false)
-  const contentId = React.useId()
+  const ids = createOverlayIds(idBase ?? "icon-picker")
 
   const selectedIconName = value && TEAM_ICONS[value] ? value : "Users"
   const SelectedIcon = TEAM_ICONS[selectedIconName] || Users
@@ -223,9 +225,10 @@ export function IconPicker({
     <Popover open={open} onOpenChange={toggleOpen}>
       <PopoverTrigger asChild>
         <button
+          id={ids.triggerId}
           role="combobox"
           aria-expanded={open}
-          aria-controls={contentId}
+          aria-controls={ids.contentId}
           aria-label="Select team icon"
           disabled={disabled}
           type="button"
@@ -240,7 +243,12 @@ export function IconPicker({
           <span className="sr-only">{value || "Select an icon"}</span>
         </button>
       </PopoverTrigger>
-      <PopoverContent id={contentId} className="w-140 p-0" align="start">
+      <PopoverContent
+        id={ids.contentId}
+        aria-labelledby={ids.triggerId}
+        className="w-140 p-0"
+        align="start"
+      >
         <div className="h-120 p-4 overflow-y-auto">
           <div className="grid grid-cols-8 gap-3">
             {Object.entries(TEAM_ICONS).map(([name, Icon]) => (

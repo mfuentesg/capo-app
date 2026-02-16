@@ -100,6 +100,7 @@ export function CreateTeamForm() {
                             onChange={iconField.onChange}
                             iconClassName="h-5 w-5"
                             triggerClassName="h-8 w-8 rounded-md border-border/60 bg-muted/60 hover:bg-muted"
+                            idBase="create-team-form-icon-picker"
                           />
                         </InputGroupAddon>
                       )}

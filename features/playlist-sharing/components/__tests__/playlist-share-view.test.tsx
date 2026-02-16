@@ -36,6 +36,7 @@ const playlist: PlaylistWithSongs = {
   createdAt: "2026-02-01T00:00:00.000Z",
   updatedAt: "2026-02-01T00:00:00.000Z",
   visibility: "public",
+  allowGuestEditing: true,
   shareCode: "share-code-123"
 }
 
@@ -51,7 +52,8 @@ describe("PlaylistShareView", () => {
     const songHeadings = screen.getAllByRole("heading", { level: 3 })
     expect(songHeadings.map((heading) => heading.textContent)).toEqual(["Second Song", "First Song"])
 
-    // Share URL should use canonical public route.
-    expect(screen.getByText(/\/playlists\/share-code-123$/)).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: "Share" })).toBeInTheDocument()
+    expect(screen.getByText("Guest Editing")).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: "Edit songs" })).toBeInTheDocument()
   })
 })

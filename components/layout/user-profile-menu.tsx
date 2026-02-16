@@ -17,11 +17,13 @@ import { UserProfileHeader } from "@/components/layout/user-profile-header"
 import { ContextSwitcher } from "@/components/layout/context-switcher"
 import { ProfileMenuActions } from "@/components/layout/profile-menu-actions"
 import { TeamIcon } from "@/components/ui/icon-picker"
+import { createOverlayIds } from "@/lib/ui/stable-overlay-ids"
 
 export function UserProfileMenu() {
   const { t } = useTranslation()
   const { data: user } = useUser()
   const { context, teams } = useAppContext()
+  const menuIds = createOverlayIds("user-profile-menu")
 
   const currentTeam = React.useMemo(() => {
     if (context?.type !== "team" || !teams) return null
@@ -34,7 +36,8 @@ export function UserProfileMenu() {
         <Button
           variant="ghost"
           className="relative h-9 w-9 rounded-full select-none"
-          id="user-profile-trigger"
+          id={menuIds.triggerId}
+          aria-controls={menuIds.contentId}
           aria-label={t.common.userMenu}
         >
           <Avatar className="h-9 w-9 ring-2 ring-background transition-all">
@@ -56,7 +59,12 @@ export function UserProfileMenu() {
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-72">
+      <DropdownMenuContent
+        align="end"
+        className="w-72"
+        id={menuIds.contentId}
+        aria-labelledby={menuIds.triggerId}
+      >
         <UserProfileHeader />
         <ContextSwitcher teams={teams} />
         <ProfileMenuActions />

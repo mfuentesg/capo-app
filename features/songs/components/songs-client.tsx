@@ -16,6 +16,7 @@ import { useSongs, useCreateSong, useUpdateSong, useDeleteSong } from "../hooks/
 import { useUser } from "@/features/auth"
 import type { Song, GroupBy, BPMRange, SongFilterStatus } from "../types"
 import { useTranslation } from "@/hooks/use-translation"
+import { createOverlayIds } from "@/lib/ui/stable-overlay-ids"
 
 export function SongsClient() {
   const { t } = useTranslation()
@@ -33,6 +34,9 @@ export function SongsClient() {
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false)
   const [isCreatingNewSong, setIsCreatingNewSong] = useState(false)
   const [previewSong, setPreviewSong] = useState<Song | null>(null)
+  const filterPopoverIds = createOverlayIds("songs-filter-popover")
+  const resizeHandleIds = createOverlayIds("songs-layout-resize")
+  const mobileDrawerIds = createOverlayIds("songs-mobile-drawer")
 
   // Track viewport to render Drawer only after mount and on mobile
   useEffect(() => {
@@ -72,7 +76,7 @@ export function SongsClient() {
   }
 
   const handleCreateNewSong = () => {
-    const previewId = `preview-${Date.now()}`
+    const previewId = crypto.randomUUID()
     const newPreview: Song = {
       id: previewId,
       title: "",
@@ -177,7 +181,13 @@ export function SongsClient() {
 
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" size="sm" className="relative gap-2 shrink-0">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="relative gap-2 shrink-0"
+                    id={filterPopoverIds.triggerId}
+                    aria-controls={filterPopoverIds.contentId}
+                  >
                     <Settings2 className="h-4 w-4" />
                     <span className="hidden sm:inline">{t.songs.filters}</span>
                     {activeFilterCount > 0 && (
@@ -188,7 +198,12 @@ export function SongsClient() {
                   </Button>
                 </PopoverTrigger>
 
-                <PopoverContent className="w-80 max-h-125 overflow-y-auto" align="end">
+                <PopoverContent
+                  className="w-80 max-h-125 overflow-y-auto"
+                  align="end"
+                  id={filterPopoverIds.contentId}
+                  aria-labelledby={filterPopoverIds.triggerId}
+                >
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <div className="space-y-1">
@@ -354,7 +369,7 @@ export function SongsClient() {
           </div>
         </ResizablePanel>
 
-        <ResizableHandle withHandle className="hidden md:flex" />
+        <ResizableHandle withHandle className="hidden md:flex" id={resizeHandleIds.handleId} />
 
         <ResizablePanel
           id="songs-detail-panel"
@@ -403,7 +418,10 @@ export function SongsClient() {
             }
           }}
         >
-          <DrawerContent className="flex flex-col mt-0! max-h-dvh! p-0 overflow-hidden">
+          <DrawerContent
+            className="flex flex-col mt-0! max-h-dvh! p-0 overflow-hidden"
+            id={mobileDrawerIds.contentId}
+          >
             <DrawerTitle className="sr-only">
               {isCreatingNewSong ? t.songs.createSong : t.songs.songDetails}
             </DrawerTitle>

@@ -3,7 +3,9 @@
 import { revalidatePath } from "next/cache"
 import { createClient } from "@/lib/supabase/server"
 import type { Playlist } from "../types"
+import type { AppContext } from "@/features/app-context"
 import {
+  getPlaylists as getPlaylistsApi,
   createPlaylist as createPlaylistApi,
   updatePlaylist as updatePlaylistApi,
   deletePlaylist as deletePlaylistApi,
@@ -12,6 +14,11 @@ import {
   reorderPlaylistSongs as reorderPlaylistSongsApi
 } from "./playlistsApi"
 
+export async function getPlaylistsAction(context: AppContext): Promise<Playlist[]> {
+  const supabase = await createClient()
+  return getPlaylistsApi(supabase, context)
+}
+
 export async function createPlaylistAction(
   playlistData: {
     name: string
@@ -19,11 +26,13 @@ export async function createPlaylistAction(
     date?: string
     songs?: string[]
     visibility?: "private" | "public"
+    allowGuestEditing?: boolean
   },
-  userId: string
+  userId: string,
+  context?: AppContext
 ): Promise<Playlist> {
   const supabase = await createClient()
-  const result = await createPlaylistApi(supabase, playlistData, userId)
+  const result = await createPlaylistApi(supabase, playlistData, userId, context)
   revalidatePath("/dashboard/playlists")
   return result
 }

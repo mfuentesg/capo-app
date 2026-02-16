@@ -24,6 +24,7 @@ import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea
 import { PlaylistDraftItem } from "./playlist-draft-item"
 import type { Song } from "@/types"
 import { useTranslation } from "@/hooks/use-translation"
+import { createOverlayIds } from "@/lib/ui/stable-overlay-ids"
 
 interface PlaylistDraftProps {
   songs: Song[]
@@ -44,6 +45,7 @@ export function PlaylistDraft({
 }: PlaylistDraftProps) {
   const [selectedPlaylist, setSelectedPlaylist] = useState<string>("new")
   const { t } = useTranslation()
+  const drawerIds = createOverlayIds("playlist-draft-drawer")
 
   if (songs.length === 0) {
     return null
@@ -70,6 +72,8 @@ export function PlaylistDraft({
               className="h-14 w-14 rounded-full shadow-lg p-0 flex items-center justify-center"
               size="lg"
               aria-label={t.playlistDraft.openDraft}
+              id={drawerIds.triggerId}
+              aria-controls={drawerIds.contentId}
             >
               {/* Music playlist icon */}
               <ListMusic className="h-6 w-6" />
@@ -85,7 +89,10 @@ export function PlaylistDraft({
           </div>
         </div>
       </DrawerTrigger>
-      <DrawerContent className="flex flex-col mt-0! max-h-dvh! p-0 overflow-hidden">
+      <DrawerContent
+        className="flex flex-col mt-0! max-h-dvh! p-0 overflow-hidden"
+        id={drawerIds.contentId}
+      >
         <DrawerHeader>
           <DrawerTitle className="flex items-center gap-2">
             <ListMusic className="h-5 w-5" />

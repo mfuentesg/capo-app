@@ -87,7 +87,7 @@ export function SongDraftForm({ song, onClose, onSave, onChange }: SongDraftForm
   }, [onChange])
 
   const generateSongId = useCallback(() => {
-    return `draft-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`
+    return crypto.randomUUID()
   }, [])
 
   const onSubmit = useCallback(

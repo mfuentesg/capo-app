@@ -1,7 +1,7 @@
 /**
  * Test suite for general utility functions
  */
-import { cn } from "@/lib/utils"
+import { cn, parseDateValue } from "@/lib/utils"
 
 describe("Utility Functions", () => {
   describe("cn (classname merger)", () => {
@@ -39,6 +39,16 @@ describe("Utility Functions", () => {
     it("should handle arrays of classes", () => {
       const result = cn(["px-2", "py-1"])
       expect(typeof result).toBe("string")
+    })
+  })
+
+  describe("parseDateValue", () => {
+    it("should parse YYYY-MM-DD strings as local calendar dates", () => {
+      const parsed = parseDateValue("2026-02-16")
+
+      expect(parsed.getFullYear()).toBe(2026)
+      expect(parsed.getMonth()).toBe(1) // 0-based
+      expect(parsed.getDate()).toBe(16)
     })
   })
 })

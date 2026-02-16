@@ -38,7 +38,7 @@ import {
 } from "@/components/ui/empty"
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
 import { Switch } from "@/components/ui/switch"
-import { cn, formatLongDate, formatDateISO } from "@/lib/utils"
+import { cn, formatLongDate, formatDateISO, parseDateValue } from "@/lib/utils"
 import { useTranslation } from "@/hooks/use-translation"
 import { useLocale } from "@/features/settings"
 import type { Playlist } from "@/features/playlists/types"
@@ -46,6 +46,7 @@ import type { SongWithPosition, PlaylistWithSongs } from "@/types/extended"
 import { DraggablePlaylist } from "@/features/playlists/utils"
 import { useReorderPlaylistSongs } from "../../hooks"
 import { api } from "@/features/songs"
+import { createOverlayIds } from "@/lib/ui/stable-overlay-ids"
 
 interface PlaylistDetailProps {
   playlist: Playlist
@@ -158,6 +159,8 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
   const { t } = useTranslation()
   const { locale } = useLocale()
   const [isCalendarOpen, setIsCalendarOpen] = useState(false)
+  const deleteDialogIds = createOverlayIds(`playlist-detail-delete-${playlist.id}`)
+  const calendarPopoverIds = createOverlayIds(`playlist-detail-calendar-${playlist.id}`)
 
   const [songsWithPosition, setSongsWithPosition] = useState<SongWithPosition[]>([])
 
@@ -201,7 +204,12 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
   )
 
   const handleSongReorder = async (sourceIndex: number, destinationIndex: number) => {
-    reorderMutation.mutate({ playlistId: playlist.id, sourceIndex, destinationIndex })
+    reorderMutation.mutate({
+      playlistId: playlist.id,
+      sourceIndex,
+      destinationIndex,
+      currentSongs: playlist.songs
+    })
   }
 
   return (
@@ -238,15 +246,27 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
         <div>
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button variant="destructive" size="sm" className="gap-2 w-full sm:w-auto">
+              <Button
+                variant="destructive"
+                size="sm"
+                className="gap-2 w-full sm:w-auto"
+                id={deleteDialogIds.triggerId}
+                aria-controls={deleteDialogIds.contentId}
+              >
                 <Trash2 className="h-3.5 w-3.5" />
                 <span>{t.playlistDetail.deletePlaylist}</span>
               </Button>
             </AlertDialogTrigger>
-            <AlertDialogContent>
+            <AlertDialogContent
+              id={deleteDialogIds.contentId}
+              aria-labelledby={deleteDialogIds.titleId}
+              aria-describedby={deleteDialogIds.descriptionId}
+            >
               <AlertDialogHeader>
-                <AlertDialogTitle>{t.playlistDetail.deletePlaylistConfirmTitle}</AlertDialogTitle>
-                <AlertDialogDescription>
+                <AlertDialogTitle id={deleteDialogIds.titleId}>
+                  {t.playlistDetail.deletePlaylistConfirmTitle}
+                </AlertDialogTitle>
+                <AlertDialogDescription id={deleteDialogIds.descriptionId}>
                   {t.playlistDetail.deletePlaylistConfirmDescription.replace(
                     "{name}",
                     playlist.name
@@ -270,21 +290,26 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
+                  id={calendarPopoverIds.triggerId}
+                  aria-controls={calendarPopoverIds.contentId}
                   className={cn(
                     "flex items-center gap-2 rounded-full bg-background border px-3 py-1.5 h-auto font-normal",
                     !playlist.date && "text-muted-foreground"
                   )}
                 >
                   <CalendarIcon className="h-3.5 w-3.5" />
-                  {playlist.date
-                    ? formatLongDate(new Date(playlist.date), locale)
-                    : t.playlistDetail.pickDate}
+                  {playlist.date ? formatLongDate(playlist.date, locale) : t.playlistDetail.pickDate}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
+              <PopoverContent
+                className="w-auto p-0"
+                align="start"
+                id={calendarPopoverIds.contentId}
+                aria-labelledby={calendarPopoverIds.triggerId}
+              >
                 <Calendar
                   mode="single"
-                  selected={playlist.date ? new Date(playlist.date) : undefined}
+                  selected={playlist.date ? parseDateValue(playlist.date) : undefined}
                   onSelect={(date) => {
                     if (date) {
                       onUpdate(playlist.id, { date: formatDateISO(date) })
@@ -364,7 +389,7 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
                 <p className="text-xs text-muted-foreground">{t.playlistDetail.guestsCanReorder}</p>
               </div>
               <Switch
-                defaultChecked={playlist.allowGuestEditing || false}
+                checked={playlist.allowGuestEditing || false}
                 onCheckedChange={(checked) => {
                   onUpdate(playlist.id, { allowGuestEditing: checked })
                 }}

@@ -235,6 +235,7 @@ export function useTransferAndLeave() {
 export function useInviteTeamMember() {
   const queryClient = useQueryClient()
   const { t } = useLocale()
+  const { data: user } = useUser()
 
   return useMutation({
     mutationFn: async ({
@@ -248,14 +249,40 @@ export function useInviteTeamMember() {
     }) => {
       return inviteTeamMemberAction(teamId, email, role)
     },
+    onMutate: async ({ teamId, email, role = "member" }) => {
+      await queryClient.cancelQueries({ queryKey: teamsKeys.invitations(teamId) })
+
+      const previousInvitations = queryClient.getQueryData<Tables<"team_invitations">[]>(
+        teamsKeys.invitations(teamId)
+      )
+
+      const optimisticInvitation: Tables<"team_invitations"> = {
+        id: `temp-${Date.now()}`,
+        email,
+        role,
+        team_id: teamId,
+        invited_by: user?.id || "",
+        created_at: new Date().toISOString(),
+        expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+        accepted_at: null,
+        token: `temp-token-${Date.now()}`
+      }
+
+      queryClient.setQueryData<Tables<"team_invitations">[]>(
+        teamsKeys.invitations(teamId),
+        (old = []) => [...old, optimisticInvitation]
+      )
+
+      return { previousInvitations }
+    },
     onSuccess: async (_, { teamId }) => {
-      // Only invalidate invitations — inviting doesn't change the members list.
-      // Invalidating members caused a flash of "No members" because the
-      // client-side refetch could return an empty array momentarily.
       queryClient.invalidateQueries({ queryKey: teamsKeys.invitations(teamId) })
       toast.success(t.toasts?.invitationSent || "Invitation sent successfully")
     },
-    onError: (error) => {
+    onError: (error, { teamId }, context) => {
+      if (context?.previousInvitations) {
+        queryClient.setQueryData(teamsKeys.invitations(teamId), context.previousInvitations)
+      }
       console.error("Error inviting team member:", error)
       const message = error instanceof Error ? error.message : "Failed to send invitation"
       toast.error(message)
@@ -270,15 +297,38 @@ export function useRemoveTeamMember() {
   const queryClient = useQueryClient()
   const { t } = useLocale()
 
+  type MemberWithUser = Tables<"team_members"> & {
+    user_full_name: string | null
+    user_email: string | null
+    user_avatar_url: string | null
+  }
+
   return useMutation({
     mutationFn: async ({ teamId, userId }: { teamId: string; userId: string }) => {
       return removeTeamMemberAction(teamId, userId)
+    },
+    onMutate: async ({ teamId, userId }) => {
+      await queryClient.cancelQueries({ queryKey: teamsKeys.members(teamId) })
+
+      const previousMembers = queryClient.getQueryData<MemberWithUser[]>(
+        teamsKeys.members(teamId)
+      )
+
+      queryClient.setQueryData<MemberWithUser[]>(
+        teamsKeys.members(teamId),
+        (old = []) => old.filter((m) => m.user_id !== userId)
+      )
+
+      return { previousMembers }
     },
     onSuccess: async (_, { teamId }) => {
       queryClient.invalidateQueries({ queryKey: teamsKeys.members(teamId) })
       toast.success(t.toasts?.memberRemoved || "Member removed successfully")
     },
-    onError: (error) => {
+    onError: (error, { teamId }, context) => {
+      if (context?.previousMembers) {
+        queryClient.setQueryData(teamsKeys.members(teamId), context.previousMembers)
+      }
       console.error("Error removing team member:", error)
       const message = error instanceof Error ? error.message : "Failed to remove member"
       toast.error(message)
@@ -342,11 +392,28 @@ export function useCancelTeamInvitation() {
     mutationFn: async ({ invitationId }: { invitationId: string; teamId: string }) => {
       return deleteTeamInvitationAction(invitationId)
     },
+    onMutate: async ({ invitationId, teamId }) => {
+      await queryClient.cancelQueries({ queryKey: teamsKeys.invitations(teamId) })
+
+      const previousInvitations = queryClient.getQueryData<Tables<"team_invitations">[]>(
+        teamsKeys.invitations(teamId)
+      )
+
+      queryClient.setQueryData<Tables<"team_invitations">[]>(
+        teamsKeys.invitations(teamId),
+        (old = []) => old.filter((inv) => inv.id !== invitationId)
+      )
+
+      return { previousInvitations }
+    },
     onSuccess: async (_, { teamId }) => {
       queryClient.invalidateQueries({ queryKey: teamsKeys.invitations(teamId) })
       toast.success(t.toasts?.invitationCanceled || "Invitation canceled")
     },
-    onError: (error) => {
+    onError: (error, { teamId }, context) => {
+      if (context?.previousInvitations) {
+        queryClient.setQueryData(teamsKeys.invitations(teamId), context.previousInvitations)
+      }
       console.error("Error canceling invitation:", error)
       const message = error instanceof Error ? error.message : "Failed to cancel invitation"
       toast.error(message)

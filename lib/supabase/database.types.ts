@@ -117,6 +117,7 @@ export type Database = {
       }
       playlists: {
         Row: {
+          allow_guest_editing: boolean
           created_at: string
           created_by: string
           date: string | null
@@ -131,6 +132,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          allow_guest_editing?: boolean
           created_at?: string
           created_by: string
           date?: string | null
@@ -145,6 +147,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          allow_guest_editing?: boolean
           created_at?: string
           created_by?: string
           date?: string | null
@@ -213,6 +216,7 @@ export type Database = {
         Row: {
           artist: string | null
           bpm: number | null
+          capo: number
           created_at: string
           created_by: string
           id: string
@@ -222,12 +226,14 @@ export type Database = {
           status: Database["public"]["Enums"]["song_status_enum"]
           team_id: string | null
           title: string
+          transpose: number
           updated_at: string
           user_id: string | null
         }
         Insert: {
           artist?: string | null
           bpm?: number | null
+          capo?: number
           created_at?: string
           created_by: string
           id?: string
@@ -237,12 +243,14 @@ export type Database = {
           status?: Database["public"]["Enums"]["song_status_enum"]
           team_id?: string | null
           title: string
+          transpose?: number
           updated_at?: string
           user_id?: string | null
         }
         Update: {
           artist?: string | null
           bpm?: number | null
+          capo?: number
           created_at?: string
           created_by?: string
           id?: string
@@ -252,6 +260,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["song_status_enum"]
           team_id?: string | null
           title?: string
+          transpose?: number
           updated_at?: string
           user_id?: string | null
         }

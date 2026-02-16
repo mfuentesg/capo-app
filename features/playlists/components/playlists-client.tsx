@@ -16,6 +16,7 @@ import type { Playlist } from "../types"
 import { useTranslation } from "@/hooks/use-translation"
 import { usePlaylists, useCreatePlaylist, useUpdatePlaylist, useDeletePlaylist } from "../hooks"
 import { useUser } from "@/features/auth"
+import { createOverlayIds } from "@/lib/ui/stable-overlay-ids"
 
 export function PlaylistsClient() {
   const { data: playlists = [] } = usePlaylists()
@@ -31,6 +32,9 @@ export function PlaylistsClient() {
   const [selectedPlaylistId, setSelectedPlaylistId] = useState<string | null>(null)
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false)
   const [isCreating, setIsCreating] = useState(false)
+  const filterPopoverIds = createOverlayIds("playlists-filter-popover")
+  const resizeHandleIds = createOverlayIds("playlists-layout-resize")
+  const mobileDrawerIds = createOverlayIds("playlists-mobile-drawer")
 
   const selectedPlaylist = selectedPlaylistId
     ? (playlists.find((p) => p.id === selectedPlaylistId) ?? null)
@@ -135,7 +139,13 @@ export function PlaylistsClient() {
 
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" size="sm" className="relative gap-2 shrink-0">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="relative gap-2 shrink-0"
+                    id={filterPopoverIds.triggerId}
+                    aria-controls={filterPopoverIds.contentId}
+                  >
                     <Settings2 className="h-4 w-4" />
                     <span className="hidden sm:inline">{t.songs.filters}</span>
                     {activeFilterCount > 0 && (
@@ -145,7 +155,12 @@ export function PlaylistsClient() {
                     )}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-80 max-h-125 overflow-y-auto" align="end">
+                <PopoverContent
+                  className="w-80 max-h-125 overflow-y-auto"
+                  align="end"
+                  id={filterPopoverIds.contentId}
+                  aria-labelledby={filterPopoverIds.triggerId}
+                >
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <div className="space-y-1">
@@ -249,7 +264,7 @@ export function PlaylistsClient() {
           </div>
         </ResizablePanel>
 
-        <ResizableHandle withHandle className="hidden md:flex" />
+        <ResizableHandle withHandle className="hidden md:flex" id={resizeHandleIds.handleId} />
 
         <ResizablePanel
           id="playlists-detail-panel"
@@ -287,8 +302,13 @@ export function PlaylistsClient() {
 
       {isMobile && (
         <Drawer open={isMobileDrawerOpen} onOpenChange={setIsMobileDrawerOpen}>
-          <DrawerContent className="flex flex-col mt-0! max-h-dvh! p-0 overflow-hidden">
-            <DrawerTitle className="sr-only">{t.playlists.playlistDetails}</DrawerTitle>
+          <DrawerContent
+            className="flex flex-col mt-0! max-h-dvh! p-0 overflow-hidden"
+            id={mobileDrawerIds.contentId}
+          >
+            <DrawerTitle className="sr-only">
+              {t.playlists.playlistDetails}
+            </DrawerTitle>
             <DrawerDescription className="sr-only">
               {t.playlistDetail.editDescription}
             </DrawerDescription>

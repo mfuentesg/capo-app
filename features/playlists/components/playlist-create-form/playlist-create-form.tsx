@@ -13,6 +13,7 @@ import { cn, formatLongDate, formatDateISO } from "@/lib/utils"
 import { useTranslation } from "@/hooks/use-translation"
 import { useLocale } from "@/features/settings"
 import type { Playlist } from "@/features/playlists/types"
+import { createOverlayIds } from "@/lib/ui/stable-overlay-ids"
 
 interface PlaylistCreateFormProps {
   onSubmit: (playlist: Playlist) => Promise<void>
@@ -27,6 +28,7 @@ export function PlaylistCreateForm({ onSubmit, onCancel }: PlaylistCreateFormPro
   const [date, setDate] = useState<Date | undefined>(undefined)
   const [isCalendarOpen, toggleIsCalendarOpen] = useToggle(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const calendarPopoverIds = createOverlayIds("playlist-create-calendar-popover")
 
   const canSubmit = name.trim().length > 0 && !isSubmitting
 
@@ -91,6 +93,8 @@ export function PlaylistCreateForm({ onSubmit, onCancel }: PlaylistCreateFormPro
                 <Button
                   type="button"
                   variant="outline"
+                  id={calendarPopoverIds.triggerId}
+                  aria-controls={calendarPopoverIds.contentId}
                   className={cn(
                     "w-full justify-start gap-2 font-normal",
                     !date && "text-muted-foreground"
@@ -100,7 +104,12 @@ export function PlaylistCreateForm({ onSubmit, onCancel }: PlaylistCreateFormPro
                   {date ? formatLongDate(date, locale) : t.playlistDetail.pickDate}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
+              <PopoverContent
+                className="w-auto p-0"
+                align="start"
+                id={calendarPopoverIds.contentId}
+                aria-labelledby={calendarPopoverIds.triggerId}
+              >
                 <Calendar
                   mode="single"
                   selected={date}

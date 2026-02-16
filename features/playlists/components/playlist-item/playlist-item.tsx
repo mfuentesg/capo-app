@@ -6,6 +6,7 @@ import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip
 import type { Playlist } from "@/features/playlists/types"
 import { useTranslation } from "@/hooks/use-translation"
 import { formatDate } from "@/lib/utils"
+import { createOverlayIds } from "@/lib/ui/stable-overlay-ids"
 
 interface PlaylistItemProps {
   playlist: Playlist
@@ -15,6 +16,9 @@ interface PlaylistItemProps {
 
 export function PlaylistItem({ playlist, isSelected, onSelect }: PlaylistItemProps) {
   const { t } = useTranslation()
+  const privateTooltipIds = createOverlayIds(`playlist-private-tooltip-${playlist.id}`)
+  const publicTooltipIds = createOverlayIds(`playlist-public-tooltip-${playlist.id}`)
+
   return (
     <div
       onClick={() => onSelect(playlist)}
@@ -37,17 +41,25 @@ export function PlaylistItem({ playlist, isSelected, onSelect }: PlaylistItemPro
           )}
           {playlist.visibility === "private" && (
             <Tooltip>
-              <TooltipTrigger asChild>
+              <TooltipTrigger
+                asChild
+                id={privateTooltipIds.triggerId}
+                aria-describedby={privateTooltipIds.contentId}
+              >
                 <Lock className="h-3 w-3 text-muted-foreground shrink-0" />
               </TooltipTrigger>
-              <TooltipContent>
+              <TooltipContent id={privateTooltipIds.contentId}>
                 <p>{t.playlistItem.privatePlaylist}</p>
               </TooltipContent>
             </Tooltip>
           )}
           {playlist.visibility === "public" && (
             <Tooltip>
-              <TooltipTrigger asChild>
+              <TooltipTrigger
+                asChild
+                id={publicTooltipIds.triggerId}
+                aria-describedby={publicTooltipIds.contentId}
+              >
                 <div className="flex items-center gap-0.5 shrink-0">
                   <Globe className="h-3 w-3 text-muted-foreground" />
                   {playlist.allowGuestEditing && (
@@ -55,7 +67,7 @@ export function PlaylistItem({ playlist, isSelected, onSelect }: PlaylistItemPro
                   )}
                 </div>
               </TooltipTrigger>
-              <TooltipContent>
+              <TooltipContent id={publicTooltipIds.contentId}>
                 <p>
                   {playlist.allowGuestEditing
                     ? t.playlistItem.publicGuestEditing

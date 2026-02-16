@@ -24,9 +24,10 @@ function mapDBSongToFrontend(dbSong: Tables<"songs">): FrontendSong {
     bpm: dbSong.bpm || 0,
     lyrics: dbSong.lyrics || undefined,
     notes: dbSong.notes || undefined,
+    transpose: dbSong.transpose ?? 0,
+    capo: dbSong.capo ?? 0,
     // tags field not in database schema - omit for now
     isDraft: dbSong.status === "draft"
-    // fontSize, transpose, capo are frontend-only fields - not stored in DB
   }
 }
 
@@ -34,7 +35,12 @@ function mapDBSongToFrontend(dbSong: Tables<"songs">): FrontendSong {
  * Maps frontend song to database insert type
  * Converts isDraft boolean to status enum
  */
-function mapFrontendSongToDB(song: Partial<FrontendSong>, userId: string): TablesInsert<"songs"> {
+function mapFrontendSongToDB(
+  song: Partial<FrontendSong>,
+  userId: string,
+  context?: AppContext
+): TablesInsert<"songs"> {
+  const isTeam = context?.type === "team"
   return {
     title: song.title || "",
     artist: song.artist || null,
@@ -42,9 +48,11 @@ function mapFrontendSongToDB(song: Partial<FrontendSong>, userId: string): Table
     bpm: song.bpm || null,
     lyrics: song.lyrics || null,
     notes: song.notes || null,
+    transpose: song.transpose ?? 0,
+    capo: song.capo ?? 0,
     status: song.isDraft ? "draft" : "published",
-    user_id: userId,
-    team_id: null,
+    user_id: isTeam ? null : userId,
+    team_id: isTeam ? context.teamId : null,
     created_by: userId
   }
 }
@@ -61,6 +69,8 @@ function mapFrontendUpdatesToDB(updates: Partial<FrontendSong>): TablesUpdate<"s
   if (updates.bpm !== undefined) dbUpdate.bpm = updates.bpm || null
   if (updates.lyrics !== undefined) dbUpdate.lyrics = updates.lyrics || null
   if (updates.notes !== undefined) dbUpdate.notes = updates.notes || null
+  if (updates.transpose !== undefined) dbUpdate.transpose = updates.transpose
+  if (updates.capo !== undefined) dbUpdate.capo = updates.capo
   if (updates.isDraft !== undefined) {
     dbUpdate.status = updates.isDraft ? "draft" : "published"
   }
@@ -135,9 +145,10 @@ export async function getSongsByIds(
 export async function createSong(
   supabase: SupabaseClient,
   song: Partial<FrontendSong>,
-  userId: string
+  userId: string,
+  context?: AppContext
 ): Promise<FrontendSong> {
-  const dbSong = mapFrontendSongToDB(song, userId)
+  const dbSong = mapFrontendSongToDB(song, userId, context)
 
   const response = await supabase.from("songs").insert(dbSong).select().single()
 

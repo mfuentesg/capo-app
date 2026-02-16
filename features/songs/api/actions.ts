@@ -3,15 +3,20 @@
 import { revalidatePath } from "next/cache"
 import { createClient } from "@/lib/supabase/server"
 import type { Song } from "../types"
+import type { AppContext } from "@/features/app-context"
 import {
   createSong as createSongApi,
   updateSong as updateSongApi,
   deleteSong as deleteSongApi
 } from "./songsApi"
 
-export async function createSongAction(song: Partial<Song>, userId: string): Promise<Song> {
+export async function createSongAction(
+  song: Partial<Song>,
+  userId: string,
+  context?: AppContext
+): Promise<Song> {
   const supabase = await createClient()
-  const result = await createSongApi(supabase, song, userId)
+  const result = await createSongApi(supabase, song, userId, context)
   revalidatePath("/dashboard/songs")
   return result
 }

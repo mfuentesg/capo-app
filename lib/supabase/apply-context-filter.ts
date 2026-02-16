@@ -1,10 +1,17 @@
 import type { AppContext } from "@/features/app-context"
 
-export function applyContextFilter<T extends { eq: (column: string, value: string) => T }>(
+type ContextFilterQuery<T> = {
+  eq: (column: string, value: string) => T
+  is: (column: string, value: boolean | null) => T
+}
+
+export function applyContextFilter<T extends ContextFilterQuery<T>>(
   query: T,
   context: AppContext
 ): T {
-  return context.type === "personal"
-    ? query.eq("user_id", context.userId)
-    : query.eq("team_id", context.teamId)
+  if (context.type === "personal") {
+    return query.eq("user_id", context.userId).is("team_id", null)
+  }
+
+  return query.eq("team_id", context.teamId).is("user_id", null)
 }

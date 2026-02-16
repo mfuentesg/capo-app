@@ -32,6 +32,7 @@ import {
 import { ArrowLeftRight, LogOut, Trash2 } from "lucide-react"
 import { useTranslation } from "@/hooks/use-translation"
 import type { Tables } from "@/lib/supabase/database.types"
+import { createOverlayIds } from "@/lib/ui/stable-overlay-ids"
 
 type TeamMemberWithName = Tables<"team_members"> & {
   user_full_name: string | null
@@ -66,6 +67,10 @@ function OwnerDangerActions({
   getMemberLabel
 }: OwnerDangerActionsProps) {
   const { t } = useTranslation()
+  const deleteOnlyDialogIds = createOverlayIds(`team-danger-owner-delete-only-${teamName}`)
+  const leaveDialogIds = createOverlayIds(`team-danger-owner-leave-${teamName}`)
+  const transferDialogIds = createOverlayIds(`team-danger-owner-transfer-${teamName}`)
+  const deleteDialogIds = createOverlayIds(`team-danger-owner-delete-${teamName}`)
 
   if (!hasOtherMembers) {
     return (
@@ -77,15 +82,27 @@ function OwnerDangerActions({
         <ItemActions>
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button variant="destructive" size="sm" disabled={isDeleting}>
+              <Button
+                variant="destructive"
+                size="sm"
+                disabled={isDeleting}
+                id={deleteOnlyDialogIds.triggerId}
+                aria-controls={deleteOnlyDialogIds.contentId}
+              >
                 <Trash2 className="h-4 w-4 mr-2" />
                 {t.common.delete}
               </Button>
             </AlertDialogTrigger>
-            <AlertDialogContent>
+            <AlertDialogContent
+              id={deleteOnlyDialogIds.contentId}
+              aria-labelledby={deleteOnlyDialogIds.titleId}
+              aria-describedby={deleteOnlyDialogIds.descriptionId}
+            >
               <AlertDialogHeader>
-                <AlertDialogTitle>{t.teams.deleteTeamConfirmTitle}</AlertDialogTitle>
-                <AlertDialogDescription>
+                <AlertDialogTitle id={deleteOnlyDialogIds.titleId}>
+                  {t.teams.deleteTeamConfirmTitle}
+                </AlertDialogTitle>
+                <AlertDialogDescription id={deleteOnlyDialogIds.descriptionId}>
                   {t.teams.deleteTeamConfirmDescription.replace("{name}", teamName)}
                 </AlertDialogDescription>
               </AlertDialogHeader>
@@ -112,15 +129,25 @@ function OwnerDangerActions({
         <ItemActions>
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button variant="destructive" size="sm" disabled={isTransferring}>
+              <Button
+                variant="destructive"
+                size="sm"
+                disabled={isTransferring}
+                id={leaveDialogIds.triggerId}
+                aria-controls={leaveDialogIds.contentId}
+              >
                 <LogOut className="h-4 w-4 mr-2" />
                 {t.teams.leaveShort}
               </Button>
             </AlertDialogTrigger>
-            <AlertDialogContent>
+            <AlertDialogContent
+              id={leaveDialogIds.contentId}
+              aria-labelledby={leaveDialogIds.titleId}
+              aria-describedby={leaveDialogIds.descriptionId}
+            >
               <AlertDialogHeader>
-                <AlertDialogTitle>{t.teams.leaveTeam}</AlertDialogTitle>
-                <AlertDialogDescription>
+                <AlertDialogTitle id={leaveDialogIds.titleId}>{t.teams.leaveTeam}</AlertDialogTitle>
+                <AlertDialogDescription id={leaveDialogIds.descriptionId}>
                   {t.teams.transferOwnershipDescription}
                 </AlertDialogDescription>
               </AlertDialogHeader>
@@ -164,15 +191,27 @@ function OwnerDangerActions({
         <ItemActions>
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button variant="outline" size="sm" disabled={isTransferring}>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={isTransferring}
+                id={transferDialogIds.triggerId}
+                aria-controls={transferDialogIds.contentId}
+              >
                 <ArrowLeftRight className="h-4 w-4 mr-2" />
                 {t.teams.transferShort}
               </Button>
             </AlertDialogTrigger>
-            <AlertDialogContent>
+            <AlertDialogContent
+              id={transferDialogIds.contentId}
+              aria-labelledby={transferDialogIds.titleId}
+              aria-describedby={transferDialogIds.descriptionId}
+            >
               <AlertDialogHeader>
-                <AlertDialogTitle>{t.teams.transferOwnership}</AlertDialogTitle>
-                <AlertDialogDescription>
+                <AlertDialogTitle id={transferDialogIds.titleId}>
+                  {t.teams.transferOwnership}
+                </AlertDialogTitle>
+                <AlertDialogDescription id={transferDialogIds.descriptionId}>
                   {t.teams.transferOwnershipStayDescription}
                 </AlertDialogDescription>
               </AlertDialogHeader>
@@ -216,15 +255,27 @@ function OwnerDangerActions({
         <ItemActions>
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button variant="destructive" size="sm" disabled={isDeleting}>
+              <Button
+                variant="destructive"
+                size="sm"
+                disabled={isDeleting}
+                id={deleteDialogIds.triggerId}
+                aria-controls={deleteDialogIds.contentId}
+              >
                 <Trash2 className="h-4 w-4 mr-2" />
                 {t.common.delete}
               </Button>
             </AlertDialogTrigger>
-            <AlertDialogContent>
+            <AlertDialogContent
+              id={deleteDialogIds.contentId}
+              aria-labelledby={deleteDialogIds.titleId}
+              aria-describedby={deleteDialogIds.descriptionId}
+            >
               <AlertDialogHeader>
-                <AlertDialogTitle>{t.teams.deleteTeamConfirmTitle}</AlertDialogTitle>
-                <AlertDialogDescription>
+                <AlertDialogTitle id={deleteDialogIds.titleId}>
+                  {t.teams.deleteTeamConfirmTitle}
+                </AlertDialogTitle>
+                <AlertDialogDescription id={deleteDialogIds.descriptionId}>
                   {t.teams.deleteTeamConfirmDescription.replace("{name}", teamName)}
                 </AlertDialogDescription>
               </AlertDialogHeader>
@@ -250,6 +301,7 @@ interface MemberLeaveActionProps {
 
 function MemberLeaveAction({ teamName, onLeave, isLeaving }: MemberLeaveActionProps) {
   const { t } = useTranslation()
+  const leaveDialogIds = createOverlayIds(`team-danger-member-leave-${teamName}`)
 
   return (
     <Item variant="outline" size="sm">
@@ -260,15 +312,25 @@ function MemberLeaveAction({ teamName, onLeave, isLeaving }: MemberLeaveActionPr
       <ItemActions>
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button variant="destructive" size="sm" disabled={isLeaving}>
+            <Button
+              variant="destructive"
+              size="sm"
+              disabled={isLeaving}
+              id={leaveDialogIds.triggerId}
+              aria-controls={leaveDialogIds.contentId}
+            >
               <LogOut className="h-4 w-4 mr-2" />
               {t.teams.leaveShort}
             </Button>
           </AlertDialogTrigger>
-          <AlertDialogContent>
+          <AlertDialogContent
+            id={leaveDialogIds.contentId}
+            aria-labelledby={leaveDialogIds.titleId}
+            aria-describedby={leaveDialogIds.descriptionId}
+          >
             <AlertDialogHeader>
-              <AlertDialogTitle>{t.teams.leaveTeam}</AlertDialogTitle>
-              <AlertDialogDescription>
+              <AlertDialogTitle id={leaveDialogIds.titleId}>{t.teams.leaveTeam}</AlertDialogTitle>
+              <AlertDialogDescription id={leaveDialogIds.descriptionId}>
                 {t.teams.leaveTeamConfirm.replace("{name}", teamName)}
               </AlertDialogDescription>
             </AlertDialogHeader>
