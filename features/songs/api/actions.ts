@@ -22,7 +22,9 @@ export async function createSongAction(
   context?: AppContext
 ): Promise<Song> {
   const supabase = await createClient()
-  const result = await createSongApi(supabase, song, userId, context)
+  const result = context
+    ? await createSongApi(supabase, song, userId, context)
+    : await createSongApi(supabase, song, userId)
   revalidatePath("/dashboard/songs")
   return result
 }

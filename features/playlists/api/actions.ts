@@ -32,7 +32,9 @@ export async function createPlaylistAction(
   context?: AppContext
 ): Promise<Playlist> {
   const supabase = await createClient()
-  const result = await createPlaylistApi(supabase, playlistData, userId, context)
+  const result = context
+    ? await createPlaylistApi(supabase, playlistData, userId, context)
+    : await createPlaylistApi(supabase, playlistData, userId)
   revalidatePath("/dashboard/playlists")
   return result
 }
