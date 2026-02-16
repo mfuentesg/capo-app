@@ -394,14 +394,10 @@ export function SongDetail({ song, onClose, onUpdate, onDelete }: SongDetailProp
               </AlertDialogTrigger>
               <AlertDialogContent
                 id={deleteDialogIds.contentId}
-                aria-labelledby={deleteDialogIds.titleId}
-                aria-describedby={deleteDialogIds.descriptionId}
               >
                 <AlertDialogHeader>
-                  <AlertDialogTitle id={deleteDialogIds.titleId}>
-                    {t.songs.deleteSongConfirmTitle}
-                  </AlertDialogTitle>
-                  <AlertDialogDescription id={deleteDialogIds.descriptionId}>
+                  <AlertDialogTitle>{t.songs.deleteSongConfirmTitle}</AlertDialogTitle>
+                  <AlertDialogDescription>
                     {t.songs.deleteSongConfirmDescription.replace("{title}", song.title)}
                   </AlertDialogDescription>
                 </AlertDialogHeader>

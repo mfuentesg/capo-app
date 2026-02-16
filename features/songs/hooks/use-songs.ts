@@ -15,6 +15,23 @@ import { toast } from "sonner"
 import { useLocale } from "@/features/settings"
 import { useAppContext } from "@/features/app-context"
 
+type SongQuerySnapshot = Array<[readonly unknown[], Song[] | undefined]>
+
+function snapshotSongQueries(queryClient: ReturnType<typeof useQueryClient>): SongQuerySnapshot {
+  return queryClient.getQueriesData<Song[]>({ queryKey: songsKeys.lists() })
+}
+
+function restoreSongQueries(
+  queryClient: ReturnType<typeof useQueryClient>,
+  snapshots?: SongQuerySnapshot
+) {
+  if (!snapshots) return
+
+  for (const [queryKey, data] of snapshots) {
+    queryClient.setQueryData(queryKey, data)
+  }
+}
+
 /**
  * Hook to fetch songs for the current context (personal or team)
  * Uses AppContext to determine if fetching personal or team songs
@@ -73,16 +90,7 @@ export function useCreateSong() {
     },
     onSuccess: (newSong) => {
       const song = newSong
-      // Invalidate songs list query based on current context
-      if (context) {
-        queryClient.invalidateQueries({
-          queryKey: songsKeys.list(context)
-        })
-      } else {
-        queryClient.invalidateQueries({
-          queryKey: songsKeys.lists()
-        })
-      }
+      queryClient.invalidateQueries({ queryKey: songsKeys.lists() })
       // Add new song to cache
       queryClient.setQueryData(songsKeys.detail(song.id), song)
       toast.success(t.toasts?.songCreated || "Song created")
@@ -100,46 +108,40 @@ export function useCreateSong() {
 export function useUpdateSong() {
   const queryClient = useQueryClient()
   const { t } = useLocale()
-  const { context } = useAppContext()
 
   return useMutation({
     mutationFn: async ({ songId, updates }: { songId: string; updates: Partial<Song> }) => {
       return updateSongAction(songId, updates)
     },
     onMutate: async ({ songId, updates }) => {
-      const queryKey = context ? songsKeys.list(context) : songsKeys.lists()
-      await queryClient.cancelQueries({ queryKey })
-      const previousSongs = queryClient.getQueryData<Song[]>(queryKey)
-      queryClient.setQueryData<Song[]>(
-        queryKey,
-        (old) => old?.map((s) => (s.id === songId ? { ...s, ...updates } : s)) ?? []
+      await queryClient.cancelQueries({ queryKey: songsKeys.lists() })
+      const snapshots = snapshotSongQueries(queryClient)
+      queryClient.setQueriesData<Song[]>({ queryKey: songsKeys.lists() }, (old) =>
+        old?.map((s) => (s.id === songId ? { ...s, ...updates } : s))
       )
       // Also update detail cache
       const previousDetail = queryClient.getQueryData<Song>(songsKeys.detail(songId))
       if (previousDetail) {
         queryClient.setQueryData(songsKeys.detail(songId), { ...previousDetail, ...updates })
       }
-      return { previousSongs, previousDetail, queryKey }
+      return { snapshots, previousDetail }
     },
     onError: (_err, { songId }, rollbackContext) => {
-      if (rollbackContext?.previousSongs) {
-        queryClient.setQueryData(rollbackContext.queryKey, rollbackContext.previousSongs)
-      }
+      restoreSongQueries(queryClient, rollbackContext?.snapshots)
       if (rollbackContext?.previousDetail) {
         queryClient.setQueryData(songsKeys.detail(songId), rollbackContext.previousDetail)
       }
       toast.error(t.toasts?.error || "Failed to update song")
     },
-    onSuccess: (updatedSong, _variables, mutationContext) => {
-      const queryKey =
-        mutationContext?.queryKey ?? (context ? songsKeys.list(context) : songsKeys.lists())
-
-      queryClient.setQueryData<Song[]>(
-        queryKey,
-        (old) => old?.map((s) => (s.id === updatedSong.id ? { ...s, ...updatedSong } : s)) ?? []
+    onSuccess: (updatedSong) => {
+      queryClient.setQueriesData<Song[]>({ queryKey: songsKeys.lists() }, (old) =>
+        old?.map((s) => (s.id === updatedSong.id ? { ...s, ...updatedSong } : s))
       )
       queryClient.setQueryData(songsKeys.detail(updatedSong.id), updatedSong)
       toast.success(t.toasts?.songUpdated || "Song updated")
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: songsKeys.lists() })
     }
   })
 }
@@ -150,26 +152,21 @@ export function useUpdateSong() {
 export function useDeleteSong() {
   const queryClient = useQueryClient()
   const { t } = useLocale()
-  const { context } = useAppContext()
 
   return useMutation({
     mutationFn: async (songId: string) => {
       return deleteSongAction(songId)
     },
     onMutate: async (songId) => {
-      const queryKey = context ? songsKeys.list(context) : songsKeys.lists()
-      await queryClient.cancelQueries({ queryKey })
-      const previousSongs = queryClient.getQueryData<Song[]>(queryKey)
-      queryClient.setQueryData<Song[]>(
-        queryKey,
-        (old) => old?.filter((s) => s.id !== songId) ?? []
+      await queryClient.cancelQueries({ queryKey: songsKeys.lists() })
+      const snapshots = snapshotSongQueries(queryClient)
+      queryClient.setQueriesData<Song[]>({ queryKey: songsKeys.lists() }, (old) =>
+        old?.filter((s) => s.id !== songId)
       )
-      return { previousSongs, queryKey }
+      return { snapshots }
     },
     onError: (_err, _songId, rollbackContext) => {
-      if (rollbackContext?.previousSongs) {
-        queryClient.setQueryData(rollbackContext.queryKey, rollbackContext.previousSongs)
-      }
+      restoreSongQueries(queryClient, rollbackContext?.snapshots)
       toast.error(t.toasts?.error || "Failed to delete song")
     },
     onSuccess: (_, songId) => {
@@ -177,11 +174,7 @@ export function useDeleteSong() {
       toast.success(t.toasts?.songDeleted || "Song deleted")
     },
     onSettled: () => {
-      if (context) {
-        queryClient.invalidateQueries({ queryKey: songsKeys.list(context) })
-      } else {
-        queryClient.invalidateQueries({ queryKey: songsKeys.lists() })
-      }
+      queryClient.invalidateQueries({ queryKey: songsKeys.lists() })
     }
   })
 }

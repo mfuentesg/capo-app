@@ -259,14 +259,10 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
             </AlertDialogTrigger>
             <AlertDialogContent
               id={deleteDialogIds.contentId}
-              aria-labelledby={deleteDialogIds.titleId}
-              aria-describedby={deleteDialogIds.descriptionId}
             >
               <AlertDialogHeader>
-                <AlertDialogTitle id={deleteDialogIds.titleId}>
-                  {t.playlistDetail.deletePlaylistConfirmTitle}
-                </AlertDialogTitle>
-                <AlertDialogDescription id={deleteDialogIds.descriptionId}>
+                <AlertDialogTitle>{t.playlistDetail.deletePlaylistConfirmTitle}</AlertDialogTitle>
+                <AlertDialogDescription>
                   {t.playlistDetail.deletePlaylistConfirmDescription.replace(
                     "{name}",
                     playlist.name

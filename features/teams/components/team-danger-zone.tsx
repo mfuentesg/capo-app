@@ -95,14 +95,10 @@ function OwnerDangerActions({
             </AlertDialogTrigger>
             <AlertDialogContent
               id={deleteOnlyDialogIds.contentId}
-              aria-labelledby={deleteOnlyDialogIds.titleId}
-              aria-describedby={deleteOnlyDialogIds.descriptionId}
             >
               <AlertDialogHeader>
-                <AlertDialogTitle id={deleteOnlyDialogIds.titleId}>
-                  {t.teams.deleteTeamConfirmTitle}
-                </AlertDialogTitle>
-                <AlertDialogDescription id={deleteOnlyDialogIds.descriptionId}>
+                <AlertDialogTitle>{t.teams.deleteTeamConfirmTitle}</AlertDialogTitle>
+                <AlertDialogDescription>
                   {t.teams.deleteTeamConfirmDescription.replace("{name}", teamName)}
                 </AlertDialogDescription>
               </AlertDialogHeader>
@@ -142,12 +138,10 @@ function OwnerDangerActions({
             </AlertDialogTrigger>
             <AlertDialogContent
               id={leaveDialogIds.contentId}
-              aria-labelledby={leaveDialogIds.titleId}
-              aria-describedby={leaveDialogIds.descriptionId}
             >
               <AlertDialogHeader>
-                <AlertDialogTitle id={leaveDialogIds.titleId}>{t.teams.leaveTeam}</AlertDialogTitle>
-                <AlertDialogDescription id={leaveDialogIds.descriptionId}>
+                <AlertDialogTitle>{t.teams.leaveTeam}</AlertDialogTitle>
+                <AlertDialogDescription>
                   {t.teams.transferOwnershipDescription}
                 </AlertDialogDescription>
               </AlertDialogHeader>
@@ -204,14 +198,10 @@ function OwnerDangerActions({
             </AlertDialogTrigger>
             <AlertDialogContent
               id={transferDialogIds.contentId}
-              aria-labelledby={transferDialogIds.titleId}
-              aria-describedby={transferDialogIds.descriptionId}
             >
               <AlertDialogHeader>
-                <AlertDialogTitle id={transferDialogIds.titleId}>
-                  {t.teams.transferOwnership}
-                </AlertDialogTitle>
-                <AlertDialogDescription id={transferDialogIds.descriptionId}>
+                <AlertDialogTitle>{t.teams.transferOwnership}</AlertDialogTitle>
+                <AlertDialogDescription>
                   {t.teams.transferOwnershipStayDescription}
                 </AlertDialogDescription>
               </AlertDialogHeader>
@@ -268,14 +258,10 @@ function OwnerDangerActions({
             </AlertDialogTrigger>
             <AlertDialogContent
               id={deleteDialogIds.contentId}
-              aria-labelledby={deleteDialogIds.titleId}
-              aria-describedby={deleteDialogIds.descriptionId}
             >
               <AlertDialogHeader>
-                <AlertDialogTitle id={deleteDialogIds.titleId}>
-                  {t.teams.deleteTeamConfirmTitle}
-                </AlertDialogTitle>
-                <AlertDialogDescription id={deleteDialogIds.descriptionId}>
+                <AlertDialogTitle>{t.teams.deleteTeamConfirmTitle}</AlertDialogTitle>
+                <AlertDialogDescription>
                   {t.teams.deleteTeamConfirmDescription.replace("{name}", teamName)}
                 </AlertDialogDescription>
               </AlertDialogHeader>
@@ -325,12 +311,10 @@ function MemberLeaveAction({ teamName, onLeave, isLeaving }: MemberLeaveActionPr
           </AlertDialogTrigger>
           <AlertDialogContent
             id={leaveDialogIds.contentId}
-            aria-labelledby={leaveDialogIds.titleId}
-            aria-describedby={leaveDialogIds.descriptionId}
           >
             <AlertDialogHeader>
-              <AlertDialogTitle id={leaveDialogIds.titleId}>{t.teams.leaveTeam}</AlertDialogTitle>
-              <AlertDialogDescription id={leaveDialogIds.descriptionId}>
+              <AlertDialogTitle>{t.teams.leaveTeam}</AlertDialogTitle>
+              <AlertDialogDescription>
                 {t.teams.leaveTeamConfirm.replace("{name}", teamName)}
               </AlertDialogDescription>
             </AlertDialogHeader>
