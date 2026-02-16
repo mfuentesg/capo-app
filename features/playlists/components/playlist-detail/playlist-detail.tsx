@@ -257,9 +257,7 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
                 <span>{t.playlistDetail.deletePlaylist}</span>
               </Button>
             </AlertDialogTrigger>
-            <AlertDialogContent
-              id={deleteDialogIds.contentId}
-            >
+            <AlertDialogContent id={deleteDialogIds.contentId}>
               <AlertDialogHeader>
                 <AlertDialogTitle>{t.playlistDetail.deletePlaylistConfirmTitle}</AlertDialogTitle>
                 <AlertDialogDescription>
@@ -294,7 +292,9 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
                   )}
                 >
                   <CalendarIcon className="h-3.5 w-3.5" />
-                  {playlist.date ? formatLongDate(playlist.date, locale) : t.playlistDetail.pickDate}
+                  {playlist.date
+                    ? formatLongDate(playlist.date, locale)
+                    : t.playlistDetail.pickDate}
                 </Button>
               </PopoverTrigger>
               <PopoverContent

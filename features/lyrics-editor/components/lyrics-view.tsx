@@ -128,12 +128,7 @@ export function LyricsView({ song, mode = "page", readOnly = false, onClose }: L
                         {t.common.unsavedChanges}
                       </Badge>
                     )}
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleCancel}
-                      className="shrink-0"
-                    >
+                    <Button variant="outline" size="sm" onClick={handleCancel} className="shrink-0">
                       <X className="h-4 w-4 mr-2" />
                       {t.common.cancel}
                     </Button>

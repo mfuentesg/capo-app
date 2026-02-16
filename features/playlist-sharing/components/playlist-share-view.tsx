@@ -261,9 +261,7 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
         onOpenChange={(open) => !open && handleCloseDrawer()}
         direction="top"
       >
-        <DrawerContent
-          className="inset-0 h-full p-0 data-[vaul-drawer-direction=top]:max-h-full data-[vaul-drawer-direction=top]:rounded-none"
-        >
+        <DrawerContent className="inset-0 h-full p-0 data-[vaul-drawer-direction=top]:max-h-full data-[vaul-drawer-direction=top]:rounded-none">
           <div className="relative flex h-full flex-col">
             <DrawerHeader className="sr-only">
               <DrawerTitle>{activeSong ? `${activeSong.title} lyrics` : "Song lyrics"}</DrawerTitle>
@@ -311,7 +309,6 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
                 />
               )}
             </div>
-
           </div>
         </DrawerContent>
       </Drawer>
