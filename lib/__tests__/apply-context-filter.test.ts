@@ -8,10 +8,9 @@ describe("applyContextFilter", () => {
       is: (column: string, value: boolean | null) => QueryMock
     }
 
-    let chain!: QueryMock
-    chain = {
-      eq: jest.fn((_column: string, _value: string) => chain),
-      is: jest.fn((_column: string, _value: boolean | null) => chain)
+    const chain: QueryMock = {
+      eq: jest.fn(() => chain),
+      is: jest.fn(() => chain)
     }
 
     return chain
