@@ -419,26 +419,11 @@ export async function deletePlaylist(
 export async function addSongToPlaylist(
   supabase: SupabaseClient<Database>,
   playlistId: string,
-  songId: string,
-  position?: number
+  songId: string
 ): Promise<void> {
-  // If no position specified, get the max position and add at end
-  let insertPosition = position
-  if (insertPosition === undefined) {
-    const { data: existing } = await supabase
-      .from("playlist_songs")
-      .select("position")
-      .eq("playlist_id", playlistId)
-      .order("position", { ascending: false })
-      .limit(1)
-
-    insertPosition = existing && existing.length > 0 ? existing[0].position + 1 : 0
-  }
-
-  const { error } = await supabase.from("playlist_songs").insert({
-    playlist_id: playlistId,
-    song_id: songId,
-    position: insertPosition
+  const { error } = await supabase.rpc("add_song_to_playlist", {
+    p_playlist_id: playlistId,
+    p_song_id: songId
   })
 
   if (error) throw error

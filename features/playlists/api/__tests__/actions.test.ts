@@ -85,9 +85,9 @@ describe("playlist actions", () => {
   })
 
   it("adds a song to a playlist and revalidates detail route", async () => {
-    await addSongToPlaylistAction("playlist-1", "song-1", 2)
+    await addSongToPlaylistAction("playlist-1", "song-1")
 
-    expect(addSongToPlaylistApi).toHaveBeenCalledWith(mockSupabase, "playlist-1", "song-1", 2)
+    expect(addSongToPlaylistApi).toHaveBeenCalledWith(mockSupabase, "playlist-1", "song-1")
     expect(revalidatePath).toHaveBeenCalledWith("/dashboard/playlists/playlist-1")
   })
 

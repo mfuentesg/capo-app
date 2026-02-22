@@ -58,11 +58,10 @@ export async function deletePlaylistAction(playlistId: string): Promise<void> {
 
 export async function addSongToPlaylistAction(
   playlistId: string,
-  songId: string,
-  position?: number
+  songId: string
 ): Promise<void> {
   const supabase = await createClient()
-  await addSongToPlaylistApi(supabase, playlistId, songId, position)
+  await addSongToPlaylistApi(supabase, playlistId, songId)
   revalidatePath(`/dashboard/playlists/${playlistId}`)
 }
 
