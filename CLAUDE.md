@@ -117,12 +117,12 @@ ESLint is strict: `--max-warnings 0` means any warning fails the check. `@typesc
 
 ## Database
 
-Migrations are in `supabase/migrations/`. **Always create migrations using the CLI** — never apply SQL directly via MCP or other tools:
+Migrations are in `supabase/migrations/`. **Always create migrations using the CLI** — never apply SQL directly via MCP or other tools (direct applies corrupt the migration history table):
 
 ```bash
 pnpm supabase migration new "describe_your_change"  # creates timestamped file
 # then write SQL into the generated file, then:
-pnpm supabase db push                               # apply to local DB
+pnpm supabase migration up --local                  # apply to local DB
 pnpm types:generate                                 # regenerate types after schema changes
 ```
 
