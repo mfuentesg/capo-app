@@ -14,6 +14,7 @@ import type { Playlist } from "../types"
 import { toast } from "sonner"
 import { useLocale } from "@/features/settings"
 import { useAppContext } from "@/features/app-context"
+import { useRouter } from "next/navigation"
 
 type PlaylistQuerySnapshot = Array<[readonly unknown[], Playlist[] | undefined]>
 
@@ -59,6 +60,7 @@ export function useCreatePlaylist() {
   const queryClient = useQueryClient()
   const { t } = useLocale()
   const { context } = useAppContext()
+  const router = useRouter()
 
   return useMutation({
     mutationFn: async ({ playlist, userId }: { playlist: Playlist; userId: string }) => {
@@ -66,7 +68,12 @@ export function useCreatePlaylist() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: playlistsKeys.lists() })
-      toast.success(t.toasts?.playlistCreated || "Playlist created")
+      toast.success(t.toasts?.playlistCreated || "Playlist created", {
+        action: {
+          label: t.toasts?.viewPlaylists || "View playlists",
+          onClick: () => router.push("/dashboard/playlists")
+        }
+      })
     },
     onError: (error) => {
       console.error("Error creating playlist:", error)
@@ -154,6 +161,7 @@ export function useDeletePlaylist() {
 export function useAddSongsToPlaylist() {
   const queryClient = useQueryClient()
   const { t } = useLocale()
+  const router = useRouter()
 
   return useMutation({
     mutationFn: async ({ playlistId, songIds }: { playlistId: string; songIds: string[] }) => {
@@ -163,7 +171,12 @@ export function useAddSongsToPlaylist() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: playlistsKeys.lists() })
-      toast.success(t.toasts?.songsAdded || "Songs added to playlist")
+      toast.success(t.toasts?.songsAdded || "Songs added to playlist", {
+        action: {
+          label: t.toasts?.viewPlaylists || "View playlists",
+          onClick: () => router.push("/dashboard/playlists")
+        }
+      })
     },
     onError: (error) => {
       console.error("Error adding songs to playlist:", error)

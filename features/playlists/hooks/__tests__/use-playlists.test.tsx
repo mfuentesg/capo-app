@@ -51,6 +51,10 @@ jest.mock("@/features/app-context", () => ({
   useAppContext: jest.fn()
 }))
 
+jest.mock("next/navigation", () => ({
+  useRouter: () => ({ push: jest.fn() })
+}))
+
 const mockUseAppContext = useAppContext as jest.Mock
 const mockUpdatePlaylistAction = updatePlaylistAction as jest.Mock
 const mockReorderPlaylistSongsAction = reorderPlaylistSongsAction as jest.Mock
