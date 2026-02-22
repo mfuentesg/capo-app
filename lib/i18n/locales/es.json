@@ -107,6 +107,7 @@
     "fast": "Rápido",
     "bpmDescription": "Lento: <90 • Medio: 90-120 • Rápido: >120",
     "createSong": "Crear canción",
+    "openSong": "Abrir canción",
     "editLyrics": "Editar letra",
     "addLyrics": "Agregar letra",
     "deleteSong": "Eliminar canción",
@@ -184,9 +185,6 @@
     "clearButton": "Limpiar",
     "addButton": "Agregar {count} canciones",
     "selectNewPlaylist": "+ Crear nueva lista",
-    "exampleSunday7": "Domingo 7 diciembre",
-    "exampleSunday14": "Domingo 14 diciembre",
-    "exampleChristmas": "Especial de Navidad",
     "openDraft": "Abrir borrador de lista"
   },
   "filters": {
@@ -202,6 +200,7 @@
     "playlistCreated": "Lista creada exitosamente",
     "playlistUpdated": "Lista actualizada",
     "playlistDeleted": "Lista eliminada",
+    "songsAdded": "Canciones agregadas a la lista",
     "error": "Algo salió mal",
     "accountDeleted": "Cuenta eliminada",
     "accountDeleteFailed": "Error al eliminar la cuenta",

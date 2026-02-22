@@ -107,6 +107,7 @@
     "fast": "Fast",
     "bpmDescription": "Slow: <90 • Medium: 90-120 • Fast: >120",
     "createSong": "Create Song",
+    "openSong": "Open song",
     "editLyrics": "Edit Lyrics",
     "addLyrics": "Add Lyrics",
     "deleteSong": "Delete Song",
@@ -184,9 +185,6 @@
     "clearButton": "Clear",
     "addButton": "Add {count} songs",
     "selectNewPlaylist": "+ Create new playlist",
-    "exampleSunday7": "Sunday Dec 7",
-    "exampleSunday14": "Sunday Dec 14",
-    "exampleChristmas": "Christmas Special",
     "openDraft": "Open playlist draft"
   },
   "filters": {
@@ -202,6 +200,7 @@
     "playlistCreated": "Playlist created successfully",
     "playlistUpdated": "Playlist updated",
     "playlistDeleted": "Playlist deleted",
+    "songsAdded": "Songs added to playlist",
     "error": "Something went wrong",
     "accountDeleted": "Account deleted",
     "accountDeleteFailed": "Failed to delete account",

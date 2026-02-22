@@ -10,7 +10,8 @@ import {
   Music2,
   Guitar,
   Minus,
-  Plus
+  Plus,
+  ArrowUpRight
 } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -194,9 +195,17 @@ export function SongDetail({ song, onClose, onUpdate, onDelete }: SongDetailProp
             />
           </div>
         </div>
-        <Button variant="ghost" size="icon" onClick={onClose} aria-label={t.common.close}>
-          <X className="h-4 w-4" />
-        </Button>
+        <div className="flex items-center gap-1">
+          <Link href={`/dashboard/songs/${song.id}`}>
+            <Button variant="ghost" size="sm" className="gap-1.5">
+              <ArrowUpRight className="h-4 w-4" />
+              <span className="hidden sm:inline">{t.songs.openSong}</span>
+            </Button>
+          </Link>
+          <Button variant="ghost" size="icon" onClick={onClose} aria-label={t.common.close}>
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 lg:p-6">
@@ -371,14 +380,6 @@ export function SongDetail({ song, onClose, onUpdate, onDelete }: SongDetailProp
                 </>
               )}
             </Button>
-            {!song.lyrics && (
-              <Link href={`/dashboard/songs/${song.id}`}>
-                <Button variant="outline" size="sm" className="gap-2 bg-transparent">
-                  <Music2 className="h-3.5 w-3.5" />
-                  {t.songs.addLyrics}
-                </Button>
-              </Link>
-            )}
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button
