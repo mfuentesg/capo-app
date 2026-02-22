@@ -7,6 +7,7 @@ export {
   useCreatePlaylist,
   useUpdatePlaylist,
   useDeletePlaylist,
+  useAddSongsToPlaylist,
   useReorderPlaylistSongs
 } from "./use-playlists"
 export { usePlaylistRealtime } from "./use-playlist-realtime"

@@ -1,11 +1,21 @@
-import { useMediaQuery } from "@uidotdev/usehooks"
+import { useEffect, useState } from "react"
 
 const MOBILE_BREAKPOINT = 768
 
 /**
  * Hook to detect mobile viewport.
- * Uses @uidotdev/usehooks for reliable SSR-safe media query detection.
+ * Returns false during SSR and updates after hydration.
  */
 export function useIsMobile() {
-  return useMediaQuery(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`)
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const mq = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`)
+    const update = () => setIsMobile(mq.matches)
+    update()
+    mq.addEventListener("change", update)
+    return () => mq.removeEventListener("change", update)
+  }, [])
+
+  return isMobile
 }

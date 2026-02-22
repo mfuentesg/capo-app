@@ -6,6 +6,7 @@ import {
   createPlaylistAction,
   updatePlaylistAction,
   deletePlaylistAction,
+  addSongToPlaylistAction,
   reorderPlaylistSongsAction
 } from "../api/actions"
 import { playlistsKeys } from "./query-keys"
@@ -143,6 +144,30 @@ export function useDeletePlaylist() {
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: playlistsKeys.lists() })
+    }
+  })
+}
+
+/**
+ * Hook to add multiple songs to an existing playlist
+ */
+export function useAddSongsToPlaylist() {
+  const queryClient = useQueryClient()
+  const { t } = useLocale()
+
+  return useMutation({
+    mutationFn: async ({ playlistId, songIds }: { playlistId: string; songIds: string[] }) => {
+      for (const songId of songIds) {
+        await addSongToPlaylistAction(playlistId, songId)
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: playlistsKeys.lists() })
+      toast.success(t.toasts?.songsAdded || "Songs added to playlist")
+    },
+    onError: (error) => {
+      console.error("Error adding songs to playlist:", error)
+      toast.error(t.toasts?.error || "Something went wrong")
     }
   })
 }

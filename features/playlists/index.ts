@@ -5,6 +5,7 @@ export {
   useCreatePlaylist,
   useUpdatePlaylist,
   useDeletePlaylist,
+  useAddSongsToPlaylist,
   useReorderPlaylistSongs,
   playlistsKeys
 } from "./hooks"

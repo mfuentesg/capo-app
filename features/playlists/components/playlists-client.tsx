@@ -109,7 +109,7 @@ export function PlaylistsClient() {
                 <h1 className="text-xl font-semibold tracking-tight lg:text-2xl">
                   {t.playlists.title}
                 </h1>
-                <Badge variant="secondary">{playlists.length}</Badge>
+                <Badge variant="secondary" suppressHydrationWarning>{playlists.length}</Badge>
               </div>
               <Button size="sm" className="gap-1.5 rounded-full" onClick={handleCreateClick}>
                 <Plus className="h-4 w-4" />
