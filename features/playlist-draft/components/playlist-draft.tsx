@@ -28,13 +28,27 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select"
-import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd"
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent
+} from "@dnd-kit/core"
+import {
+  restrictToVerticalAxis,
+  restrictToFirstScrollableAncestor
+} from "@dnd-kit/modifiers"
+import { SortableContext, verticalListSortingStrategy, useSortable } from "@dnd-kit/sortable"
+import { CSS } from "@dnd-kit/utilities"
 import { PlaylistDraftItem } from "./playlist-draft-item"
 import type { Song } from "@/types"
 import type { Playlist } from "@/features/playlists"
 import { useTranslation } from "@/hooks/use-translation"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { createOverlayIds } from "@/lib/ui/stable-overlay-ids"
+import { blockNextDocumentClick } from "@/lib/dnd"
 
 type SubmitSelection =
   | { type: "new"; name: string }
@@ -60,7 +74,33 @@ interface PlaylistDraftBodyProps {
   newPlaylistName: string
   onNewPlaylistNameChange: (value: string) => void
   onRemove: (songId: string) => void
-  onDragEnd: (result: DropResult) => void
+  onDragEnd: (event: DragEndEvent) => void
+}
+
+function SortableDraftItem({
+  song,
+  index,
+  onRemove
+}: {
+  song: Song
+  index: number
+  onRemove: (songId: string) => void
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: song.id
+  })
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={{ transform: CSS.Transform.toString(transform), transition }}
+      {...attributes}
+      {...listeners}
+      className={isDragging ? "opacity-70 z-50" : ""}
+    >
+      <PlaylistDraftItem song={song} index={index} onRemove={onRemove} />
+    </div>
+  )
 }
 
 function PlaylistDraftBody({
@@ -74,36 +114,27 @@ function PlaylistDraftBody({
   onDragEnd
 }: PlaylistDraftBodyProps) {
   const { t } = useTranslation()
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
+  )
 
   return (
     <>
-      <DragDropContext onDragEnd={onDragEnd}>
-        <Droppable droppableId="playlist-draft">
-          {(provided, snapshot) => (
-            <div
-              {...provided.droppableProps}
-              ref={provided.innerRef}
-              className={`space-y-3 ${snapshot.isDraggingOver ? "bg-accent/30" : ""}`}
-            >
-              {songs.map((song, index) => (
-                <Draggable key={song.id} draggableId={song.id} index={index}>
-                  {(provided, snapshot) => (
-                    <div
-                      ref={provided.innerRef}
-                      {...provided.draggableProps}
-                      {...provided.dragHandleProps}
-                      className={snapshot.isDragging ? "opacity-70 z-50" : ""}
-                    >
-                      <PlaylistDraftItem song={song} index={index} onRemove={onRemove} />
-                    </div>
-                  )}
-                </Draggable>
-              ))}
-              {provided.placeholder}
-            </div>
-          )}
-        </Droppable>
-      </DragDropContext>
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        modifiers={[restrictToVerticalAxis, restrictToFirstScrollableAncestor]}
+        onDragEnd={onDragEnd}
+        onDragCancel={blockNextDocumentClick}
+      >
+        <SortableContext items={songs.map((s) => s.id)} strategy={verticalListSortingStrategy}>
+          <div className="space-y-3">
+            {songs.map((song, index) => (
+              <SortableDraftItem key={song.id} song={song} index={index} onRemove={onRemove} />
+            ))}
+          </div>
+        </SortableContext>
+      </DndContext>
 
       <Select value={selectedPlaylist} onValueChange={onSelectPlaylist}>
         <SelectTrigger className="w-full mt-4">
@@ -152,15 +183,18 @@ export function PlaylistDraft({
     return null
   }
 
-  const handleDragEnd = (result: DropResult) => {
-    if (!result.destination || result.source.index === result.destination.index) {
-      return
+  const handleDragEnd = (event: DragEndEvent) => {
+    blockNextDocumentClick()
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+    const oldIndex = songs.findIndex((s) => s.id === active.id)
+    const newIndex = songs.findIndex((s) => s.id === over.id)
+    if (oldIndex !== -1 && newIndex !== -1) {
+      onReorder?.(oldIndex, newIndex)
     }
-    onReorder?.(result.source.index, result.destination.index)
   }
 
-  const isAddDisabled =
-    isSubmitting || (selectedPlaylist === "new" && !newPlaylistName.trim())
+  const isAddDisabled = isSubmitting || (selectedPlaylist === "new" && !newPlaylistName.trim())
 
   const handleAdd = async () => {
     if (selectedPlaylist === "new") {
