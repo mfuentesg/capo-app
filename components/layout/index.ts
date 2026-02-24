@@ -1,4 +1,5 @@
 export { Navbar } from "@/components/layout/navbar"
+export { SharedNavbar } from "@/components/layout/shared-navbar"
 export { ThemeToggle } from "@/components/layout/theme-toggle"
 export { LanguageSwitcher } from "@/components/layout/language-switcher"
 export { UserProfileMenu } from "@/components/layout/user-profile-menu"

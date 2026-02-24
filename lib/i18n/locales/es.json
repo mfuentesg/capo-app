@@ -113,6 +113,8 @@
     "deleteSong": "Eliminar canción",
     "deleteSongConfirmTitle": "¿Eliminar esta canción?",
     "deleteSongConfirmDescription": "Esto eliminará permanentemente \"{title}\". Esta acción no se puede deshacer.",
+    "dangerZone": "Zona de peligro",
+    "deleteSongDescription": "Elimina permanentemente esta canción. Esta acción no se puede deshacer.",
     "songTitle": "Título de la canción",
     "songTitlePlaceholder": "Título de la canción",
     "addLyricsDescription": "Agrega letra a tu canción usando formato ChordPro",
@@ -148,7 +150,8 @@
     "draft": "Borrador",
     "searchPlaceholder": "Buscar playlists...",
     "playlistName": "Nombre del playlist",
-    "playlistNamePlaceholder": "ej. Adoración del Domingo"
+    "playlistNamePlaceholder": "ej. Adoración del Domingo",
+    "openPlaylist": "Abrir playlist"
   },
   "playlistDetail": {
     "details": "Detalles",
@@ -171,7 +174,14 @@
     "editDescription": "Ver y editar playlist",
     "addDescription": "Agregar una descripción...",
     "deletePlaylistConfirmTitle": "¿Eliminar este playlist?",
-    "deletePlaylistConfirmDescription": "Esto eliminará permanentemente \"{name}\". Esta acción no se puede deshacer."
+    "deletePlaylistConfirmDescription": "Esto eliminará permanentemente \"{name}\". Esta acción no se puede deshacer.",
+    "dangerZone": "Zona de peligro",
+    "deletePlaylistDescription": "Elimina permanentemente este playlist. Esta acción no se puede deshacer.",
+    "searchSongs": "Buscar canciones...",
+    "noSongsToAdd": "Todas tus canciones ya están en este playlist",
+    "addSelectedSongs": "Agregar {count} canciones",
+    "dropToRemove": "Soltar aquí para eliminar",
+    "guestEditingDisabledHint": "Solo disponible cuando el playlist es público"
   },
   "playlistItem": {
     "privatePlaylist": "Playlist privado",
@@ -202,6 +212,7 @@
     "playlistUpdated": "Playlist actualizado",
     "playlistDeleted": "Playlist eliminado",
     "songsAdded": "Canciones agregadas al playlist",
+    "songsAlreadyInPlaylist": "Todas las canciones ya están en este playlist",
     "error": "Algo salió mal",
     "accountDeleted": "Cuenta eliminada",
     "accountDeleteFailed": "Error al eliminar la cuenta",
@@ -260,7 +271,12 @@
     "guestEditing": "Edición de invitados",
     "share": "Compartir",
     "editSongs": "Editar canciones",
-    "editSongsHint": "La edición de invitados desde enlaces compartidos estará disponible pronto."
+    "editSongsHint": "La edición de invitados desde enlaces compartidos estará disponible pronto.",
+    "previousSong": "Canción anterior",
+    "nextSong": "Siguiente canción",
+    "notFoundTitle": "Playlist no encontrado",
+    "notFoundDescription": "Este playlist no existe, fue eliminado o se hizo privado.",
+    "notFoundSubtext": "El enlace puede haber expirado o el propietario cambió su configuración de privacidad."
   },
   "auth": {
     "welcomeToCapo": "Bienvenido a Capo",

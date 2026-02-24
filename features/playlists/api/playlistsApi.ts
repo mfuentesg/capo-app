@@ -21,7 +21,7 @@ type PlaylistWithSongs = Omit<Playlist, "songs"> & {
   playlist_songs?: Array<{ song_id: string; position: number; song: Tables<"songs"> }>
 }
 
-const SHARE_CODE_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
+const SHARE_CODE_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
 function generateShareCode(length = 12): string {
   const bytes = new Uint8Array(length)
@@ -137,19 +137,23 @@ export async function getPlaylistWithSongs(
     name: data.name,
     description: data.description || undefined,
     date: data.date || undefined,
-    songs: sortedPlaylistSongs.map((ps: { song: Tables<"songs"> }): Song => {
-      const song = ps.song
-      return {
-        id: song.id,
-        title: song.title,
-        artist: song.artist || "",
-        key: song.key || "",
-        bpm: song.bpm || 0,
-        lyrics: song.lyrics || undefined,
-        notes: song.notes || undefined,
-        isDraft: song.status === "draft"
-      }
-    }),
+    songs: sortedPlaylistSongs
+      .filter((ps: { song: Tables<"songs"> | null }) => ps.song !== null)
+      .map((ps: { song: Tables<"songs"> }): Song => {
+        const song = ps.song
+        return {
+          id: song.id,
+          title: song.title,
+          artist: song.artist || "",
+          key: song.key || "",
+          bpm: song.bpm || 0,
+          lyrics: song.lyrics || undefined,
+          notes: song.notes || undefined,
+          transpose: song.transpose ?? undefined,
+          capo: song.capo ?? undefined,
+          isDraft: song.status === "draft"
+        }
+      }),
     createdAt: data.created_at,
     updatedAt: data.updated_at,
     visibility: data.is_public ? "public" : "private",
@@ -202,19 +206,91 @@ export async function getPublicPlaylistByShareCode(
     name: data.name,
     description: data.description || undefined,
     date: data.date || undefined,
-    songs: sortedPlaylistSongs.map((ps: { song: Tables<"songs"> }): Song => {
-      const song = ps.song
-      return {
-        id: song.id,
-        title: song.title,
-        artist: song.artist || "",
-        key: song.key || "",
-        bpm: song.bpm || 0,
-        lyrics: song.lyrics || undefined,
-        notes: song.notes || undefined,
-        isDraft: song.status === "draft"
-      }
-    }),
+    songs: sortedPlaylistSongs
+      .filter((ps: { song: Tables<"songs"> | null }) => ps.song !== null)
+      .map((ps: { song: Tables<"songs"> }): Song => {
+        const song = ps.song
+        return {
+          id: song.id,
+          title: song.title,
+          artist: song.artist || "",
+          key: song.key || "",
+          bpm: song.bpm || 0,
+          lyrics: song.lyrics || undefined,
+          notes: song.notes || undefined,
+          transpose: song.transpose ?? undefined,
+          capo: song.capo ?? undefined,
+          isDraft: song.status === "draft"
+        }
+      }),
+    createdAt: data.created_at,
+    updatedAt: data.updated_at,
+    visibility: data.is_public ? "public" : "private",
+    allowGuestEditing: data.allow_guest_editing ?? false,
+    shareCode: data.share_code || undefined,
+    playlist_songs: sortedPlaylistSongs
+  }
+}
+
+/**
+ * Fetch playlist by share code (authenticated access — RLS handles visibility)
+ *
+ * @param supabase - Supabase client instance
+ * @param shareCode - Share code string
+ * @returns Promise<PlaylistWithSongs | null> - Playlist or null if not found/no access
+ */
+export async function getPlaylistByShareCode(
+  supabase: SupabaseClient<Database>,
+  shareCode: string
+): Promise<PlaylistWithSongs | null> {
+  const { data, error } = await supabase
+    .from("playlists")
+    .select(
+      `
+      *,
+      playlist_songs (
+        *,
+        song:songs (*)
+      )
+    `
+    )
+    .eq("share_code", shareCode)
+    .single()
+
+  if (error) {
+    if (error.code === "PGRST116") return null
+    throw error
+  }
+
+  if (!data) return null
+
+  const sortedPlaylistSongs =
+    data.playlist_songs?.sort(
+      (a: { position: number }, b: { position: number }) => a.position - b.position
+    ) || []
+
+  return {
+    id: data.id,
+    name: data.name,
+    description: data.description || undefined,
+    date: data.date || undefined,
+    songs: sortedPlaylistSongs
+      .filter((ps: { song: Tables<"songs"> | null }) => ps.song !== null)
+      .map((ps: { song: Tables<"songs"> }): Song => {
+        const song = ps.song
+        return {
+          id: song.id,
+          title: song.title,
+          artist: song.artist || "",
+          key: song.key || "",
+          bpm: song.bpm || 0,
+          lyrics: song.lyrics || undefined,
+          notes: song.notes || undefined,
+          transpose: song.transpose ?? undefined,
+          capo: song.capo ?? undefined,
+          isDraft: song.status === "draft"
+        }
+      }),
     createdAt: data.created_at,
     updatedAt: data.updated_at,
     visibility: data.is_public ? "public" : "private",
@@ -257,8 +333,8 @@ export async function createPlaylist(
     user_id: isTeam ? null : userId,
     team_id: isTeam ? context.teamId : null,
     created_by: userId,
-    // Avoid relying on DB trigger/RPC for share code generation.
-    share_code: isPublic ? generateShareCode() : null
+    // Always pre-assign a share code so playlists can be referenced by code regardless of visibility.
+    share_code: generateShareCode()
   }
 
   // Insert playlist
@@ -464,8 +540,27 @@ export async function reorderPlaylistSongs(
   playlistId: string,
   updates: Array<{ songId: string; position: number }>
 ): Promise<void> {
-  // Update positions in batch
-  const promises = updates.map(({ songId, position }) =>
+  // Two-phase update to avoid unique constraint violations on (playlist_id, position).
+  // Swapping adjacent positions in parallel (e.g. 0↔1) would temporarily produce two rows
+  // with the same position, hitting the playlist_songs_playlist_id_position_key constraint.
+  // Phase 1 moves all rows to safe temporary positions (final + large offset), phase 2 sets
+  // the final positions — neither phase conflicts with itself or the other.
+  const OFFSET = 10000
+
+  const phase1 = updates.map(({ songId, position }) =>
+    supabase
+      .from("playlist_songs")
+      .update({ position: position + OFFSET })
+      .eq("playlist_id", playlistId)
+      .eq("song_id", songId)
+  )
+
+  const phase1Results = await Promise.all(phase1)
+  for (const { error } of phase1Results) {
+    if (error) throw error
+  }
+
+  const phase2 = updates.map(({ songId, position }) =>
     supabase
       .from("playlist_songs")
       .update({ position })
@@ -473,10 +568,8 @@ export async function reorderPlaylistSongs(
       .eq("song_id", songId)
   )
 
-  const results = await Promise.all(promises)
-
-  // Check for errors
-  for (const { error } of results) {
+  const phase2Results = await Promise.all(phase2)
+  for (const { error } of phase2Results) {
     if (error) throw error
   }
 }

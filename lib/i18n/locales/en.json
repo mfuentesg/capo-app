@@ -113,6 +113,8 @@
     "deleteSong": "Delete Song",
     "deleteSongConfirmTitle": "Delete this song?",
     "deleteSongConfirmDescription": "This will permanently delete \"{title}\". This action cannot be undone.",
+    "dangerZone": "Danger Zone",
+    "deleteSongDescription": "Permanently delete this song. This action cannot be undone.",
     "songTitle": "Song Title",
     "songTitlePlaceholder": "Song title",
     "addLyricsDescription": "Add lyrics to your song using ChordPro format",
@@ -148,7 +150,8 @@
     "draft": "Draft",
     "searchPlaceholder": "Search playlists...",
     "playlistName": "Playlist Name",
-    "playlistNamePlaceholder": "e.g. Sunday Worship"
+    "playlistNamePlaceholder": "e.g. Sunday Worship",
+    "openPlaylist": "Open Playlist"
   },
   "playlistDetail": {
     "details": "Details",
@@ -171,7 +174,14 @@
     "editDescription": "View and edit playlist",
     "addDescription": "Add a description...",
     "deletePlaylistConfirmTitle": "Delete this playlist?",
-    "deletePlaylistConfirmDescription": "This will permanently delete \"{name}\". This action cannot be undone."
+    "deletePlaylistConfirmDescription": "This will permanently delete \"{name}\". This action cannot be undone.",
+    "dangerZone": "Danger Zone",
+    "deletePlaylistDescription": "Permanently delete this playlist. This action cannot be undone.",
+    "searchSongs": "Search songs...",
+    "noSongsToAdd": "All your songs are already in this playlist",
+    "addSelectedSongs": "Add {count} songs",
+    "dropToRemove": "Drop here to remove",
+    "guestEditingDisabledHint": "Only available when playlist is public"
   },
   "playlistItem": {
     "privatePlaylist": "Private playlist",
@@ -202,6 +212,7 @@
     "playlistUpdated": "Playlist updated",
     "playlistDeleted": "Playlist deleted",
     "songsAdded": "Songs added to playlist",
+    "songsAlreadyInPlaylist": "All songs are already in this playlist",
     "error": "Something went wrong",
     "accountDeleted": "Account deleted",
     "accountDeleteFailed": "Failed to delete account",
@@ -260,7 +271,12 @@
     "guestEditing": "Guest Editing",
     "share": "Share",
     "editSongs": "Edit songs",
-    "editSongsHint": "Guest editing from shared links is coming soon."
+    "editSongsHint": "Guest editing from shared links is coming soon.",
+    "previousSong": "Previous song",
+    "nextSong": "Next song",
+    "notFoundTitle": "Playlist not found",
+    "notFoundDescription": "This playlist doesn't exist, was deleted, or was made private.",
+    "notFoundSubtext": "The link may have expired or the owner changed their sharing settings."
   },
   "auth": {
     "welcomeToCapo": "Welcome to Capo",
