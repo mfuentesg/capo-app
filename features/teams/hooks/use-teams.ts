@@ -47,8 +47,8 @@ export function useUpdateTeam() {
       return updateTeamAction(teamId, updates)
     },
     onMutate: async ({ teamId, updates }) => {
-      // Cancel any in-flight queries for the team
-      await queryClient.cancelQueries({ queryKey: teamsKeys.detail(teamId) })
+      // Cancel any in-flight queries for the team (exact: true to avoid cancelling members/invitations)
+      await queryClient.cancelQueries({ queryKey: teamsKeys.detail(teamId), exact: true })
       await queryClient.cancelQueries({ queryKey: teamsKeys.list() })
 
       // Get previous data for rollback
@@ -75,11 +75,11 @@ export function useUpdateTeam() {
     },
     onSuccess: (_, { teamId }) => {
       queryClient.invalidateQueries({ queryKey: teamsKeys.list() })
-      queryClient.invalidateQueries({ queryKey: teamsKeys.detail(teamId) })
+      queryClient.invalidateQueries({ queryKey: teamsKeys.detail(teamId), exact: true })
       toast.success(t.toasts?.teamUpdated || "Team updated")
     },
     onError: (error, { teamId }, context) => {
-      // Rollback to previous data
+      // Rollback to previous data (exact key — setQueryData is always exact)
       if (context?.previousTeam) {
         queryClient.setQueryData(teamsKeys.detail(teamId), context.previousTeam)
       }
