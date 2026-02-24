@@ -380,36 +380,44 @@ export function SongDetail({ song, onClose, onUpdate, onDelete }: SongDetailProp
                 </>
               )}
             </Button>
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="gap-2 text-destructive hover:text-destructive bg-transparent"
-                  id={deleteDialogIds.triggerId}
-                  aria-controls={deleteDialogIds.contentId}
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                  {t.common.delete}
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent
-                id={deleteDialogIds.contentId}
-              >
-                <AlertDialogHeader>
-                  <AlertDialogTitle>{t.songs.deleteSongConfirmTitle}</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    {t.songs.deleteSongConfirmDescription.replace("{title}", song.title)}
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>{t.common.cancel}</AlertDialogCancel>
-                  <AlertDialogAction variant="destructive" onClick={() => onDelete(song.id)}>
-                    {t.songs.deleteSong}
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+          </div>
+
+          {/* Danger Zone */}
+          <div className="rounded-lg border border-destructive/50 bg-card p-4">
+            <h3 className="text-sm font-semibold text-destructive mb-3">{t.songs.dangerZone}</h3>
+            <div className="flex items-center justify-between gap-4">
+              <div className="space-y-0.5">
+                <p className="text-sm font-medium">{t.songs.deleteSong}</p>
+                <p className="text-xs text-muted-foreground">{t.songs.deleteSongDescription}</p>
+              </div>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    className="shrink-0"
+                    id={deleteDialogIds.triggerId}
+                    aria-controls={deleteDialogIds.contentId}
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent id={deleteDialogIds.contentId}>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>{t.songs.deleteSongConfirmTitle}</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      {t.songs.deleteSongConfirmDescription.replace("{title}", song.title)}
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>{t.common.cancel}</AlertDialogCancel>
+                    <AlertDialogAction variant="destructive" onClick={() => onDelete(song.id)}>
+                      {t.songs.deleteSong}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
           </div>
         </div>
       </div>

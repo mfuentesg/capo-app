@@ -18,8 +18,12 @@ import { usePlaylists, useCreatePlaylist, useUpdatePlaylist, useDeletePlaylist }
 import { useUser } from "@/features/auth"
 import { createOverlayIds } from "@/lib/ui/stable-overlay-ids"
 
-export function PlaylistsClient() {
-  const { data: playlists = [] } = usePlaylists()
+interface PlaylistsClientProps {
+  initialPlaylists?: Playlist[]
+}
+
+export function PlaylistsClient({ initialPlaylists = [] }: PlaylistsClientProps) {
+  const { data: playlists = initialPlaylists } = usePlaylists()
   const { data: user } = useUser()
   const createPlaylistMutation = useCreatePlaylist()
   const updatePlaylistMutation = useUpdatePlaylist()

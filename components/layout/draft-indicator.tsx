@@ -1,5 +1,6 @@
 "use client"
 
+import { toast } from "sonner"
 import { PlaylistDraft, usePlaylistDraft } from "@/features/playlist-draft"
 import {
   usePlaylists,
@@ -7,6 +8,7 @@ import {
   useAddSongsToPlaylist
 } from "@/features/playlists"
 import { useUser } from "@/features/auth"
+import { useTranslation } from "@/hooks/use-translation"
 import type { Playlist } from "@/features/playlists"
 
 /**
@@ -18,6 +20,7 @@ export function DraftIndicator() {
     usePlaylistDraft()
   const { data: playlists = [] } = usePlaylists()
   const { data: user } = useUser()
+  const { t } = useTranslation()
   const createPlaylistMutation = useCreatePlaylist()
   const addSongsMutation = useAddSongsToPlaylist()
 
@@ -38,9 +41,18 @@ export function DraftIndicator() {
       }
       await createPlaylistMutation.mutateAsync({ playlist, userId: user.id })
     } else {
+      const targetPlaylist = playlists.find((p) => p.id === selection.playlistId)
+      const existingIds = new Set(targetPlaylist?.songs ?? [])
+      const newSongIds = playlistDraft.map((s) => s.id).filter((id) => !existingIds.has(id))
+
+      if (newSongIds.length === 0) {
+        toast.info(t.toasts?.songsAlreadyInPlaylist || "All songs are already in this playlist")
+        return
+      }
+
       await addSongsMutation.mutateAsync({
         playlistId: selection.playlistId,
-        songIds: playlistDraft.map((s) => s.id)
+        songIds: newSongIds
       })
     }
 

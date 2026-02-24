@@ -6,6 +6,7 @@ import type { Playlist } from "../types"
 import type { AppContext } from "@/features/app-context"
 import {
   getPlaylists as getPlaylistsApi,
+  getPlaylistWithSongs as getPlaylistWithSongsApi,
   createPlaylist as createPlaylistApi,
   updatePlaylist as updatePlaylistApi,
   deletePlaylist as deletePlaylistApi,
@@ -17,6 +18,11 @@ import {
 export async function getPlaylistsAction(context: AppContext): Promise<Playlist[]> {
   const supabase = await createClient()
   return getPlaylistsApi(supabase, context)
+}
+
+export async function getPlaylistWithSongsAction(playlistId: string) {
+  const supabase = await createClient()
+  return getPlaylistWithSongsApi(supabase, playlistId)
 }
 
 export async function createPlaylistAction(
@@ -46,7 +52,9 @@ export async function updatePlaylistAction(
   const supabase = await createClient()
   const result = await updatePlaylistApi(supabase, playlistId, updates)
   revalidatePath("/dashboard/playlists")
-  revalidatePath(`/dashboard/playlists/${playlistId}`)
+  if (result.shareCode) {
+    revalidatePath(`/shared/${result.shareCode}`)
+  }
   return result
 }
 
@@ -62,7 +70,7 @@ export async function addSongToPlaylistAction(
 ): Promise<void> {
   const supabase = await createClient()
   await addSongToPlaylistApi(supabase, playlistId, songId)
-  revalidatePath(`/dashboard/playlists/${playlistId}`)
+  revalidatePath("/dashboard/playlists")
 }
 
 export async function removeSongFromPlaylistAction(
@@ -71,14 +79,17 @@ export async function removeSongFromPlaylistAction(
 ): Promise<void> {
   const supabase = await createClient()
   await removeSongFromPlaylistApi(supabase, playlistId, songId)
-  revalidatePath(`/dashboard/playlists/${playlistId}`)
+  revalidatePath("/dashboard/playlists")
 }
 
 export async function reorderPlaylistSongsAction(
   playlistId: string,
-  updates: Array<{ songId: string; position: number }>
+  updates: Array<{ songId: string; position: number }>,
+  shareCode?: string
 ): Promise<void> {
   const supabase = await createClient()
   await reorderPlaylistSongsApi(supabase, playlistId, updates)
-  revalidatePath(`/dashboard/playlists/${playlistId}`)
+  if (shareCode) {
+    revalidatePath(`/shared/${shareCode}`)
+  }
 }

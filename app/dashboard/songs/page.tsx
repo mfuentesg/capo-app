@@ -1,7 +1,8 @@
 import { redirect } from "next/navigation"
-import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query"
+import { dehydrate, HydrationBoundary } from "@tanstack/react-query"
 import { getAppContext } from "@/features/app-context/server"
 import { SongsClient, api, songsKeys } from "@/features/songs"
+import { makeQueryClient } from "@/components/providers/get-query-client"
 
 export default async function SongsPage() {
   const context = await getAppContext()
@@ -9,7 +10,7 @@ export default async function SongsPage() {
     redirect("/")
   }
 
-  const queryClient = new QueryClient()
+  const queryClient = makeQueryClient()
 
   await queryClient.prefetchQuery({
     queryKey: songsKeys.list(context),

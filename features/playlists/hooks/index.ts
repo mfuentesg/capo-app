@@ -4,6 +4,7 @@
 export { playlistsKeys } from "./query-keys"
 export {
   usePlaylists,
+  usePlaylistSongs,
   useCreatePlaylist,
   useUpdatePlaylist,
   useDeletePlaylist,

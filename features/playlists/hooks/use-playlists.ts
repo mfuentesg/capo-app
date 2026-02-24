@@ -3,6 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import {
   getPlaylistsAction,
+  getPlaylistWithSongsAction,
   createPlaylistAction,
   updatePlaylistAction,
   deletePlaylistAction,
@@ -186,6 +187,18 @@ export function useAddSongsToPlaylist() {
 }
 
 /**
+ * Hook to fetch a single playlist with full song data (joined query via server action)
+ */
+export function usePlaylistSongs(playlistId: string | null) {
+  return useQuery({
+    queryKey: playlistId ? playlistsKeys.detail(playlistId) : ["playlists", "detail", null],
+    queryFn: () => getPlaylistWithSongsAction(playlistId!),
+    enabled: !!playlistId,
+    staleTime: 30 * 1000
+  })
+}
+
+/**
  * Hook to reorder songs within a playlist
  */
 export function useReorderPlaylistSongs() {
@@ -211,26 +224,43 @@ export function useReorderPlaylistSongs() {
       return reorderPlaylistSongsAction(playlistId, updates)
     },
     onMutate: async ({ playlistId, sourceIndex, destinationIndex, currentSongs }) => {
+      const detailKey = playlistsKeys.detail(playlistId)
+
       await queryClient.cancelQueries({ queryKey: playlistsKeys.lists() })
+      await queryClient.cancelQueries({ queryKey: detailKey })
+
       const snapshots = snapshotPlaylistQueries(queryClient)
+      const detailSnapshot = queryClient.getQueryData(detailKey)
+
       const newSongs = Array.from(currentSongs)
       const [removed] = newSongs.splice(sourceIndex, 1)
       newSongs.splice(destinationIndex, 0, removed)
 
+      // Optimistic update: playlist list (songs as string IDs)
       queryClient.setQueriesData<Playlist[]>({ queryKey: playlistsKeys.lists() }, (old) =>
-        old?.map((p) => {
-          if (p.id !== playlistId) return p
-          return { ...p, songs: newSongs }
-        })
+        old?.map((p) => (p.id !== playlistId ? p : { ...p, songs: newSongs }))
       )
 
-      return { snapshots }
+      // Optimistic update: playlist detail (songs as full Song objects)
+      const detailData = queryClient.getQueryData<{ songs: Array<{ id: string }> }>(detailKey)
+      if (detailData?.songs) {
+        const newDetailSongs = Array.from(detailData.songs)
+        const [removedSong] = newDetailSongs.splice(sourceIndex, 1)
+        newDetailSongs.splice(destinationIndex, 0, removedSong)
+        queryClient.setQueryData(detailKey, { ...detailData, songs: newDetailSongs })
+      }
+
+      return { snapshots, detailSnapshot, detailKey }
     },
     onError: (_err, _vars, rollbackContext) => {
       restorePlaylistQueries(queryClient, rollbackContext?.snapshots)
+      if (rollbackContext?.detailSnapshot !== undefined) {
+        queryClient.setQueryData(rollbackContext.detailKey, rollbackContext.detailSnapshot)
+      }
     },
-    onSettled: () => {
+    onSettled: (_data, _error, { playlistId }) => {
       queryClient.invalidateQueries({ queryKey: playlistsKeys.lists() })
+      queryClient.invalidateQueries({ queryKey: playlistsKeys.detail(playlistId) })
     }
   })
 }

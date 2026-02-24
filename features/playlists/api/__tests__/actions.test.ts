@@ -73,8 +73,23 @@ describe("playlist actions", () => {
 
     expect(result).toEqual(updatedPlaylist)
     expect(updatePlaylistApi).toHaveBeenCalledWith(mockSupabase, "playlist-1", { name: "Updated" })
-    expect(revalidatePath).toHaveBeenNthCalledWith(1, "/dashboard/playlists")
-    expect(revalidatePath).toHaveBeenNthCalledWith(2, "/dashboard/playlists/playlist-1")
+    expect(revalidatePath).toHaveBeenCalledWith("/dashboard/playlists")
+  })
+
+  it("updates a playlist with shareCode and revalidates shared route", async () => {
+    const updatedPlaylist = {
+      id: "playlist-1",
+      name: "Updated",
+      songs: [],
+      shareCode: "ABC123",
+      createdAt: "2026-01-01T00:00:00.000Z",
+      updatedAt: "2026-01-02T00:00:00.000Z"
+    }
+    ;(updatePlaylistApi as jest.Mock).mockResolvedValue(updatedPlaylist)
+
+    await updatePlaylistAction("playlist-1", { name: "Updated" })
+
+    expect(revalidatePath).toHaveBeenCalledWith("/shared/ABC123")
   })
 
   it("deletes a playlist and revalidates playlist list", async () => {
@@ -84,21 +99,21 @@ describe("playlist actions", () => {
     expect(revalidatePath).toHaveBeenCalledWith("/dashboard/playlists")
   })
 
-  it("adds a song to a playlist and revalidates detail route", async () => {
+  it("adds a song to a playlist and revalidates playlist list", async () => {
     await addSongToPlaylistAction("playlist-1", "song-1")
 
     expect(addSongToPlaylistApi).toHaveBeenCalledWith(mockSupabase, "playlist-1", "song-1")
-    expect(revalidatePath).toHaveBeenCalledWith("/dashboard/playlists/playlist-1")
+    expect(revalidatePath).toHaveBeenCalledWith("/dashboard/playlists")
   })
 
-  it("removes a song from a playlist and revalidates detail route", async () => {
+  it("removes a song from a playlist and revalidates playlist list", async () => {
     await removeSongFromPlaylistAction("playlist-1", "song-2")
 
     expect(removeSongFromPlaylistApi).toHaveBeenCalledWith(mockSupabase, "playlist-1", "song-2")
-    expect(revalidatePath).toHaveBeenCalledWith("/dashboard/playlists/playlist-1")
+    expect(revalidatePath).toHaveBeenCalledWith("/dashboard/playlists")
   })
 
-  it("reorders songs in a playlist and revalidates detail route", async () => {
+  it("reorders songs in a playlist without shareCode and skips shared revalidation", async () => {
     const updates = [
       { songId: "song-1", position: 0 },
       { songId: "song-2", position: 1 }
@@ -107,6 +122,17 @@ describe("playlist actions", () => {
     await reorderPlaylistSongsAction("playlist-1", updates)
 
     expect(reorderPlaylistSongsApi).toHaveBeenCalledWith(mockSupabase, "playlist-1", updates)
-    expect(revalidatePath).toHaveBeenCalledWith("/dashboard/playlists/playlist-1")
+    expect(revalidatePath).not.toHaveBeenCalled()
+  })
+
+  it("reorders songs in a playlist with shareCode and revalidates shared route", async () => {
+    const updates = [
+      { songId: "song-1", position: 0 },
+      { songId: "song-2", position: 1 }
+    ]
+
+    await reorderPlaylistSongsAction("playlist-1", updates, "SHARE123")
+
+    expect(revalidatePath).toHaveBeenCalledWith("/shared/SHARE123")
   })
 })

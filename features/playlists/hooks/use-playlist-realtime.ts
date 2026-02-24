@@ -1,67 +1,47 @@
 "use client"
 
-/**
- * Real-time hook for playlist collaboration
- * Subscribes to changes in playlist_songs table
- *
- * TODO: Implement when real-time features are needed
- */
-
 import { useEffect, useState } from "react"
 import { useQueryClient } from "@tanstack/react-query"
+import { createClient } from "@/lib/supabase/client"
+import { playlistsKeys } from "./query-keys"
 
 /**
- * Real-time hook for playlist collaboration
- * Subscribes to changes in playlist_songs table
+ * Real-time hook for playlist collaboration (dashboard view)
+ * Subscribes to playlist_songs changes and invalidates the React Query detail cache.
  *
  * @param playlistId - Playlist UUID to subscribe to
- * @returns { isConnected } - Connection status
+ * @returns { isConnected } - Whether the channel is subscribed
  */
 export function usePlaylistRealtime(playlistId: string) {
   const queryClient = useQueryClient()
-  const [isConnected] = useState(false)
+  const [isConnected, setIsConnected] = useState(false)
 
   useEffect(() => {
     if (!playlistId) return
 
-    // TODO: Implement real-time subscription
-    // const supabase = createClient()
-    // const channelName = `playlist:${playlistId}`
-    //
-    // const channel = supabase
-    //   .channel(channelName)
-    //   .on<PlaylistSong>(
-    //     "postgres_changes",
-    //     {
-    //       event: "*", // INSERT, UPDATE, DELETE
-    //       schema: "public",
-    //       table: "playlist_songs",
-    //       filter: `playlist_id=eq.${playlistId}`,
-    //     },
-    //     (payload: RealtimePostgresChangesPayload<PlaylistSong>) => {
-    //       // Invalidate query to refetch updated playlist
-    //       queryClient.invalidateQueries({
-    //         queryKey: playlistsKeys.detail(playlistId),
-    //       })
-    //
-    //       // Optional: Handle specific events
-    //       // if (payload.eventType === "INSERT") {
-    //       //   // Handle new song added
-    //       // } else if (payload.eventType === "UPDATE") {
-    //       //   // Handle song position changed
-    //       // } else if (payload.eventType === "DELETE") {
-    //       //   // Handle song removed
-    //       // }
-    //     }
-    //   )
-    //   .subscribe((status) => {
-    //     setIsConnected(status === "SUBSCRIBED")
-    //   })
-    //
-    // return () => {
-    //   channel.unsubscribe()
-    //   setIsConnected(false)
-    // }
+    const supabase = createClient()
+    const channel = supabase
+      .channel(`playlist:${playlistId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "playlist_songs",
+          filter: `playlist_id=eq.${playlistId}`
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: playlistsKeys.detail(playlistId) })
+        }
+      )
+      .subscribe((status) => {
+        setIsConnected(status === "SUBSCRIBED")
+      })
+
+    return () => {
+      channel.unsubscribe()
+      setIsConnected(false)
+    }
   }, [playlistId, queryClient])
 
   return { isConnected }
