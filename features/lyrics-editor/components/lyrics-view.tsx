@@ -31,13 +31,23 @@ interface LyricsViewProps {
   mode?: "page" | "panel"
   readOnly?: boolean
   onClose?: () => void
+  onSaveLyrics?: (lyrics: string) => void
+  isSaving?: boolean
 }
 
-export function LyricsView({ song, mode = "page", readOnly = false, onClose }: LyricsViewProps) {
+export function LyricsView({
+  song,
+  mode = "page",
+  readOnly = false,
+  onClose,
+  onSaveLyrics,
+  isSaving = false
+}: LyricsViewProps) {
   const { t } = useTranslation()
   const router = useRouter()
   const [isEditing, setIsEditing] = useState(false)
   const [editedLyrics, setEditedLyrics] = useState(song.lyrics || "")
+  const [savedLyrics, setSavedLyrics] = useState(song.lyrics || "")
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
   const settingsPopoverIds = createOverlayIds(`lyrics-settings-${song.id}`)
   const isPanel = mode === "panel"
@@ -52,14 +62,14 @@ export function LyricsView({ song, mode = "page", readOnly = false, onClose }: L
   const handleEdit = () => {
     if (!canEdit) return
     setIsEditing(true)
-    setEditedLyrics(song.lyrics || "")
+    setEditedLyrics(savedLyrics)
   }
 
   const handleCancel = () => {
     if (hasUnsavedChanges) {
       if (confirm(t.common.discardChangesMessage)) {
         setIsEditing(false)
-        setEditedLyrics(song.lyrics || "")
+        setEditedLyrics(savedLyrics)
         setHasUnsavedChanges(false)
       }
     } else {
@@ -68,9 +78,8 @@ export function LyricsView({ song, mode = "page", readOnly = false, onClose }: L
   }
 
   const handleSave = () => {
-    // TODO: Implement save to database
-    // In real app, this would be an API call to update the song
-    // For now, just update the UI state
+    onSaveLyrics?.(editedLyrics)
+    setSavedLyrics(editedLyrics)
     setIsEditing(false)
     setHasUnsavedChanges(false)
   }
@@ -78,7 +87,7 @@ export function LyricsView({ song, mode = "page", readOnly = false, onClose }: L
   const handleLyricsChange = (value: string) => {
     if (!canEdit) return
     setEditedLyrics(value)
-    setHasUnsavedChanges(value !== song.lyrics)
+    setHasUnsavedChanges(value !== savedLyrics)
   }
 
   const handleBack = () => {
@@ -136,7 +145,7 @@ export function LyricsView({ song, mode = "page", readOnly = false, onClose }: L
                       variant="default"
                       size="sm"
                       onClick={handleSave}
-                      disabled={!hasUnsavedChanges}
+                      disabled={!hasUnsavedChanges || isSaving}
                       className="shrink-0"
                     >
                       <Save className="h-4 w-4 mr-2" />
@@ -364,7 +373,7 @@ export function LyricsView({ song, mode = "page", readOnly = false, onClose }: L
             </div>
           ) : (
             <RenderedSong
-              lyrics={song.lyrics}
+              lyrics={savedLyrics}
               transpose={transpose.value}
               capo={capo.value}
               fontSize={font.value}

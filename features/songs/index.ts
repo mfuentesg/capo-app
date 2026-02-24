@@ -3,7 +3,7 @@ export * from "./components"
 export { NewSongsProvider, useNewSongs } from "./contexts"
 export type { NewSongsContextType } from "./contexts"
 
-export { useSongs } from "./hooks/use-songs"
+export { useSongs, useUpdateSong } from "./hooks/use-songs"
 export { songsKeys } from "./hooks/query-keys"
 
 export { api } from "./api"

@@ -1,6 +1,6 @@
-import { LyricsView } from "@/features/lyrics-editor"
 import { api } from "@/features/songs/api"
 import { notFound } from "next/navigation"
+import { LyricsPageClient } from "./lyrics-page-client"
 
 export default async function SongLyricsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -10,5 +10,5 @@ export default async function SongLyricsPage({ params }: { params: Promise<{ id:
     notFound()
   }
 
-  return <LyricsView song={song} />
+  return <LyricsPageClient song={song} />
 }
