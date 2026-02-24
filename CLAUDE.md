@@ -96,6 +96,26 @@ Routes live in `app/`. Protected routes are under `app/dashboard/`. Public route
 - **React Context** for global/shared client state within a feature
 - Query keys are defined in `features/[name]/hooks/query-keys.ts`
 
+#### Avoiding SSR Hydration Mismatches with React Query
+
+**Do not use `HydrationBoundary` + `prefetchQuery` for page-level data.** React Query's `browserQueryClient` is a module-level singleton that persists across soft navigations. When it already holds cached data, `HydrationBoundary` defers hydration to a `useEffect` (which doesn't run during SSR), causing the server to render an empty/loading state while the client renders stale cache data — a hydration mismatch.
+
+**Preferred pattern:** Fetch data directly in the server component and pass it as a prop to the client component. Use it as a default value when React Query's `data` is undefined:
+
+```tsx
+// ✅ Server component (page)
+const initialPlaylists = await api.getPlaylists(context).catch(() => [])
+return <PlaylistsClient initialPlaylists={initialPlaylists} />
+
+// ✅ Client component
+export function PlaylistsClient({ initialPlaylists = [] }: { initialPlaylists?: Playlist[] }) {
+  const { data: playlists = initialPlaylists } = usePlaylists()
+  // ...
+}
+```
+
+This guarantees server and client render the same initial HTML. React Query still manages cache, mutations, and background refetches normally after hydration.
+
 ## Code Style
 
 Enforced by Prettier (`.prettierrc`):
