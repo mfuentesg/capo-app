@@ -12,6 +12,7 @@ import {
   Guitar,
   Settings2,
   X,
+  Eye,
   Pencil,
   Save
 } from "lucide-react"
@@ -46,6 +47,7 @@ export function LyricsView({
   const { t } = useTranslation()
   const router = useRouter()
   const [isEditing, setIsEditing] = useState(false)
+  const [isPreviewing, setIsPreviewing] = useState(false)
   const [editedLyrics, setEditedLyrics] = useState(song.lyrics || "")
   const [savedLyrics, setSavedLyrics] = useState(song.lyrics || "")
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
@@ -62,6 +64,7 @@ export function LyricsView({
   const handleEdit = () => {
     if (!canEdit) return
     setIsEditing(true)
+    setIsPreviewing(false)
     setEditedLyrics(savedLyrics)
   }
 
@@ -69,11 +72,13 @@ export function LyricsView({
     if (hasUnsavedChanges) {
       if (confirm(t.common.discardChangesMessage)) {
         setIsEditing(false)
+        setIsPreviewing(false)
         setEditedLyrics(savedLyrics)
         setHasUnsavedChanges(false)
       }
     } else {
       setIsEditing(false)
+      setIsPreviewing(false)
     }
   }
 
@@ -81,6 +86,7 @@ export function LyricsView({
     onSaveLyrics?.(editedLyrics)
     setSavedLyrics(editedLyrics)
     setIsEditing(false)
+    setIsPreviewing(false)
     setHasUnsavedChanges(false)
   }
 
@@ -88,6 +94,11 @@ export function LyricsView({
     if (!canEdit) return
     setEditedLyrics(value)
     setHasUnsavedChanges(value !== savedLyrics)
+  }
+
+  const togglePreview = () => {
+    if (!canEdit || !isEditing) return
+    setIsPreviewing((prev) => !prev)
   }
 
   const handleBack = () => {
@@ -140,6 +151,19 @@ export function LyricsView({
                     <Button variant="outline" size="sm" onClick={handleCancel} className="shrink-0">
                       <X className="h-4 w-4 mr-2" />
                       {t.common.cancel}
+                    </Button>
+                    <Button
+                      variant={isPreviewing ? "secondary" : "outline"}
+                      size="sm"
+                      onClick={togglePreview}
+                      className="shrink-0"
+                    >
+                      {isPreviewing ? (
+                        <Pencil className="h-4 w-4 mr-2" />
+                      ) : (
+                        <Eye className="h-4 w-4 mr-2" />
+                      )}
+                      {isPreviewing ? t.common.edit : t.songs.preview}
                     </Button>
                     <Button
                       variant="default"
@@ -364,12 +388,23 @@ export function LyricsView({
             <div className="max-w-5xl mx-auto">
               <div className="mb-4">
                 <h3 className="text-sm font-medium text-muted-foreground mb-2">
-                  {t.songs.lyricsFormatInfo}
+                  {isPreviewing ? t.songs.preview : t.songs.lyricsFormatInfo}
                 </h3>
               </div>
-              <div className="rounded-lg border bg-card overflow-hidden">
-                <LazySongEditor content={editedLyrics} onChange={handleLyricsChange} />
-              </div>
+              {isPreviewing ? (
+                <div className="rounded-lg border bg-card p-4 md:p-6 overflow-hidden">
+                  <RenderedSong
+                    lyrics={editedLyrics}
+                    transpose={transpose.value}
+                    capo={capo.value}
+                    fontSize={font.value}
+                  />
+                </div>
+              ) : (
+                <div className="rounded-lg border bg-card overflow-hidden">
+                  <LazySongEditor content={editedLyrics} onChange={handleLyricsChange} />
+                </div>
+              )}
             </div>
           ) : (
             <RenderedSong
