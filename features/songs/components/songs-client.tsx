@@ -419,7 +419,7 @@ export function SongsClient() {
           }}
         >
           <DrawerContent
-            className="flex flex-col mt-0! max-h-dvh! p-0 overflow-hidden"
+            className="flex flex-col p-0 overflow-hidden data-[vaul-drawer-direction=bottom]:top-0 data-[vaul-drawer-direction=bottom]:bottom-0 data-[vaul-drawer-direction=bottom]:mt-0 data-[vaul-drawer-direction=bottom]:max-h-dvh data-[vaul-drawer-direction=bottom]:rounded-none"
             id={mobileDrawerIds.contentId}
           >
             <DrawerTitle className="sr-only">

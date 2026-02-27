@@ -11,7 +11,7 @@ import {
   Guitar,
   Minus,
   Plus,
-  ArrowUpRight
+  ExternalLink
 } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -197,9 +197,9 @@ export function SongDetail({ song, onClose, onUpdate, onDelete }: SongDetailProp
         </div>
         <div className="flex items-center gap-1">
           <Link href={`/dashboard/songs/${song.id}`}>
-            <Button variant="ghost" size="sm" className="gap-1.5">
-              <ArrowUpRight className="h-4 w-4" />
-              <span className="hidden sm:inline">{t.songs.openSong}</span>
+            <Button variant="outline" size="sm" className="gap-1.5">
+              <ExternalLink className="h-4 w-4" />
+              <span className="inline">{t.songs.openSong}</span>
             </Button>
           </Link>
           <Button variant="ghost" size="icon" onClick={onClose} aria-label={t.common.close}>

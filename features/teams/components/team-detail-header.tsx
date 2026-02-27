@@ -110,7 +110,7 @@ function EditableField({
     <button
       onClick={() => setIsEditing(true)}
       className={cn(
-        "group inline-flex items-center gap-1.5 rounded px-1 -ml-1 hover:bg-muted transition-colors text-left",
+        "group inline-flex max-w-full items-center gap-1.5 rounded px-1 -ml-1 hover:bg-muted transition-colors text-left",
         className
       )}
     >
@@ -122,9 +122,10 @@ function EditableField({
 
 export function TeamDetailHeader({ team, onUpdate, isOwner }: TeamDetailHeaderProps) {
   const router = useRouter()
-  const { switchToTeam } = useAppContext()
+  const { context, switchToTeam } = useAppContext()
   const { t } = useTranslation()
   const [editingIcon, setEditingIcon] = useState(team.icon || "")
+  const isCurrentTeam = context?.type === "team" && context.teamId === team.id
 
   const handleIconChange = (newIcon: string) => {
     setEditingIcon(newIcon)
@@ -134,53 +135,69 @@ export function TeamDetailHeader({ team, onUpdate, isOwner }: TeamDetailHeaderPr
   }
 
   const handleSwitchToTeam = () => {
+    if (isCurrentTeam) return
     switchToTeam(team.id)
     toast.success(t.toasts.teamSwitched.replace("{name}", team.name))
     router.push("/dashboard")
   }
 
   return (
-    <div className="flex items-center gap-4">
-      <Button variant="ghost" size="icon" asChild aria-label={t.invitations.backToTeams}>
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+      <Button
+        variant="ghost"
+        size="icon"
+        asChild
+        aria-label={t.invitations.backToTeams}
+        className="shrink-0"
+      >
         <Link href="/dashboard/teams">
           <ArrowLeft className="h-4 w-4" />
         </Link>
       </Button>
-      <div className="flex items-center gap-4 flex-1">
-        {isOwner ? (
-          <IconPicker
-            value={editingIcon}
-            onChange={handleIconChange}
-            iconClassName="h-6 w-6"
-            idBase={`team-detail-${team.id}-icon-picker`}
-          />
-        ) : (
-          <Avatar className="h-12 w-12 border border-border">
-            {team.avatar_url && <AvatarImage src={team.avatar_url} alt={team.name} />}
-            <AvatarFallback className="bg-primary/10">
-              <TeamIcon icon={editingIcon} className="h-6 w-6" />
-            </AvatarFallback>
-          </Avatar>
-        )}
-        <div className="flex-1 min-w-0 space-y-1">
-          {isOwner && onUpdate ? (
-            <EditableField
-              value={team.name}
-              onSave={(value) => onUpdate({ name: value })}
-              className="text-lg font-bold tracking-tight sm:text-xl"
+      <div className="flex min-w-0 flex-1 flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+        <div className="flex min-w-0 items-center gap-3 sm:gap-4">
+          {isOwner ? (
+            <IconPicker
+              value={editingIcon}
+              onChange={handleIconChange}
+              iconClassName="h-6 w-6"
+              idBase={`team-detail-${team.id}-icon-picker`}
             />
           ) : (
-            <h1 className="text-lg font-bold tracking-tight sm:text-xl truncate">{team.name}</h1>
+            <Avatar className="h-12 w-12 border border-border shrink-0">
+              {team.avatar_url && <AvatarImage src={team.avatar_url} alt={team.name} />}
+              <AvatarFallback className="bg-primary/10">
+                <TeamIcon icon={editingIcon} className="h-6 w-6" />
+              </AvatarFallback>
+            </Avatar>
           )}
-          <p className="text-xs text-muted-foreground">
-            {t.teams.created} {formatDate(team.created_at)}
-          </p>
+          <div className="min-w-0 flex-1 space-y-1">
+            {isOwner && onUpdate ? (
+              <EditableField
+                value={team.name}
+                onSave={(value) => onUpdate({ name: value })}
+                className="max-w-full text-lg font-bold tracking-tight sm:text-xl"
+              />
+            ) : (
+              <h1 className="truncate text-lg font-bold tracking-tight sm:text-xl">{team.name}</h1>
+            )}
+            <p className="text-xs text-muted-foreground">
+              {t.teams.created} {formatDate(team.created_at)}
+            </p>
+          </div>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex flex-wrap items-center gap-2 sm:ml-auto sm:shrink-0">
           {team.is_public && <Badge variant="secondary">{t.filters.public}</Badge>}
-          <Button size="sm" onClick={handleSwitchToTeam}>
-            {t.teams.switchToTeam}
-          </Button>
+          {isCurrentTeam ? (
+            <Badge variant="default" className="gap-1.5">
+              <Check className="h-3 w-3" />
+              {t.teams.active}
+            </Badge>
+          ) : (
+            <Button size="sm" onClick={handleSwitchToTeam} className="w-full sm:w-auto">
+              {t.teams.switchToTeam}
+            </Button>
+          )}
         </div>
       </div>
     </div>

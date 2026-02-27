@@ -280,7 +280,12 @@ export function TeamMembersSection({
                 </div>
                 <ItemGroup className="gap-2">
                   {invitations.map((invitation) => (
-                    <Item key={invitation.id} variant="outline" size="sm" className="bg-muted/40">
+                    <Item
+                      key={invitation.id}
+                      variant="outline"
+                      size="sm"
+                      className="bg-muted/40 items-start gap-3 sm:items-center"
+                    >
                       <ItemMedia>
                         <Avatar className="h-8 w-8">
                           <AvatarFallback className="bg-primary/10">
@@ -288,24 +293,28 @@ export function TeamMembersSection({
                           </AvatarFallback>
                         </Avatar>
                       </ItemMedia>
-                      <ItemContent>
-                        <ItemTitle>{invitation.email}</ItemTitle>
-                        <ItemDescription className="flex items-center gap-1">
+                      <ItemContent className="min-w-0">
+                        <ItemTitle className="w-full truncate">{invitation.email}</ItemTitle>
+                        <ItemDescription className="flex items-center gap-1 text-xs sm:text-sm">
                           <Clock className="h-3 w-3" />
                           {t.teams.invitedOn.replace("{date}", formatDate(invitation.created_at))}
                         </ItemDescription>
                       </ItemContent>
-                      <ItemActions>
-                        <RoleBadge role={invitation.role} />
-                        <Badge variant="secondary" className="hidden sm:inline-flex">
-                          {t.teams.invitationPending}
-                        </Badge>
+                      <ItemActions className="mt-2 w-full justify-between sm:mt-0 sm:w-auto sm:justify-end">
+                        <div className="flex items-center gap-2">
+                          <RoleBadge role={invitation.role} />
+                          <Badge variant="secondary" className="inline-flex">
+                            {t.teams.invitationPending}
+                          </Badge>
+                        </div>
                         {canManageTeamMembers() && (
                           <Button
                             variant="outline"
                             size="sm"
                             onClick={() => setInvitationToCancel(invitation)}
                             disabled={cancelTeamInvitation.isPending}
+                            aria-label={t.teams.cancelInvitation}
+                            className="h-9 w-9 px-0 sm:h-9 sm:w-auto sm:px-3"
                           >
                             <Trash2 className="h-4 w-4 sm:mr-2" />
                             <span className="hidden sm:inline">{t.teams.cancelInvitation}</span>

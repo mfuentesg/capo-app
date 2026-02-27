@@ -1,6 +1,6 @@
 "use client"
 
-import { useQuery } from "@tanstack/react-query"
+import { keepPreviousData, useQuery } from "@tanstack/react-query"
 import { teamsKeys } from "../hooks/query-keys"
 import { api as teamsApi } from "../api"
 import { useUser } from "@/features/auth"
@@ -51,6 +51,7 @@ export function TeamDetailClient({
       // Ensure we never return null when we have initialData
       return teamData || initialTeam
     },
+    enabled: !!user?.id,
     initialData: initialTeam,
     staleTime: 30 * 1000
   })
@@ -71,11 +72,13 @@ export function TeamDetailClient({
   >({
     queryKey: teamsKeys.members(initialTeam.id),
     queryFn: async () => await teamsApi.getTeamMembers(initialTeam.id),
+    enabled: !!user?.id,
     initialData: initialMembers as (Tables<"team_members"> & {
       user_full_name: string | null
       user_email: string | null
       user_avatar_url: string | null
     })[],
+    placeholderData: keepPreviousData,
     staleTime: 30 * 1000
   })
 
@@ -87,12 +90,16 @@ export function TeamDetailClient({
   >({
     queryKey: teamsKeys.invitations(initialTeam.id),
     queryFn: async () => await teamsApi.getTeamInvitations(initialTeam.id),
+    enabled: !!user?.id,
     initialData: initialInvitations,
+    placeholderData: keepPreviousData,
     staleTime: 30 * 1000
   })
 
   const isOwner = user?.id === team.created_by
-  const currentUserRole = members?.find((member) => member.user_id === user?.id)?.role
+  const resolvedMembers = members ?? initialMembers
+  const resolvedInvitations = invitations ?? initialInvitations
+  const currentUserRole = resolvedMembers.find((member) => member.user_id === user?.id)?.role
 
   const handleUpdate = (updates: TablesUpdate<"teams">) => {
     updateTeamMutation.mutate({ teamId: team.id, updates })
@@ -122,8 +129,8 @@ export function TeamDetailClient({
       <div className="mx-auto max-w-4xl space-y-6">
         <TeamDetailHeader team={team} onUpdate={handleUpdate} isOwner={isOwner} />
         <TeamMembersSection
-          members={members || []}
-          invitations={invitations || []}
+          members={resolvedMembers}
+          invitations={resolvedInvitations}
           teamId={team.id}
           currentUserId={user?.id}
           currentUserRole={currentUserRole}
@@ -131,7 +138,7 @@ export function TeamDetailClient({
         {user && (
           <TeamDangerZone
             teamName={team.name}
-            members={members || []}
+            members={resolvedMembers}
             currentUserId={user.id}
             isOwner={isOwner}
             onLeave={handleLeave}
