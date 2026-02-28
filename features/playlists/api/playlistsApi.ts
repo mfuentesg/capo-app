@@ -18,10 +18,26 @@ type PlaylistRow = Tables<"playlists"> & {
 
 type PlaylistWithSongs = Omit<Playlist, "songs"> & {
   songs: Song[]
-  playlist_songs?: Array<{ song_id: string; position: number; song: Tables<"songs"> }>
+  playlist_songs?: Array<{ song_id: string; position: number; song: NestedSongRow }>
 }
 
 const SHARE_CODE_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+// Only the columns actually consumed by the Song frontend type
+const SONG_FIELDS = "id, title, artist, key, bpm, lyrics, notes, transpose, capo, status"
+
+// Nested select for playlist_songs joined with the minimal song columns
+const PLAYLIST_SONGS_WITH_SONG = `
+  song_id,
+  position,
+  song:songs (${SONG_FIELDS})
+`
+
+// Subset row type matching SONG_FIELDS — used to type the nested song in query results
+type NestedSongRow = Pick<
+  Tables<"songs">,
+  "id" | "title" | "artist" | "key" | "bpm" | "lyrics" | "notes" | "transpose" | "capo" | "status"
+>
 
 function generateShareCode(length = 12): string {
   const bytes = new Uint8Array(length)
@@ -107,16 +123,7 @@ export async function getPlaylistWithSongs(
 ): Promise<PlaylistWithSongs | null> {
   const { data, error } = await supabase
     .from("playlists")
-    .select(
-      `
-      *,
-      playlist_songs (
-        song_id,
-        position,
-        song:songs (*)
-      )
-    `
-    )
+    .select(`*, playlist_songs (${PLAYLIST_SONGS_WITH_SONG})`)
     .eq("id", playlistId)
     .single()
 
@@ -138,8 +145,8 @@ export async function getPlaylistWithSongs(
     description: data.description || undefined,
     date: data.date || undefined,
     songs: sortedPlaylistSongs
-      .filter((ps: { song: Tables<"songs"> | null }) => ps.song !== null)
-      .map((ps: { song: Tables<"songs"> }): Song => {
+      .filter((ps: { song: NestedSongRow | null }) => ps.song !== null)
+      .map((ps: { song: NestedSongRow }): Song => {
         const song = ps.song
         return {
           id: song.id,
@@ -175,15 +182,7 @@ export async function getPublicPlaylistByShareCode(
 ): Promise<PlaylistWithSongs | null> {
   const { data, error } = await supabase
     .from("playlists")
-    .select(
-      `
-      *,
-      playlist_songs (
-        *,
-        song:songs (*)
-      )
-    `
-    )
+    .select(`*, playlist_songs (${PLAYLIST_SONGS_WITH_SONG})`)
     .eq("share_code", shareCode)
     .eq("is_public", true)
     .or("share_expires_at.is.null,share_expires_at.gt.now()")
@@ -207,8 +206,8 @@ export async function getPublicPlaylistByShareCode(
     description: data.description || undefined,
     date: data.date || undefined,
     songs: sortedPlaylistSongs
-      .filter((ps: { song: Tables<"songs"> | null }) => ps.song !== null)
-      .map((ps: { song: Tables<"songs"> }): Song => {
+      .filter((ps: { song: NestedSongRow | null }) => ps.song !== null)
+      .map((ps: { song: NestedSongRow }): Song => {
         const song = ps.song
         return {
           id: song.id,
@@ -245,15 +244,7 @@ export async function getPlaylistByShareCode(
 ): Promise<PlaylistWithSongs | null> {
   const { data, error } = await supabase
     .from("playlists")
-    .select(
-      `
-      *,
-      playlist_songs (
-        *,
-        song:songs (*)
-      )
-    `
-    )
+    .select(`*, playlist_songs (${PLAYLIST_SONGS_WITH_SONG})`)
     .eq("share_code", shareCode)
     .single()
 
@@ -275,8 +266,8 @@ export async function getPlaylistByShareCode(
     description: data.description || undefined,
     date: data.date || undefined,
     songs: sortedPlaylistSongs
-      .filter((ps: { song: Tables<"songs"> | null }) => ps.song !== null)
-      .map((ps: { song: Tables<"songs"> }): Song => {
+      .filter((ps: { song: NestedSongRow | null }) => ps.song !== null)
+      .map((ps: { song: NestedSongRow }): Song => {
         const song = ps.song
         return {
           id: song.id,
@@ -357,6 +348,7 @@ export async function createPlaylist(
   if (!playlistRow) throw new Error("Playlist creation failed")
 
   // Insert playlist_songs if songs are provided
+  let insertedSongs: string[] = []
   if (playlistData.songs && playlistData.songs.length > 0 && playlistRow) {
     const playlistSongs = playlistData.songs.map((songId, index) => ({
       playlist_id: playlistRow.id,
@@ -370,27 +362,24 @@ export async function createPlaylist(
       // If songs insertion fails, we should probably rollback the playlist
       // For now, log error and continue - playlist is created but without songs
       console.error("Error adding songs to playlist:", songsError)
+    } else {
+      insertedSongs = playlistData.songs
     }
   }
 
-  // Fetch the complete playlist with songs
-  const { data: completePlaylist, error: fetchError } = await supabase
-    .from("playlists")
-    .select(
-      `
-      *,
-      playlist_songs (
-        song_id,
-        position
-      )
-    `
-    )
-    .eq("id", playlistRow.id)
-    .single()
-
-  if (fetchError) throw fetchError
-
-  return transformPlaylistRow(completePlaylist)
+  // Construct the response from the already-known data — no extra round-trip needed
+  return {
+    id: playlistRow.id,
+    name: playlistRow.name,
+    description: playlistRow.description || undefined,
+    date: playlistRow.date || undefined,
+    songs: insertedSongs,
+    createdAt: playlistRow.created_at,
+    updatedAt: playlistRow.updated_at,
+    visibility: playlistRow.is_public ? "public" : "private",
+    allowGuestEditing: playlistRow.allow_guest_editing ?? false,
+    shareCode: playlistRow.share_code || undefined
+  }
 }
 
 /**
@@ -432,35 +421,55 @@ export async function updatePlaylist(
     dbUpdates.share_code = generateShareCode()
   }
 
+  const playlistSelect = `
+    *,
+    playlist_songs (
+      song_id,
+      position
+    )
+  `
+
   if (Object.keys(dbUpdates).length > 0) {
     const updatePayload = { ...dbUpdates }
-    let { error } = await supabase.from("playlists").update(updatePayload).eq("id", playlistId)
+    let { data, error } = await supabase
+      .from("playlists")
+      .update(updatePayload)
+      .eq("id", playlistId)
+      .select(playlistSelect)
+      .single()
 
     if (error && isMissingAllowGuestEditingColumnError(error)) {
       delete updatePayload.allow_guest_editing
 
       if (Object.keys(updatePayload).length > 0) {
-        const retryResult = await supabase.from("playlists").update(updatePayload).eq("id", playlistId)
+        const retryResult = await supabase
+          .from("playlists")
+          .update(updatePayload)
+          .eq("id", playlistId)
+          .select(playlistSelect)
+          .single()
+        data = retryResult.data
         error = retryResult.error
       } else {
-        error = null
+        // Nothing to update — fetch the current state
+        const fetchResult = await supabase
+          .from("playlists")
+          .select(playlistSelect)
+          .eq("id", playlistId)
+          .single()
+        data = fetchResult.data
+        error = fetchResult.error
       }
     }
 
     if (error) throw error
+    return transformPlaylistRow(data!)
   }
 
+  // No fields to update — just return the current state
   const { data, error } = await supabase
     .from("playlists")
-    .select(
-      `
-      *,
-      playlist_songs (
-        song_id,
-        position
-      )
-    `
-    )
+    .select(playlistSelect)
     .eq("id", playlistId)
     .single()
 

@@ -34,6 +34,8 @@ export async function getTeamsWithClient(
   supabase: SupabaseClient<Database>,
   userId: string
 ): Promise<TeamWithMemberCount[]> {
+  // Embed `all_members(count)` to get per-team counts in a single round-trip.
+  // PostgREST returns the count as an array [{ count: N }] on the embedded resource.
   const { data, error } = await supabase
     .from("team_members")
     .select(
@@ -46,7 +48,8 @@ export async function getTeamsWithClient(
         is_public,
         created_at,
         created_by,
-        updated_at
+        updated_at,
+        all_members:team_members!team_id (count)
       ),
       role
     `
@@ -58,40 +61,28 @@ export async function getTeamsWithClient(
     throw error
   }
 
-  const teams: { team: Tables<"teams">; role: Tables<"team_members">["role"] }[] = []
+  const result: TeamWithMemberCount[] = []
   for (const item of data || []) {
-    const team = item.team as unknown as Tables<"teams"> | null
+    const team = item.team as unknown as
+      | (Tables<"teams"> & { all_members: [{ count: number }] | null })
+      | null
     if (team && item.role) {
-      teams.push({ team, role: item.role })
+      result.push({
+        id: team.id,
+        name: team.name,
+        avatar_url: team.avatar_url,
+        icon: team.icon,
+        is_public: team.is_public,
+        created_at: team.created_at,
+        created_by: team.created_by,
+        updated_at: team.updated_at,
+        role: item.role,
+        member_count: team.all_members?.[0]?.count ?? 1
+      })
     }
   }
 
-  // Fetch member counts for all teams
-  if (teams.length === 0) {
-    return []
-  }
-
-  const teamIds = teams.map((t) => t.team.id)
-  const { data: memberCounts, error: countError } = await supabase
-    .from("team_members")
-    .select("team_id")
-    .in("team_id", teamIds)
-
-  if (countError) {
-    throw countError
-  }
-
-  // Count members per team
-  const countMap = new Map<string, number>()
-  for (const row of memberCounts || []) {
-    countMap.set(row.team_id, (countMap.get(row.team_id) || 0) + 1)
-  }
-
-  return teams.map(({ team, role }) => ({
-    ...team,
-    role,
-    member_count: countMap.get(team.id) || 1
-  }))
+  return result
 }
 
 export async function getTeam(

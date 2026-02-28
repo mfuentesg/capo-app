@@ -11,11 +11,17 @@ import type { AppContext } from "@/features/app-context"
 import type { Song as FrontendSong } from "@/features/songs/types"
 import { applyContextFilter } from "@/lib/supabase/apply-context-filter"
 
+// Only the columns fetched by SONG_COLUMNS — a subset of the full row type
+type SongRow = Pick<
+  Tables<"songs">,
+  "id" | "title" | "artist" | "key" | "bpm" | "lyrics" | "notes" | "transpose" | "capo" | "status"
+>
+
 /**
  * Maps database song to frontend song type
  * Converts status enum to isDraft boolean
  */
-function mapDBSongToFrontend(dbSong: Tables<"songs">): FrontendSong {
+function mapDBSongToFrontend(dbSong: SongRow): FrontendSong {
   return {
     id: dbSong.id,
     title: dbSong.title,
@@ -84,11 +90,13 @@ function mapFrontendUpdatesToDB(updates: Partial<FrontendSong>): TablesUpdate<"s
  * @param context - App context (personal or team)
  * @returns Promise<FrontendSong[]> - Array of songs
  */
+const SONG_COLUMNS = "id, title, artist, key, bpm, lyrics, notes, transpose, capo, status"
+
 export async function getSongs(
   supabase: SupabaseClient,
   context: AppContext
 ): Promise<FrontendSong[]> {
-  let query = supabase.from("songs").select("*")
+  let query = supabase.from("songs").select(SONG_COLUMNS)
   query = applyContextFilter(query, context)
 
   const { data, error } = await query.order("created_at", { ascending: false })
@@ -129,7 +137,7 @@ export async function getSongsByIds(
 ): Promise<FrontendSong[]> {
   if (songIds.length === 0) return []
 
-  const { data, error } = await supabase.from("songs").select("*").in("id", songIds)
+  const { data, error } = await supabase.from("songs").select(SONG_COLUMNS).in("id", songIds)
 
   if (error) throw error
   return (data || []).map(mapDBSongToFrontend)
