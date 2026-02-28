@@ -46,6 +46,7 @@ import { cn, formatLongDate, formatDateISO, parseDateValue } from "@/lib/utils"
 import { useTranslation } from "@/hooks/use-translation"
 import { useLocale } from "@/features/settings"
 import { LyricsView } from "@/features/lyrics-editor"
+import { useUpdateSong } from "@/features/songs"
 import type { Playlist } from "@/features/playlists/types"
 import type { SongWithPosition, PlaylistWithSongs } from "@/types/extended"
 import { DraggablePlaylist } from "@/features/playlists/utils"
@@ -188,6 +189,8 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
     }),
     [playlist, songsWithPosition]
   )
+
+  const { mutate: updateSong, isPending: isSavingLyrics } = useUpdateSong()
 
   const removeSongMutation = useMutation({
     mutationFn: (songId: string) => removeSongFromPlaylistAction(playlist.id, songId),
@@ -521,8 +524,9 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
               {activeSong && (
                 <LyricsView
                   mode="panel"
-                  readOnly
                   onClose={() => setActiveIndex(null)}
+                  onSaveLyrics={(lyrics) => updateSong({ songId: activeSong.id, updates: { lyrics } })}
+                  isSaving={isSavingLyrics}
                   song={{
                     ...activeSong,
                     lyrics: activeSong.lyrics ?? "",
