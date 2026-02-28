@@ -11,3 +11,13 @@ export const api = createApi(playlistsApi)
 
 // Re-export all functions
 export * from "./playlistsApi"
+export {
+  getPlaylistsAction,
+  getPlaylistWithSongsAction,
+  createPlaylistAction,
+  updatePlaylistAction,
+  deletePlaylistAction,
+  addSongToPlaylistAction,
+  removeSongFromPlaylistAction,
+  reorderPlaylistSongsAction
+} from "./actions"

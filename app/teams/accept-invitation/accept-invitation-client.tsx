@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useUser } from "@/features/auth"
-import { api } from "@/features/teams"
+import { useAcceptTeamInvitation } from "@/features/teams"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Spinner } from "@/components/ui/spinner"
 import { Alert, AlertDescription } from "@/components/ui/alert"
@@ -18,6 +18,7 @@ export function AcceptInvitationClient() {
   const searchParams = useSearchParams()
   const { t } = useTranslation()
   const { data: user, isLoading: userLoading } = useUser()
+  const acceptInvitationMutation = useAcceptTeamInvitation()
   const token = searchParams.get("token")
   const [status, setStatus] = useState<InvitationStatus>("loading")
   const [error, setError] = useState<string>("")
@@ -35,8 +36,14 @@ export function AcceptInvitationClient() {
         return
       }
 
+      if (!user) {
+        setStatus("error")
+        setError(t.invitations.failedToAccept)
+        return
+      }
+
       try {
-        await api.acceptTeamInvitation(token)
+        await acceptInvitationMutation.mutateAsync({ token })
         setStatus("success")
 
         // Redirect to team page after 2 seconds
@@ -52,7 +59,7 @@ export function AcceptInvitationClient() {
     }
 
     acceptInvitation()
-  }, [token, user, userLoading, router, t])
+  }, [token, user, userLoading, router, t, acceptInvitationMutation])
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">

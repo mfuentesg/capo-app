@@ -29,8 +29,11 @@ import { LyricsView } from "@/features/lyrics-editor"
 import type { PlaylistWithSongs } from "@/features/playlists/types"
 import type { Playlist } from "@/features/playlists/types"
 import type { Song } from "@/features/songs"
-import { reorderPlaylistSongsAction, updatePlaylistAction } from "@/features/playlists/api/actions"
-import { getPublicPlaylistByShareCode } from "@/features/playlists/api/playlistsApi"
+import {
+  reorderPlaylistSongsAction,
+  updatePlaylistAction,
+  getPublicPlaylistByShareCode
+} from "@/features/playlists"
 import { createClient } from "@/lib/supabase/client"
 import { formatLongDate } from "@/lib/utils"
 

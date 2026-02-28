@@ -8,6 +8,7 @@ import {
   updateTeam as updateTeamApi,
   deleteTeam as deleteTeamApi,
   leaveTeam as leaveTeamApi,
+  acceptTeamInvitation as acceptTeamInvitationApi,
   transferTeamOwnership as transferTeamOwnershipApi,
   inviteTeamMember as inviteTeamMemberApi,
   removeTeamMember as removeTeamMemberApi,
@@ -78,4 +79,21 @@ export async function changeTeamMemberRoleAction(
 export async function deleteTeamInvitationAction(invitationId: string): Promise<void> {
   const supabase = await createClient()
   await deleteTeamInvitationApi(supabase, invitationId)
+}
+
+export async function acceptTeamInvitationAction(token: string): Promise<string> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+    error
+  } = await supabase.auth.getUser()
+
+  if (error || !user) {
+    throw new Error("Not authenticated")
+  }
+
+  const teamId = await acceptTeamInvitationApi(supabase, token)
+  revalidatePath("/dashboard/invitations")
+  revalidatePath("/dashboard/teams")
+  return teamId
 }

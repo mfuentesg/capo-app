@@ -14,8 +14,8 @@ import type { Tables } from "@/lib/supabase/database.types"
 import { SELECTED_TEAM_ID_KEY } from "./constants"
 import { createClient } from "@/lib/supabase/server"
 import { api as teamsApi } from "@/features/teams"
-import { getTeamsWithClient } from "@/features/teams/api"
-import { getUser } from "@/features/auth/api/authApi"
+import { getTeamsWithClient } from "@/features/teams"
+import { getUser } from "@/features/auth/api"
 
 export async function setSelectedTeamId(teamId: string) {
   const cookieStore = await cookies()

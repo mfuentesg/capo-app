@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
 import { api as teamsApi } from "../api"
 import {
+  acceptTeamInvitationAction,
   updateTeamAction,
   deleteTeamAction,
   leaveTeamAction,
@@ -417,6 +418,22 @@ export function useCancelTeamInvitation() {
       console.error("Error canceling invitation:", error)
       const message = error instanceof Error ? error.message : "Failed to cancel invitation"
       toast.error(message)
+    }
+  })
+}
+
+/**
+ * Hook to accept a team invitation by token
+ */
+export function useAcceptTeamInvitation() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({ token }: { token: string }) => {
+      return acceptTeamInvitationAction(token)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: teamsKeys.list() })
     }
   })
 }

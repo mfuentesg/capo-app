@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useTranslation } from "@/hooks/use-translation"
 import { useUser } from "@/features/auth"
-import { api } from "@/features/teams"
+import { useAcceptTeamInvitation } from "@/features/teams"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Spinner } from "@/components/ui/spinner"
@@ -27,6 +27,7 @@ export function PendingInvitationsClient() {
   const router = useRouter()
   const { t } = useTranslation()
   const { data: user, isLoading: userLoading } = useUser()
+  const acceptInvitationMutation = useAcceptTeamInvitation()
   const [invitations, setInvitations] = useState<PendingInvitation[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string>("")
@@ -66,7 +67,7 @@ export function PendingInvitationsClient() {
   const handleAcceptInvitation = async (token: string, invitationId: string) => {
     try {
       setAcceptingId(invitationId)
-      await api.acceptTeamInvitation(token)
+      await acceptInvitationMutation.mutateAsync({ token })
 
       setInvitations(invitations.filter((inv) => inv.id !== invitationId))
     } catch (err) {

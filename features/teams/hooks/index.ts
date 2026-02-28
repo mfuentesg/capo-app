@@ -7,6 +7,7 @@ export {
   useTransferOwnershipAndStay,
   useTransferAndLeave,
   useInviteTeamMember,
+  useAcceptTeamInvitation,
   useRemoveTeamMember,
   useChangeTeamMemberRole,
   useCancelTeamInvitation

@@ -14,5 +14,10 @@ export type { Playlist, PlaylistWithSongs, PlaylistDetailProps, PlaylistListProp
 
 export { DraggablePlaylist } from "./utils"
 
-export { api } from "./api"
-export { getPlaylists } from "./api"
+export {
+  api,
+  getPlaylists,
+  getPublicPlaylistByShareCode,
+  updatePlaylistAction,
+  reorderPlaylistSongsAction
+} from "./api"
