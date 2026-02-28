@@ -14,8 +14,10 @@ import {
   X,
   Eye,
   Pencil,
-  Save
+  Save,
+  ExternalLink
 } from "lucide-react"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
 import type { Song } from "@/types"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
@@ -207,6 +209,15 @@ export function LyricsView({
               </div>
 
               <div className="flex items-center gap-2 self-start sm:self-auto">
+                {isPanel && (
+                  <Link href={`/dashboard/songs/${song.id}`}>
+                    <Button variant="outline" size="sm" className="shrink-0 gap-1.5">
+                      <ExternalLink className="h-4 w-4" />
+                      {t.songs.openSong}
+                    </Button>
+                  </Link>
+                )}
+
                 {canEdit && (
                   <Button variant="outline" size="sm" onClick={handleEdit} className="shrink-0">
                     <Pencil className="h-4 w-4 mr-2" />
