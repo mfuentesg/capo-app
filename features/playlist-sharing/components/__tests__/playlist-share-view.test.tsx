@@ -12,8 +12,10 @@ jest.mock("next/link", () => ({
   )
 }))
 
-jest.mock("@/features/playlists/api/actions", () => ({
-  reorderPlaylistSongsAction: jest.fn().mockResolvedValue(undefined)
+jest.mock("@/features/playlists", () => ({
+  reorderPlaylistSongsAction: jest.fn().mockResolvedValue(undefined),
+  updatePlaylistAction: jest.fn().mockResolvedValue(undefined),
+  getPublicPlaylistByShareCode: jest.fn().mockResolvedValue(null)
 }))
 
 jest.mock("@/features/auth", () => ({
