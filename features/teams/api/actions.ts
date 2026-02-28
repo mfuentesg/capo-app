@@ -81,7 +81,13 @@ export async function deleteTeamInvitationAction(invitationId: string): Promise<
   await deleteTeamInvitationApi(supabase, invitationId)
 }
 
-export async function acceptTeamInvitationAction(token: string): Promise<string> {
+export interface AcceptTeamInvitationResult {
+  teamId: string | null
+  errorCode: string | null
+  errorMessage: string | null
+}
+
+export async function acceptTeamInvitationAction(token: string): Promise<AcceptTeamInvitationResult> {
   const supabase = await createClient()
   const {
     data: { user },
@@ -89,11 +95,47 @@ export async function acceptTeamInvitationAction(token: string): Promise<string>
   } = await supabase.auth.getUser()
 
   if (error || !user) {
-    throw new Error("Not authenticated")
+    return {
+      teamId: null,
+      errorCode: "AUTH_REQUIRED",
+      errorMessage: "Not authenticated"
+    }
   }
 
-  const teamId = await acceptTeamInvitationApi(supabase, token)
-  revalidatePath("/dashboard/invitations")
-  revalidatePath("/dashboard/teams")
-  return teamId
+  try {
+    const teamId = await acceptTeamInvitationApi(supabase, token)
+    revalidatePath("/dashboard/invitations")
+    revalidatePath("/dashboard/teams")
+    return {
+      teamId,
+      errorCode: null,
+      errorMessage: null
+    }
+  } catch (err) {
+    const errorCode =
+      typeof err === "object" &&
+      err !== null &&
+      "code" in err &&
+      typeof (err as { code?: unknown }).code === "string"
+        ? (err as { code: string }).code
+        : null
+
+    const errorMessage =
+      err instanceof Error
+        ? err.message
+        : typeof err === "string"
+          ? err
+          : typeof err === "object" &&
+              err !== null &&
+              "message" in err &&
+              typeof (err as { message?: unknown }).message === "string"
+            ? (err as { message: string }).message
+            : "Failed to accept invitation"
+
+    return {
+      teamId: null,
+      errorCode,
+      errorMessage
+    }
+  }
 }

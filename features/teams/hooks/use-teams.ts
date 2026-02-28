@@ -430,7 +430,14 @@ export function useAcceptTeamInvitation() {
 
   return useMutation({
     mutationFn: async ({ token }: { token: string }) => {
-      return acceptTeamInvitationAction(token)
+      const result = await acceptTeamInvitationAction(token)
+      if (result.errorMessage) {
+        throw new Error(result.errorMessage)
+      }
+      if (!result.teamId) {
+        throw new Error("Failed to accept invitation")
+      }
+      return result.teamId
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: teamsKeys.list() })

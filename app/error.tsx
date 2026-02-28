@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect } from "react"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { useTranslation } from "@/hooks/use-translation"
 
@@ -39,7 +40,12 @@ export default function GlobalError({
           <h2 className="text-xl font-semibold">{t.toasts.error}</h2>
           <p className="text-sm text-muted-foreground">{t.errors.unexpectedError}</p>
         </div>
-        <Button onClick={reset}>{t.common.tryAgain}</Button>
+        <div className="flex items-center justify-center gap-3">
+          <Button onClick={reset}>{t.common.tryAgain}</Button>
+          <Button variant="outline" asChild>
+            <Link href="/">{t.invitations.goHome}</Link>
+          </Button>
+        </div>
       </div>
     </div>
   )

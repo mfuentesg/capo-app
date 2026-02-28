@@ -39,5 +39,9 @@ export function mapInvitationAcceptError(error: unknown, t: Translations): strin
     return t.invitations.signInRequiredDescription
   }
 
+  if (message.includes("user email not available")) {
+    return t.invitations.signInRequiredDescription
+  }
+
   return t.invitations.failedToAccept
 }
