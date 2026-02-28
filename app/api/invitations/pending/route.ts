@@ -28,7 +28,7 @@ export async function GET() {
         inviter:profiles(full_name, email)
       `
       )
-      .eq("email", user.email)
+      .ilike("email", user.email)
       .is("accepted_at", null)
       .gt("expires_at", new Date().toISOString())
       .order("created_at", { ascending: false })

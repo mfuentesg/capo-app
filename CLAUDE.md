@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-pnpm dev              # Start dev server (http://localhost:3000)
+pnpm dev              # Start dev server with webpack (http://localhost:3000) — Turbopack is disabled because it causes Monaco Editor to emit spurious "ERR Canceled: Canceled" errors in development
 pnpm build            # Production build
 pnpm typecheck        # TypeScript type checking
 pnpm lint             # ESLint (zero warnings tolerance)

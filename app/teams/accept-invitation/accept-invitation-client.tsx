@@ -10,26 +10,33 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { CheckCircle, XCircle, AlertCircle } from "lucide-react"
 import { useTranslation } from "@/hooks/use-translation"
-import { mapInvitationAcceptError } from "@/features/teams/lib/map-invitation-error"
+import { mapInvitationAcceptError } from "@/features/teams"
 
 type InvitationStatus = "loading" | "success" | "error" | "invalid"
+
+const AUTH_ERROR_MESSAGES = ["not authenticated", "different email address", "user email not available"]
+
+function isAuthRelatedError(message: string): boolean {
+  const lower = message.toLowerCase()
+  return AUTH_ERROR_MESSAGES.some((m) => lower.includes(m))
+}
 
 export function AcceptInvitationClient() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { t } = useTranslation()
   const { data: user, isLoading: userLoading } = useUser()
-  const acceptInvitationMutation = useAcceptTeamInvitation()
+  const { mutateAsync: acceptInvitation } = useAcceptTeamInvitation()
   const token = searchParams.get("token")
   const [status, setStatus] = useState<InvitationStatus>("loading")
   const [error, setError] = useState<string>("")
+  const [isAuthError, setIsAuthError] = useState(false)
 
   useEffect(() => {
-    const acceptInvitation = async () => {
-      // Wait for user data to load
-      if (userLoading) {
-        return
-      }
+    if (status !== "loading") return
+
+    const doAccept = async () => {
+      if (userLoading) return
 
       if (!token) {
         setStatus("invalid")
@@ -39,12 +46,13 @@ export function AcceptInvitationClient() {
 
       if (!user) {
         setStatus("error")
+        setIsAuthError(true)
         setError(t.invitations.signInRequiredDescription)
         return
       }
 
       try {
-        await acceptInvitationMutation.mutateAsync({ token })
+        await acceptInvitation({ token })
         setStatus("success")
 
         // Redirect to team page after 2 seconds
@@ -52,14 +60,16 @@ export function AcceptInvitationClient() {
           router.push(`/dashboard/teams`)
         }, 2000)
       } catch (err) {
+        const rawMessage = err instanceof Error ? err.message : ""
         setStatus("error")
+        setIsAuthError(isAuthRelatedError(rawMessage))
         console.error("Accept invitation error:", err)
         setError(mapInvitationAcceptError(err, t))
       }
     }
 
-    acceptInvitation()
-  }, [token, user, userLoading, router, t, acceptInvitationMutation])
+    doAccept()
+  }, [token, user, userLoading, router, t, acceptInvitation, status])
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
@@ -105,9 +115,25 @@ export function AcceptInvitationClient() {
                 </AlertDescription>
               </Alert>
               <div className="flex flex-col gap-2">
-                <Button onClick={() => router.push("/dashboard/teams")} className="w-full">
-                  {t.invitations.goToTeams}
-                </Button>
+                {isAuthError ? (
+                  <Button
+                    onClick={() => {
+                      // Store the token in a cookie so the auth callback can
+                      // redirect back to this invitation page after sign-in.
+                      if (token) {
+                        document.cookie = `_invitation_token=${token}; path=/; max-age=3600; SameSite=Lax`
+                      }
+                      router.push("/")
+                    }}
+                    className="w-full"
+                  >
+                    {t.invitations.signIn}
+                  </Button>
+                ) : (
+                  <Button onClick={() => router.push("/dashboard/teams")} className="w-full">
+                    {t.invitations.goToTeams}
+                  </Button>
+                )}
                 <Button
                   variant="outline"
                   onClick={() => router.push("/dashboard")}
