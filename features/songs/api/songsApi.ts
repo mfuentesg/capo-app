@@ -11,11 +11,17 @@ import type { AppContext } from "@/features/app-context"
 import type { Song as FrontendSong } from "@/features/songs/types"
 import { applyContextFilter } from "@/lib/supabase/apply-context-filter"
 
+// Only the columns fetched by SONG_COLUMNS — a subset of the full row type
+type SongRow = Pick<
+  Tables<"songs">,
+  "id" | "title" | "artist" | "key" | "bpm" | "lyrics" | "notes" | "transpose" | "capo" | "status"
+>
+
 /**
  * Maps database song to frontend song type
  * Converts status enum to isDraft boolean
  */
-function mapDBSongToFrontend(dbSong: Tables<"songs">): FrontendSong {
+function mapDBSongToFrontend(dbSong: SongRow): FrontendSong {
   return {
     id: dbSong.id,
     title: dbSong.title,

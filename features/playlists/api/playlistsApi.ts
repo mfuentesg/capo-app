@@ -18,10 +18,26 @@ type PlaylistRow = Tables<"playlists"> & {
 
 type PlaylistWithSongs = Omit<Playlist, "songs"> & {
   songs: Song[]
-  playlist_songs?: Array<{ song_id: string; position: number; song: Tables<"songs"> }>
+  playlist_songs?: Array<{ song_id: string; position: number; song: NestedSongRow }>
 }
 
 const SHARE_CODE_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+// Only the columns actually consumed by the Song frontend type
+const SONG_FIELDS = "id, title, artist, key, bpm, lyrics, notes, transpose, capo, status"
+
+// Nested select for playlist_songs joined with the minimal song columns
+const PLAYLIST_SONGS_WITH_SONG = `
+  song_id,
+  position,
+  song:songs (${SONG_FIELDS})
+`
+
+// Subset row type matching SONG_FIELDS — used to type the nested song in query results
+type NestedSongRow = Pick<
+  Tables<"songs">,
+  "id" | "title" | "artist" | "key" | "bpm" | "lyrics" | "notes" | "transpose" | "capo" | "status"
+>
 
 function generateShareCode(length = 12): string {
   const bytes = new Uint8Array(length)
@@ -107,16 +123,7 @@ export async function getPlaylistWithSongs(
 ): Promise<PlaylistWithSongs | null> {
   const { data, error } = await supabase
     .from("playlists")
-    .select(
-      `
-      *,
-      playlist_songs (
-        song_id,
-        position,
-        song:songs (*)
-      )
-    `
-    )
+    .select(`*, playlist_songs (${PLAYLIST_SONGS_WITH_SONG})`)
     .eq("id", playlistId)
     .single()
 
@@ -138,8 +145,8 @@ export async function getPlaylistWithSongs(
     description: data.description || undefined,
     date: data.date || undefined,
     songs: sortedPlaylistSongs
-      .filter((ps: { song: Tables<"songs"> | null }) => ps.song !== null)
-      .map((ps: { song: Tables<"songs"> }): Song => {
+      .filter((ps: { song: NestedSongRow | null }) => ps.song !== null)
+      .map((ps: { song: NestedSongRow }): Song => {
         const song = ps.song
         return {
           id: song.id,
@@ -175,15 +182,7 @@ export async function getPublicPlaylistByShareCode(
 ): Promise<PlaylistWithSongs | null> {
   const { data, error } = await supabase
     .from("playlists")
-    .select(
-      `
-      *,
-      playlist_songs (
-        *,
-        song:songs (*)
-      )
-    `
-    )
+    .select(`*, playlist_songs (${PLAYLIST_SONGS_WITH_SONG})`)
     .eq("share_code", shareCode)
     .eq("is_public", true)
     .or("share_expires_at.is.null,share_expires_at.gt.now()")
@@ -207,8 +206,8 @@ export async function getPublicPlaylistByShareCode(
     description: data.description || undefined,
     date: data.date || undefined,
     songs: sortedPlaylistSongs
-      .filter((ps: { song: Tables<"songs"> | null }) => ps.song !== null)
-      .map((ps: { song: Tables<"songs"> }): Song => {
+      .filter((ps: { song: NestedSongRow | null }) => ps.song !== null)
+      .map((ps: { song: NestedSongRow }): Song => {
         const song = ps.song
         return {
           id: song.id,
@@ -245,15 +244,7 @@ export async function getPlaylistByShareCode(
 ): Promise<PlaylistWithSongs | null> {
   const { data, error } = await supabase
     .from("playlists")
-    .select(
-      `
-      *,
-      playlist_songs (
-        *,
-        song:songs (*)
-      )
-    `
-    )
+    .select(`*, playlist_songs (${PLAYLIST_SONGS_WITH_SONG})`)
     .eq("share_code", shareCode)
     .single()
 
@@ -275,8 +266,8 @@ export async function getPlaylistByShareCode(
     description: data.description || undefined,
     date: data.date || undefined,
     songs: sortedPlaylistSongs
-      .filter((ps: { song: Tables<"songs"> | null }) => ps.song !== null)
-      .map((ps: { song: Tables<"songs"> }): Song => {
+      .filter((ps: { song: NestedSongRow | null }) => ps.song !== null)
+      .map((ps: { song: NestedSongRow }): Song => {
         const song = ps.song
         return {
           id: song.id,
