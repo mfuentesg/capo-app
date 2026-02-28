@@ -82,10 +82,26 @@ describe("useUnsavedChangesGuard", () => {
   })
 
   it("popstate handler shows prompt and re-pushes history when dirty", () => {
-    renderHook(() => useUnsavedChangesGuard(true, { onDiscard: jest.fn() }))
-    // Simulate browser back — fire popstate
+    const { result } = renderHook(() => useUnsavedChangesGuard(true, { onDiscard: jest.fn() }))
     act(() => { window.dispatchEvent(new PopStateEvent("popstate")) })
-    // Should re-push state to prevent navigation
     expect(pushStateSpy).toHaveBeenCalledTimes(2) // once on mount, once on popstate
+    expect(result.current.showPrompt).toBe(true)
+  })
+
+  it("removes listeners on unmount while dirty", () => {
+    const { unmount } = renderHook(() =>
+      useUnsavedChangesGuard(true, { onDiscard: jest.fn() })
+    )
+    unmount()
+    expect(removeEventSpy).toHaveBeenCalledWith("beforeunload", expect.any(Function))
+    expect(removeEventSpy).toHaveBeenCalledWith("popstate", expect.any(Function))
+  })
+
+  it("beforeunload handler calls preventDefault when dirty", () => {
+    renderHook(() => useUnsavedChangesGuard(true, { onDiscard: jest.fn() }))
+    const event = new Event("beforeunload") as BeforeUnloadEvent
+    const preventDefaultSpy = jest.spyOn(event, "preventDefault")
+    window.dispatchEvent(event)
+    expect(preventDefaultSpy).toHaveBeenCalledTimes(1)
   })
 })
