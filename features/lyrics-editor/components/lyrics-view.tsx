@@ -419,7 +419,7 @@ export function LyricsView({
             {canEdit && hasInitializedEditor && (
               <div
                 className={cn(
-                  "rounded-lg border bg-card overflow-hidden",
+                  "rounded-lg border bg-card",
                   isEditing && !isPreviewing ? "block" : "hidden"
                 )}
               >
