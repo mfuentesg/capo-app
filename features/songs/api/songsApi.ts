@@ -84,11 +84,13 @@ function mapFrontendUpdatesToDB(updates: Partial<FrontendSong>): TablesUpdate<"s
  * @param context - App context (personal or team)
  * @returns Promise<FrontendSong[]> - Array of songs
  */
+const SONG_COLUMNS = "id, title, artist, key, bpm, lyrics, notes, transpose, capo, status"
+
 export async function getSongs(
   supabase: SupabaseClient,
   context: AppContext
 ): Promise<FrontendSong[]> {
-  let query = supabase.from("songs").select("*")
+  let query = supabase.from("songs").select(SONG_COLUMNS)
   query = applyContextFilter(query, context)
 
   const { data, error } = await query.order("created_at", { ascending: false })
@@ -129,7 +131,7 @@ export async function getSongsByIds(
 ): Promise<FrontendSong[]> {
   if (songIds.length === 0) return []
 
-  const { data, error } = await supabase.from("songs").select("*").in("id", songIds)
+  const { data, error } = await supabase.from("songs").select(SONG_COLUMNS).in("id", songIds)
 
   if (error) throw error
   return (data || []).map(mapDBSongToFrontend)
