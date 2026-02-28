@@ -53,7 +53,7 @@ describe("createPlaylist", () => {
 
   function makeCreateSupabase({
     playlistResult = { data: BASE_PLAYLIST_ROW, error: null },
-    songsResult = { error: null }
+    songsResult = { error: null } as { error: Error | null }
   } = {}) {
     const playlistSingle = jest.fn().mockResolvedValue(playlistResult)
     const playlistSelect = jest.fn().mockReturnValue({ single: playlistSingle })
@@ -163,7 +163,7 @@ describe("updatePlaylist", () => {
   afterEach(() => jest.clearAllMocks())
 
   function makeUpdateSupabase({
-    currentData = { is_public: false, share_code: "ABCDEF123456" },
+    currentData = { is_public: false, share_code: "ABCDEF123456" as string | null },
     updatedRow = makePlaylistWithSongsRow([{ song_id: "song-1", position: 0 }])
   } = {}) {
     // Pre-fetch chain: from("playlists").select().eq().single()
