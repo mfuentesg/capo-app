@@ -12,6 +12,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Mail, CheckCircle, Clock, AlertCircle } from "lucide-react"
 import type { Tables } from "@/lib/supabase/database.types"
+import { mapInvitationAcceptError } from "@/features/teams/lib/map-invitation-error"
 
 interface PendingInvitation extends Tables<"team_invitations"> {
   teamName?: string
@@ -71,8 +72,7 @@ export function PendingInvitationsClient() {
 
       setInvitations(invitations.filter((inv) => inv.id !== invitationId))
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : t.invitations.failedToAccept
-      setError(errorMessage)
+      setError(mapInvitationAcceptError(err, t))
       setAcceptingId(null)
     }
   }

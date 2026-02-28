@@ -10,6 +10,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { CheckCircle, XCircle, AlertCircle } from "lucide-react"
 import { useTranslation } from "@/hooks/use-translation"
+import { mapInvitationAcceptError } from "@/features/teams/lib/map-invitation-error"
 
 type InvitationStatus = "loading" | "success" | "error" | "invalid"
 
@@ -38,7 +39,7 @@ export function AcceptInvitationClient() {
 
       if (!user) {
         setStatus("error")
-        setError(t.invitations.failedToAccept)
+        setError(t.invitations.signInRequiredDescription)
         return
       }
 
@@ -52,9 +53,8 @@ export function AcceptInvitationClient() {
         }, 2000)
       } catch (err) {
         setStatus("error")
-        const errorMessage = err instanceof Error ? err.message : t.invitations.failedToAccept
         console.error("Accept invitation error:", err)
-        setError(errorMessage)
+        setError(mapInvitationAcceptError(err, t))
       }
     }
 

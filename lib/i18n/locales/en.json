@@ -391,6 +391,9 @@
     "signIn": "Sign In",
     "createAccountOrSignIn": "Create Account or Sign In",
     "goHome": "Go Home",
+    "errorExpired": "This invitation has expired. Ask the team admin to send you a new invitation.",
+    "errorAlreadyAccepted": "This invitation was already accepted. You can access the team from your Teams page.",
+    "errorNotFound": "This invitation link is invalid or no longer available.",
     "missingToken": "No invitation token provided",
     "fetchFailed": "Failed to fetch invitations",
     "loadFailed": "Failed to load invitations"

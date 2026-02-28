@@ -392,6 +392,9 @@
     "signIn": "Iniciar sesión",
     "createAccountOrSignIn": "Crear cuenta o iniciar sesión",
     "goHome": "Ir al inicio",
+    "errorExpired": "Esta invitación ha expirado. Pide al administrador del equipo que te envíe una nueva invitación.",
+    "errorAlreadyAccepted": "Esta invitación ya fue aceptada. Puedes acceder al equipo desde tu página de Equipos.",
+    "errorNotFound": "Este enlace de invitación es inválido o ya no está disponible.",
     "missingToken": "No se proporcionó un token de invitación",
     "fetchFailed": "Error al obtener las invitaciones",
     "loadFailed": "Error al cargar las invitaciones"
