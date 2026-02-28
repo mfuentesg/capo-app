@@ -3,6 +3,7 @@
 import { useEffect } from "react"
 import Editor from "@monaco-editor/react"
 import { useTheme } from "next-themes"
+import { useIsMobile } from "@/hooks/use-mobile"
 
 interface Props {
   content: string
@@ -12,6 +13,7 @@ interface Props {
 export default function SongEditorImpl({ content, onChange }: Props) {
   const { theme: currentTheme } = useTheme()
   const monacoTheme = currentTheme === "dark" ? "vs-dark" : "vs"
+  const isMobile = useIsMobile()
 
   useEffect(() => {
     if (process.env.NODE_ENV !== "development") return
@@ -43,6 +45,22 @@ export default function SongEditorImpl({ content, onChange }: Props) {
       console.error = originalConsoleError
     }
   }, [])
+
+  if (isMobile) {
+    return (
+      <textarea
+        value={content}
+        onChange={(e) => onChange?.(e.target.value)}
+        className="w-full min-h-[600px] resize-y p-4 bg-background text-foreground font-mono leading-relaxed focus:outline-none"
+        style={{ fontSize: 16, lineHeight: "26px" }}
+        data-cy="song-editor"
+        spellCheck={false}
+        autoComplete="off"
+        autoCorrect="off"
+        autoCapitalize="off"
+      />
+    )
+  }
 
   return (
     <Editor
