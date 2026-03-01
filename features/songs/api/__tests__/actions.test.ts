@@ -1,7 +1,8 @@
 import { revalidatePath } from "next/cache"
 import { createClient } from "@/lib/supabase/server"
 import { createSong as createSongApi, deleteSong as deleteSongApi, updateSong as updateSongApi } from "../songsApi"
-import { createSongAction, deleteSongAction, updateSongAction } from "../actions"
+import { getAllUserSongSettings } from "../user-song-settings-api"
+import { createSongAction, deleteSongAction, getAllUserSongSettingsAction, updateSongAction } from "../actions"
 
 jest.mock("next/cache", () => ({
   revalidatePath: jest.fn()
@@ -15,6 +16,10 @@ jest.mock("../songsApi", () => ({
   createSong: jest.fn(),
   updateSong: jest.fn(),
   deleteSong: jest.fn()
+}))
+
+jest.mock("../user-song-settings-api", () => ({
+  getAllUserSongSettings: jest.fn()
 }))
 
 describe("song actions", () => {
@@ -70,5 +75,32 @@ describe("song actions", () => {
 
     expect(deleteSongApi).toHaveBeenCalledWith(mockSupabase, "song-4")
     expect(revalidatePath).toHaveBeenCalledWith("/dashboard/songs")
+  })
+})
+
+describe("getAllUserSongSettingsAction", () => {
+  it("returns empty array when no user is authenticated", async () => {
+    ;(createClient as jest.Mock).mockResolvedValue({
+      auth: { getUser: jest.fn().mockResolvedValue({ data: { user: null } }) }
+    })
+
+    const result = await getAllUserSongSettingsAction()
+
+    expect(result).toEqual([])
+  })
+
+  it("calls getAllUserSongSettings with supabase and userId", async () => {
+    const mockSupabase = {
+      auth: { getUser: jest.fn().mockResolvedValue({ data: { user: { id: "user-1" } } }) }
+    }
+    ;(createClient as jest.Mock).mockResolvedValue(mockSupabase)
+    ;(getAllUserSongSettings as jest.Mock).mockResolvedValue([
+      { songId: "song-1", capo: 2, transpose: 0, fontSize: undefined }
+    ])
+
+    const result = await getAllUserSongSettingsAction()
+
+    expect(getAllUserSongSettings).toHaveBeenCalledWith(mockSupabase, "user-1")
+    expect(result).toEqual([{ songId: "song-1", capo: 2, transpose: 0, fontSize: undefined }])
   })
 })

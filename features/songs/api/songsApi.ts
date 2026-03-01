@@ -75,8 +75,6 @@ function mapFrontendUpdatesToDB(updates: Partial<FrontendSong>): TablesUpdate<"s
   if (updates.bpm !== undefined) dbUpdate.bpm = updates.bpm || null
   if (updates.lyrics !== undefined) dbUpdate.lyrics = updates.lyrics || null
   if (updates.notes !== undefined) dbUpdate.notes = updates.notes || null
-  if (updates.transpose !== undefined) dbUpdate.transpose = updates.transpose
-  if (updates.capo !== undefined) dbUpdate.capo = updates.capo
   if (updates.isDraft !== undefined) {
     dbUpdate.status = updates.isDraft ? "draft" : "published"
   }

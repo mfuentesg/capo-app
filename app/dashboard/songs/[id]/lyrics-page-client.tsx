@@ -1,19 +1,35 @@
 "use client"
 
-import { useUpdateSong } from "@/features/songs"
+import {
+  useUpdateSong,
+  useUserSongSettings,
+  useEffectiveSongSettings,
+  useUpsertUserSongSettings
+} from "@/features/songs"
 import { LyricsView } from "@/features/lyrics-editor"
 import type { Song } from "@/types"
+import type { UserSongSettings } from "@/features/songs"
 
 interface LyricsPageClientProps {
   song: Song
+  initialUserSettings: UserSongSettings | null
 }
 
-export function LyricsPageClient({ song }: LyricsPageClientProps) {
+export function LyricsPageClient({ song, initialUserSettings }: LyricsPageClientProps) {
   const { mutate: updateSong, isPending: isSaving } = useUpdateSong()
+  // Prime the React Query cache with server-fetched settings so useEffectiveSongSettings
+  // (which calls useUserSongSettings internally) starts with data on the first render.
+  useUserSongSettings(song, initialUserSettings)
+  const effectiveSettings = useEffectiveSongSettings(song)
+  const { mutate: upsertSettings } = useUpsertUserSongSettings(song)
 
-  const handleSaveLyrics = (lyrics: string) => {
-    updateSong({ songId: song.id, updates: { lyrics } })
-  }
-
-  return <LyricsView song={song} onSaveLyrics={handleSaveLyrics} isSaving={isSaving} />
+  return (
+    <LyricsView
+      song={song}
+      onSaveLyrics={(lyrics) => updateSong({ songId: song.id, updates: { lyrics } })}
+      isSaving={isSaving}
+      initialSettings={effectiveSettings}
+      onSettingsChange={upsertSettings}
+    />
+  )
 }

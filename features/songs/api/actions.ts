@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache"
 import { createClient } from "@/lib/supabase/server"
-import type { Song } from "../types"
+import type { Song, UserSongSettings } from "../types"
 import type { AppContext } from "@/features/app-context"
 import {
   getSongs as getSongsApi,
@@ -10,6 +10,11 @@ import {
   updateSong as updateSongApi,
   deleteSong as deleteSongApi
 } from "./songsApi"
+import {
+  getUserSongSettings as getUserSongSettingsApi,
+  upsertUserSongSettings as upsertUserSongSettingsApi,
+  getAllUserSongSettings as getAllUserSongSettingsApi
+} from "./user-song-settings-api"
 
 export async function getSongsAction(context: AppContext): Promise<Song[]> {
   const supabase = await createClient()
@@ -38,4 +43,36 @@ export async function deleteSongAction(songId: string): Promise<void> {
   const supabase = await createClient()
   await deleteSongApi(supabase, songId)
   revalidatePath("/dashboard/songs")
+}
+
+export async function getUserSongSettingsAction(
+  songId: string
+): Promise<UserSongSettings | null> {
+  const supabase = await createClient()
+  const {
+    data: { user }
+  } = await supabase.auth.getUser()
+  if (!user) return null
+  return getUserSongSettingsApi(supabase, user.id, songId)
+}
+
+export async function upsertUserSongSettingsAction(
+  songId: string,
+  settings: Omit<UserSongSettings, "songId">
+): Promise<UserSongSettings> {
+  const supabase = await createClient()
+  const {
+    data: { user }
+  } = await supabase.auth.getUser()
+  if (!user) throw new Error("Unauthorized")
+  return upsertUserSongSettingsApi(supabase, user.id, songId, settings)
+}
+
+export async function getAllUserSongSettingsAction(): Promise<UserSongSettings[]> {
+  const supabase = await createClient()
+  const {
+    data: { user }
+  } = await supabase.auth.getUser()
+  if (!user) return []
+  return getAllUserSongSettingsApi(supabase, user.id)
 }

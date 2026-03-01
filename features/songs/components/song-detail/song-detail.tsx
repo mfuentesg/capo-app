@@ -31,6 +31,10 @@ import {
 import { cn } from "@/lib/utils"
 import type { Song } from "@/features/songs/types"
 import { KeySelect } from "@/features/songs"
+import {
+  useEffectiveSongSettings,
+  useUpsertUserSongSettings
+} from "@/features/songs/hooks/use-user-song-settings"
 import { usePlaylistDraft } from "@/features/playlist-draft"
 import { transposeKey, calculateCapoKey } from "@/lib/music-theory"
 import { useTranslation } from "@/hooks/use-translation"
@@ -122,8 +126,8 @@ export function SongDetail({ song, onClose, onUpdate, onDelete }: SongDetailProp
   const { t } = useTranslation()
   const { isSongInDraft, toggleSongInDraft } = usePlaylistDraft()
   const isInCart = isSongInDraft(song.id)
-  const transpose = song.transpose ?? 0
-  const capoPosition = song.capo ?? 0
+  const { transpose, capo: capoPosition } = useEffectiveSongSettings(song)
+  const { mutate: upsertSettings } = useUpsertUserSongSettings(song)
   const deleteDialogIds = createOverlayIds(`song-detail-delete-${song.id}`)
   const [bpmDraftBySongId, setBpmDraftBySongId] = useState<Record<string, string>>({})
   const bpmDraft = bpmDraftBySongId[song.id]
@@ -132,13 +136,13 @@ export function SongDetail({ song, onClose, onUpdate, onDelete }: SongDetailProp
   const updateTranspose = (nextValue: number) => {
     const clampedValue = Math.max(-6, Math.min(nextValue, 6))
     if (clampedValue === transpose) return
-    onUpdate(song.id, { transpose: clampedValue })
+    upsertSettings({ transpose: clampedValue })
   }
 
   const updateCapoPosition = (nextValue: number) => {
     const clampedValue = Math.max(0, Math.min(nextValue, 12))
     if (clampedValue === capoPosition) return
-    onUpdate(song.id, { capo: clampedValue })
+    upsertSettings({ capo: clampedValue })
   }
 
   const setBpmDraft = (nextValue: string) => {
