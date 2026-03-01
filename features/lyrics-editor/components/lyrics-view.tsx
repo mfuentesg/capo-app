@@ -73,6 +73,25 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
   const [isMinimalist, setIsMinimalist] = useState(false)
 
+  // Restore persisted minimalist preference after mount (SSR-safe: initialise false then read)
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("capo_lyrics_minimalist_view")
+      if (stored !== null) setIsMinimalist(stored === "true")
+    } catch {
+      // localStorage unavailable
+    }
+  }, [])
+
+  const setMinimalistView = useCallback((value: boolean) => {
+    setIsMinimalist(value)
+    try {
+      localStorage.setItem("capo_lyrics_minimalist_view", String(value))
+    } catch {
+      // localStorage unavailable
+    }
+  }, [])
+
   const handleDiscard = useCallback(() => {
     setIsEditing(false)
     setIsPreviewing(false)
@@ -425,7 +444,7 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
                   variant="ghost"
                   size="icon"
                   className="h-8 w-8"
-                  onClick={() => setIsMinimalist(false)}
+                  onClick={() => setMinimalistView(false)}
                   aria-label={t.songs.lyrics.standardView}
                 >
                   <Maximize2 className="h-3.5 w-3.5" />
@@ -464,7 +483,7 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
                   variant="ghost"
                   size="icon"
                   className="h-8 w-8 shrink-0"
-                  onClick={() => setIsMinimalist(true)}
+                  onClick={() => setMinimalistView(true)}
                   aria-label={t.songs.lyrics.minimalistView}
                 >
                   <Minimize2 className="h-4 w-4" />
