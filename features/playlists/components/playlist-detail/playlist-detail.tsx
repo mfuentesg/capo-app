@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useEffect, useMemo } from "react"
+import { useState, useRef, useEffect, useMemo, forwardRef } from "react"
 import {
   X,
   Calendar as CalendarIcon,
@@ -46,7 +46,12 @@ import { cn, formatLongDate, formatDateISO, parseDateValue } from "@/lib/utils"
 import { useTranslation } from "@/hooks/use-translation"
 import { useLocale } from "@/features/settings"
 import { LyricsView, type LyricsViewHandle } from "@/features/lyrics-editor"
-import { useUpdateSong } from "@/features/songs"
+import {
+  useUpdateSong,
+  useUserSongSettings,
+  useEffectiveSongSettings,
+  useUpsertUserSongSettings
+} from "@/features/songs"
 import type { Playlist } from "@/features/playlists/types"
 import type { SongWithPosition, PlaylistWithSongs } from "@/types/extended"
 import { DraggablePlaylist } from "@/features/playlists/utils"
@@ -55,6 +60,42 @@ import { playlistsKeys } from "../../hooks/query-keys"
 import { removeSongFromPlaylistAction } from "../../api/actions"
 import { createOverlayIds } from "@/lib/ui/stable-overlay-ids"
 import { AddSongsSheet } from "./add-songs-sheet"
+
+interface ActiveSongLyricsProps {
+  song: SongWithPosition
+  onClose: () => void
+  onSaveLyrics: (lyrics: string) => void
+  isSaving: boolean
+}
+
+const ActiveSongLyrics = forwardRef<LyricsViewHandle, ActiveSongLyricsProps>(
+  function ActiveSongLyrics({ song, onClose, onSaveLyrics, isSaving }, ref) {
+    const { data: userSettings } = useUserSongSettings(song)
+    const effectiveSettings = useEffectiveSongSettings(song)
+    const { mutate: upsertSettings } = useUpsertUserSongSettings(song)
+    const settingsKey = userSettings === undefined ? "loading" : "ready"
+
+    return (
+      <LyricsView
+        ref={ref}
+        key={settingsKey}
+        mode="panel"
+        song={{
+          ...song,
+          lyrics: song.lyrics ?? "",
+          fontSize: song.fontSize ?? 1,
+          transpose: song.transpose ?? 0,
+          capo: song.capo ?? 0
+        }}
+        onClose={onClose}
+        onSaveLyrics={onSaveLyrics}
+        isSaving={isSaving}
+        initialSettings={effectiveSettings}
+        onSettingsChange={upsertSettings}
+      />
+    )
+  }
+)
 
 interface PlaylistDetailProps {
   playlist: Playlist
@@ -525,9 +566,10 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
 
             <div className="flex-1 overflow-y-auto">
               {activeSong && (
-                <LyricsView
+                <ActiveSongLyrics
+                  key={activeSong.id}
                   ref={lyricsViewRef}
-                  mode="panel"
+                  song={activeSong}
                   onClose={() => setActiveIndex(null)}
                   onSaveLyrics={(lyrics) => {
                     const songId = activeSong.id
@@ -552,13 +594,6 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
                     )
                   }}
                   isSaving={isSavingLyrics}
-                  song={{
-                    ...activeSong,
-                    lyrics: activeSong.lyrics ?? "",
-                    fontSize: activeSong.fontSize ?? 1,
-                    transpose: activeSong.transpose ?? 0,
-                    capo: activeSong.capo ?? 0
-                  }}
                 />
               )}
             </div>

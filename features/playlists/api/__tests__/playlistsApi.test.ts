@@ -49,7 +49,11 @@ function makePlaylistWithSongsRow(songs: Array<{ song_id: string; position: numb
 // ---------------------------------------------------------------------------
 
 describe("createPlaylist", () => {
-  afterEach(() => jest.clearAllMocks())
+  beforeEach(() => jest.spyOn(console, "error").mockImplementation(() => {}))
+  afterEach(() => {
+    jest.restoreAllMocks()
+    jest.clearAllMocks()
+  })
 
   function makeCreateSupabase({
     playlistResult = { data: BASE_PLAYLIST_ROW, error: null },

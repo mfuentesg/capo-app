@@ -22,6 +22,12 @@ jest.mock("@/features/auth", () => ({
   useUser: () => ({ data: null })
 }))
 
+jest.mock("@/features/songs", () => ({
+  useAllUserSongSettings: jest.fn().mockReturnValue({ data: [] }),
+  useEffectiveSongSettings: jest.fn().mockReturnValue({ capo: 0, transpose: 0 }),
+  useUpsertUserSongSettings: jest.fn().mockReturnValue({ mutate: jest.fn() })
+}))
+
 jest.mock("@hello-pangea/dnd", () => ({
   DragDropContext: ({ children }: { children: ReactNode }) => <>{children}</>,
   Droppable: ({

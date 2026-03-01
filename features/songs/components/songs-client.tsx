@@ -9,8 +9,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
 import { Plus, Search, Music, LayoutList, Music2, Music3, Settings2, X } from "lucide-react"
-import { SongList } from "@/features/songs"
-import { SongDetail } from "@/features/songs"
+import { SongList, SongDetail, useAllUserSongSettings } from "@/features/songs"
 import { SongDraftForm, type SongDraftFormHandle } from "@/features/song-draft"
 import { useSongs, useCreateSong, useUpdateSong, useDeleteSong } from "../hooks/use-songs"
 import { useUser } from "@/features/auth"
@@ -25,6 +24,8 @@ export function SongsClient() {
   const createSongMutation = useCreateSong()
   const updateSongMutation = useUpdateSong()
   const deleteSongMutation = useDeleteSong()
+  // Pre-populate individual song settings caches so SongDetail has warm data on open.
+  useAllUserSongSettings()
   const [isMobile, setIsMobile] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedSong, setSelectedSong] = useState<Song | null>(null)
