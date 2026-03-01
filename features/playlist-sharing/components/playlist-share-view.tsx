@@ -30,12 +30,48 @@ import type { PlaylistWithSongs } from "@/features/playlists/types"
 import type { Playlist } from "@/features/playlists/types"
 import type { Song } from "@/features/songs"
 import {
+  useUserSongSettings,
+  useEffectiveSongSettings,
+  useUpsertUserSongSettings
+} from "@/features/songs"
+import {
   reorderPlaylistSongsAction,
   updatePlaylistAction,
   getPublicPlaylistByShareCode
 } from "@/features/playlists"
 import { createClient } from "@/lib/supabase/client"
 import { formatLongDate } from "@/lib/utils"
+
+interface ActiveSongLyricsForShareProps {
+  song: Song
+  onClose: () => void
+  isAuthenticated: boolean
+}
+
+function ActiveSongLyricsForShare({ song, onClose, isAuthenticated }: ActiveSongLyricsForShareProps) {
+  const { data: userSettings } = useUserSongSettings(song)
+  const effectiveSettings = useEffectiveSongSettings(song)
+  const { mutate: upsertSettings } = useUpsertUserSongSettings(song)
+  const settingsKey = userSettings === undefined ? "loading" : "ready"
+
+  return (
+    <LyricsView
+      key={settingsKey}
+      mode="panel"
+      readOnly
+      song={{
+        ...song,
+        lyrics: song.lyrics ?? "",
+        fontSize: song.fontSize ?? 1,
+        transpose: song.transpose ?? 0,
+        capo: song.capo ?? 0
+      }}
+      onClose={onClose}
+      initialSettings={effectiveSettings}
+      onSettingsChange={isAuthenticated ? upsertSettings : undefined}
+    />
+  )
+}
 
 interface PlaylistShareViewProps {
   playlist: PlaylistWithSongs
@@ -453,17 +489,11 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
 
             <div className="flex-1 overflow-y-auto">
               {activeSong && (
-                <LyricsView
-                  mode="panel"
-                  readOnly
+                <ActiveSongLyricsForShare
+                  key={activeSong.id}
+                  song={activeSong}
                   onClose={handleCloseDrawer}
-                  song={{
-                    ...activeSong,
-                    lyrics: activeSong.lyrics ?? "",
-                    fontSize: activeSong.fontSize ?? 1,
-                    transpose: activeSong.transpose ?? 0,
-                    capo: activeSong.capo ?? 0
-                  }}
+                  isAuthenticated={!!user}
                 />
               )}
             </div>

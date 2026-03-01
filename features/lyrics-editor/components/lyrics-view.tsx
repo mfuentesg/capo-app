@@ -49,6 +49,8 @@ interface LyricsViewProps {
   onClose?: () => void
   onSaveLyrics?: (lyrics: string) => void
   isSaving?: boolean
+  initialSettings?: { capo?: number; transpose?: number; fontSize?: number }
+  onSettingsChange?: (settings: { capo: number; transpose: number; fontSize: number }) => void
 }
 
 export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function LyricsView({
@@ -57,7 +59,9 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
   readOnly = false,
   onClose,
   onSaveLyrics,
-  isSaving = false
+  isSaving = false,
+  initialSettings,
+  onSettingsChange
 }: LyricsViewProps,
   ref
 ) {
@@ -96,9 +100,10 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
   }, [])
 
   const { font, transpose, capo, hasModifications, resetAll } = useLyricsSettings({
-    initialFontSize: song.fontSize,
-    initialTranspose: song.transpose,
-    initialCapo: song.capo
+    initialFontSize: initialSettings?.fontSize ?? song.fontSize,
+    initialTranspose: initialSettings?.transpose ?? song.transpose,
+    initialCapo: initialSettings?.capo ?? song.capo,
+    onSettingsChange
   })
 
   const handleEdit = () => {

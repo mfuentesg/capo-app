@@ -294,6 +294,54 @@ export type Database = {
           },
         ]
       }
+      user_song_settings: {
+        Row: {
+          capo: number
+          created_at: string
+          font_size: number | null
+          id: string
+          song_id: string
+          transpose: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          capo?: number
+          created_at?: string
+          font_size?: number | null
+          id?: string
+          song_id: string
+          transpose?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          capo?: number
+          created_at?: string
+          font_size?: number | null
+          id?: string
+          song_id?: string
+          transpose?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_song_settings_song_id_fkey"
+            columns: ["song_id"]
+            isOneToOne: false
+            referencedRelation: "songs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_song_settings_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       team_invitations: {
         Row: {
           accepted_at: string | null

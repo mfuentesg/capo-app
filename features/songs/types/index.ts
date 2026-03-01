@@ -1,5 +1,6 @@
 export type {
   Song,
+  UserSongSettings,
   GroupBy,
   SongDetailProps,
   SongListProps,

@@ -14,5 +14,6 @@ export const songsKeys = {
   lists: () => [...songsKeys.all, "list"] as const,
   list: (context: AppContext) => [...songsKeys.lists(), context] as const,
   details: () => [...songsKeys.all, "detail"] as const,
-  detail: (id: string) => [...songsKeys.details(), id] as const
+  detail: (id: string) => [...songsKeys.details(), id] as const,
+  userSettings: (songId: string) => [...songsKeys.detail(songId), "user-settings"] as const
 } as const

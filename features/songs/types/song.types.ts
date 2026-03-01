@@ -13,6 +13,13 @@ export interface Song {
   isDraft?: boolean
 }
 
+export interface UserSongSettings {
+  songId: string
+  capo: number
+  transpose: number
+  fontSize?: number
+}
+
 export type GroupBy = "none" | "key" | "artist"
 
 export interface SongDetailProps {
