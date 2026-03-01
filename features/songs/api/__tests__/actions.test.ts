@@ -45,7 +45,7 @@ describe("song actions", () => {
     expect(revalidatePath).toHaveBeenCalledWith("/dashboard/songs")
   })
 
-  it("updates a song and revalidates songs list and detail routes", async () => {
+  it("updates a song without revalidating routes", async () => {
     const updatedSong = {
       id: "song-1",
       title: "Updated Song",
@@ -62,8 +62,7 @@ describe("song actions", () => {
 
     expect(result).toEqual(updatedSong)
     expect(updateSongApi).toHaveBeenCalledWith(mockSupabase, "song-1", { title: "Updated Song" })
-    expect(revalidatePath).toHaveBeenNthCalledWith(1, "/dashboard/songs")
-    expect(revalidatePath).toHaveBeenNthCalledWith(2, "/dashboard/songs/song-1")
+    expect(revalidatePath).not.toHaveBeenCalled()
   })
 
   it("deletes a song and revalidates songs list route", async () => {

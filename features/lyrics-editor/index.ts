@@ -1,6 +1,7 @@
 "use client"
 
 export { LyricsView } from "./components/lyrics-view"
+export type { LyricsViewHandle } from "./components/lyrics-view"
 export { RenderedSong } from "./components/rendered-song"
 export { LazySongEditor } from "./components/song-editor"
 

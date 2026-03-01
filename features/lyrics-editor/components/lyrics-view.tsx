@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -14,10 +14,8 @@ import {
   X,
   Eye,
   Pencil,
-  Save,
-  ExternalLink
+  Save
 } from "lucide-react"
-import Link from "next/link"
 import { useRouter } from "next/navigation"
 import type { Song } from "@/types"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
@@ -26,8 +24,23 @@ import { useLyricsSettings } from "@/features/lyrics-editor"
 import { RenderedSong } from "./rendered-song"
 import { LazySongEditor, preloadSongEditor } from "./song-editor"
 import { useTranslation } from "@/hooks/use-translation"
+import { useUnsavedChangesGuard } from "@/hooks/use-unsaved-changes-guard"
 import { createOverlayIds } from "@/lib/ui/stable-overlay-ids"
 import { cn } from "@/lib/utils"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle
+} from "@/components/ui/alert-dialog"
+
+export interface LyricsViewHandle {
+  requestClose: () => void
+}
 
 interface LyricsViewProps {
   song: Song
@@ -38,14 +51,16 @@ interface LyricsViewProps {
   isSaving?: boolean
 }
 
-export function LyricsView({
+export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function LyricsView({
   song,
   mode = "page",
   readOnly = false,
   onClose,
   onSaveLyrics,
   isSaving = false
-}: LyricsViewProps) {
+}: LyricsViewProps,
+  ref
+) {
   const { t } = useTranslation()
   const router = useRouter()
   const [isEditing, setIsEditing] = useState(false)
@@ -54,6 +69,24 @@ export function LyricsView({
   const [editedLyrics, setEditedLyrics] = useState(song.lyrics || "")
   const [savedLyrics, setSavedLyrics] = useState(song.lyrics || "")
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+
+  const handleDiscard = useCallback(() => {
+    setIsEditing(false)
+    setIsPreviewing(false)
+    setEditedLyrics(savedLyrics)
+    setHasUnsavedChanges(false)
+    if (onClose) {
+      onClose()
+    } else {
+      router.back()
+    }
+  }, [savedLyrics, onClose, router])
+
+  const { showPrompt, triggerClose, confirmDiscard, keepEditing } =
+    useUnsavedChangesGuard(hasUnsavedChanges, { onDiscard: handleDiscard })
+
+  useImperativeHandle(ref, () => ({ requestClose: triggerClose }), [triggerClose])
+
   const settingsPopoverIds = createOverlayIds(`lyrics-settings-${song.id}`)
   const isPanel = mode === "panel"
   const canEdit = !readOnly
@@ -76,19 +109,14 @@ export function LyricsView({
     setEditedLyrics(savedLyrics)
   }
 
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     if (hasUnsavedChanges) {
-      if (confirm(t.common.discardChangesMessage)) {
-        setIsEditing(false)
-        setIsPreviewing(false)
-        setEditedLyrics(savedLyrics)
-        setHasUnsavedChanges(false)
-      }
+      triggerClose()
     } else {
       setIsEditing(false)
       setIsPreviewing(false)
     }
-  }
+  }, [hasUnsavedChanges, triggerClose])
 
   const handleSave = () => {
     onSaveLyrics?.(editedLyrics)
@@ -109,13 +137,15 @@ export function LyricsView({
     setIsPreviewing((prev) => !prev)
   }
 
-  const handleBack = () => {
-    if (onClose) {
+  const handleBack = useCallback(() => {
+    if (hasUnsavedChanges) {
+      triggerClose()
+    } else if (onClose) {
       onClose()
-      return
+    } else {
+      router.back()
     }
-    router.back()
-  }
+  }, [hasUnsavedChanges, triggerClose, onClose, router])
 
   return (
     <div className={cn("bg-background", isPanel ? "h-full" : "min-h-screen")}>
@@ -177,6 +207,21 @@ export function LyricsView({
             </div>
           )}
 
+          <AlertDialog open={showPrompt} onOpenChange={(open) => !open && keepEditing()}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>{t.common.unsavedChanges}</AlertDialogTitle>
+                <AlertDialogDescription>{t.common.discardChangesMessage}</AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel onClick={keepEditing}>{t.common.keepEditing}</AlertDialogCancel>
+                <AlertDialogAction variant="destructive" onClick={confirmDiscard}>
+                  {t.common.discard}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+
           {/* Controls - View Mode */}
           {!isEditing && (
             <div className="mt-4 pt-4 border-t flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -209,15 +254,6 @@ export function LyricsView({
               </div>
 
               <div className="flex items-center gap-2 self-start sm:self-auto">
-                {isPanel && (
-                  <Link href={`/dashboard/songs/${song.id}`}>
-                    <Button variant="outline" size="sm" className="shrink-0 gap-1.5">
-                      <ExternalLink className="h-4 w-4" />
-                      {t.songs.openSong}
-                    </Button>
-                  </Link>
-                )}
-
                 {canEdit && (
                   <Button variant="outline" size="sm" onClick={handleEdit} className="shrink-0">
                     <Pencil className="h-4 w-4 mr-2" />
@@ -431,4 +467,4 @@ export function LyricsView({
       </div>
     </div>
   )
-}
+})
