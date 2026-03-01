@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -24,6 +24,7 @@ import { useLyricsSettings } from "@/features/lyrics-editor"
 import { RenderedSong } from "./rendered-song"
 import { LazySongEditor, preloadSongEditor } from "./song-editor"
 import { useTranslation } from "@/hooks/use-translation"
+import { useUnsavedChangesGuard } from "@/hooks/use-unsaved-changes-guard"
 import { createOverlayIds } from "@/lib/ui/stable-overlay-ids"
 import { cn } from "@/lib/utils"
 
@@ -52,6 +53,22 @@ export function LyricsView({
   const [editedLyrics, setEditedLyrics] = useState(song.lyrics || "")
   const [savedLyrics, setSavedLyrics] = useState(song.lyrics || "")
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+
+  const handleDiscard = useCallback(() => {
+    setIsEditing(false)
+    setIsPreviewing(false)
+    setEditedLyrics(savedLyrics)
+    setHasUnsavedChanges(false)
+    if (onClose) {
+      onClose()
+    } else {
+      router.back()
+    }
+  }, [savedLyrics, onClose, router])
+
+  const { showPrompt, triggerClose, confirmDiscard, keepEditing } =
+    useUnsavedChangesGuard(hasUnsavedChanges, { onDiscard: handleDiscard })
+
   const settingsPopoverIds = createOverlayIds(`lyrics-settings-${song.id}`)
   const isPanel = mode === "panel"
   const canEdit = !readOnly
@@ -74,19 +91,14 @@ export function LyricsView({
     setEditedLyrics(savedLyrics)
   }
 
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     if (hasUnsavedChanges) {
-      if (confirm(t.common.discardChangesMessage)) {
-        setIsEditing(false)
-        setIsPreviewing(false)
-        setEditedLyrics(savedLyrics)
-        setHasUnsavedChanges(false)
-      }
+      triggerClose()
     } else {
       setIsEditing(false)
       setIsPreviewing(false)
     }
-  }
+  }, [hasUnsavedChanges, triggerClose])
 
   const handleSave = () => {
     onSaveLyrics?.(editedLyrics)
@@ -107,13 +119,15 @@ export function LyricsView({
     setIsPreviewing((prev) => !prev)
   }
 
-  const handleBack = () => {
-    if (onClose) {
+  const handleBack = useCallback(() => {
+    if (hasUnsavedChanges) {
+      triggerClose()
+    } else if (onClose) {
       onClose()
-      return
+    } else {
+      router.back()
     }
-    router.back()
-  }
+  }, [hasUnsavedChanges, triggerClose, onClose, router])
 
   return (
     <div className={cn("bg-background", isPanel ? "h-full" : "min-h-screen")}>
@@ -172,6 +186,23 @@ export function LyricsView({
                 <Save className="h-4 w-4 mr-2" />
                 {t.common.save}
               </Button>
+            </div>
+          )}
+
+          {showPrompt && (
+            <div className="mt-4 pt-4 border-t">
+              <div className="rounded-lg border border-destructive/50 bg-destructive/5 p-4">
+                <p className="text-sm font-medium mb-3">{t.common.unsavedChanges}</p>
+                <p className="text-sm text-muted-foreground mb-4">{t.common.discardChangesMessage}</p>
+                <div className="flex gap-3 justify-end">
+                  <Button variant="outline" size="sm" onClick={keepEditing}>
+                    {t.common.keepEditing}
+                  </Button>
+                  <Button variant="destructive" size="sm" onClick={confirmDiscard}>
+                    {t.common.discard}
+                  </Button>
+                </div>
+              </div>
             </div>
           )}
 
