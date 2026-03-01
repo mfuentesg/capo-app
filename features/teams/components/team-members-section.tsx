@@ -40,11 +40,18 @@ import {
   Shield,
   ChevronDown,
   Mail,
-  Clock
+  Clock,
+  Copy,
+  RefreshCw
 } from "lucide-react"
 import { useTranslation } from "@/hooks/use-translation"
 import { InviteMemberDialog } from "./invite-member-dialog"
-import { useRemoveTeamMember, useChangeTeamMemberRole, useCancelTeamInvitation } from "../hooks"
+import {
+  useRemoveTeamMember,
+  useChangeTeamMemberRole,
+  useCancelTeamInvitation,
+  useResendTeamInvitation
+} from "../hooks"
 import {
   getAvailableRolesForTarget,
   ROLE_HIERARCHY,
@@ -56,6 +63,7 @@ import { RoleBadge } from "./role-badge"
 import type { Tables } from "@/lib/supabase/database.types"
 import { cn, formatDate } from "@/lib/utils"
 import { createOverlayIds } from "@/lib/ui/stable-overlay-ids"
+import { toast } from "sonner"
 
 interface TeamMembersSectionProps {
   members: (Tables<"team_members"> & {
@@ -86,6 +94,7 @@ export function TeamMembersSection({
   const removeTeamMember = useRemoveTeamMember()
   const changeTeamMemberRole = useChangeTeamMemberRole()
   const cancelTeamInvitation = useCancelTeamInvitation()
+  const resendTeamInvitation = useResendTeamInvitation()
 
   const handleRemoveMember = () => {
     if (!memberToRemove) return
@@ -150,7 +159,20 @@ export function TeamMembersSection({
     return isOnlyDowngrade ? "Downgrade" : t.teams.changeRole
   }
 
-  const totalCount = (members?.length || 0) + (invitations?.length || 0)
+  const handleCopyInvitationLink = (token: string) => {
+    const url = `${window.location.origin}/teams/accept-invitation?token=${token}`
+    navigator.clipboard.writeText(url).then(() => {
+      toast.success(t.teams.invitationLinkCopied)
+    })
+  }
+
+  const isExpired = (invitation: Tables<"team_invitations">) =>
+    invitation.expires_at < new Date().toISOString()
+
+  const pendingInvitations = invitations.filter((inv) => !isExpired(inv))
+  const expiredInvitations = invitations.filter((inv) => isExpired(inv))
+
+  const totalCount = (members?.length || 0) + (pendingInvitations?.length || 0)
 
   return (
     <>
@@ -271,15 +293,15 @@ export function TeamMembersSection({
                 </Item>
               )
             })}
-            {invitations?.length > 0 && (
+            {pendingInvitations.length > 0 && (
               <div className="pt-4">
                 <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground mb-2">
                   <Mail className="h-4 w-4" />
                   <span>{t.teams.pendingInvitations}</span>
-                  <Badge variant="outline">{invitations.length}</Badge>
+                  <Badge variant="outline">{pendingInvitations.length}</Badge>
                 </div>
                 <ItemGroup className="gap-2">
-                  {invitations.map((invitation) => (
+                  {pendingInvitations.map((invitation) => (
                     <Item
                       key={invitation.id}
                       variant="outline"
@@ -307,17 +329,91 @@ export function TeamMembersSection({
                             {t.teams.invitationPending}
                           </Badge>
                         </div>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleCopyInvitationLink(invitation.token)}
+                            aria-label={t.teams.copyInvitationLink}
+                            className="h-9 w-9 px-0 sm:h-9 sm:w-auto sm:px-3"
+                          >
+                            <Copy className="h-4 w-4 sm:mr-2" />
+                            <span className="hidden sm:inline">{t.teams.copyInvitationLink}</span>
+                          </Button>
+                          {canManageTeamMembers() && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setInvitationToCancel(invitation)}
+                              disabled={cancelTeamInvitation.isPending}
+                              aria-label={t.teams.cancelInvitation}
+                              className="h-9 w-9 px-0 sm:h-9 sm:w-auto sm:px-3"
+                            >
+                              <Trash2 className="h-4 w-4 sm:mr-2" />
+                              <span className="hidden sm:inline">{t.teams.cancelInvitation}</span>
+                            </Button>
+                          )}
+                        </div>
+                      </ItemActions>
+                    </Item>
+                  ))}
+                </ItemGroup>
+              </div>
+            )}
+            {expiredInvitations.length > 0 && (
+              <div className="pt-4">
+                <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground mb-2">
+                  <Clock className="h-4 w-4" />
+                  <span>{t.teams.expiredInvitations}</span>
+                  <Badge variant="outline">{expiredInvitations.length}</Badge>
+                </div>
+                <ItemGroup className="gap-2">
+                  {expiredInvitations.map((invitation) => (
+                    <Item
+                      key={invitation.id}
+                      variant="outline"
+                      size="sm"
+                      className="bg-muted/20 items-start gap-3 sm:items-center opacity-75"
+                    >
+                      <ItemMedia>
+                        <Avatar className="h-8 w-8">
+                          <AvatarFallback className="bg-muted">
+                            <Mail className="h-4 w-4 text-muted-foreground" />
+                          </AvatarFallback>
+                        </Avatar>
+                      </ItemMedia>
+                      <ItemContent className="min-w-0">
+                        <ItemTitle className="w-full truncate">{invitation.email}</ItemTitle>
+                        <ItemDescription className="flex items-center gap-1 text-xs sm:text-sm">
+                          <Clock className="h-3 w-3" />
+                          {t.teams.invitedOn.replace("{date}", formatDate(invitation.created_at))}
+                        </ItemDescription>
+                      </ItemContent>
+                      <ItemActions className="mt-2 w-full justify-between sm:mt-0 sm:w-auto sm:justify-end">
+                        <div className="flex items-center gap-2">
+                          <RoleBadge role={invitation.role} />
+                          <Badge variant="destructive" className="inline-flex">
+                            {t.teams.invitationExpired}
+                          </Badge>
+                        </div>
                         {canManageTeamMembers() && (
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => setInvitationToCancel(invitation)}
-                            disabled={cancelTeamInvitation.isPending}
-                            aria-label={t.teams.cancelInvitation}
+                            onClick={() =>
+                              resendTeamInvitation.mutate({
+                                invitationId: invitation.id,
+                                teamId,
+                                email: invitation.email,
+                                role: invitation.role
+                              })
+                            }
+                            disabled={resendTeamInvitation.isPending}
+                            aria-label={t.teams.resendInvitation}
                             className="h-9 w-9 px-0 sm:h-9 sm:w-auto sm:px-3"
                           >
-                            <Trash2 className="h-4 w-4 sm:mr-2" />
-                            <span className="hidden sm:inline">{t.teams.cancelInvitation}</span>
+                            <RefreshCw className="h-4 w-4 sm:mr-2" />
+                            <span className="hidden sm:inline">{t.teams.resendInvitation}</span>
                           </Button>
                         )}
                       </ItemActions>

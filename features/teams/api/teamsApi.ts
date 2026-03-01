@@ -208,7 +208,6 @@ export async function getTeamInvitations(
     .select("*")
     .eq("team_id", teamId)
     .is("accepted_at", null)
-    .gt("expires_at", new Date().toISOString())
     .order("created_at", { ascending: false })
 
   if (error) throw error

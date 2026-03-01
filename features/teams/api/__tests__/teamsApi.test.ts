@@ -1,4 +1,4 @@
-import { getTeamsWithClient } from "../teamsApi"
+import { getTeamsWithClient, getTeamInvitations } from "../teamsApi"
 
 function makeTeamRow(overrides: {
   all_members?: [{ count: number }] | null
@@ -125,5 +125,85 @@ describe("getTeamsWithClient", () => {
     await expect(getTeamsWithClient(supabase as never, "user-1")).rejects.toThrow(
       "connection failed"
     )
+  })
+})
+
+describe("getTeamInvitations", () => {
+  const NOW = "2026-03-01T12:00:00.000Z"
+  const FUTURE = "2026-03-08T12:00:00.000Z"
+  const PAST = "2026-02-22T12:00:00.000Z"
+
+  function makeInvitation(overrides: Partial<{
+    id: string
+    email: string
+    expires_at: string
+    accepted_at: string | null
+  }> = {}) {
+    return {
+      id: overrides.id ?? "inv-1",
+      team_id: "team-1",
+      email: overrides.email ?? "user@example.com",
+      token: "tok",
+      role: "member",
+      invited_by: "user-0",
+      created_at: NOW,
+      expires_at: overrides.expires_at ?? FUTURE,
+      accepted_at: overrides.accepted_at ?? null
+    }
+  }
+
+  function makeSupabase(result: { data: unknown; error: unknown }) {
+    const order = jest.fn().mockResolvedValue(result)
+    const is = jest.fn().mockReturnValue({ order })
+    const eq = jest.fn().mockReturnValue({ is })
+    const select = jest.fn().mockReturnValue({ eq })
+    const from = jest.fn().mockReturnValue({ select })
+    return { supabase: { from }, from, select, eq, is, order }
+  }
+
+  afterEach(() => jest.clearAllMocks())
+
+  it("does NOT filter by expires_at — returns both pending and expired invitations", async () => {
+    const pending = makeInvitation({ id: "inv-pending", expires_at: FUTURE })
+    const expired = makeInvitation({ id: "inv-expired", expires_at: PAST })
+    const { supabase, is } = makeSupabase({ data: [pending, expired], error: null })
+
+    const result = await getTeamInvitations(supabase as never, "team-1")
+
+    expect(result).toHaveLength(2)
+    expect(result.map((r) => (r as { id: string }).id)).toContain("inv-pending")
+    expect(result.map((r) => (r as { id: string }).id)).toContain("inv-expired")
+    // Confirm there is no gt() call in the chain — the mock chain only exposes is()
+    expect(is).toHaveBeenCalledWith("accepted_at", null)
+  })
+
+  it("filters out accepted invitations via accepted_at IS NULL", async () => {
+    const { supabase, is } = makeSupabase({ data: [], error: null })
+
+    await getTeamInvitations(supabase as never, "team-1")
+
+    expect(is).toHaveBeenCalledWith("accepted_at", null)
+  })
+
+  it("orders results by created_at descending", async () => {
+    const { supabase, order } = makeSupabase({ data: [], error: null })
+
+    await getTeamInvitations(supabase as never, "team-1")
+
+    expect(order).toHaveBeenCalledWith("created_at", { ascending: false })
+  })
+
+  it("returns empty array when there are no invitations", async () => {
+    const { supabase } = makeSupabase({ data: null, error: null })
+
+    const result = await getTeamInvitations(supabase as never, "team-1")
+
+    expect(result).toEqual([])
+  })
+
+  it("throws when the query returns an error", async () => {
+    const { supabase } = makeSupabase({ data: null, error: new Error("db error") })
+
+    await expect(getTeamInvitations(supabase as never, "team-1")).rejects.toThrow("db error")
   })
 })

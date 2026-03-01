@@ -423,6 +423,41 @@ export function useCancelTeamInvitation() {
 }
 
 /**
+ * Hook to resend (delete + re-create) an expired team invitation
+ */
+export function useResendTeamInvitation() {
+  const queryClient = useQueryClient()
+  const { t } = useLocale()
+
+  return useMutation({
+    mutationFn: async ({
+      invitationId,
+      teamId,
+      email,
+      role
+    }: {
+      invitationId: string
+      teamId: string
+      email: string
+      role: Tables<"team_invitations">["role"]
+    }) => {
+      await deleteTeamInvitationAction(invitationId)
+      return inviteTeamMemberAction(teamId, email, role)
+    },
+    onSuccess: async (_, { teamId }) => {
+      queryClient.invalidateQueries({ queryKey: teamsKeys.invitations(teamId) })
+      toast.success(t.toasts?.invitationResent || "Invitation resent successfully")
+    },
+    onError: (error, { teamId }) => {
+      queryClient.invalidateQueries({ queryKey: teamsKeys.invitations(teamId) })
+      console.error("Error resending invitation:", error)
+      const message = error instanceof Error ? error.message : "Failed to resend invitation"
+      toast.error(message)
+    }
+  })
+}
+
+/**
  * Hook to accept a team invitation by token
  */
 export function useAcceptTeamInvitation() {

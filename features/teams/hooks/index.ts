@@ -10,6 +10,7 @@ export {
   useAcceptTeamInvitation,
   useRemoveTeamMember,
   useChangeTeamMemberRole,
-  useCancelTeamInvitation
+  useCancelTeamInvitation,
+  useResendTeamInvitation
 } from "./use-teams"
 export { teamsKeys } from "./query-keys"
