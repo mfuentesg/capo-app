@@ -12,7 +12,8 @@ import {
 } from "./songsApi"
 import {
   getUserSongSettings as getUserSongSettingsApi,
-  upsertUserSongSettings as upsertUserSongSettingsApi
+  upsertUserSongSettings as upsertUserSongSettingsApi,
+  getAllUserSongSettings as getAllUserSongSettingsApi
 } from "./user-song-settings-api"
 
 export async function getSongsAction(context: AppContext): Promise<Song[]> {
@@ -65,4 +66,13 @@ export async function upsertUserSongSettingsAction(
   } = await supabase.auth.getUser()
   if (!user) throw new Error("Unauthorized")
   return upsertUserSongSettingsApi(supabase, user.id, songId, settings)
+}
+
+export async function getAllUserSongSettingsAction(): Promise<UserSongSettings[]> {
+  const supabase = await createClient()
+  const {
+    data: { user }
+  } = await supabase.auth.getUser()
+  if (!user) return []
+  return getAllUserSongSettingsApi(supabase, user.id)
 }
