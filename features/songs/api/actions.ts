@@ -31,10 +31,7 @@ export async function createSongAction(
 
 export async function updateSongAction(songId: string, updates: Partial<Song>): Promise<Song> {
   const supabase = await createClient()
-  const result = await updateSongApi(supabase, songId, updates)
-  revalidatePath("/dashboard/songs")
-  revalidatePath(`/dashboard/songs/${songId}`)
-  return result
+  return updateSongApi(supabase, songId, updates)
 }
 
 export async function deleteSongAction(songId: string): Promise<void> {

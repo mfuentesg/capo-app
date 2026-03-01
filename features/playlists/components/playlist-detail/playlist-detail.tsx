@@ -45,7 +45,7 @@ import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/u
 import { cn, formatLongDate, formatDateISO, parseDateValue } from "@/lib/utils"
 import { useTranslation } from "@/hooks/use-translation"
 import { useLocale } from "@/features/settings"
-import { LyricsView } from "@/features/lyrics-editor"
+import { LyricsView, type LyricsViewHandle } from "@/features/lyrics-editor"
 import { useUpdateSong } from "@/features/songs"
 import type { Playlist } from "@/features/playlists/types"
 import type { SongWithPosition, PlaylistWithSongs } from "@/types/extended"
@@ -190,6 +190,7 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
     [playlist, songsWithPosition]
   )
 
+  const lyricsViewRef = useRef<LyricsViewHandle>(null)
   const { mutate: updateSong, isPending: isSavingLyrics } = useUpdateSong()
 
   const removeSongMutation = useMutation({
@@ -477,7 +478,9 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
       {/* Lyrics Drawer */}
       <Drawer
         open={activeIndex !== null}
-        onOpenChange={(open) => !open && setActiveIndex(null)}
+        onOpenChange={(open) => {
+          if (!open) lyricsViewRef.current?.requestClose()
+        }}
         direction="top"
       >
         <DrawerContent className="inset-0 h-full p-0 data-[vaul-drawer-direction=top]:max-h-full data-[vaul-drawer-direction=top]:rounded-none">
@@ -523,9 +526,31 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
             <div className="flex-1 overflow-y-auto">
               {activeSong && (
                 <LyricsView
+                  ref={lyricsViewRef}
                   mode="panel"
                   onClose={() => setActiveIndex(null)}
-                  onSaveLyrics={(lyrics) => updateSong({ songId: activeSong.id, updates: { lyrics } })}
+                  onSaveLyrics={(lyrics) => {
+                    const songId = activeSong.id
+                    queryClient.setQueryData(
+                      playlistsKeys.detail(playlist.id),
+                      (old: PlaylistWithSongs | null | undefined) => {
+                        if (!old) return old
+                        return {
+                          ...old,
+                          songs: old.songs.map((s) => (s.id === songId ? { ...s, lyrics } : s))
+                        }
+                      }
+                    )
+                    updateSong(
+                      { songId, updates: { lyrics } },
+                      {
+                        onSuccess: () =>
+                          queryClient.invalidateQueries({
+                            queryKey: playlistsKeys.detail(playlist.id)
+                          })
+                      }
+                    )
+                  }}
                   isSaving={isSavingLyrics}
                   song={{
                     ...activeSong,

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect, useMemo, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable"
@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge"
 import { Plus, Search, Music, LayoutList, Music2, Music3, Settings2, X } from "lucide-react"
 import { SongList } from "@/features/songs"
 import { SongDetail } from "@/features/songs"
-import { SongDraftForm } from "@/features/song-draft"
+import { SongDraftForm, type SongDraftFormHandle } from "@/features/song-draft"
 import { useSongs, useCreateSong, useUpdateSong, useDeleteSong } from "../hooks/use-songs"
 import { useUser } from "@/features/auth"
 import type { Song, GroupBy, BPMRange, SongFilterStatus } from "../types"
@@ -34,6 +34,7 @@ export function SongsClient() {
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false)
   const [isCreatingNewSong, setIsCreatingNewSong] = useState(false)
   const [previewSong, setPreviewSong] = useState<Song | null>(null)
+  const songDraftFormRef = useRef<SongDraftFormHandle>(null)
   const filterPopoverIds = createOverlayIds("songs-filter-popover")
   const resizeHandleIds = createOverlayIds("songs-layout-resize")
   const mobileDrawerIds = createOverlayIds("songs-mobile-drawer")
@@ -379,6 +380,7 @@ export function SongsClient() {
         >
           {isCreatingNewSong ? (
             <SongDraftForm
+              ref={songDraftFormRef}
               song={previewSong || undefined}
               onClose={() => {
                 setIsCreatingNewSong(false)
@@ -413,7 +415,9 @@ export function SongsClient() {
         <Drawer
           open={isMobileDrawerOpen}
           onOpenChange={(open) => {
-            if (!open) {
+            if (!open && isCreatingNewSong) {
+              songDraftFormRef.current?.requestClose()
+            } else if (!open) {
               handleCloseSongDetail()
             }
           }}
@@ -431,6 +435,7 @@ export function SongsClient() {
             <div className="flex-1 overflow-y-auto">
               {isCreatingNewSong ? (
                 <SongDraftForm
+                  ref={songDraftFormRef}
                   song={previewSong || undefined}
                   onClose={handleCloseSongDetail}
                   onSave={handleSaveSong}
