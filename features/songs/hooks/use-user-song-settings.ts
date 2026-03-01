@@ -13,10 +13,11 @@ import type { Song, UserSongSettings } from "../types"
  * Fetches the current user's personal settings for a specific song.
  * Returns null when no personal settings have been saved yet.
  */
-export function useUserSongSettings(song: Song) {
+export function useUserSongSettings(song: Song, initialData?: UserSongSettings | null) {
   return useQuery({
     queryKey: songsKeys.userSettings(song.id),
     queryFn: () => getUserSongSettingsAction(song.id),
+    initialData: initialData ?? undefined,
     staleTime: 60_000
   })
 }

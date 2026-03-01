@@ -1,26 +1,28 @@
 "use client"
 
-import { useUpdateSong, useUserSongSettings, useEffectiveSongSettings, useUpsertUserSongSettings } from "@/features/songs"
+import {
+  useUpdateSong,
+  useUserSongSettings,
+  useEffectiveSongSettings,
+  useUpsertUserSongSettings
+} from "@/features/songs"
 import { LyricsView } from "@/features/lyrics-editor"
 import type { Song } from "@/types"
+import type { UserSongSettings } from "@/features/songs"
 
 interface LyricsPageClientProps {
   song: Song
+  initialUserSettings: UserSongSettings | null
 }
 
-export function LyricsPageClient({ song }: LyricsPageClientProps) {
+export function LyricsPageClient({ song, initialUserSettings }: LyricsPageClientProps) {
   const { mutate: updateSong, isPending: isSaving } = useUpdateSong()
-  const { data: userSettings } = useUserSongSettings(song)
+  useUserSongSettings(song, initialUserSettings)
   const effectiveSettings = useEffectiveSongSettings(song)
   const { mutate: upsertSettings } = useUpsertUserSongSettings(song)
 
-  // Force LyricsView to remount once user settings have resolved so that
-  // useLyricsSettings initializes with the correct personal values.
-  const settingsKey = userSettings === undefined ? "loading" : "ready"
-
   return (
     <LyricsView
-      key={settingsKey}
       song={song}
       onSaveLyrics={(lyrics) => updateSong({ songId: song.id, updates: { lyrics } })}
       isSaving={isSaving}
