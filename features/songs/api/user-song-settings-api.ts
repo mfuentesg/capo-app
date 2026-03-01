@@ -29,6 +29,19 @@ export async function getUserSongSettings(
   return data ? mapRowToSettings(data) : null
 }
 
+export async function getAllUserSongSettings(
+  supabase: SupabaseClient<Database>,
+  userId: string
+): Promise<UserSongSettings[]> {
+  const { data, error } = await supabase
+    .from("user_song_settings")
+    .select("*")
+    .eq("user_id", userId)
+
+  if (error) throw error
+  return (data ?? []).map(mapRowToSettings)
+}
+
 export async function upsertUserSongSettings(
   supabase: SupabaseClient<Database>,
   userId: string,
