@@ -2,6 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import {
+  getAllUserSongSettingsAction,
   getUserSongSettingsAction,
   upsertUserSongSettingsAction
 } from "../api/actions"
@@ -70,4 +71,25 @@ export function useEffectiveSongSettings(song: Song) {
     capo: userSettings?.capo ?? song.capo ?? 0,
     fontSize: userSettings?.fontSize ?? song.fontSize ?? 1
   }
+}
+
+/**
+ * Fetches all user song settings in a single query and pre-populates
+ * individual song setting caches. Call this once at the parent view level
+ * (e.g. songs list, playlist share view) so settings are warm before
+ * any song detail is opened.
+ */
+export function useAllUserSongSettings() {
+  const queryClient = useQueryClient()
+  return useQuery({
+    queryKey: songsKeys.allUserSettings(),
+    queryFn: async () => {
+      const settings = await getAllUserSongSettingsAction()
+      settings.forEach((s) => {
+        queryClient.setQueryData(songsKeys.userSettings(s.songId), s)
+      })
+      return settings
+    },
+    staleTime: 60_000
+  })
 }

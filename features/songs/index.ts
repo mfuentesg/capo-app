@@ -7,7 +7,8 @@ export { useSongs, useUpdateSong } from "./hooks/use-songs"
 export {
   useUserSongSettings,
   useUpsertUserSongSettings,
-  useEffectiveSongSettings
+  useEffectiveSongSettings,
+  useAllUserSongSettings
 } from "./hooks/use-user-song-settings"
 export { songsKeys } from "./hooks/query-keys"
 
