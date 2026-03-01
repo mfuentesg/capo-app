@@ -12,7 +12,7 @@ export function useUnsavedChangesGuard(
 ) {
   const [showPrompt, setShowPrompt] = useState(false)
 
-  // Prevent browser close / page reload
+  // Prevent browser close / page reload (native dialog — browsers don't allow custom ones here)
   useEffect(() => {
     if (!isDirty) return
     const handler = (e: BeforeUnloadEvent) => {

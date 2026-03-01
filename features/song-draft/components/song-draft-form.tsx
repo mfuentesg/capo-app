@@ -18,6 +18,16 @@ import {
   FormLabel,
   FormMessage
 } from "@/components/ui/form"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle
+} from "@/components/ui/alert-dialog"
 import type { Song } from "@/types"
 import { useTranslation } from "@/hooks/use-translation"
 
@@ -235,23 +245,20 @@ export const SongDraftForm = forwardRef<SongDraftFormHandle, SongDraftFormProps>
                 </Alert>
               </div>
 
-              {/* Unsaved changes prompt */}
-              {showPrompt && (
-                <div className="rounded-lg border border-destructive/50 bg-destructive/5 p-4 mt-6">
-                  <p className="text-sm font-medium mb-3">{t.common.unsavedChanges}</p>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    {t.common.discardChangesMessage}
-                  </p>
-                  <div className="flex gap-3 justify-end">
-                    <Button variant="outline" size="sm" onClick={keepEditing}>
-                      {t.common.keepEditing}
-                    </Button>
-                    <Button variant="destructive" size="sm" onClick={confirmDiscard}>
+              <AlertDialog open={showPrompt} onOpenChange={(open) => !open && keepEditing()}>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>{t.common.unsavedChanges}</AlertDialogTitle>
+                    <AlertDialogDescription>{t.common.discardChangesMessage}</AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel onClick={keepEditing}>{t.common.keepEditing}</AlertDialogCancel>
+                    <AlertDialogAction variant="destructive" onClick={confirmDiscard}>
                       {t.common.discard}
-                    </Button>
-                  </div>
-                </div>
-              )}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
 
             {/* Footer - Action buttons */}

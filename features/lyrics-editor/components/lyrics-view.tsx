@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -27,6 +27,20 @@ import { useTranslation } from "@/hooks/use-translation"
 import { useUnsavedChangesGuard } from "@/hooks/use-unsaved-changes-guard"
 import { createOverlayIds } from "@/lib/ui/stable-overlay-ids"
 import { cn } from "@/lib/utils"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle
+} from "@/components/ui/alert-dialog"
+
+export interface LyricsViewHandle {
+  requestClose: () => void
+}
 
 interface LyricsViewProps {
   song: Song
@@ -37,14 +51,16 @@ interface LyricsViewProps {
   isSaving?: boolean
 }
 
-export function LyricsView({
+export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function LyricsView({
   song,
   mode = "page",
   readOnly = false,
   onClose,
   onSaveLyrics,
   isSaving = false
-}: LyricsViewProps) {
+}: LyricsViewProps,
+  ref
+) {
   const { t } = useTranslation()
   const router = useRouter()
   const [isEditing, setIsEditing] = useState(false)
@@ -68,6 +84,8 @@ export function LyricsView({
 
   const { showPrompt, triggerClose, confirmDiscard, keepEditing } =
     useUnsavedChangesGuard(hasUnsavedChanges, { onDiscard: handleDiscard })
+
+  useImperativeHandle(ref, () => ({ requestClose: triggerClose }), [triggerClose])
 
   const settingsPopoverIds = createOverlayIds(`lyrics-settings-${song.id}`)
   const isPanel = mode === "panel"
@@ -189,22 +207,20 @@ export function LyricsView({
             </div>
           )}
 
-          {showPrompt && (
-            <div className="mt-4 pt-4 border-t">
-              <div className="rounded-lg border border-destructive/50 bg-destructive/5 p-4">
-                <p className="text-sm font-medium mb-3">{t.common.unsavedChanges}</p>
-                <p className="text-sm text-muted-foreground mb-4">{t.common.discardChangesMessage}</p>
-                <div className="flex gap-3 justify-end">
-                  <Button variant="outline" size="sm" onClick={keepEditing}>
-                    {t.common.keepEditing}
-                  </Button>
-                  <Button variant="destructive" size="sm" onClick={confirmDiscard}>
-                    {t.common.discard}
-                  </Button>
-                </div>
-              </div>
-            </div>
-          )}
+          <AlertDialog open={showPrompt} onOpenChange={(open) => !open && keepEditing()}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>{t.common.unsavedChanges}</AlertDialogTitle>
+                <AlertDialogDescription>{t.common.discardChangesMessage}</AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel onClick={keepEditing}>{t.common.keepEditing}</AlertDialogCancel>
+                <AlertDialogAction variant="destructive" onClick={confirmDiscard}>
+                  {t.common.discard}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
 
           {/* Controls - View Mode */}
           {!isEditing && (
@@ -451,4 +467,4 @@ export function LyricsView({
       </div>
     </div>
   )
-}
+})
