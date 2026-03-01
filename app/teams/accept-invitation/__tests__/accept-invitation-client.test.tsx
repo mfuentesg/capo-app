@@ -69,6 +69,7 @@ function makeAcceptMutation(mutateAsync: jest.Mock = jest.fn()) {
 
 describe("AcceptInvitationClient", () => {
   beforeEach(() => {
+    jest.spyOn(console, "error").mockImplementation(() => {})
     jest.clearAllMocks()
     jest.useRealTimers()
     mockGetSearchParam.mockReturnValue("test-token")
@@ -76,6 +77,8 @@ describe("AcceptInvitationClient", () => {
     mockUseAcceptTeamInvitation.mockReturnValue(makeAcceptMutation())
     mockMapInvitationAcceptError.mockReturnValue("Failed to accept invitation")
   })
+
+  afterEach(() => jest.restoreAllMocks())
 
   // ── Loading state ──────────────────────────────────────────────────────────
 

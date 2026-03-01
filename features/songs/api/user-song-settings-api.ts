@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js"
-import type { Tables, TablesInsert } from "@/lib/supabase/database.types"
+import type { Database, Tables, TablesInsert } from "@/lib/supabase/database.types"
 import type { UserSongSettings } from "@/features/songs/types"
 
 type UserSongSettingsRow = Tables<"user_song_settings">
@@ -14,7 +14,7 @@ function mapRowToSettings(row: UserSongSettingsRow): UserSongSettings {
 }
 
 export async function getUserSongSettings(
-  supabase: SupabaseClient,
+  supabase: SupabaseClient<Database>,
   userId: string,
   songId: string
 ): Promise<UserSongSettings | null> {
@@ -30,7 +30,7 @@ export async function getUserSongSettings(
 }
 
 export async function upsertUserSongSettings(
-  supabase: SupabaseClient,
+  supabase: SupabaseClient<Database>,
   userId: string,
   songId: string,
   settings: Omit<UserSongSettings, "songId">
