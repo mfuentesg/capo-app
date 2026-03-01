@@ -14,7 +14,9 @@ import {
   X,
   Eye,
   Pencil,
-  Save
+  Save,
+  Layout,
+  Code2
 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import type { Song } from "@/types"
@@ -23,6 +25,7 @@ import { Separator } from "@/components/ui/separator"
 import { useLyricsSettings } from "@/features/lyrics-editor"
 import { RenderedSong } from "./rendered-song"
 import { LazySongEditor, preloadSongEditor } from "./song-editor"
+import { ChordProVisualEditor } from "./chord-pro-visual-editor"
 import { useTranslation } from "@/hooks/use-translation"
 import { useUnsavedChangesGuard } from "@/hooks/use-unsaved-changes-guard"
 import { createOverlayIds } from "@/lib/ui/stable-overlay-ids"
@@ -69,10 +72,12 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
   const [editedLyrics, setEditedLyrics] = useState(song.lyrics || "")
   const [savedLyrics, setSavedLyrics] = useState(song.lyrics || "")
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+  const [editorMode, setEditorMode] = useState<"visual" | "code">("visual")
 
   const handleDiscard = useCallback(() => {
     setIsEditing(false)
     setIsPreviewing(false)
+    setEditorMode("visual")
     setEditedLyrics(savedLyrics)
     setHasUnsavedChanges(false)
     if (onClose) {
@@ -115,6 +120,7 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
     } else {
       setIsEditing(false)
       setIsPreviewing(false)
+      setEditorMode("visual")
     }
   }, [hasUnsavedChanges, triggerClose])
 
@@ -123,6 +129,7 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
     setSavedLyrics(editedLyrics)
     setIsEditing(false)
     setIsPreviewing(false)
+    setEditorMode("visual")
     setHasUnsavedChanges(false)
   }
 
@@ -187,6 +194,31 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
                 <X className="h-4 w-4 mr-2" />
                 {t.common.cancel}
               </Button>
+
+              {/* Visual / Code toggle */}
+              {!isPreviewing && (
+                <div className="flex items-center rounded-md border overflow-hidden">
+                  <Button
+                    variant={editorMode === "visual" ? "secondary" : "ghost"}
+                    size="sm"
+                    className="rounded-none border-r h-8 px-3"
+                    onClick={() => setEditorMode("visual")}
+                  >
+                    <Layout className="h-3.5 w-3.5 mr-1.5" />
+                    {t.songs.lyrics.visualEditor}
+                  </Button>
+                  <Button
+                    variant={editorMode === "code" ? "secondary" : "ghost"}
+                    size="sm"
+                    className="rounded-none h-8 px-3"
+                    onClick={() => setEditorMode("code")}
+                  >
+                    <Code2 className="h-3.5 w-3.5 mr-1.5" />
+                    {t.songs.lyrics.codeEditor}
+                  </Button>
+                </div>
+              )}
+
               <Button variant={isPreviewing ? "secondary" : "outline"} size="sm" onClick={togglePreview}>
                 {isPreviewing ? (
                   <Pencil className="h-4 w-4 mr-2" />
@@ -459,7 +491,11 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
                   isEditing && !isPreviewing ? "block" : "hidden"
                 )}
               >
-                <LazySongEditor content={editedLyrics} onChange={handleLyricsChange} />
+                {editorMode === "visual" ? (
+                  <ChordProVisualEditor content={editedLyrics} onChange={handleLyricsChange} />
+                ) : (
+                  <LazySongEditor content={editedLyrics} onChange={handleLyricsChange} />
+                )}
               </div>
             )}
           </div>

@@ -133,7 +133,21 @@
       "settings": "Settings",
       "displaySettings": "Display Settings",
       "displaySettingsDescription": "Adjust font size, transpose, and capo",
-      "fontSize": "Font Size"
+      "fontSize": "Font Size",
+      "visualEditor": "Visual",
+      "codeEditor": "Code",
+      "chordBuilder": {
+        "addChord": "Add chord",
+        "updateChord": "Update chord",
+        "removeChord": "Remove chord",
+        "rootNote": "Root note",
+        "quality": "Quality",
+        "bassNote": "Bass (optional)",
+        "sharps": "Sharps",
+        "flats": "Flats",
+        "addLine": "Add line",
+        "removeLine": "Remove line"
+      }
     }
   },
   "playlists": {

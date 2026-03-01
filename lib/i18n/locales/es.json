@@ -133,7 +133,21 @@
       "settings": "Configuración",
       "displaySettings": "Configuración de Visualización",
       "displaySettingsDescription": "Ajusta el tamaño de fuente, transposición y cejilla",
-      "fontSize": "Tamaño de Fuente"
+      "fontSize": "Tamaño de Fuente",
+      "visualEditor": "Visual",
+      "codeEditor": "Código",
+      "chordBuilder": {
+        "addChord": "Agregar acorde",
+        "updateChord": "Actualizar acorde",
+        "removeChord": "Eliminar acorde",
+        "rootNote": "Nota raíz",
+        "quality": "Calidad",
+        "bassNote": "Bajo (opcional)",
+        "sharps": "Sostenidos",
+        "flats": "Bemoles",
+        "addLine": "Agregar línea",
+        "removeLine": "Eliminar línea"
+      }
     }
   },
   "playlists": {
