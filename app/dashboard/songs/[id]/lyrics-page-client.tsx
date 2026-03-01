@@ -17,6 +17,8 @@ interface LyricsPageClientProps {
 
 export function LyricsPageClient({ song, initialUserSettings }: LyricsPageClientProps) {
   const { mutate: updateSong, isPending: isSaving } = useUpdateSong()
+  // Prime the React Query cache with server-fetched settings so useEffectiveSongSettings
+  // (which calls useUserSongSettings internally) starts with data on the first render.
   useUserSongSettings(song, initialUserSettings)
   const effectiveSettings = useEffectiveSongSettings(song)
   const { mutate: upsertSettings } = useUpsertUserSongSettings(song)

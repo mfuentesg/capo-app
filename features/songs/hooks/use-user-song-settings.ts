@@ -17,7 +17,7 @@ export function useUserSongSettings(song: Song, initialData?: UserSongSettings |
   return useQuery({
     queryKey: songsKeys.userSettings(song.id),
     queryFn: () => getUserSongSettingsAction(song.id),
-    initialData: initialData ?? undefined,
+    initialData: initialData === undefined ? undefined : initialData,
     staleTime: 60_000
   })
 }
