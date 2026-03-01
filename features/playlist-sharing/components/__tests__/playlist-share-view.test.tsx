@@ -23,7 +23,7 @@ jest.mock("@/features/auth", () => ({
 }))
 
 jest.mock("@/features/songs", () => ({
-  useUserSongSettings: jest.fn().mockReturnValue({ data: undefined }),
+  useAllUserSongSettings: jest.fn().mockReturnValue({ data: [] }),
   useEffectiveSongSettings: jest.fn().mockReturnValue({ capo: 0, transpose: 0 }),
   useUpsertUserSongSettings: jest.fn().mockReturnValue({ mutate: jest.fn() })
 }))

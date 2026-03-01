@@ -30,7 +30,7 @@ import type { PlaylistWithSongs } from "@/features/playlists/types"
 import type { Playlist } from "@/features/playlists/types"
 import type { Song } from "@/features/songs"
 import {
-  useUserSongSettings,
+  useAllUserSongSettings,
   useEffectiveSongSettings,
   useUpsertUserSongSettings
 } from "@/features/songs"
@@ -49,14 +49,11 @@ interface ActiveSongLyricsForShareProps {
 }
 
 function ActiveSongLyricsForShare({ song, onClose, isAuthenticated }: ActiveSongLyricsForShareProps) {
-  const { data: userSettings } = useUserSongSettings(song)
   const effectiveSettings = useEffectiveSongSettings(song)
   const { mutate: upsertSettings } = useUpsertUserSongSettings(song)
-  const settingsKey = userSettings === undefined ? "loading" : "ready"
 
   return (
     <LyricsView
-      key={settingsKey}
       mode="panel"
       readOnly
       song={{
@@ -80,6 +77,8 @@ interface PlaylistShareViewProps {
 export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
   const { t, locale } = useLocale()
   const { data: user } = useUser()
+  // Pre-populate individual song settings caches so the lyrics drawer has warm data on open.
+  useAllUserSongSettings()
   const [activeIndex, setActiveIndex] = useState<number | null>(null)
   const [songs, setSongs] = useState<Song[]>(playlist.songs)
   const [localVisibility, setLocalVisibility] = useState(playlist.visibility)
