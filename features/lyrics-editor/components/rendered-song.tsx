@@ -1,8 +1,8 @@
 "use client"
 
-import { useMemo } from "react"
+import { type ReactNode, useMemo, useState } from "react"
 import { ChordProParser, TextFormatter } from "chordsheetjs"
-import { Music2 } from "lucide-react"
+import { ChevronDown, Music2, Repeat2 } from "lucide-react"
 import { useLocale } from "@/features/settings"
 
 interface RenderedSongProps {
@@ -12,56 +12,311 @@ interface RenderedSongProps {
   fontSize: number
 }
 
+type LyricsSegment =
+  | { type: "normal"; html: string }
+  | { type: "section"; name: string; sectionType: string; html: string }
+  | { type: "repeat"; name: string; html: string; found: boolean }
+
+// Lookbehind/lookahead avoids the \b bug where chords ending in # or b (non-word chars)
+// would only colour the leading letter — e.g. "A#" → only "A" was wrapped.
+const CHORD_RE =
+  /(?<![A-Za-z])([A-G][#b]?(?:m|maj|min|sus|dim|aug|add)?[0-9]?(?:\/[A-G][#b]?)?)(?![A-Za-z0-9])/g
+const HAS_CHORD_RE =
+  /(?<![A-Za-z])[A-G][#b]?(?:m|maj|min|sus|dim|aug|add)?[0-9]?(?:\/[A-G][#b]?)?(?![A-Za-z0-9])/
+
+// Unique tokens that survive ChordProParser unchanged (no [A-G] at word start).
+const COMMENT_TOKEN = "SECTIONLBL"
+const SECTION_START_TOKEN = "SECTSTART"
+
+const SECTION_DIRECTIVE_MAP: Record<string, string> = {
+  start_of_chorus: "chorus",
+  soc: "chorus",
+  start_of_verse: "verse",
+  sov: "verse",
+  start_of_bridge: "bridge",
+  sob: "bridge",
+  start_of_tab: "tab",
+  sot: "tab",
+  start_of_grid: "grid",
+  sog: "grid",
+}
+
+const SECTION_DEFAULT_LABELS: Record<string, string> = {
+  chorus: "Chorus",
+  verse: "Verse",
+  bridge: "Bridge",
+  tab: "Tab",
+  grid: "Grid",
+}
+
+const SECTION_END_RE =
+  /\{(?:end_of_chorus|eoc|end_of_verse|eov|end_of_bridge|eob|end_of_tab|eot|end_of_grid|eog)\}/gi
+
+const SECTION_START_RE =
+  /\{(start_of_chorus|soc|start_of_verse|sov|start_of_bridge|sob|start_of_tab|sot|start_of_grid|sog)(?::\s*([^}]+))?\}/gi
+
+function formatLyricsToHtml(text: string, transpose: number, capo: number): string {
+  const commentLabels: string[] = []
+  const sectionStarts: { type: string; label: string }[] = []
+
+  // Replace {comment}/{c} with placeholder tokens.
+  let processedText = text.replace(
+    /\{c(?:omment(?:_italic|_box)?)?: *([^}]*)\}/gi,
+    (_, content: string) => {
+      commentLabels.push(content.trim())
+      return `${COMMENT_TOKEN}${commentLabels.length - 1}`
+    }
+  )
+
+  // Replace section start directives with tokens; strip end markers entirely.
+  processedText = processedText
+    .replace(SECTION_START_RE, (_, directive: string, name?: string) => {
+      const type = SECTION_DIRECTIVE_MAP[directive.toLowerCase()] ?? "section"
+      const label = name?.trim() ?? SECTION_DEFAULT_LABELS[type] ?? type
+      sectionStarts.push({ type, label })
+      return `${SECTION_START_TOKEN}${sectionStarts.length - 1}`
+    })
+    .replace(SECTION_END_RE, "")
+
+  const parser = new ChordProParser()
+  const formatter = new TextFormatter()
+
+  let parsedSong = parser.parse(processedText)
+
+  if (transpose > 0) {
+    for (let i = 0; i < transpose; i++) parsedSong = parsedSong.transposeUp()
+  } else if (transpose < 0) {
+    for (let i = 0; i < Math.abs(transpose); i++) parsedSong = parsedSong.transposeDown()
+  }
+
+  if (capo > 0) {
+    for (let i = 0; i < capo; i++) parsedSong = parsedSong.transposeDown()
+  }
+
+  const formattedText = formatter.format(parsedSong)
+
+  return formattedText
+    .split("\n")
+    .map((line) => {
+      const commentMatch = line.match(new RegExp(`${COMMENT_TOKEN}(\\d+)`))
+      if (commentMatch) {
+        const label = commentLabels[parseInt(commentMatch[1], 10)]
+        return label ? `<span class="section-label">${label}</span>` : ""
+      }
+
+      const sectionMatch = line.match(new RegExp(`${SECTION_START_TOKEN}(\\d+)`))
+      if (sectionMatch) {
+        const { type, label } = sectionStarts[parseInt(sectionMatch[1], 10)]
+        return `<span class="section-label section-label--${type}">${label}</span>`
+      }
+
+      if (HAS_CHORD_RE.test(line) && !line.trim().startsWith("{")) {
+        return line.replace(CHORD_RE, '<span class="chord">$1</span>')
+      }
+      return line
+    })
+    .join("\n")
+}
+
+// Matches the opening { of any directive that starts a new section or a repeat
+// reference, used to determine where a comment-defined section ends.
+const SECTION_BOUNDARY_RE =
+  /\{(?:c(?:omment(?:_italic|_box)?)?|start_of_(?:chorus|verse|bridge|tab|grid)|soc|sov|sob|sot|sog|repeat)(?:[:\s}])/
+
+// Scanner: finds all collapsible segment boundaries in order.
+// Unnamed {c} / {comment} (no colon+value) are intentionally skipped — they
+// render as empty labels and should not be treated as section boundaries.
+const SEGMENT_SCAN_RE =
+  /\{(start_of_chorus|soc|start_of_verse|sov|start_of_bridge|sob|start_of_tab|sot|start_of_grid|sog|c(?:omment(?:_italic|_box)?)?|repeat)(?::\s*([^}]*))?\}/gi
+
+function buildSectionMap(lyrics: string): Map<string, string> {
+  const map = new Map<string, string>()
+
+  // 1. Named explicit blocks: {soc/sov/sob: Name}...{eoc/eov/eob}
+  const blockRe =
+    /\{(?:start_of_chorus|soc|start_of_verse|sov|start_of_bridge|sob)(?::\s*([^}]+))?\}([\s\S]*?)\{(?:end_of_chorus|eoc|end_of_verse|eov|end_of_bridge|eob)\}/gi
+  let match: RegExpExecArray | null
+  while ((match = blockRe.exec(lyrics)) !== null) {
+    const name = match[1]?.trim()
+    if (name) map.set(name.toLowerCase(), match[2].trim())
+  }
+
+  // 2. Comment-labeled sections: {comment: Name} → content until the next
+  //    section boundary (another comment, soc, sov, etc.) or end of string.
+  //    Named blocks above take priority — skip if the name is already in the map.
+  const commentRe = /\{c(?:omment(?:_italic|_box)?)?: *([^}]+)\}/gi
+  while ((match = commentRe.exec(lyrics)) !== null) {
+    const name = match[1].trim()
+    if (!name || map.has(name.toLowerCase())) continue
+
+    const contentStart = match.index + match[0].length
+    const remaining = lyrics.slice(contentStart)
+    const nextBoundary = SECTION_BOUNDARY_RE.exec(remaining)
+    const content = (nextBoundary ? remaining.slice(0, nextBoundary.index) : remaining).trim()
+
+    if (content) map.set(name.toLowerCase(), content)
+  }
+
+  return map
+}
+
+function buildSegments(
+  lyrics: string,
+  sectionMap: Map<string, string>,
+  transpose: number,
+  capo: number
+): LyricsSegment[] {
+  const segments: LyricsSegment[] = []
+  let pos = 0
+  const scanner = new RegExp(SEGMENT_SCAN_RE.source, "gi")
+
+  while (true) {
+    scanner.lastIndex = pos
+    const match = scanner.exec(lyrics)
+
+    if (!match) {
+      const tail = lyrics.slice(pos).trim()
+      if (tail) segments.push({ type: "normal", html: formatLyricsToHtml(tail, transpose, capo) })
+      break
+    }
+
+    const directive = match[1].toLowerCase()
+    const value = match[2]?.trim() ?? ""
+    const matchEnd = match.index + match[0].length
+
+    // Normal content before this boundary
+    const before = lyrics.slice(pos, match.index).trim()
+    if (before) segments.push({ type: "normal", html: formatLyricsToHtml(before, transpose, capo) })
+
+    let newPos = matchEnd
+
+    if (directive === "repeat") {
+      if (value) {
+        const content = sectionMap.get(value.toLowerCase())
+        if (content) {
+          segments.push({
+            type: "repeat",
+            name: value,
+            html: formatLyricsToHtml(content, transpose, capo),
+            found: true,
+          })
+        } else {
+          segments.push({ type: "repeat", name: value, html: "", found: false })
+        }
+      }
+    } else if (/^c(omment(_italic|_box)?)?$/.test(directive)) {
+      // Named comment section: runs until the next section boundary.
+      if (value) {
+        const remaining = lyrics.slice(matchEnd)
+        const nextBoundary = SECTION_BOUNDARY_RE.exec(remaining)
+        const content = (nextBoundary ? remaining.slice(0, nextBoundary.index) : remaining).trim()
+        segments.push({
+          type: "section",
+          name: value,
+          sectionType: "comment",
+          html: formatLyricsToHtml(content, transpose, capo),
+        })
+        newPos = matchEnd + (nextBoundary ? nextBoundary.index : remaining.length)
+      }
+    } else {
+      // start_of_X — find the matching end_of_X
+      const sectionType = SECTION_DIRECTIVE_MAP[directive] ?? "section"
+      const name = value || (SECTION_DEFAULT_LABELS[sectionType] ?? sectionType)
+      const remaining = lyrics.slice(matchEnd)
+      const endMatch =
+        /\{(?:end_of_chorus|eoc|end_of_verse|eov|end_of_bridge|eob|end_of_tab|eot|end_of_grid|eog)\}/i.exec(
+          remaining
+        )
+      const content = (endMatch ? remaining.slice(0, endMatch.index) : remaining).trim()
+      segments.push({ type: "section", name, sectionType, html: formatLyricsToHtml(content, transpose, capo) })
+      newPos = matchEnd + (endMatch ? endMatch.index + endMatch[0].length : remaining.length)
+    }
+
+    pos = newPos
+  }
+
+  return segments
+}
+
+interface SectionHeaderProps {
+  name: string
+  isCollapsed: boolean
+  onToggle?: () => void
+  icon?: ReactNode
+}
+
+function SectionHeader({ name, isCollapsed, onToggle, icon }: SectionHeaderProps) {
+  const dot = (
+    <div
+      className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+      style={{
+        background: "var(--section-accent)",
+        boxShadow:
+          "0 0 0 2px var(--background), 0 0 0 4px color-mix(in oklch, var(--section-accent) 25%, transparent)",
+      }}
+    />
+  )
+
+  const label = (
+    <span
+      className="text-[11px] font-bold uppercase tracking-[0.18em] flex-1"
+      style={{ color: "var(--section-accent)" }}
+    >
+      {name}
+    </span>
+  )
+
+  const chevron = onToggle ? (
+    <span className="text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+      <ChevronDown
+        className={`section-repeat-chevron w-3.5 h-3.5${isCollapsed ? " is-collapsed" : ""}`}
+      />
+    </span>
+  ) : null
+
+  if (!onToggle) {
+    return (
+      <div className="flex items-center gap-2.5 mb-3 select-none">
+        {icon ?? dot}
+        {label}
+      </div>
+    )
+  }
+
+  return (
+    <button
+      className="flex items-center gap-2.5 mb-3 group cursor-pointer select-none w-full text-left bg-transparent border-0 p-0"
+      onClick={onToggle}
+      aria-expanded={!isCollapsed}
+    >
+      {icon ?? dot}
+      {label}
+      {chevron}
+    </button>
+  )
+}
+
 export function RenderedSong({ lyrics, transpose, capo, fontSize }: RenderedSongProps) {
-  const renderedSong = useMemo(() => {
+  const [collapsedSet, setCollapsedSet] = useState<Set<number>>(new Set())
+
+  const toggleCollapse = (index: number) => {
+    setCollapsedSet((prev) => {
+      const next = new Set(prev)
+      if (next.has(index)) {
+        next.delete(index)
+      } else {
+        next.add(index)
+      }
+      return next
+    })
+  }
+
+  const segments = useMemo(() => {
     if (!lyrics) return null
 
     try {
-      const parser = new ChordProParser()
-      const formatter = new TextFormatter()
-
-      let parsedSong = parser.parse(lyrics)
-
-      // Apply transpose - transposeUp/transposeDown take the number of steps
-      if (transpose > 0) {
-        for (let i = 0; i < transpose; i++) {
-          parsedSong = parsedSong.transposeUp()
-        }
-      } else if (transpose < 0) {
-        for (let i = 0; i < Math.abs(transpose); i++) {
-          parsedSong = parsedSong.transposeDown()
-        }
-      }
-
-      // Apply capo - transpose DOWN by capo amount (capo raises pitch, so you play lower chords)
-      if (capo > 0) {
-        for (let i = 0; i < capo; i++) {
-          parsedSong = parsedSong.transposeDown()
-        }
-      }
-
-      const formattedText = formatter.format(parsedSong)
-
-      // Convert text format to HTML with styled chords
-      return formattedText
-        .split("\n")
-        .map((line) => {
-          // Check if line contains chords (uppercase letters with optional modifiers)
-          const hasChords =
-            /\b[A-G][#b]?(?:m|maj|min|sus|dim|aug|add)?[0-9]?(?:\/[A-G][#b]?)?\b/.test(line)
-
-          if (hasChords && !line.trim().startsWith("{")) {
-            // Replace chord patterns with styled spans
-            const styledLine = line.replace(
-              /\b([A-G][#b]?(?:m|maj|min|sus|dim|aug|add)?[0-9]?(?:\/[A-G][#b]?)?)\b/g,
-              '<span class="chord">$1</span>'
-            )
-            return styledLine
-          }
-
-          return line
-        })
-        .join("\n")
+      const sectionMap = buildSectionMap(lyrics)
+      return buildSegments(lyrics, sectionMap, transpose, capo)
     } catch (error) {
       console.error("Error parsing ChordPro:", error)
       return null
@@ -82,20 +337,91 @@ export function RenderedSong({ lyrics, transpose, capo, fontSize }: RenderedSong
     )
   }
 
-  if (renderedSong) {
+  if (segments) {
+    const fontStyle = { fontSize: `${fontSize}rem` }
+    const hasComplexSegments = segments.some((s) => s.type === "repeat" || s.type === "section")
+
+    if (!hasComplexSegments) {
+      return (
+        <pre
+          className="chordsheet-content multi-column-lyrics"
+          style={fontStyle}
+          dangerouslySetInnerHTML={{ __html: segments[0]?.html ?? "" }}
+        />
+      )
+    }
+
     return (
-      <pre
-        className="chordsheet-content multi-column-lyrics"
-        style={{ fontSize: `${fontSize}rem`, fontWeight: 600 }}
-        dangerouslySetInnerHTML={{ __html: renderedSong }}
-      />
+      <div className="multi-column-lyrics" style={fontStyle}>
+        {segments.map((segment, index) => {
+          if (segment.type === "normal") {
+            return (
+              <pre
+                key={index}
+                className="chordsheet-content"
+                dangerouslySetInnerHTML={{ __html: segment.html }}
+              />
+            )
+          }
+
+          if (segment.type === "section") {
+            const isCollapsed = collapsedSet.has(index)
+            return (
+              <div key={index} className="section-repeat" data-section-type={segment.sectionType}>
+                <SectionHeader
+                  name={segment.name}
+                  isCollapsed={isCollapsed}
+                  onToggle={() => toggleCollapse(index)}
+                />
+                {!isCollapsed && (
+                  <div className="section-repeat-content">
+                    <pre
+                      className="chordsheet-content"
+                      dangerouslySetInnerHTML={{ __html: segment.html }}
+                    />
+                  </div>
+                )}
+              </div>
+            )
+          }
+
+          // repeat segment
+          if (!segment.found) {
+            return (
+              <div key={index} className="section-repeat section-repeat--not-found" data-section-type="repeat">
+                <SectionHeader name={`${segment.name} (not found)`} isCollapsed={false} />
+              </div>
+            )
+          }
+
+          const isCollapsed = collapsedSet.has(index)
+          return (
+            <div key={index} className="section-repeat" data-section-type="repeat">
+              <SectionHeader
+                name={segment.name}
+                isCollapsed={isCollapsed}
+                onToggle={() => toggleCollapse(index)}
+                icon={<Repeat2 className="w-3 h-3 flex-shrink-0" style={{ color: "var(--section-accent)" }} />}
+              />
+              {!isCollapsed && (
+                <div className="section-repeat-content">
+                  <pre
+                    className="chordsheet-content"
+                    dangerouslySetInnerHTML={{ __html: segment.html }}
+                  />
+                </div>
+              )}
+            </div>
+          )
+        })}
+      </div>
     )
   }
 
   return (
     <div
       className="whitespace-pre-wrap leading-relaxed multi-column-lyrics"
-      style={{ fontSize: `${fontSize}rem`, lineHeight: 1.8, fontWeight: 600 }}
+      style={{ fontSize: `${fontSize}rem`, lineHeight: 1.8 }}
     >
       {lyrics}
     </div>

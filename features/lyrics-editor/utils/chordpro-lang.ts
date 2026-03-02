@@ -38,6 +38,10 @@ const SUPPORTED_DIRECTIVES = [
   { label: "sov", detail: "Begin verse (short)", apply: "sov}" },
   { label: "end_of_verse", detail: "End verse section", apply: "end_of_verse}" },
   { label: "eov", detail: "End verse (short)", apply: "eov}" },
+  { label: "start_of_bridge", detail: "Begin bridge section", apply: "start_of_bridge}" },
+  { label: "sob", detail: "Begin bridge (short)", apply: "sob}" },
+  { label: "end_of_bridge", detail: "End bridge section", apply: "end_of_bridge}" },
+  { label: "eob", detail: "End bridge (short)", apply: "eob}" },
   { label: "start_of_tab", detail: "Begin tablature section", apply: "start_of_tab}" },
   { label: "sot", detail: "Begin tab (short)", apply: "sot}" },
   { label: "end_of_tab", detail: "End tablature section", apply: "end_of_tab}" },
@@ -46,6 +50,8 @@ const SUPPORTED_DIRECTIVES = [
   { label: "sog", detail: "Begin grid (short)", apply: "sog}" },
   { label: "end_of_grid", detail: "End chord grid section", apply: "end_of_grid}" },
   { label: "eog", detail: "End grid (short)", apply: "eog}" },
+  // Section references
+  { label: "repeat", detail: "Reference a named section", apply: "repeat: " },
   // Comments
   { label: "comment", detail: "Inline annotation", apply: "comment: " },
   { label: "c", detail: "Comment (short)", apply: "c: " },
@@ -130,10 +136,10 @@ const chordProLang = StreamLanguage.define<ChordProState>({
   },
 })
 
-// Override chord color to match the rendered view's primary accent color.
+// Match the rendered view's chord colour so editor and preview stay in sync.
 // Other token colors (keyword, string, comment) come from the base editor theme.
 const chordHighlight = HighlightStyle.define([
-  { tag: tags.atom, color: "var(--primary)", fontWeight: "700" },
+  { tag: tags.atom, color: "var(--chord)" },
 ])
 
 function chordProCompletions(context: CompletionContext) {

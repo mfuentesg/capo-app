@@ -434,49 +434,59 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
         ) : (
           /* Full header */
           <div className={cn("px-4 py-4", !isPanel && "container mx-auto")}>
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleBack}
-                  className="shrink-0"
-                  aria-label={t.common.goBack}
-                >
-                  {onClose ? <X className="h-5 w-5" /> : <ArrowLeft className="h-5 w-5" />}
-                </Button>
-                <div className="flex-1 min-w-0">
-                  <h1 className="text-xl font-semibold truncate">{song.title}</h1>
-                  <p className="text-sm text-muted-foreground truncate">{song.artist}</p>
+            <div className="flex items-center gap-3 min-w-0">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleBack}
+                className="shrink-0"
+                aria-label={t.common.goBack}
+              >
+                {onClose ? <X className="h-5 w-5" /> : <ArrowLeft className="h-5 w-5" />}
+              </Button>
+              <div className="flex-1 min-w-0">
+                <h1 className="text-xl font-semibold truncate">{song.title}</h1>
+                <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                  {song.artist && (
+                    <p className="text-sm text-muted-foreground truncate">{song.artist}</p>
+                  )}
+                  {song.key && (
+                    <Badge variant="secondary" className="shrink-0 text-xs">
+                      {song.key}
+                    </Badge>
+                  )}
+                  {song.bpm > 0 && (
+                    <Badge variant="outline" className="shrink-0 text-xs">
+                      {song.bpm} {t.songs.bpm}
+                    </Badge>
+                  )}
                 </div>
               </div>
-
-              <div className="flex items-center gap-2">
-                <Badge variant="secondary" className="shrink-0">
-                  {song.key}
-                </Badge>
-                <Badge variant="outline" className="shrink-0">
-                  {song.bpm} {t.songs.bpm}
-                </Badge>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 shrink-0"
-                  onClick={() => setMinimalistView(true)}
-                  aria-label={t.songs.lyrics.minimalistView}
-                >
-                  <Minimize2 className="h-4 w-4" />
-                </Button>
-              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 shrink-0"
+                onClick={() => setMinimalistView(true)}
+                aria-label={t.songs.lyrics.minimalistView}
+              >
+                <Minimize2 className="h-4 w-4" />
+              </Button>
             </div>
 
             {/* Editing Actions */}
             {canEdit && isEditing && (
               <div className="mt-4 pt-4 border-t flex flex-wrap justify-end items-center gap-2">
-                {hasUnsavedChanges && <Badge variant="secondary">{t.common.unsavedChanges}</Badge>}
+                {hasUnsavedChanges && (
+                  <Badge variant="secondary" className="hidden sm:inline-flex">
+                    {t.common.unsavedChanges}
+                  </Badge>
+                )}
+                {hasUnsavedChanges && (
+                  <span className="sm:hidden h-2 w-2 rounded-full bg-primary shrink-0" />
+                )}
                 <Button variant="outline" size="sm" onClick={handleCancel}>
-                  <X className="h-4 w-4 mr-2" />
-                  {t.common.cancel}
+                  <X className="h-4 w-4 sm:mr-2" />
+                  <span className="hidden sm:inline">{t.common.cancel}</span>
                 </Button>
                 <Button
                   variant={isPreviewing ? "secondary" : "outline"}
@@ -484,11 +494,13 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
                   onClick={togglePreview}
                 >
                   {isPreviewing ? (
-                    <Pencil className="h-4 w-4 mr-2" />
+                    <Pencil className="h-4 w-4 sm:mr-2" />
                   ) : (
-                    <Eye className="h-4 w-4 mr-2" />
+                    <Eye className="h-4 w-4 sm:mr-2" />
                   )}
-                  {isPreviewing ? t.common.edit : t.songs.preview}
+                  <span className="hidden sm:inline">
+                    {isPreviewing ? t.common.edit : t.songs.preview}
+                  </span>
                 </Button>
                 <Button
                   variant="default"
@@ -496,8 +508,8 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
                   onClick={handleSave}
                   disabled={!hasUnsavedChanges || isSaving}
                 >
-                  <Save className="h-4 w-4 mr-2" />
-                  {t.common.save}
+                  <Save className="h-4 w-4 sm:mr-2" />
+                  <span className="hidden sm:inline">{t.common.save}</span>
                 </Button>
               </div>
             )}
