@@ -133,7 +133,9 @@
       "settings": "Configuración",
       "displaySettings": "Configuración de Visualización",
       "displaySettingsDescription": "Ajusta el tamaño de fuente, transposición y cejilla",
-      "fontSize": "Tamaño de Fuente"
+      "fontSize": "Tamaño de Fuente",
+      "minimalistView": "Vista minimalista",
+      "standardView": "Vista estándar"
     }
   },
   "playlists": {

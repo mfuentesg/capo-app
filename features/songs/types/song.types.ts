@@ -20,6 +20,10 @@ export interface UserSongSettings {
   fontSize?: number
 }
 
+export interface UserPreferences {
+  minimalistLyricsView: boolean
+}
+
 export type GroupBy = "none" | "key" | "artist"
 
 export interface SongDetailProps {

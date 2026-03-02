@@ -133,7 +133,9 @@
       "settings": "Settings",
       "displaySettings": "Display Settings",
       "displaySettingsDescription": "Adjust font size, transpose, and capo",
-      "fontSize": "Font Size"
+      "fontSize": "Font Size",
+      "minimalistView": "Minimalist view",
+      "standardView": "Standard view"
     }
   },
   "playlists": {

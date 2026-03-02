@@ -1,6 +1,7 @@
 "use client"
 
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useState } from "react"
+import { useUpsertUserPreferences } from "@/features/songs"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -14,7 +15,9 @@ import {
   X,
   Eye,
   Pencil,
-  Save
+  Save,
+  Minimize2,
+  Maximize2
 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import type { Song } from "@/types"
@@ -51,6 +54,7 @@ interface LyricsViewProps {
   isSaving?: boolean
   initialSettings?: { capo?: number; transpose?: number; fontSize?: number }
   onSettingsChange?: (settings: { capo: number; transpose: number; fontSize: number }) => void
+  initialMinimalistView?: boolean
 }
 
 export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function LyricsView({
@@ -61,7 +65,8 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
   onSaveLyrics,
   isSaving = false,
   initialSettings,
-  onSettingsChange
+  onSettingsChange,
+  initialMinimalistView = false
 }: LyricsViewProps,
   ref
 ) {
@@ -73,6 +78,13 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
   const [editedLyrics, setEditedLyrics] = useState(song.lyrics || "")
   const [savedLyrics, setSavedLyrics] = useState(song.lyrics || "")
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+  const [isMinimalist, setIsMinimalist] = useState(initialMinimalistView)
+  const { mutate: upsertPreferences } = useUpsertUserPreferences()
+
+  const setMinimalistView = useCallback((value: boolean) => {
+    setIsMinimalist(value)
+    upsertPreferences({ minimalistLyricsView: value })
+  }, [upsertPreferences])
 
   const handleDiscard = useCallback(() => {
     setIsEditing(false)
@@ -152,286 +164,431 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
     }
   }, [hasUnsavedChanges, triggerClose, onClose, router])
 
+  const settingsPopoverContent = (
+    <div className="space-y-4">
+      <div className="space-y-2">
+        <h4 className="font-medium leading-none">{t.songs.lyrics.displaySettings}</h4>
+        <p className="text-sm text-muted-foreground">
+          {t.songs.lyrics.displaySettingsDescription}
+        </p>
+      </div>
+
+      <Separator />
+
+      {/* Font Size */}
+      <div className="space-y-2">
+        <div className="flex items-center gap-2">
+          <Type className="h-4 w-4" />
+          <span className="text-sm font-medium">{t.songs.lyrics.fontSize}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button
+            onClick={font.decrease}
+            variant="outline"
+            size="sm"
+            disabled={font.isAtMin()}
+          >
+            <Minus className="h-4 w-4" />
+          </Button>
+          <div className="flex items-center gap-2 px-3 py-1.5 bg-muted rounded-md min-w-20 justify-center">
+            <Type className="h-3.5 w-3.5 text-muted-foreground" />
+            <span className="text-sm font-medium">{font.value.toFixed(2)}</span>
+          </div>
+          <Button
+            onClick={font.increase}
+            variant="outline"
+            size="sm"
+            disabled={font.isAtMax()}
+          >
+            <Plus className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={font.reset}
+            disabled={font.isAtDefault()}
+            className="text-xs"
+          >
+            {t.songs.reset}
+          </Button>
+        </div>
+      </div>
+
+      <Separator />
+
+      {/* Transpose */}
+      <div className="space-y-2">
+        <div className="flex items-center gap-2">
+          <Music2 className="h-4 w-4" />
+          <span className="text-sm font-medium">{t.songs.transpose}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button
+            onClick={transpose.decrease}
+            variant="outline"
+            size="sm"
+            disabled={transpose.isAtMin()}
+          >
+            <Minus className="h-4 w-4" />
+          </Button>
+          <div className="flex items-center gap-2 px-3 py-1.5 bg-muted rounded-md min-w-20 justify-center">
+            <Music2 className="h-3.5 w-3.5 text-muted-foreground" />
+            <span className="text-sm font-medium">{transpose.display()}</span>
+            <span className="text-xs text-muted-foreground">
+              {t.songs.semitones}
+            </span>
+          </div>
+          <Button
+            onClick={transpose.increase}
+            variant="outline"
+            size="sm"
+            disabled={transpose.isAtMax()}
+          >
+            <Plus className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={transpose.reset}
+            disabled={transpose.isAtDefault()}
+            className="text-xs"
+          >
+            {t.songs.reset}
+          </Button>
+        </div>
+      </div>
+
+      <Separator />
+
+      {/* Capo */}
+      <div className="space-y-2">
+        <div className="flex items-center gap-2">
+          <Guitar className="h-4 w-4" />
+          <span className="text-sm font-medium">{t.songs.capo}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button
+            onClick={capo.decrease}
+            variant="outline"
+            size="sm"
+            disabled={capo.isAtMin()}
+          >
+            <Minus className="h-4 w-4" />
+          </Button>
+          <div className="flex items-center gap-2 px-3 py-1.5 bg-muted rounded-md min-w-20 justify-center">
+            <Guitar className="h-3.5 w-3.5 text-muted-foreground" />
+            <span className="text-sm font-medium">{capo.display()}</span>
+          </div>
+          <Button
+            onClick={capo.increase}
+            variant="outline"
+            size="sm"
+            disabled={capo.isAtMax()}
+          >
+            <Plus className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={capo.reset}
+            disabled={capo.isAtDefault()}
+            className="text-xs"
+          >
+            {t.songs.reset}
+          </Button>
+        </div>
+      </div>
+    </div>
+  )
+
   return (
     <div className={cn("bg-background", isPanel ? "h-full" : "min-h-screen")}>
+      <AlertDialog open={showPrompt} onOpenChange={(open) => !open && keepEditing()}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t.common.unsavedChanges}</AlertDialogTitle>
+            <AlertDialogDescription>{t.common.discardChangesMessage}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={keepEditing}>{t.common.keepEditing}</AlertDialogCancel>
+            <AlertDialogAction variant="destructive" onClick={confirmDiscard}>
+              {t.common.discard}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       {/* Header */}
       <div className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
-        <div className={cn("px-4 py-4", !isPanel && "container mx-auto")}>
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
+        {isMinimalist ? (
+          /* Minimalist header — single compact line with all song info */
+          <div className={cn("px-4 py-2", !isPanel && "container mx-auto")}>
+            <div className="flex items-center gap-2">
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={handleBack}
-                className="shrink-0"
+                className="h-8 w-8 shrink-0"
                 aria-label={t.common.goBack}
               >
-                {onClose ? <X className="h-5 w-5" /> : <ArrowLeft className="h-5 w-5" />}
+                {onClose ? <X className="h-4 w-4" /> : <ArrowLeft className="h-4 w-4" />}
               </Button>
-              <div className="flex-1 min-w-0">
-                <h1 className="text-xl font-semibold truncate">{song.title}</h1>
-                <p className="text-sm text-muted-foreground truncate">{song.artist}</p>
-              </div>
-            </div>
 
-            <div className="flex items-center gap-2">
-              <Badge variant="secondary" className="shrink-0">
-                {song.key}
-              </Badge>
-              <Badge variant="outline" className="shrink-0">
-                {song.bpm} {t.songs.bpm}
-              </Badge>
-            </div>
-          </div>
-
-          {/* Editing Actions */}
-          {canEdit && isEditing && (
-            <div className="mt-4 pt-4 border-t flex flex-wrap items-center gap-2">
-              {hasUnsavedChanges && <Badge variant="secondary">{t.common.unsavedChanges}</Badge>}
-              <Button variant="outline" size="sm" onClick={handleCancel}>
-                <X className="h-4 w-4 mr-2" />
-                {t.common.cancel}
-              </Button>
-              <Button variant={isPreviewing ? "secondary" : "outline"} size="sm" onClick={togglePreview}>
-                {isPreviewing ? (
-                  <Pencil className="h-4 w-4 mr-2" />
-                ) : (
-                  <Eye className="h-4 w-4 mr-2" />
-                )}
-                {isPreviewing ? t.common.edit : t.songs.preview}
-              </Button>
-              <Button
-                variant="default"
-                size="sm"
-                onClick={handleSave}
-                disabled={!hasUnsavedChanges || isSaving}
-              >
-                <Save className="h-4 w-4 mr-2" />
-                {t.common.save}
-              </Button>
-            </div>
-          )}
-
-          <AlertDialog open={showPrompt} onOpenChange={(open) => !open && keepEditing()}>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>{t.common.unsavedChanges}</AlertDialogTitle>
-                <AlertDialogDescription>{t.common.discardChangesMessage}</AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel onClick={keepEditing}>{t.common.keepEditing}</AlertDialogCancel>
-                <AlertDialogAction variant="destructive" onClick={confirmDiscard}>
-                  {t.common.discard}
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-
-          {/* Controls - View Mode */}
-          {!isEditing && (
-            <div className="mt-4 pt-4 border-t flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              {/* Current Settings Display */}
-              <div className="flex items-center gap-2 flex-wrap">
-                {!font.isAtDefault() && (
-                  <Badge variant="secondary" className="gap-1">
-                    <Type className="h-3 w-3" />
-                    {font.value.toFixed(2)}
+              {/* All song info on one line */}
+              <div className="flex-1 min-w-0 flex items-center gap-2 overflow-hidden">
+                <p className="text-sm font-medium truncate shrink">
+                  {song.title}
+                  {song.artist && (
+                    <span className="text-muted-foreground font-normal"> · {song.artist}</span>
+                  )}
+                </p>
+                {song.key && (
+                  <Badge variant="secondary" className="shrink-0 text-xs">
+                    {song.key}
                   </Badge>
                 )}
-                {!transpose.isAtDefault() && (
-                  <Badge variant="secondary" className="gap-1">
-                    <Music2 className="h-3 w-3" />
-                    {transpose.display()} {t.songs.semitones}
+                {song.bpm > 0 && (
+                  <Badge variant="outline" className="shrink-0 text-xs">
+                    {song.bpm} {t.songs.bpm}
                   </Badge>
-                )}
-                {!capo.isAtDefault() && (
-                  <Badge variant="secondary" className="gap-1">
-                    <Guitar className="h-3 w-3" />
-                    {capo.display()}
-                  </Badge>
-                )}
-                {hasModifications() && (
-                  <Button variant="ghost" size="sm" onClick={resetAll} className="h-7 px-2">
-                    <X className="h-3.5 w-3.5 mr-1" />
-                    {t.songs.reset}
-                  </Button>
                 )}
               </div>
 
-              <div className="flex items-center gap-2 self-start sm:self-auto">
-                {canEdit && (
-                  <Button variant="outline" size="sm" onClick={handleEdit} className="shrink-0">
-                    <Pencil className="h-4 w-4 mr-2" />
-                    {t.songs.editLyrics}
-                  </Button>
-                )}
-
-                {/* Settings Button */}
-                <Popover>
-                  <PopoverTrigger asChild>
+              {/* Actions */}
+              <div className="flex items-center gap-0.5 shrink-0">
+                {canEdit && isEditing ? (
+                  <>
+                    {hasUnsavedChanges && (
+                      <span className="mr-1 h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
+                    )}
                     <Button
-                      variant="outline"
-                      size="sm"
-                      className="relative"
-                      id={settingsPopoverIds.triggerId}
-                      aria-controls={settingsPopoverIds.contentId}
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={handleCancel}
+                      aria-label={t.common.cancel}
                     >
-                      <Settings2 className="h-4 w-4 mr-2" />
-                      {t.songs.lyrics.settings}
-                      {hasModifications() && (
-                        <span className="absolute -top-1 -right-1 flex h-3 w-3">
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                          <span className="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
-                        </span>
+                      <X className="h-3.5 w-3.5" />
+                    </Button>
+                    <Button
+                      variant={isPreviewing ? "secondary" : "ghost"}
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={togglePreview}
+                      aria-label={isPreviewing ? t.common.edit : t.songs.preview}
+                    >
+                      {isPreviewing ? (
+                        <Pencil className="h-3.5 w-3.5" />
+                      ) : (
+                        <Eye className="h-3.5 w-3.5" />
                       )}
                     </Button>
-                  </PopoverTrigger>
-                  <PopoverContent
-                    className="w-auto mr-2.5"
-                    align="start"
-                    id={settingsPopoverIds.contentId}
-                    aria-labelledby={settingsPopoverIds.triggerId}
-                  >
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <h4 className="font-medium leading-none">{t.songs.lyrics.displaySettings}</h4>
-                        <p className="text-sm text-muted-foreground">
-                          {t.songs.lyrics.displaySettingsDescription}
-                        </p>
-                      </div>
-
-                      <Separator />
-
-                      {/* Font Size */}
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2">
-                          <Type className="h-4 w-4" />
-                          <span className="text-sm font-medium">{t.songs.lyrics.fontSize}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Button
-                            onClick={font.decrease}
-                            variant="outline"
-                            size="sm"
-                            disabled={font.isAtMin()}
-                          >
-                            <Minus className="h-4 w-4" />
-                          </Button>
-                          <div className="flex items-center gap-2 px-3 py-1.5 bg-muted rounded-md min-w-20 justify-center">
-                            <Type className="h-3.5 w-3.5 text-muted-foreground" />
-                            <span className="text-sm font-medium">{font.value.toFixed(2)}</span>
-                          </div>
-                          <Button
-                            onClick={font.increase}
-                            variant="outline"
-                            size="sm"
-                            disabled={font.isAtMax()}
-                          >
-                            <Plus className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={font.reset}
-                            disabled={font.isAtDefault()}
-                            className="text-xs"
-                          >
-                            {t.songs.reset}
-                          </Button>
-                        </div>
-                      </div>
-
-                      <Separator />
-
-                      {/* Transpose */}
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2">
-                          <Music2 className="h-4 w-4" />
-                          <span className="text-sm font-medium">{t.songs.transpose}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Button
-                            onClick={transpose.decrease}
-                            variant="outline"
-                            size="sm"
-                            disabled={transpose.isAtMin()}
-                          >
-                            <Minus className="h-4 w-4" />
-                          </Button>
-                          <div className="flex items-center gap-2 px-3 py-1.5 bg-muted rounded-md min-w-20 justify-center">
-                            <Music2 className="h-3.5 w-3.5 text-muted-foreground" />
-                            <span className="text-sm font-medium">{transpose.display()}</span>
-                            <span className="text-xs text-muted-foreground">
-                              {t.songs.semitones}
+                    <Button
+                      variant="default"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={handleSave}
+                      disabled={!hasUnsavedChanges || isSaving}
+                      aria-label={t.common.save}
+                    >
+                      <Save className="h-3.5 w-3.5" />
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    {canEdit && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={handleEdit}
+                        aria-label={t.songs.editLyrics}
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                      </Button>
+                    )}
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="relative h-8 w-8"
+                          id={settingsPopoverIds.triggerId}
+                          aria-controls={settingsPopoverIds.contentId}
+                          aria-label={t.songs.lyrics.settings}
+                        >
+                          <Settings2 className="h-3.5 w-3.5" />
+                          {hasModifications() && (
+                            <span className="absolute -top-0.5 -right-0.5 flex h-2 w-2">
+                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                              <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
                             </span>
-                          </div>
-                          <Button
-                            onClick={transpose.increase}
-                            variant="outline"
-                            size="sm"
-                            disabled={transpose.isAtMax()}
-                          >
-                            <Plus className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={transpose.reset}
-                            disabled={transpose.isAtDefault()}
-                            className="text-xs"
-                          >
-                            {t.songs.reset}
-                          </Button>
-                        </div>
-                      </div>
-
-                      <Separator />
-
-                      {/* Capo */}
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2">
-                          <Guitar className="h-4 w-4" />
-                          <span className="text-sm font-medium">{t.songs.capo}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Button
-                            onClick={capo.decrease}
-                            variant="outline"
-                            size="sm"
-                            disabled={capo.isAtMin()}
-                          >
-                            <Minus className="h-4 w-4" />
-                          </Button>
-                          <div className="flex items-center gap-2 px-3 py-1.5 bg-muted rounded-md min-w-20 justify-center">
-                            <Guitar className="h-3.5 w-3.5 text-muted-foreground" />
-                            <span className="text-sm font-medium">{capo.display()}</span>
-                          </div>
-                          <Button
-                            onClick={capo.increase}
-                            variant="outline"
-                            size="sm"
-                            disabled={capo.isAtMax()}
-                          >
-                            <Plus className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={capo.reset}
-                            disabled={capo.isAtDefault()}
-                            className="text-xs"
-                          >
-                            {t.songs.reset}
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  </PopoverContent>
-                </Popover>
+                          )}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent
+                        className="w-auto mr-2.5"
+                        align="end"
+                        id={settingsPopoverIds.contentId}
+                        aria-labelledby={settingsPopoverIds.triggerId}
+                      >
+                        {settingsPopoverContent}
+                      </PopoverContent>
+                    </Popover>
+                  </>
+                )}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() => setMinimalistView(false)}
+                  aria-label={t.songs.lyrics.standardView}
+                >
+                  <Maximize2 className="h-3.5 w-3.5" />
+                </Button>
               </div>
             </div>
-          )}
-        </div>
+          </div>
+        ) : (
+          /* Full header */
+          <div className={cn("px-4 py-4", !isPanel && "container mx-auto")}>
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleBack}
+                  className="shrink-0"
+                  aria-label={t.common.goBack}
+                >
+                  {onClose ? <X className="h-5 w-5" /> : <ArrowLeft className="h-5 w-5" />}
+                </Button>
+                <div className="flex-1 min-w-0">
+                  <h1 className="text-xl font-semibold truncate">{song.title}</h1>
+                  <p className="text-sm text-muted-foreground truncate">{song.artist}</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Badge variant="secondary" className="shrink-0">
+                  {song.key}
+                </Badge>
+                <Badge variant="outline" className="shrink-0">
+                  {song.bpm} {t.songs.bpm}
+                </Badge>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 shrink-0"
+                  onClick={() => setMinimalistView(true)}
+                  aria-label={t.songs.lyrics.minimalistView}
+                >
+                  <Minimize2 className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+
+            {/* Editing Actions */}
+            {canEdit && isEditing && (
+              <div className="mt-4 pt-4 border-t flex flex-wrap items-center gap-2">
+                {hasUnsavedChanges && <Badge variant="secondary">{t.common.unsavedChanges}</Badge>}
+                <Button variant="outline" size="sm" onClick={handleCancel}>
+                  <X className="h-4 w-4 mr-2" />
+                  {t.common.cancel}
+                </Button>
+                <Button variant={isPreviewing ? "secondary" : "outline"} size="sm" onClick={togglePreview}>
+                  {isPreviewing ? (
+                    <Pencil className="h-4 w-4 mr-2" />
+                  ) : (
+                    <Eye className="h-4 w-4 mr-2" />
+                  )}
+                  {isPreviewing ? t.common.edit : t.songs.preview}
+                </Button>
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={handleSave}
+                  disabled={!hasUnsavedChanges || isSaving}
+                >
+                  <Save className="h-4 w-4 mr-2" />
+                  {t.common.save}
+                </Button>
+              </div>
+            )}
+
+            {/* Controls - View Mode */}
+            {!isEditing && (
+              <div className="mt-4 pt-4 border-t flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                {/* Current Settings Display */}
+                <div className="flex items-center gap-2 flex-wrap">
+                  {!font.isAtDefault() && (
+                    <Badge variant="secondary" className="gap-1">
+                      <Type className="h-3 w-3" />
+                      {font.value.toFixed(2)}
+                    </Badge>
+                  )}
+                  {!transpose.isAtDefault() && (
+                    <Badge variant="secondary" className="gap-1">
+                      <Music2 className="h-3 w-3" />
+                      {transpose.display()} {t.songs.semitones}
+                    </Badge>
+                  )}
+                  {!capo.isAtDefault() && (
+                    <Badge variant="secondary" className="gap-1">
+                      <Guitar className="h-3 w-3" />
+                      {capo.display()}
+                    </Badge>
+                  )}
+                  {hasModifications() && (
+                    <Button variant="ghost" size="sm" onClick={resetAll} className="h-7 px-2">
+                      <X className="h-3.5 w-3.5 mr-1" />
+                      {t.songs.reset}
+                    </Button>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-2 self-start sm:self-auto">
+                  {canEdit && (
+                    <Button variant="outline" size="sm" onClick={handleEdit} className="shrink-0">
+                      <Pencil className="h-4 w-4 mr-2" />
+                      {t.songs.editLyrics}
+                    </Button>
+                  )}
+
+                  {/* Settings Button */}
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="relative"
+                        id={settingsPopoverIds.triggerId}
+                        aria-controls={settingsPopoverIds.contentId}
+                      >
+                        <Settings2 className="h-4 w-4 mr-2" />
+                        {t.songs.lyrics.settings}
+                        {hasModifications() && (
+                          <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
+                          </span>
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent
+                      className="w-auto mr-2.5"
+                      align="start"
+                      id={settingsPopoverIds.contentId}
+                      aria-labelledby={settingsPopoverIds.triggerId}
+                    >
+                      {settingsPopoverContent}
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Lyrics Content */}

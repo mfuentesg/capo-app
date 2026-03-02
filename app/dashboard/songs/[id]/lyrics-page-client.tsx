@@ -13,12 +13,15 @@ import type { UserSongSettings } from "@/features/songs"
 interface LyricsPageClientProps {
   song: Song
   initialUserSettings: UserSongSettings | null
+  initialMinimalistView: boolean
 }
 
-export function LyricsPageClient({ song, initialUserSettings }: LyricsPageClientProps) {
+export function LyricsPageClient({
+  song,
+  initialUserSettings,
+  initialMinimalistView
+}: LyricsPageClientProps) {
   const { mutate: updateSong, isPending: isSaving } = useUpdateSong()
-  // Prime the React Query cache with server-fetched settings so useEffectiveSongSettings
-  // (which calls useUserSongSettings internally) starts with data on the first render.
   useUserSongSettings(song, initialUserSettings)
   const effectiveSettings = useEffectiveSongSettings(song)
   const { mutate: upsertSettings } = useUpsertUserSongSettings(song)
@@ -30,6 +33,7 @@ export function LyricsPageClient({ song, initialUserSettings }: LyricsPageClient
       isSaving={isSaving}
       initialSettings={effectiveSettings}
       onSettingsChange={upsertSettings}
+      initialMinimalistView={initialMinimalistView}
     />
   )
 }

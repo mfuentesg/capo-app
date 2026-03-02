@@ -10,6 +10,7 @@ export {
   useEffectiveSongSettings,
   useAllUserSongSettings
 } from "./hooks/use-user-song-settings"
+export { useUserPreferences, useUpsertUserPreferences } from "./hooks/use-user-preferences"
 export { songsKeys } from "./hooks/query-keys"
 
 export { api } from "./api"
@@ -17,6 +18,7 @@ export { api } from "./api"
 export type {
   Song,
   UserSongSettings,
+  UserPreferences,
   GroupBy,
   SongDetailProps,
   SongListProps,
