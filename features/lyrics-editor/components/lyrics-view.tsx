@@ -57,17 +57,18 @@ interface LyricsViewProps {
   initialMinimalistView?: boolean
 }
 
-export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function LyricsView({
-  song,
-  mode = "page",
-  readOnly = false,
-  onClose,
-  onSaveLyrics,
-  isSaving = false,
-  initialSettings,
-  onSettingsChange,
-  initialMinimalistView = false
-}: LyricsViewProps,
+export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function LyricsView(
+  {
+    song,
+    mode = "page",
+    readOnly = false,
+    onClose,
+    onSaveLyrics,
+    isSaving = false,
+    initialSettings,
+    onSettingsChange,
+    initialMinimalistView = false
+  }: LyricsViewProps,
   ref
 ) {
   const { t } = useTranslation()
@@ -81,10 +82,13 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
   const [isMinimalist, setIsMinimalist] = useState(initialMinimalistView)
   const { mutate: upsertPreferences } = useUpsertUserPreferences()
 
-  const setMinimalistView = useCallback((value: boolean) => {
-    setIsMinimalist(value)
-    upsertPreferences({ minimalistLyricsView: value })
-  }, [upsertPreferences])
+  const setMinimalistView = useCallback(
+    (value: boolean) => {
+      setIsMinimalist(value)
+      upsertPreferences({ minimalistLyricsView: value })
+    },
+    [upsertPreferences]
+  )
 
   const handleDiscard = useCallback(() => {
     setIsEditing(false)
@@ -98,8 +102,10 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
     }
   }, [savedLyrics, onClose, router])
 
-  const { showPrompt, triggerClose, confirmDiscard, keepEditing } =
-    useUnsavedChangesGuard(hasUnsavedChanges, { onDiscard: handleDiscard })
+  const { showPrompt, triggerClose, confirmDiscard, keepEditing } = useUnsavedChangesGuard(
+    hasUnsavedChanges,
+    { onDiscard: handleDiscard }
+  )
 
   useImperativeHandle(ref, () => ({ requestClose: triggerClose }), [triggerClose])
 
@@ -168,9 +174,7 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
     <div className="space-y-4">
       <div className="space-y-2">
         <h4 className="font-medium leading-none">{t.songs.lyrics.displaySettings}</h4>
-        <p className="text-sm text-muted-foreground">
-          {t.songs.lyrics.displaySettingsDescription}
-        </p>
+        <p className="text-sm text-muted-foreground">{t.songs.lyrics.displaySettingsDescription}</p>
       </div>
 
       <Separator />
@@ -182,24 +186,14 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
           <span className="text-sm font-medium">{t.songs.lyrics.fontSize}</span>
         </div>
         <div className="flex items-center gap-2">
-          <Button
-            onClick={font.decrease}
-            variant="outline"
-            size="sm"
-            disabled={font.isAtMin()}
-          >
+          <Button onClick={font.decrease} variant="outline" size="sm" disabled={font.isAtMin()}>
             <Minus className="h-4 w-4" />
           </Button>
           <div className="flex items-center gap-2 px-3 py-1.5 bg-muted rounded-md min-w-20 justify-center">
             <Type className="h-3.5 w-3.5 text-muted-foreground" />
             <span className="text-sm font-medium">{font.value.toFixed(2)}</span>
           </div>
-          <Button
-            onClick={font.increase}
-            variant="outline"
-            size="sm"
-            disabled={font.isAtMax()}
-          >
+          <Button onClick={font.increase} variant="outline" size="sm" disabled={font.isAtMax()}>
             <Plus className="h-4 w-4" />
           </Button>
           <Button
@@ -234,9 +228,7 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
           <div className="flex items-center gap-2 px-3 py-1.5 bg-muted rounded-md min-w-20 justify-center">
             <Music2 className="h-3.5 w-3.5 text-muted-foreground" />
             <span className="text-sm font-medium">{transpose.display()}</span>
-            <span className="text-xs text-muted-foreground">
-              {t.songs.semitones}
-            </span>
+            <span className="text-xs text-muted-foreground">{t.songs.semitones}</span>
           </div>
           <Button
             onClick={transpose.increase}
@@ -267,24 +259,14 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
           <span className="text-sm font-medium">{t.songs.capo}</span>
         </div>
         <div className="flex items-center gap-2">
-          <Button
-            onClick={capo.decrease}
-            variant="outline"
-            size="sm"
-            disabled={capo.isAtMin()}
-          >
+          <Button onClick={capo.decrease} variant="outline" size="sm" disabled={capo.isAtMin()}>
             <Minus className="h-4 w-4" />
           </Button>
           <div className="flex items-center gap-2 px-3 py-1.5 bg-muted rounded-md min-w-20 justify-center">
             <Guitar className="h-3.5 w-3.5 text-muted-foreground" />
             <span className="text-sm font-medium">{capo.display()}</span>
           </div>
-          <Button
-            onClick={capo.increase}
-            variant="outline"
-            size="sm"
-            disabled={capo.isAtMax()}
-          >
+          <Button onClick={capo.increase} variant="outline" size="sm" disabled={capo.isAtMax()}>
             <Plus className="h-4 w-4" />
           </Button>
           <Button
@@ -490,13 +472,17 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
 
             {/* Editing Actions */}
             {canEdit && isEditing && (
-              <div className="mt-4 pt-4 border-t flex flex-wrap items-center gap-2">
+              <div className="mt-4 pt-4 border-t flex flex-wrap justify-end items-center gap-2">
                 {hasUnsavedChanges && <Badge variant="secondary">{t.common.unsavedChanges}</Badge>}
                 <Button variant="outline" size="sm" onClick={handleCancel}>
                   <X className="h-4 w-4 mr-2" />
                   {t.common.cancel}
                 </Button>
-                <Button variant={isPreviewing ? "secondary" : "outline"} size="sm" onClick={togglePreview}>
+                <Button
+                  variant={isPreviewing ? "secondary" : "outline"}
+                  size="sm"
+                  onClick={togglePreview}
+                >
                   {isPreviewing ? (
                     <Pencil className="h-4 w-4 mr-2" />
                   ) : (
@@ -604,7 +590,13 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
             )}
 
             {(isPreviewing || !isEditing) && (
-              <div className={cn(isEditing && isPreviewing ? "rounded-lg border bg-card p-4 md:p-6 overflow-hidden" : "block")}>
+              <div
+                className={cn(
+                  isEditing && isPreviewing
+                    ? "rounded-lg border bg-card p-4 md:p-6 overflow-hidden"
+                    : "block"
+                )}
+              >
                 <RenderedSong
                   lyrics={isEditing && isPreviewing ? editedLyrics : savedLyrics}
                   transpose={transpose.value}
