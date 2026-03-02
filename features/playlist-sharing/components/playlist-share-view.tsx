@@ -32,7 +32,8 @@ import type { Song } from "@/features/songs"
 import {
   useAllUserSongSettings,
   useEffectiveSongSettings,
-  useUpsertUserSongSettings
+  useUpsertUserSongSettings,
+  useUserPreferences
 } from "@/features/songs"
 import {
   reorderPlaylistSongsAction,
@@ -51,6 +52,7 @@ interface ActiveSongLyricsForShareProps {
 function ActiveSongLyricsForShare({ song, onClose, isAuthenticated }: ActiveSongLyricsForShareProps) {
   const effectiveSettings = useEffectiveSongSettings(song)
   const { mutate: upsertSettings } = useUpsertUserSongSettings(song)
+  const { data: preferences } = useUserPreferences()
 
   return (
     <LyricsView
@@ -66,6 +68,7 @@ function ActiveSongLyricsForShare({ song, onClose, isAuthenticated }: ActiveSong
       onClose={onClose}
       initialSettings={effectiveSettings}
       onSettingsChange={isAuthenticated ? upsertSettings : undefined}
+      initialMinimalistView={preferences?.minimalistLyricsView ?? false}
     />
   )
 }

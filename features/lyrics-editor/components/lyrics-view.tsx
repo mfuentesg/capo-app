@@ -1,6 +1,7 @@
 "use client"
 
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useState } from "react"
+import { useUpsertUserPreferences } from "@/features/songs"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -53,6 +54,7 @@ interface LyricsViewProps {
   isSaving?: boolean
   initialSettings?: { capo?: number; transpose?: number; fontSize?: number }
   onSettingsChange?: (settings: { capo: number; transpose: number; fontSize: number }) => void
+  initialMinimalistView?: boolean
 }
 
 export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function LyricsView({
@@ -63,7 +65,8 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
   onSaveLyrics,
   isSaving = false,
   initialSettings,
-  onSettingsChange
+  onSettingsChange,
+  initialMinimalistView = false
 }: LyricsViewProps,
   ref
 ) {
@@ -75,26 +78,13 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
   const [editedLyrics, setEditedLyrics] = useState(song.lyrics || "")
   const [savedLyrics, setSavedLyrics] = useState(song.lyrics || "")
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
-  const [isMinimalist, setIsMinimalist] = useState(false)
-
-  // Restore persisted minimalist preference after mount (SSR-safe: initialise false then read)
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem("capo_lyrics_minimalist_view")
-      if (stored !== null) setIsMinimalist(stored === "true")
-    } catch {
-      // localStorage unavailable
-    }
-  }, [])
+  const [isMinimalist, setIsMinimalist] = useState(initialMinimalistView)
+  const { mutate: upsertPreferences } = useUpsertUserPreferences()
 
   const setMinimalistView = useCallback((value: boolean) => {
     setIsMinimalist(value)
-    try {
-      localStorage.setItem("capo_lyrics_minimalist_view", String(value))
-    } catch {
-      // localStorage unavailable
-    }
-  }, [])
+    upsertPreferences({ minimalistLyricsView: value })
+  }, [upsertPreferences])
 
   const handleDiscard = useCallback(() => {
     setIsEditing(false)
@@ -345,21 +335,23 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
               </Button>
 
               {/* All song info on one line */}
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">
+              <div className="flex-1 min-w-0 flex items-center gap-2 overflow-hidden">
+                <p className="text-sm font-medium truncate shrink">
                   {song.title}
                   {song.artist && (
                     <span className="text-muted-foreground font-normal"> · {song.artist}</span>
                   )}
-                  {song.key && (
-                    <span className="text-muted-foreground font-normal"> · {song.key}</span>
-                  )}
-                  {song.bpm > 0 && (
-                    <span className="text-muted-foreground font-normal">
-                      {" "}· {song.bpm} {t.songs.bpm}
-                    </span>
-                  )}
                 </p>
+                {song.key && (
+                  <Badge variant="secondary" className="shrink-0 text-xs">
+                    {song.key}
+                  </Badge>
+                )}
+                {song.bpm > 0 && (
+                  <Badge variant="outline" className="shrink-0 text-xs">
+                    {song.bpm} {t.songs.bpm}
+                  </Badge>
+                )}
               </div>
 
               {/* Actions */}

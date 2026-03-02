@@ -50,7 +50,8 @@ import {
   useUpdateSong,
   useUserSongSettings,
   useEffectiveSongSettings,
-  useUpsertUserSongSettings
+  useUpsertUserSongSettings,
+  useUserPreferences
 } from "@/features/songs"
 import type { Playlist } from "@/features/playlists/types"
 import type { SongWithPosition, PlaylistWithSongs } from "@/types/extended"
@@ -73,6 +74,7 @@ const ActiveSongLyrics = forwardRef<LyricsViewHandle, ActiveSongLyricsProps>(
     const { data: userSettings } = useUserSongSettings(song)
     const effectiveSettings = useEffectiveSongSettings(song)
     const { mutate: upsertSettings } = useUpsertUserSongSettings(song)
+    const { data: preferences } = useUserPreferences()
     const settingsKey = userSettings === undefined ? "loading" : "ready"
 
     return (
@@ -92,6 +94,7 @@ const ActiveSongLyrics = forwardRef<LyricsViewHandle, ActiveSongLyricsProps>(
         isSaving={isSaving}
         initialSettings={effectiveSettings}
         onSettingsChange={upsertSettings}
+        initialMinimalistView={preferences?.minimalistLyricsView ?? false}
       />
     )
   }
