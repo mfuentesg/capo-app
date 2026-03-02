@@ -17,7 +17,8 @@ import {
   Pencil,
   Save,
   Minimize2,
-  Maximize2
+  Maximize2,
+  Columns2
 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import type { Song } from "@/types"
@@ -74,7 +75,7 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
   const { t } = useTranslation()
   const router = useRouter()
   const [isEditing, setIsEditing] = useState(false)
-  const [isPreviewing, setIsPreviewing] = useState(false)
+  const [viewMode, setViewMode] = useState<"edit" | "split" | "preview">("edit")
   const [hasInitializedEditor, setHasInitializedEditor] = useState(false)
   const [editedLyrics, setEditedLyrics] = useState(song.lyrics || "")
   const [savedLyrics, setSavedLyrics] = useState(song.lyrics || "")
@@ -92,7 +93,7 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
 
   const handleDiscard = useCallback(() => {
     setIsEditing(false)
-    setIsPreviewing(false)
+    setViewMode("edit")
     setEditedLyrics(savedLyrics)
     setHasUnsavedChanges(false)
     if (onClose) {
@@ -128,7 +129,7 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
     if (!canEdit) return
     setHasInitializedEditor(true)
     setIsEditing(true)
-    setIsPreviewing(false)
+    setViewMode("edit")
     setEditedLyrics(savedLyrics)
   }
 
@@ -137,7 +138,7 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
       triggerClose()
     } else {
       setIsEditing(false)
-      setIsPreviewing(false)
+      setViewMode("edit")
     }
   }, [hasUnsavedChanges, triggerClose])
 
@@ -145,7 +146,7 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
     onSaveLyrics?.(editedLyrics)
     setSavedLyrics(editedLyrics)
     setIsEditing(false)
-    setIsPreviewing(false)
+    setViewMode("edit")
     setHasUnsavedChanges(false)
   }
 
@@ -153,11 +154,6 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
     if (!canEdit) return
     setEditedLyrics(value)
     setHasUnsavedChanges(value !== savedLyrics)
-  }
-
-  const togglePreview = () => {
-    if (!canEdit || !isEditing) return
-    setIsPreviewing((prev) => !prev)
   }
 
   const handleBack = useCallback(() => {
@@ -353,17 +349,31 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
                       <X className="h-3.5 w-3.5" />
                     </Button>
                     <Button
-                      variant={isPreviewing ? "secondary" : "ghost"}
+                      variant={viewMode === "edit" ? "secondary" : "ghost"}
                       size="icon"
                       className="h-8 w-8"
-                      onClick={togglePreview}
-                      aria-label={isPreviewing ? t.common.edit : t.songs.preview}
+                      onClick={() => setViewMode("edit")}
+                      aria-label={t.common.edit}
                     >
-                      {isPreviewing ? (
-                        <Pencil className="h-3.5 w-3.5" />
-                      ) : (
-                        <Eye className="h-3.5 w-3.5" />
-                      )}
+                      <Pencil className="h-3.5 w-3.5" />
+                    </Button>
+                    <Button
+                      variant={viewMode === "split" ? "secondary" : "ghost"}
+                      size="icon"
+                      className="h-8 w-8 hidden md:inline-flex"
+                      onClick={() => setViewMode("split")}
+                      aria-label={t.songs.lyrics.splitView}
+                    >
+                      <Columns2 className="h-3.5 w-3.5" />
+                    </Button>
+                    <Button
+                      variant={viewMode === "preview" ? "secondary" : "ghost"}
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => setViewMode("preview")}
+                      aria-label={t.songs.preview}
+                    >
+                      <Eye className="h-3.5 w-3.5" />
                     </Button>
                     <Button
                       variant="default"
@@ -489,18 +499,29 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
                   <span className="hidden sm:inline">{t.common.cancel}</span>
                 </Button>
                 <Button
-                  variant={isPreviewing ? "secondary" : "outline"}
+                  variant={viewMode === "edit" ? "secondary" : "outline"}
                   size="sm"
-                  onClick={togglePreview}
+                  onClick={() => setViewMode("edit")}
                 >
-                  {isPreviewing ? (
-                    <Pencil className="h-4 w-4 sm:mr-2" />
-                  ) : (
-                    <Eye className="h-4 w-4 sm:mr-2" />
-                  )}
-                  <span className="hidden sm:inline">
-                    {isPreviewing ? t.common.edit : t.songs.preview}
-                  </span>
+                  <Pencil className="h-4 w-4 sm:mr-2" />
+                  <span className="hidden sm:inline">{t.common.edit}</span>
+                </Button>
+                <Button
+                  variant={viewMode === "split" ? "secondary" : "outline"}
+                  size="sm"
+                  className="hidden md:inline-flex"
+                  onClick={() => setViewMode("split")}
+                >
+                  <Columns2 className="h-4 w-4 sm:mr-2" />
+                  <span className="hidden sm:inline">{t.songs.lyrics.splitView}</span>
+                </Button>
+                <Button
+                  variant={viewMode === "preview" ? "secondary" : "outline"}
+                  size="sm"
+                  onClick={() => setViewMode("preview")}
+                >
+                  <Eye className="h-4 w-4 sm:mr-2" />
+                  <span className="hidden sm:inline">{t.songs.preview}</span>
                 </Button>
                 <Button
                   variant="default"
@@ -592,40 +613,52 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
       {/* Lyrics Content */}
       <div className={cn("px-4 py-8", !isPanel && "container mx-auto")}>
         <div className="w-full">
-          <div className="max-w-5xl mx-auto">
-            {isEditing && (
+          <div
+            className={cn(
+              isEditing && viewMode === "split"
+                ? "md:grid md:grid-cols-2 md:gap-6 md:items-start"
+                : "max-w-5xl mx-auto"
+            )}
+          >
+            {isEditing && viewMode === "edit" && (
               <div className="mb-4">
                 <h3 className="text-sm font-medium text-muted-foreground mb-2">
-                  {isPreviewing ? t.songs.preview : t.songs.lyricsFormatInfo}
+                  {t.songs.lyricsFormatInfo}
                 </h3>
               </div>
             )}
 
-            {(isPreviewing || !isEditing) && (
+            {/* Editor — left panel in split mode on desktop, hidden on mobile in split mode */}
+            {canEdit && hasInitializedEditor && (
               <div
                 className={cn(
-                  isEditing && isPreviewing
+                  "rounded-lg border bg-card",
+                  isEditing && viewMode === "split"
+                    ? "hidden md:block"
+                    : isEditing && viewMode === "edit"
+                      ? "block"
+                      : "hidden"
+                )}
+              >
+                <LazySongEditor content={editedLyrics} onChange={handleLyricsChange} />
+              </div>
+            )}
+
+            {/* Rendered song — right panel in split mode, full view in preview/view mode */}
+            {(!isEditing || viewMode === "preview" || viewMode === "split") && (
+              <div
+                className={cn(
+                  isEditing && viewMode === "split"
                     ? "rounded-lg border bg-card p-4 md:p-6 overflow-hidden"
                     : "block"
                 )}
               >
                 <RenderedSong
-                  lyrics={isEditing && isPreviewing ? editedLyrics : savedLyrics}
+                  lyrics={isEditing ? editedLyrics : savedLyrics}
                   transpose={transpose.value}
                   capo={capo.value}
                   fontSize={font.value}
                 />
-              </div>
-            )}
-
-            {canEdit && hasInitializedEditor && (
-              <div
-                className={cn(
-                  "rounded-lg border bg-card",
-                  isEditing && !isPreviewing ? "block" : "hidden"
-                )}
-              >
-                <LazySongEditor content={editedLyrics} onChange={handleLyricsChange} />
               </div>
             )}
           </div>
