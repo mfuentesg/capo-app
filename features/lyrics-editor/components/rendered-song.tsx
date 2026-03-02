@@ -15,7 +15,7 @@ interface RenderedSongProps {
 type LyricsSegment =
   | { type: "normal"; html: string }
   | { type: "section"; name: string; sectionType: string; html: string }
-  | { type: "repeat"; name: string; html: string; found: boolean }
+  | { type: "repeat"; name: string; count: number; html: string; found: boolean }
 
 // Lookbehind/lookahead avoids the \b bug where chords ending in # or b (non-word chars)
 // would only colour the leading letter — e.g. "A#" → only "A" was wrapped.
@@ -160,6 +160,22 @@ function buildSectionMap(lyrics: string): Map<string, string> {
   return map
 }
 
+// Parses {repeat: "Name", N} values.
+// Accepts quoted/unquoted names and an optional positive integer count after
+// the last comma, e.g. `"Coro", 2` → { name: "Coro", count: 2 }.
+function parseRepeatValue(raw: string): { name: string; count: number } {
+  const lastCommaIdx = raw.lastIndexOf(",")
+  if (lastCommaIdx !== -1) {
+    const tail = raw.slice(lastCommaIdx + 1).trim()
+    const count = Number(tail)
+    if (Number.isInteger(count) && count > 0) {
+      const rawName = raw.slice(0, lastCommaIdx).trim()
+      return { name: rawName.replace(/^["']|["']$/g, ""), count }
+    }
+  }
+  return { name: raw.replace(/^["']|["']$/g, ""), count: 1 }
+}
+
 function buildSegments(
   lyrics: string,
   sectionMap: Map<string, string>,
@@ -192,16 +208,18 @@ function buildSegments(
 
     if (directive === "repeat") {
       if (value) {
-        const content = sectionMap.get(value.toLowerCase())
+        const { name, count } = parseRepeatValue(value)
+        const content = sectionMap.get(name.toLowerCase())
         if (content) {
           segments.push({
             type: "repeat",
-            name: value,
+            name,
+            count,
             html: formatLyricsToHtml(content, transpose, capo),
             found: true,
           })
         } else {
-          segments.push({ type: "repeat", name: value, html: "", found: false })
+          segments.push({ type: "repeat", name, count, html: "", found: false })
         }
       }
     } else if (/^c(omment(_italic|_box)?)?$/.test(directive)) {
@@ -386,10 +404,13 @@ export function RenderedSong({ lyrics, transpose, capo, fontSize }: RenderedSong
           }
 
           // repeat segment
+          const repeatLabel =
+            segment.count > 1 ? `${segment.name} x ${segment.count}` : segment.name
+
           if (!segment.found) {
             return (
               <div key={index} className="section-repeat section-repeat--not-found" data-section-type="repeat">
-                <SectionHeader name={`${segment.name} (not found)`} isCollapsed={false} />
+                <SectionHeader name={`${repeatLabel} (not found)`} isCollapsed={false} />
               </div>
             )
           }
@@ -398,7 +419,7 @@ export function RenderedSong({ lyrics, transpose, capo, fontSize }: RenderedSong
           return (
             <div key={index} className="section-repeat" data-section-type="repeat">
               <SectionHeader
-                name={segment.name}
+                name={repeatLabel}
                 isCollapsed={isCollapsed}
                 onToggle={() => toggleCollapse(index)}
                 icon={<Repeat2 className="w-3 h-3 flex-shrink-0" style={{ color: "var(--section-accent)" }} />}

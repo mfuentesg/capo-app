@@ -51,7 +51,7 @@ const SUPPORTED_DIRECTIVES = [
   { label: "end_of_grid", detail: "End chord grid section", apply: "end_of_grid}" },
   { label: "eog", detail: "End grid (short)", apply: "eog}" },
   // Section references
-  { label: "repeat", detail: "Reference a named section", apply: "repeat: " },
+  { label: "repeat", detail: "Reference a named section, optionally with count: repeat: Name, 2", apply: "repeat: " },
   // Comments
   { label: "comment", detail: "Inline annotation", apply: "comment: " },
   { label: "c", detail: "Comment (short)", apply: "c: " },
