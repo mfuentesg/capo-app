@@ -580,15 +580,38 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
       {/* Lyrics Content */}
       <div className={cn("px-4 py-8", !isPanel && "container mx-auto")}>
         <div className="w-full">
-          <div className="max-w-5xl mx-auto">
-            {isEditing && (
+          <div
+            className={cn(
+              isEditing && isPreviewing
+                ? "md:grid md:grid-cols-2 md:gap-6 md:items-start"
+                : "max-w-5xl mx-auto"
+            )}
+          >
+            {isEditing && !isPreviewing && (
               <div className="mb-4">
                 <h3 className="text-sm font-medium text-muted-foreground mb-2">
-                  {isPreviewing ? t.songs.preview : t.songs.lyricsFormatInfo}
+                  {t.songs.lyricsFormatInfo}
                 </h3>
               </div>
             )}
 
+            {/* Editor — left panel in desktop side-by-side, hidden on mobile when previewing */}
+            {canEdit && hasInitializedEditor && (
+              <div
+                className={cn(
+                  "rounded-lg border bg-card",
+                  isEditing && isPreviewing
+                    ? "hidden md:block"
+                    : isEditing
+                      ? "block"
+                      : "hidden"
+                )}
+              >
+                <LazySongEditor content={editedLyrics} onChange={handleLyricsChange} />
+              </div>
+            )}
+
+            {/* Rendered song — right panel in desktop side-by-side, full view otherwise */}
             {(isPreviewing || !isEditing) && (
               <div
                 className={cn(
@@ -603,17 +626,6 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
                   capo={capo.value}
                   fontSize={font.value}
                 />
-              </div>
-            )}
-
-            {canEdit && hasInitializedEditor && (
-              <div
-                className={cn(
-                  "rounded-lg border bg-card",
-                  isEditing && !isPreviewing ? "block" : "hidden"
-                )}
-              >
-                <LazySongEditor content={editedLyrics} onChange={handleLyricsChange} />
               </div>
             )}
           </div>
