@@ -1,6 +1,12 @@
+import type { Metadata } from "next"
 import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query"
 import { getSelectedTeamId } from "@/features/app-context/server"
 import { TeamsClient, api, teamsKeys } from "@/features/teams"
+
+export const metadata: Metadata = {
+  title: "Teams",
+  robots: { index: false, follow: false }
+}
 
 export default async function TeamsPage() {
   const queryClient = new QueryClient()

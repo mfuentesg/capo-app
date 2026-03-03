@@ -1,5 +1,12 @@
+import type { Metadata } from "next"
 import { LoginForm } from "@/features/auth"
 import { ThemeToggle } from "@/components/layout"
+
+export const metadata: Metadata = {
+  title: "Sign In",
+  description: "Sign in to Capo to access your personal song library with chords and lyrics.",
+  robots: { index: false, follow: false }
+}
 
 export default function LoginPage() {
   return (

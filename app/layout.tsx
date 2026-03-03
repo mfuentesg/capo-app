@@ -26,10 +26,29 @@ const geistMono = localFont({
   weight: "100 900"
 })
 
+const APP_DESCRIPTION =
+  "A modern song library app for musicians featuring chords and lyrics, built with Next.js and ChordPro format."
+
 export const metadata: Metadata = {
-  title: "Capo",
-  description:
-    "A modern song library app for musicians featuring chords and lyrics, built with Next.js and ChordPro format.",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "https://capo.app"),
+  title: {
+    template: "%s · Capo",
+    default: "Capo — Song library for musicians"
+  },
+  description: APP_DESCRIPTION,
+  openGraph: {
+    type: "website",
+    siteName: "Capo",
+    title: "Capo — Song library for musicians",
+    description: APP_DESCRIPTION,
+    images: [{ url: "/img/optimized/capo.webp", width: 1200, height: 630, alt: "Capo" }]
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Capo — Song library for musicians",
+    description: APP_DESCRIPTION,
+    images: ["/img/optimized/capo.webp"]
+  },
   manifest: "/site.webmanifest",
   icons: {
     icon: [

@@ -1,6 +1,25 @@
+import type { Metadata } from "next"
 import { api, TeamDetailClient } from "@/features/teams"
 import { notFound } from "next/navigation"
 import type { Tables } from "@/lib/supabase/database.types"
+
+export async function generateMetadata({
+  params
+}: {
+  params: Promise<{ id: string }>
+}): Promise<Metadata> {
+  const { id } = await params
+  const team = await api.getTeam(id)
+
+  if (!team) {
+    return { title: "Team Not Found", robots: { index: false, follow: false } }
+  }
+
+  return {
+    title: team.name,
+    robots: { index: false, follow: false }
+  }
+}
 
 export default async function TeamDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
