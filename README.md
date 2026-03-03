@@ -21,6 +21,53 @@ Beyond helping beginners learn, this app serves musicians of all levels by provi
 
 Apart from that, it sounds fascinating and fun 🤓.
 
+## Features
+
+### Song Library
+
+Browse and manage your personal collection of songs. Filter by musical key, BPM range, and status (active/archived). Songs are stored in [ChordPro](https://www.chordpro.org/) format and support rich metadata including BPM, key, and custom tags.
+
+### Lyrics & Chords Editor
+
+View and edit songs with a split-pane interface: a [CodeMirror](https://codemirror.net/)-powered ChordPro editor on one side and a live-rendered lyrics/chord view on the other. Supports per-section chord colors and multi-column layout preferences.
+
+### Playlists
+
+Create and manage playlists of songs. Reorder songs via drag-and-drop. Each playlist can be shared publicly with a unique share code.
+
+### Playlist Draft (Quick Add)
+
+A cart-like interface for quickly building playlists. Add songs to a draft from anywhere in the library, then save the draft as a new or existing playlist.
+
+### Playlist Sharing
+
+Share any playlist publicly via a unique share code. Recipients can view the full playlist and individual song sheets without needing an account.
+
+### Song Creation & Editing
+
+Create new songs or edit existing ones using the ChordPro format. The song editor includes syntax highlighting, live preview, and metadata fields (title, artist, key, BPM).
+
+### Teams & Collaboration
+
+Create teams and invite other users by email. Team members share a common song library and playlists. Manage pending invitations and switch between personal and team contexts.
+
+### Dashboard
+
+An overview page showing library stats (total songs, playlists, teams) and recently added songs for quick access.
+
+### Activity Tracking
+
+Tracks user engagement across the app to surface relevant content and support future personalization.
+
+### Settings
+
+- **Theme**: Switch between light and dark mode.
+- **Language**: Change the UI language (i18n support).
+
+### Authentication
+
+Sign in with Google OAuth. Sessions are managed via Supabase Auth.
+
 ## Stack
 
 - NextJS
@@ -40,19 +87,6 @@ This project uses **Feature-Based Architecture (FBA)** for better code organizat
   - Testing patterns
   - Deployment checklist
 
-### 📁 Project Structure
-
-```
-features/          # Feature-based modules (organized by business domain)
-├── songs/         # Song library management
-├── playlists/     # Playlist management
-├── settings/      # User settings
-└── ... (see FBA_GUIDE.md for complete structure)
-
-app/              # Next.js routes
-lib/              # Shared utilities and constants
-types/            # Global type definitions
-```
 
 ## Getting started
 

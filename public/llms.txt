@@ -1,0 +1,61 @@
+# Capo
+
+> Capo is a song library for musicians. Organize your songs with chords and lyrics, build setlists as playlists, collaborate with your band through teams, and share setlists publicly via a link.
+
+Capo uses a Feature-Based Architecture (FBA) where all business logic lives in `features/[feature-name]/`. Each feature exposes a public API through its `index.ts`. Cross-feature imports must always go through the public API (never from internal paths).
+
+## Features
+
+- [Song Library](/dashboard/songs): Browse and manage a personal song collection. Filter by musical key, BPM range, and status (active/archived). Songs are stored in ChordPro format with metadata including title, artist, key, BPM, capo, and transpose settings.
+- [Lyrics & Chords Editor](/dashboard/songs/[id]): Split-pane interface with a CodeMirror-powered ChordPro editor and a live-rendered lyrics/chord view. Supports per-section chord colors, multi-column layout, and minimalist view mode.
+- [Playlists](/dashboard/playlists): Create and manage playlists of songs. Songs can be reordered via drag-and-drop. Each playlist can be made public and shared via a unique share code.
+- [Playlist Draft](/dashboard/playlists): A cart-like interface for quickly building playlists. Add songs from anywhere in the library into a draft, then save as a new or existing playlist.
+- [Playlist Sharing](/shared/[shareCode]): Share any playlist publicly via a unique share code. Recipients can view the full playlist and individual song sheets without needing an account.
+- [Song Creation & Editing](/dashboard/songs): Create new songs or edit existing ones using ChordPro format. The editor includes syntax highlighting, live preview, and all metadata fields.
+- [Teams](/dashboard/teams): Create teams and invite other users by email. Team members share a song library and playlists. Switch between personal and team contexts.
+- [Dashboard](/dashboard): Overview showing library stats (total songs, playlists, teams) and recently added songs.
+- [Activity Tracking]: Tracks user engagement to surface relevant content.
+- [Settings]: Switch between light and dark mode. Change the UI language (i18n support with validation).
+- [Authentication]: Sign in with Google OAuth. Sessions are managed via Supabase Auth.
+
+## App Routes
+
+Public routes (no authentication required):
+- `/` — Sign-in page
+- `/shared/[shareCode]` — Publicly shared playlist view
+- `/teams/accept-invitation` — Accept a team invitation
+
+Protected routes (require authentication):
+- `/dashboard` — Main dashboard
+- `/dashboard/songs` — Song library browser
+- `/dashboard/songs/[id]` — Individual song lyrics and chord view
+- `/dashboard/playlists` — Playlist management
+- `/dashboard/teams` — Team list
+- `/dashboard/teams/new` — Create a new team
+- `/dashboard/teams/[id]` — Team detail (members, invitations)
+- `/dashboard/invitations` — Pending team invitations
+
+## Tech Stack
+
+- **Framework**: Next.js (App Router) with TypeScript 5
+- **UI**: TailwindCSS 4 + shadcn/ui + Radix UI headless components
+- **Backend**: Supabase (PostgreSQL + Supabase Auth)
+- **Server state**: React Query (@tanstack/react-query)
+- **Client state**: React Context (scoped per feature)
+- **Editor**: CodeMirror with ChordPro syntax highlighting
+- **Song format**: ChordPro (parsed with chordsheetjs)
+- **Forms**: react-hook-form + Zod validation
+- **Drag and drop**: @dnd-kit and @hello-pangea/dnd
+- **Testing**: Jest + @testing-library/react (80% coverage threshold)
+- **i18n**: Custom hook with validated translation files
+
+## Developer Resources
+
+- [README](https://github.com/mfuentesg/capo-app/blob/main/README.md): Project overview, feature descriptions, and getting-started guide.
+- [FBA Guide](https://github.com/mfuentesg/capo-app/blob/main/features/docs/FBA_GUIDE.md): Complete Feature-Based Architecture guide covering patterns, testing, and deployment checklist.
+- [CLAUDE.md](https://github.com/mfuentesg/capo-app/blob/main/CLAUDE.md): Developer commands, architecture rules, data layer patterns, and code style guidelines.
+
+## Optional
+
+- [GitHub Repository](https://github.com/mfuentesg/capo-app): Source code, issues, and pull requests.
+- [Buy Me a Coffee](https://www.buymeacoffee.com/mfuentesg): Support the project.
