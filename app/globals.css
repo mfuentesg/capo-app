@@ -189,7 +189,6 @@
 .section-repeat-content {
   border-left: 2px solid var(--section-accent);
   padding-left: 1rem;
-  font-size: 14px;
 }
 
 .section-label {
