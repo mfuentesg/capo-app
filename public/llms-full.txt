@@ -1,0 +1,339 @@
+# Capo — Full Documentation for LLMs
+
+> Capo is a modern song library app for musicians. It organizes songs in ChordPro format with chords and lyrics, supports playlists, team collaboration, and public playlist sharing. Built with Next.js (App Router), Supabase, React Query, and TailwindCSS + shadcn/ui.
+
+---
+
+## Project Overview
+
+Capo provides musicians of all levels with an organized song library featuring easy access to chords and lyrics for practice and performance. Songs are stored in the [ChordPro](https://www.chordpro.org/) open format, which embeds chord names directly into lyrics text.
+
+The name "Capo" refers to the device that clamps onto a guitar neck to change the key while allowing open-chord shapes — a fitting metaphor for a tool that makes music more accessible.
+
+---
+
+## Feature Reference
+
+### Song Library (`features/songs`)
+
+The core feature. Users can:
+- Browse their full song collection with search
+- Filter by musical key (C, C#, D, D#, E, F, F#, G, G#, A, A#, B), BPM range, or active/archived status
+- Group songs by key or artist
+- View recently added songs on the dashboard
+
+**Key types:**
+```typescript
+interface Song {
+  id: string
+  title: string
+  artist: string
+  key: string
+  bpm: number
+  lyrics?: string       // ChordPro-formatted content
+  notes?: string
+  tags?: string[]
+  fontSize?: number
+  transpose?: number
+  capo?: number
+  isDraft?: boolean
+}
+
+interface UserSongSettings {
+  songId: string
+  capo: number          // Per-user capo override
+  transpose: number     // Per-user transpose override
+  fontSize?: number
+}
+
+interface UserPreferences {
+  minimalistLyricsView: boolean
+  lyricsColumns: 1 | 2
+}
+```
+
+**Public API hooks:** `useSongs`, `useUpdateSong`, `useUserSongSettings`, `useUpsertUserSongSettings`, `useEffectiveSongSettings`, `useAllUserSongSettings`, `useUserPreferences`, `useUpsertUserPreferences`
+
+---
+
+### Lyrics & Chords Editor (`features/lyrics-editor`)
+
+A split-pane view for reading and editing songs:
+- **Left pane**: CodeMirror editor with ChordPro syntax highlighting (Catppuccin theme)
+- **Right pane**: Live-rendered chord sheet with styled chord names above lyrics
+- Per-section chord color customization
+- Multi-column layout (1 or 2 columns) stored as a user preference
+- Minimalist view mode (hides UI chrome for performance/rehearsal)
+- Transpose and capo controls per user per song
+
+**Public API:** `LyricsView`, `RenderedSong`, `LazySongEditor`, `useLyricsSettings`
+
+---
+
+### Song Creation & Editing (`features/song-draft`)
+
+Form-based UI for creating and editing songs:
+- All metadata fields: title, artist, key, BPM, capo, transpose, notes, tags
+- ChordPro lyrics editor with live preview
+- Draft mode (songs not yet published to the library)
+
+**Key type:**
+```typescript
+interface DraftSong {
+  title: string
+  artist: string
+  key: string
+  bpm: number
+  capo?: number
+  transpose?: number
+  lyrics?: string
+  notes?: string
+  tags?: string[]
+}
+```
+
+---
+
+### Playlists (`features/playlists`)
+
+Create and manage playlists of songs:
+- Create, rename, and delete playlists
+- Add/remove songs from a playlist
+- Reorder songs within a playlist via drag-and-drop
+- Each playlist can be set to public visibility with a unique share code
+
+**Key types:**
+```typescript
+interface Playlist {
+  id: string
+  name: string
+  description?: string
+  date?: string
+  songs: string[]           // Array of song IDs
+  createdAt: string
+  updatedAt: string
+  isDraft?: boolean
+  visibility?: "private" | "public"
+  allowGuestEditing?: boolean
+  shareCode?: string
+}
+
+interface PlaylistWithSongs extends Omit<Playlist, "songs"> {
+  songs: Song[]             // Fully resolved Song objects
+}
+```
+
+**Public API hooks:** `usePlaylists`, `useCreatePlaylist`, `useUpdatePlaylist`, `useDeletePlaylist`, `useAddSongsToPlaylist`, `useReorderPlaylistSongs`
+
+---
+
+### Playlist Draft / Quick Add (`features/playlist-draft`)
+
+A cart-style interface for assembling playlists on the fly:
+- Add songs from the library to a floating draft tray
+- Re-order draft songs before saving
+- Save the draft as a brand-new playlist or append to an existing one
+- Draft state is stored in React Context (scoped to the session)
+
+**Public API:** `NewSongsProvider`, `useNewSongs` context hook
+
+---
+
+### Playlist Sharing (`features/playlist-sharing`)
+
+Allows sharing a playlist publicly without requiring sign-in:
+- Each public playlist has a unique `shareCode` (short alphanumeric string)
+- Shareable link format: `/shared/[shareCode]`
+- The shared view renders the full playlist with all song sheets
+- No authentication required to view a shared playlist
+
+---
+
+### Teams & Collaboration (`features/teams`)
+
+Multi-user team support:
+- Create a named team; you become the owner
+- Invite other users by email; they receive an invitation link
+- Team members share a common song library and playlists
+- Switch between personal context and a team context via the app header
+- Manage pending invitations at `/dashboard/invitations`
+- Team detail page shows members and open invitations
+
+**Database schema fields on `teams` table:** `id`, `name`, `avatar_url`, `icon`, `created_by`, `is_public`, `created_at`, `updated_at`
+
+---
+
+### Dashboard (`features/dashboard`)
+
+The main landing page after sign-in:
+- Shows aggregate stats: total songs, total playlists, total teams
+- Shows recently added songs for quick access
+- Data is fetched server-side and passed as initial props to React Query
+
+---
+
+### Activity Tracking (`features/activity`)
+
+Records user actions across the app (song views, playlist changes, etc.) to power the "recently viewed" experience and future personalization.
+
+---
+
+### Settings (`features/settings`)
+
+User-configurable preferences:
+- **Theme**: Light, dark, or system (via `next-themes`)
+- **Language**: Switch UI locale; preference stored in a cookie (`NEXT_LOCALE`)
+- Available locales are validated at build time with `pnpm i18n:validate`
+
+---
+
+### Authentication (`features/auth`)
+
+- Google OAuth via Supabase Auth
+- Server-side session management using Next.js server components
+- `AuthStateProvider` listens for auth state changes and keeps React Query in sync
+- Protected routes redirect unauthenticated users to `/`
+
+**Public API hooks:** `useSession`, `useSignInWithGoogle`, `useSignOut`, `useUser`
+
+---
+
+### App Context (`features/app-context`)
+
+Global state shared across the entire app:
+- Tracks the currently selected team (or personal context)
+- Provides `AppContextProvider` and `useAppContext` hook
+- Initial state is fetched server-side in the root layout and passed as props to avoid SSR mismatches
+
+---
+
+## Architecture: Feature-Based Architecture (FBA)
+
+All business logic lives in `features/[feature-name]/`. Three rules:
+
+1. **Organize by Feature** — code belongs in `features/[feature-name]/`
+2. **Use Public APIs** — always import from `@/features/[name]` (never from internal paths)
+3. **Export from index.ts** — each feature's contract is its `features/[name]/index.ts`
+
+```
+features/[name]/
+├── components/      # UI components
+├── hooks/           # Custom React hooks
+├── types/           # TypeScript interfaces
+├── utils/           # Utility functions
+├── contexts/        # React Context state (if needed)
+├── api/             # Server actions (actions.ts)
+├── data/            # Data fetching utilities
+├── __tests__/       # Tests and fixtures
+└── index.ts         # PUBLIC API — the only import point
+```
+
+**Cross-feature import rule:**
+```typescript
+// ✅ CORRECT
+import { usePlaylistDraft } from "@/features/playlist-draft"
+
+// ❌ WRONG — never import from internal paths
+import { usePlaylistDraft } from "@/features/playlist-draft/contexts/playlist-draft.context"
+```
+
+---
+
+## Data Layer
+
+- `lib/supabase/client.ts` — browser-side Supabase client
+- `lib/supabase/server.ts` — server-side Supabase client (Next.js server components / actions)
+- `lib/supabase/database.types.ts` — auto-generated types from schema (do not edit manually; regenerate with `pnpm types:generate`)
+- `lib/supabase/apply-context-filter.ts` — shared query filter that scopes all queries to the current team or user
+- Server actions live in `features/[name]/api/actions.ts`
+
+**SSR hydration pattern** (avoids `HydrationBoundary` mismatches):
+```tsx
+// Server component (page)
+const initialPlaylists = await api.getPlaylists(context).catch(() => [])
+return <PlaylistsClient initialPlaylists={initialPlaylists} />
+
+// Client component
+export function PlaylistsClient({ initialPlaylists = [] }: { initialPlaylists?: Playlist[] }) {
+  const { data: playlists = initialPlaylists } = usePlaylists()
+  // ...
+}
+```
+
+---
+
+## App Routes
+
+| Route | Access | Description |
+|---|---|---|
+| `/` | Public | Sign-in page (Google OAuth) |
+| `/shared/[shareCode]` | Public | Shared playlist view (no auth required) |
+| `/teams/accept-invitation` | Public | Accept a team invitation |
+| `/dashboard` | Protected | Main dashboard with stats |
+| `/dashboard/songs` | Protected | Song library browser |
+| `/dashboard/songs/[id]` | Protected | Song lyrics and chord editor |
+| `/dashboard/playlists` | Protected | Playlist management |
+| `/dashboard/teams` | Protected | Team list |
+| `/dashboard/teams/new` | Protected | Create a new team |
+| `/dashboard/teams/[id]` | Protected | Team detail (members, invitations) |
+| `/dashboard/invitations` | Protected | Pending team invitations |
+
+---
+
+## SEO & Metadata
+
+- All page titles use the template `"%s · Capo"` defined in the root layout
+- Public pages (shared playlists) use `generateMetadata` to set dynamic OpenGraph and Twitter card tags
+- All protected dashboard routes have `robots: { index: false, follow: false }` to prevent indexing
+
+---
+
+## Development Commands
+
+```bash
+pnpm dev              # Start dev server at http://localhost:3000
+pnpm build            # Production build
+pnpm typecheck        # TypeScript type checking
+pnpm lint             # ESLint (zero warnings tolerance)
+pnpm lint:fix         # ESLint auto-fix
+pnpm test             # Run Jest tests
+pnpm test:watch       # Jest watch mode
+pnpm test:coverage    # Jest with coverage report
+pnpm types:generate   # Regenerate lib/supabase/database.types.ts
+pnpm i18n:validate    # Validate translation files
+pnpm supabase start   # Start local Supabase (requires Docker)
+pnpm supabase stop    # Stop local Supabase
+```
+
+---
+
+## Code Style
+
+Enforced by Prettier:
+- No semicolons
+- Double quotes
+- Print width: 100 characters
+- No trailing commas
+- 2-space indentation
+
+ESLint is strict: zero warnings allowed, `@typescript-eslint/no-explicit-any` enforced.
+
+---
+
+## Testing
+
+- Tests use Jest + `@testing-library/react` with jsdom
+- Test files live in `features/[name]/__tests__/` and `lib/__tests__/`
+- Fixtures (mock data) go in `__tests__/fixtures/`
+- Coverage threshold: 80% branches/functions/lines/statements
+- Run a single test file: `pnpm test -- --testPathPattern=features/songs/__tests__/hooks/use-songs.test.ts`
+
+---
+
+## Database
+
+- Migrations in `supabase/migrations/`
+- Always create migrations via CLI: `pnpm supabase migration new "describe_your_change"`
+- Apply migrations: `pnpm supabase migration up --local`
+- Regenerate types after schema changes: `pnpm types:generate`
+- Local Supabase: API `localhost:54321`, DB `localhost:54322`, Studio `localhost:54323`

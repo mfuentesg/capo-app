@@ -1,0 +1,41 @@
+User-agent: *
+Allow: /
+Allow: /shared/
+Disallow: /dashboard/
+Disallow: /api/
+
+# AI/LLM crawlers — allow access to public content
+User-agent: GPTBot
+Allow: /
+Allow: /shared/
+Disallow: /dashboard/
+
+User-agent: ChatGPT-User
+Allow: /
+Allow: /shared/
+Disallow: /dashboard/
+
+User-agent: ClaudeBot
+Allow: /
+Allow: /shared/
+Disallow: /dashboard/
+
+User-agent: anthropic-ai
+Allow: /
+Allow: /shared/
+Disallow: /dashboard/
+
+User-agent: PerplexityBot
+Allow: /
+Allow: /shared/
+Disallow: /dashboard/
+
+User-agent: GoogleBot
+Allow: /
+Allow: /shared/
+Disallow: /dashboard/
+
+User-agent: Googlebot-Extended
+Allow: /
+Allow: /shared/
+Disallow: /dashboard/
