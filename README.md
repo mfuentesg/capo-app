@@ -87,28 +87,6 @@ This project uses **Feature-Based Architecture (FBA)** for better code organizat
   - Testing patterns
   - Deployment checklist
 
-### 📁 Project Structure
-
-```
-features/              # Feature-based modules (organized by business domain)
-├── songs/             # Song library management
-├── playlists/         # Playlist management
-├── playlist-draft/    # Quick-add-to-playlist cart
-├── lyrics-editor/     # Song lyrics display and ChordPro editing
-├── playlist-sharing/  # Share playlists via share codes
-├── song-draft/        # Song creation and editing
-├── settings/          # Theme, language, user preferences
-├── auth/              # Google OAuth authentication
-├── dashboard/         # Dashboard stats and recent songs
-├── activity/          # Activity tracking
-├── teams/             # Team management and invitations
-└── app-context/       # Global app context (team selection)
-
-app/                   # Next.js App Router routes
-lib/                   # Shared utilities, Supabase clients, i18n
-types/                 # Global type definitions
-supabase/              # Database migrations and config
-```
 
 ## Getting started
 
