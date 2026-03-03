@@ -69,6 +69,7 @@ function ActiveSongLyricsForShare({ song, onClose, isAuthenticated }: ActiveSong
       initialSettings={effectiveSettings}
       onSettingsChange={isAuthenticated ? upsertSettings : undefined}
       initialMinimalistView={preferences?.minimalistLyricsView ?? false}
+      initialLyricsColumns={preferences?.lyricsColumns ?? 2}
     />
   )
 }

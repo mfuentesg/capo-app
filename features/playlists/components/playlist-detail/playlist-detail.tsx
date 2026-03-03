@@ -95,6 +95,7 @@ const ActiveSongLyrics = forwardRef<LyricsViewHandle, ActiveSongLyricsProps>(
         initialSettings={effectiveSettings}
         onSettingsChange={upsertSettings}
         initialMinimalistView={preferences?.minimalistLyricsView ?? false}
+        initialLyricsColumns={preferences?.lyricsColumns ?? 2}
       />
     )
   }

@@ -10,6 +10,7 @@ interface RenderedSongProps {
   transpose: number
   capo: number
   fontSize: number
+  columns?: 1 | 2
 }
 
 type LyricsSegment =
@@ -38,7 +39,7 @@ const SECTION_DIRECTIVE_MAP: Record<string, string> = {
   start_of_tab: "tab",
   sot: "tab",
   start_of_grid: "grid",
-  sog: "grid",
+  sog: "grid"
 }
 
 const SECTION_DEFAULT_LABELS: Record<string, string> = {
@@ -46,7 +47,7 @@ const SECTION_DEFAULT_LABELS: Record<string, string> = {
   verse: "Verse",
   bridge: "Bridge",
   tab: "Tab",
-  grid: "Grid",
+  grid: "Grid"
 }
 
 const SECTION_END_RE =
@@ -216,7 +217,7 @@ function buildSegments(
             name,
             count,
             html: formatLyricsToHtml(content, transpose, capo),
-            found: true,
+            found: true
           })
         } else {
           segments.push({ type: "repeat", name, count, html: "", found: false })
@@ -232,7 +233,7 @@ function buildSegments(
           type: "section",
           name: value,
           sectionType: "comment",
-          html: formatLyricsToHtml(content, transpose, capo),
+          html: formatLyricsToHtml(content, transpose, capo)
         })
         newPos = matchEnd + (nextBoundary ? nextBoundary.index : remaining.length)
       }
@@ -246,7 +247,12 @@ function buildSegments(
           remaining
         )
       const content = (endMatch ? remaining.slice(0, endMatch.index) : remaining).trim()
-      segments.push({ type: "section", name, sectionType, html: formatLyricsToHtml(content, transpose, capo) })
+      segments.push({
+        type: "section",
+        name,
+        sectionType,
+        html: formatLyricsToHtml(content, transpose, capo)
+      })
       newPos = matchEnd + (endMatch ? endMatch.index + endMatch[0].length : remaining.length)
     }
 
@@ -266,18 +272,18 @@ interface SectionHeaderProps {
 function SectionHeader({ name, isCollapsed, onToggle, icon }: SectionHeaderProps) {
   const dot = (
     <div
-      className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+      className="w-1.5 h-1.5 rounded-full shrink-0"
       style={{
         background: "var(--section-accent)",
         boxShadow:
-          "0 0 0 2px var(--background), 0 0 0 4px color-mix(in oklch, var(--section-accent) 25%, transparent)",
+          "0 0 0 2px var(--background), 0 0 0 4px color-mix(in oklch, var(--section-accent) 25%, transparent)"
       }}
     />
   )
 
   const label = (
     <span
-      className="text-[11px] font-bold uppercase tracking-[0.18em] flex-1"
+      className="text-[12px] font-bold uppercase tracking-[0.18em] flex-1"
       style={{ color: "var(--section-accent)" }}
     >
       {name}
@@ -314,7 +320,13 @@ function SectionHeader({ name, isCollapsed, onToggle, icon }: SectionHeaderProps
   )
 }
 
-export function RenderedSong({ lyrics, transpose, capo, fontSize }: RenderedSongProps) {
+export function RenderedSong({
+  lyrics,
+  transpose,
+  capo,
+  fontSize,
+  columns = 2
+}: RenderedSongProps) {
   const [collapsedSet, setCollapsedSet] = useState<Set<number>>(new Set())
 
   const toggleCollapse = (index: number) => {
@@ -356,7 +368,8 @@ export function RenderedSong({ lyrics, transpose, capo, fontSize }: RenderedSong
   }
 
   if (segments) {
-    const fontStyle = { fontSize: `${fontSize}rem` }
+    const columnStyle = columns === 2 ? { columnCount: 2 as const } : { columnCount: 1 as const }
+    const fontStyle = { fontSize: `${fontSize}rem`, ...columnStyle }
     const hasComplexSegments = segments.some((s) => s.type === "repeat" || s.type === "section")
 
     if (!hasComplexSegments) {
@@ -370,7 +383,7 @@ export function RenderedSong({ lyrics, transpose, capo, fontSize }: RenderedSong
     }
 
     return (
-      <div className="multi-column-lyrics" style={fontStyle}>
+      <div className="multi-column-lyrics space-y-6" style={fontStyle}>
         {segments.map((segment, index) => {
           if (segment.type === "normal") {
             return (
@@ -392,7 +405,7 @@ export function RenderedSong({ lyrics, transpose, capo, fontSize }: RenderedSong
                   onToggle={() => toggleCollapse(index)}
                 />
                 {!isCollapsed && (
-                  <div className="section-repeat-content">
+                  <div className="section-repeat-content [&_.chord]:[color:var(--section-accent)]">
                     <pre
                       className="chordsheet-content"
                       dangerouslySetInnerHTML={{ __html: segment.html }}
@@ -409,7 +422,11 @@ export function RenderedSong({ lyrics, transpose, capo, fontSize }: RenderedSong
 
           if (!segment.found) {
             return (
-              <div key={index} className="section-repeat section-repeat--not-found" data-section-type="repeat">
+              <div
+                key={index}
+                className="section-repeat section-repeat--not-found"
+                data-section-type="repeat"
+              >
                 <SectionHeader name={`${repeatLabel} (not found)`} isCollapsed={false} />
               </div>
             )
@@ -422,7 +439,12 @@ export function RenderedSong({ lyrics, transpose, capo, fontSize }: RenderedSong
                 name={repeatLabel}
                 isCollapsed={isCollapsed}
                 onToggle={() => toggleCollapse(index)}
-                icon={<Repeat2 className="w-3 h-3 flex-shrink-0" style={{ color: "var(--section-accent)" }} />}
+                icon={
+                  <Repeat2
+                    className="w-3 h-3 shrink-0"
+                    style={{ color: "var(--section-accent)" }}
+                  />
+                }
               />
               {!isCollapsed && (
                 <div className="section-repeat-content">
@@ -442,7 +464,7 @@ export function RenderedSong({ lyrics, transpose, capo, fontSize }: RenderedSong
   return (
     <div
       className="whitespace-pre-wrap leading-relaxed multi-column-lyrics"
-      style={{ fontSize: `${fontSize}rem`, lineHeight: 1.8 }}
+      style={{ fontSize: `${fontSize}rem`, lineHeight: 1.4, columnCount: columns }}
     >
       {lyrics}
     </div>

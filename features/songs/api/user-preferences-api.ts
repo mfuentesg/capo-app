@@ -6,10 +6,11 @@ type PreferencesJson = Database["public"]["Tables"]["profiles"]["Row"]["preferen
 
 function mapJsonToPreferences(json: PreferencesJson): UserPreferences {
   if (typeof json !== "object" || json === null || Array.isArray(json)) {
-    return { minimalistLyricsView: false }
+    return { minimalistLyricsView: false, lyricsColumns: 2 }
   }
   return {
-    minimalistLyricsView: json["minimalistLyricsView"] === true
+    minimalistLyricsView: json["minimalistLyricsView"] === true,
+    lyricsColumns: json["lyricsColumns"] === 1 ? 1 : 2
   }
 }
 
@@ -66,7 +67,10 @@ export async function upsertUserPreferences(
   const { data, error } = await supabase
     .from("profiles")
     .update({
-      preferences: { minimalistLyricsView: preferences.minimalistLyricsView },
+      preferences: {
+        minimalistLyricsView: preferences.minimalistLyricsView,
+        lyricsColumns: preferences.lyricsColumns
+      },
       updated_at: new Date().toISOString()
     })
     .eq("id", userId)

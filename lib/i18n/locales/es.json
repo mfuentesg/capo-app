@@ -135,7 +135,10 @@
       "displaySettingsDescription": "Ajusta el tamaño de fuente, transposición y cejilla",
       "fontSize": "Tamaño de Fuente",
       "minimalistView": "Vista minimalista",
-      "standardView": "Vista estándar"
+      "standardView": "Vista estándar",
+      "columnLayout": "Diseño",
+      "oneColumn": "1 columna",
+      "twoColumns": "2 columnas"
     }
   },
   "playlists": {

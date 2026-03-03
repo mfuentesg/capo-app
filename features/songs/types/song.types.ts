@@ -22,6 +22,7 @@ export interface UserSongSettings {
 
 export interface UserPreferences {
   minimalistLyricsView: boolean
+  lyricsColumns: 1 | 2
 }
 
 export type GroupBy = "none" | "key" | "artist"

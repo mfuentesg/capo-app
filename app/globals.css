@@ -126,44 +126,70 @@
 .chordsheet-content {
   white-space: pre-wrap;
   word-wrap: break-word;
-  line-height: 1.8;
+  line-height: 1.6;
   overflow-x: visible;
   margin: 0;
   max-width: 100%;
 }
 
-.chordsheet-content .chord {
-  color: var(--chord);
-  font-weight: 600;
+@layer base {
+  .chordsheet-content .chord {
+    color: var(--chord);
+    font-weight: 600;
+  }
 }
 
 /* ── Section accent colours by type ─────────────────────────────── */
-.section-repeat[data-section-type="verse"]   { --section-accent: oklch(0.48 0.16 248); }
-.section-repeat[data-section-type="chorus"]  { --section-accent: oklch(0.50 0.17 288); }
-.section-repeat[data-section-type="bridge"]  { --section-accent: oklch(0.50 0.16 350); }
-.section-repeat[data-section-type="comment"] { --section-accent: oklch(0.48 0.14 178); }
-.section-repeat[data-section-type="repeat"]  { --section-accent: oklch(0.50 0.16 65);  }
+.section-repeat[data-section-type="verse"] {
+  --section-accent: oklch(0.48 0.16 248);
+}
+.section-repeat[data-section-type="chorus"] {
+  --section-accent: oklch(0.5 0.17 288);
+}
+.section-repeat[data-section-type="bridge"] {
+  --section-accent: oklch(0.5 0.16 350);
+}
+.section-repeat[data-section-type="comment"] {
+  --section-accent: oklch(0.48 0.14 178);
+}
+.section-repeat[data-section-type="repeat"] {
+  --section-accent: oklch(0.5 0.16 65);
+}
 .section-repeat[data-section-type="tab"],
-.section-repeat[data-section-type="grid"]    { --section-accent: oklch(0.50 0.01 280); }
+.section-repeat[data-section-type="grid"] {
+  --section-accent: oklch(0.5 0.01 280);
+}
 
-.dark .section-repeat[data-section-type="verse"]   { --section-accent: oklch(0.70 0.15 248); }
-.dark .section-repeat[data-section-type="chorus"]  { --section-accent: oklch(0.72 0.16 288); }
-.dark .section-repeat[data-section-type="bridge"]  { --section-accent: oklch(0.70 0.16 350); }
-.dark .section-repeat[data-section-type="comment"] { --section-accent: oklch(0.68 0.14 178); }
-.dark .section-repeat[data-section-type="repeat"]  { --section-accent: oklch(0.75 0.16 65);  }
+.dark .section-repeat[data-section-type="verse"] {
+  --section-accent: oklch(0.7 0.15 248);
+}
+.dark .section-repeat[data-section-type="chorus"] {
+  --section-accent: oklch(0.72 0.16 288);
+}
+.dark .section-repeat[data-section-type="bridge"] {
+  --section-accent: oklch(0.7 0.16 350);
+}
+.dark .section-repeat[data-section-type="comment"] {
+  --section-accent: oklch(0.68 0.14 178);
+}
+.dark .section-repeat[data-section-type="repeat"] {
+  --section-accent: oklch(0.75 0.16 65);
+}
 .dark .section-repeat[data-section-type="tab"],
-.dark .section-repeat[data-section-type="grid"]    { --section-accent: oklch(0.65 0.01 280); }
+.dark .section-repeat[data-section-type="grid"] {
+  --section-accent: oklch(0.65 0.01 280);
+}
 
 /* ── Section block ───────────────────────────────────────────────── */
 .section-repeat {
   --section-accent: var(--muted-foreground);
-  margin: 1.25rem 0;
   break-inside: avoid;
 }
 
 .section-repeat-content {
   border-left: 2px solid var(--section-accent);
   padding-left: 1rem;
+  font-size: 14px;
 }
 
 .section-label {

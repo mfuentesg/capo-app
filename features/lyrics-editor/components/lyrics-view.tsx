@@ -17,7 +17,8 @@ import {
   Pencil,
   Save,
   Minimize2,
-  Maximize2
+  Maximize2,
+  Columns2
 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import type { Song } from "@/types"
@@ -55,6 +56,7 @@ interface LyricsViewProps {
   initialSettings?: { capo?: number; transpose?: number; fontSize?: number }
   onSettingsChange?: (settings: { capo: number; transpose: number; fontSize: number }) => void
   initialMinimalistView?: boolean
+  initialLyricsColumns?: 1 | 2
 }
 
 export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function LyricsView(
@@ -67,7 +69,8 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
     isSaving = false,
     initialSettings,
     onSettingsChange,
-    initialMinimalistView = false
+    initialMinimalistView = false,
+    initialLyricsColumns = 2
   }: LyricsViewProps,
   ref
 ) {
@@ -80,12 +83,21 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
   const [savedLyrics, setSavedLyrics] = useState(song.lyrics || "")
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
   const [isMinimalist, setIsMinimalist] = useState(initialMinimalistView)
+  const [lyricsColumns, setLyricsColumnsState] = useState<1 | 2>(initialLyricsColumns)
   const { mutate: upsertPreferences } = useUpsertUserPreferences()
 
   const setMinimalistView = useCallback(
     (value: boolean) => {
       setIsMinimalist(value)
       upsertPreferences({ minimalistLyricsView: value })
+    },
+    [upsertPreferences]
+  )
+
+  const setLyricsColumns = useCallback(
+    (value: 1 | 2) => {
+      setLyricsColumnsState(value)
+      upsertPreferences({ lyricsColumns: value })
     },
     [upsertPreferences]
   )
@@ -277,6 +289,34 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
             className="text-xs"
           >
             {t.songs.reset}
+          </Button>
+        </div>
+      </div>
+
+      <Separator />
+
+      {/* Column Layout */}
+      <div className="space-y-2">
+        <div className="flex items-center gap-2">
+          <Columns2 className="h-4 w-4" />
+          <span className="text-sm font-medium">{t.songs.lyrics.columnLayout}</span>
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <Button
+            onClick={() => setLyricsColumns(1)}
+            variant={lyricsColumns === 1 ? "default" : "outline"}
+            size="sm"
+            className="justify-center"
+          >
+            {t.songs.lyrics.oneColumn}
+          </Button>
+          <Button
+            onClick={() => setLyricsColumns(2)}
+            variant={lyricsColumns === 2 ? "default" : "outline"}
+            size="sm"
+            className="justify-center"
+          >
+            {t.songs.lyrics.twoColumns}
           </Button>
         </div>
       </div>
@@ -614,6 +654,7 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
                   transpose={transpose.value}
                   capo={capo.value}
                   fontSize={font.value}
+                  columns={lyricsColumns}
                 />
               </div>
             )}

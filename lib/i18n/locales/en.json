@@ -135,7 +135,10 @@
       "displaySettingsDescription": "Adjust font size, transpose, and capo",
       "fontSize": "Font Size",
       "minimalistView": "Minimalist view",
-      "standardView": "Standard view"
+      "standardView": "Standard view",
+      "columnLayout": "Layout",
+      "oneColumn": "1 column",
+      "twoColumns": "2 columns"
     }
   },
   "playlists": {

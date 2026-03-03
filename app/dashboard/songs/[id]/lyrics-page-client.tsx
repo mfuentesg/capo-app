@@ -14,12 +14,14 @@ interface LyricsPageClientProps {
   song: Song
   initialUserSettings: UserSongSettings | null
   initialMinimalistView: boolean
+  initialLyricsColumns?: 1 | 2
 }
 
 export function LyricsPageClient({
   song,
   initialUserSettings,
-  initialMinimalistView
+  initialMinimalistView,
+  initialLyricsColumns = 2
 }: LyricsPageClientProps) {
   const { mutate: updateSong, isPending: isSaving } = useUpdateSong()
   useUserSongSettings(song, initialUserSettings)
@@ -34,6 +36,7 @@ export function LyricsPageClient({
       initialSettings={effectiveSettings}
       onSettingsChange={upsertSettings}
       initialMinimalistView={initialMinimalistView}
+      initialLyricsColumns={initialLyricsColumns}
     />
   )
 }
