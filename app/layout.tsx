@@ -27,10 +27,10 @@ const geistMono = localFont({
 })
 
 const APP_DESCRIPTION =
-  "A modern song library app for musicians featuring chords and lyrics, built with Next.js and ChordPro format."
+  "Your personal song library for practice and performance. Organize songs with chords and lyrics, build setlists, and collaborate with your band."
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "https://capo.app"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "https://capo.mfuentesg.dev"),
   title: {
     template: "%s · Capo",
     default: "Capo — Song library for musicians"

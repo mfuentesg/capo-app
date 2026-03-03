@@ -1,6 +1,6 @@
 # Capo
 
-> Capo is a modern song library app for musicians. It organizes songs in [ChordPro](https://www.chordpro.org/) format with chords and lyrics, supports playlists, team collaboration, and public playlist sharing. Built with Next.js (App Router), Supabase, React Query, and TailwindCSS + shadcn/ui.
+> Capo is a song library for musicians. Organize your songs with chords and lyrics, build setlists as playlists, collaborate with your band through teams, and share setlists publicly via a link.
 
 Capo uses a Feature-Based Architecture (FBA) where all business logic lives in `features/[feature-name]/`. Each feature exposes a public API through its `index.ts`. Cross-feature imports must always go through the public API (never from internal paths).
 
