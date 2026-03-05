@@ -57,7 +57,6 @@ function parseChord(chordName: string) {
   if (!chordName) return null
 
   // Split key and suffix
-  // Key is [A-G][#b]?
   const match = chordName.match(/^([A-G][#b]?)(.*)$/)
   if (!match) return null
 
@@ -65,7 +64,7 @@ function parseChord(chordName: string) {
   let key = rawKey
   let suffix = rawSuffix
 
-  // Normalize key
+  // Normalize key to standard database keys
   const keyMap: Record<string, string> = {
     "A#": "Bb",
     Db: "C#",
@@ -78,17 +77,26 @@ function parseChord(chordName: string) {
     key = keyMap[key]
   }
 
+  // Handle the database weirdness where C# and F# are named Csharp and Fsharp in the chords object
+  const dbKeyMap: Record<string, string> = {
+    "C#": "Csharp",
+    "F#": "Fsharp",
+  }
+
+  const lookupKey = dbKeyMap[key] || key
+
   // Normalize suffix
-  if (!suffix || suffix === "") {
+  if (!suffix || suffix === "" || suffix.toLowerCase() === "maj") {
     suffix = "major"
-  } else if (suffix === "m") {
+  } else if (suffix.toLowerCase() === "m" || suffix.toLowerCase() === "min") {
     suffix = "minor"
   }
 
-  // Handle common suffixes that might not match exactly
+  // Handle common suffix aliases
   const suffixMap: Record<string, string> = {
-    maj: "major",
-    min: "minor",
+    maj7: "maj7",
+    min7: "m7",
+    m7: "m7",
     dim7: "dim7",
     sus2: "sus2",
     sus4: "sus4",
@@ -98,7 +106,7 @@ function parseChord(chordName: string) {
     suffix = suffixMap[suffix]
   }
 
-  return { key, suffix }
+  return { key: lookupKey, suffix }
 }
 
 export function ChordDiagram({ chordName, onClose }: ChordDiagramProps) {
