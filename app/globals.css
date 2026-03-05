@@ -128,7 +128,15 @@
 }
 
 .chordsheet-content .chord {
-  @apply font-semibold [color:var(--chord)];
+  @apply font-semibold cursor-pointer [color:var(--chord)];
+}
+
+.section-repeat-content .chord {
+  color: var(--section-accent) !important;
+}
+
+.chordsheet-content .chord:hover {
+  @apply underline;
 }
 
 /* ── Section accent colours by type ─────────────────────────────── */

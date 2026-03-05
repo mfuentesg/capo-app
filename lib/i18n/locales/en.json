@@ -409,6 +409,20 @@
     "fetchFailed": "Failed to fetch invitations",
     "loadFailed": "Failed to load invitations"
   },
+  "chords": {
+    "title": "Chord: {chordName}",
+    "noDiagram": "No diagram available for this chord.",
+    "positionOf": "Position {current} of {total}",
+    "variation": "Variation {count}",
+    "notFound": "not found"
+  },
+  "songSections": {
+    "chorus": "Chorus",
+    "verse": "Verse",
+    "bridge": "Bridge",
+    "tab": "Tab",
+    "grid": "Grid"
+  },
   "activity": {
     "noActivity": "No activity yet",
     "noActivityDescription": "Your recent actions will appear here"

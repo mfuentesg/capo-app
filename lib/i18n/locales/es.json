@@ -410,6 +410,20 @@
     "fetchFailed": "Error al obtener las invitaciones",
     "loadFailed": "Error al cargar las invitaciones"
   },
+  "chords": {
+    "title": "Acorde: {chordName}",
+    "noDiagram": "No hay diagrama disponible para este acorde.",
+    "positionOf": "Posición {current} de {total}",
+    "variation": "Variación {count}",
+    "notFound": "no encontrado"
+  },
+  "songSections": {
+    "chorus": "Coro",
+    "verse": "Verso",
+    "bridge": "Puente",
+    "tab": "Tablatura",
+    "grid": "Grilla"
+  },
   "activity": {
     "noActivity": "Aún no hay actividad",
     "noActivityDescription": "Tus acciones recientes aparecerán aquí"
