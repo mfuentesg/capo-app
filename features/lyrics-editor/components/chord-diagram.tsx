@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { Chord as ChordJS } from "chordsheetjs"
 // @ts-expect-error - no types for this library
 import Chord from "@tombatossals/react-chords/lib/Chord"
 import guitarDataRaw from "@tombatossals/chords-db/lib/guitar.json"
@@ -14,6 +15,10 @@ import {
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useLocale } from "@/features/settings"
+// @ts-expect-error - no types for this library
+import { findGuitarChord as findGuitarChordRaw } from "chord-fingering"
+
+const findGuitarChord = findGuitarChordRaw as (chordName: string) => GeneratedChord
 
 interface ChordPosition {
   frets: number[]
@@ -21,7 +26,7 @@ interface ChordPosition {
   baseFret: number
   barres: number[]
   capo?: boolean
-  midi: number[]
+  midi?: number[]
 }
 
 interface ChordVariation {
@@ -52,61 +57,181 @@ interface ChordDiagramProps {
   onClose: () => void
 }
 
+interface GeneratedPosition {
+  stringIndex: number
+  fret: number
+}
+
+interface GeneratedFingering {
+  positions: GeneratedPosition[]
+  barre: { fret: number } | null
+}
+
+interface GeneratedChord {
+  fingerings: GeneratedFingering[]
+}
+
+// Transform chord-fingering output to react-chords format
+function transformGeneratedChord(generated: GeneratedChord): ChordPosition[] {
+  if (!generated || !generated.fingerings) return []
+
+  return generated.fingerings.map((f) => {
+    const frets = [-1, -1, -1, -1, -1, -1]
+    f.positions.forEach((p) => {
+      if (p.stringIndex >= 0 && p.stringIndex < 6) {
+        frets[p.stringIndex] = p.fret
+      }
+    })
+
+    const activeFrets = frets.filter((fr) => fr > 0)
+    let baseFret = 1
+
+    if (activeFrets.length > 0) {
+      const maxFret = Math.max(...activeFrets)
+      if (maxFret > 4) {
+        baseFret = Math.min(...activeFrets)
+      }
+    }
+
+    const relativeFrets = frets.map((fr) => {
+      if (fr <= 0) return fr
+      return fr - baseFret + 1
+    })
+
+    const barres: number[] = []
+    if (f.barre) {
+      barres.push(f.barre.fret - baseFret + 1)
+    }
+
+    return {
+      frets: relativeFrets,
+      fingers: [0, 0, 0, 0, 0, 0],
+      baseFret: baseFret,
+      barres: barres,
+      capo: false,
+    }
+  })
+}
+
 // Normalize chord names to the database
-function parseChord(chordName: string) {
+function parseChord(
+  chordName: string,
+  options: { allowBaseFallback?: boolean } = { allowBaseFallback: true }
+): { key: string; suffix: string } | null {
   if (!chordName) return null
 
-  // Split key and suffix
-  const match = chordName.match(/^([A-G][#b]?)(.*)$/)
-  if (!match) return null
+  // 1. Pre-normalization
+  const normalizedInput = chordName
+    .replace(/ø/g, "m7b5")
+    .replace(/°/g, "dim")
+    .replace(/Δ/g, "maj7")
+    .replace(/6\/9/g, "69")
 
-  const [, rawKey, rawSuffix] = match
-  let key = rawKey
-  let suffix = rawSuffix
-
-  // Normalize key to standard database keys
-  const keyMap: Record<string, string> = {
-    "A#": "Bb",
-    Db: "C#",
-    "D#": "Eb",
-    Gb: "F#",
-    "G#": "Ab",
+  let parsed: ChordJS | null = null
+  try {
+    parsed = ChordJS.parse(normalizedInput)
+  } catch {
+    const basicMatch = normalizedInput.match(/^([A-G][#b]?)(.*)$/)
+    if (basicMatch) {
+      return { key: basicMatch[1], suffix: basicMatch[2] || "major" }
+    }
+    return null
   }
 
-  if (keyMap[key]) {
-    key = keyMap[key]
+  if (!parsed || !parsed.root || parsed.root.type !== "symbol") {
+    const basicMatch = normalizedInput.match(/^([A-G][#b]?)(.*)$/)
+    if (basicMatch) {
+      const rootName = basicMatch[1]
+      const suffix = basicMatch[2] || "major"
+      return { key: rootName, suffix }
+    }
+    return null
   }
 
-  // Handle the database weirdness where C# and F# are named Csharp and Fsharp in the chords object
-  const dbKeyMap: Record<string, string> = {
-    "C#": "Csharp",
-    "F#": "Fsharp",
+  const getLookupKey = (key: string, modifier: string | null) => {
+    const rootName = key + (modifier || "")
+    const keyMap: Record<string, string> = {
+      "A#": "Bb",
+      Db: "C#",
+      "D#": "Eb",
+      Gb: "F#",
+      "G#": "Ab",
+    }
+    const normalizedKey = keyMap[rootName] || rootName
+    const dbKeyMap: Record<string, string> = {
+      "C#": "Csharp",
+      "F#": "Fsharp",
+    }
+    return dbKeyMap[normalizedKey] || normalizedKey
   }
 
-  const lookupKey = dbKeyMap[key] || key
+  const normalizeSuffix = (rawSuffix: string | null) => {
+    const suffix = (rawSuffix || "").trim().replace(/[()]/g, "")
+    if (suffix === "" || suffix === "major") return "major"
+    if (
+      suffix === "m" ||
+      suffix === "min" ||
+      suffix === "minor" ||
+      suffix === "mi" ||
+      suffix === "-"
+    )
+      return "minor"
+    if (suffix === "ø" || suffix === "ø7" || suffix === "m7b5" || suffix === "-7b5") return "m7b5"
+    if (suffix === "o7" || suffix === "dim7" || suffix === "°7") return "dim7"
+    if (suffix === "o" || suffix === "dim" || suffix === "°") return "dim"
+    if (suffix === "+" || suffix === "aug" || suffix === "+5" || suffix === "#5") return "aug"
+    if (suffix === "sus" || suffix === "sus4") return "sus4"
+    if (suffix === "sus2") return "sus2"
+    if (suffix === "7sus4" || suffix === "7sus") return "7sus4"
+    if (suffix === "6/9" || suffix === "69") return "69"
+    if (suffix === "7" || suffix === "dom7") return "7"
+    if (suffix === "M7" || suffix === "maj7" || suffix === "ma7" || suffix === "Δ" || suffix === "Δ7")
+      return "maj7"
+    if (suffix === "m7" || suffix === "min7" || suffix === "mi7" || suffix === "-7") return "m7"
+    if (suffix === "mM7" || suffix === "m(maj7)" || suffix === "mmaj7" || suffix === "-Δ7")
+      return "mmaj7"
+    if (suffix === "9") return "9"
+    if (suffix === "M9" || suffix === "maj9") return "maj9"
+    if (suffix === "m9" || suffix === "min9" || suffix === "-9") return "m9"
+    if (suffix === "add9" || suffix === "add2" || suffix === "2") return "add9"
+    if (suffix === "11") return "11"
+    if (suffix === "13") return "13"
 
-  // Normalize suffix
-  if (!suffix || suffix === "" || suffix.toLowerCase() === "maj") {
-    suffix = "major"
-  } else if (suffix.toLowerCase() === "m" || suffix.toLowerCase() === "min") {
-    suffix = "minor"
+    const exactMap: Record<string, string> = {
+      "7b9": "7b9",
+      "7#9": "7#9",
+      "7+9": "7#9",
+      m11: "m11",
+      maj13: "maj13",
+      "6": "6",
+      m6: "m6",
+      "-6": "m6",
+    }
+    return exactMap[suffix] || suffix
   }
 
-  // Handle common suffix aliases
-  const suffixMap: Record<string, string> = {
-    maj7: "maj7",
-    min7: "m7",
-    m7: "m7",
-    dim7: "dim7",
-    sus2: "sus2",
-    sus4: "sus4",
+  const lookupKey = getLookupKey(parsed.root.originalKeyString || "", parsed.root.modifier)
+
+  // 1. Try slash chord lookup if applicable
+  if (parsed.bass && parsed.bass.type === "symbol") {
+    const bassNote = parsed.bass.originalKeyString + (parsed.bass.modifier || "")
+    let baseSuffix = (parsed.suffix || "").trim()
+
+    // Database slash chords have suffixes like "/G" or "m/G"
+    if (baseSuffix === "m" || baseSuffix === "min" || baseSuffix === "minor") baseSuffix = "m"
+    else if (baseSuffix === "" || baseSuffix === "maj" || baseSuffix === "major") baseSuffix = ""
+
+    const dbSlashSuffix = (baseSuffix + "/" + bassNote).trim()
+    const exists = guitarData.chords[lookupKey]?.some((c) => c.suffix === dbSlashSuffix)
+    if (exists) return { key: lookupKey, suffix: dbSlashSuffix }
+
+    // If no exact slash match, and we don't want base fallback, return null
+    if (!options.allowBaseFallback) return null
   }
 
-  if (suffixMap[suffix]) {
-    suffix = suffixMap[suffix]
-  }
-
-  return { key: lookupKey, suffix }
+  // 2. Fallback to base chord normalization
+  const normalized = normalizeSuffix(parsed.suffix)
+  return { key: lookupKey, suffix: normalized }
 }
 
 export function ChordDiagram({ chordName, onClose }: ChordDiagramProps) {
@@ -117,15 +242,51 @@ export function ChordDiagram({ chordName, onClose }: ChordDiagramProps) {
     setPositionIndex(0)
   }, [chordName])
 
+  const { positions, totalPositions } = React.useMemo(() => {
+    if (!chordName) return { positions: [], totalPositions: 0 }
+
+    // First try finding the EXACT chord in DB (including slash)
+    const exactParsed = parseChord(chordName, { allowBaseFallback: false })
+    let foundPositions: ChordPosition[] = []
+
+    if (exactParsed) {
+      const { key, suffix } = exactParsed
+      const chordVariations = guitarData.chords[key]?.find((c) => c.suffix === suffix)
+      if (chordVariations) {
+        foundPositions = chordVariations.positions
+      }
+    }
+
+    // Algorithmic fallback if not found in DB exactly
+    if (foundPositions.length === 0) {
+      try {
+        const generated = findGuitarChord(chordName)
+        if (generated && generated.fingerings && generated.fingerings.length > 0) {
+          foundPositions = transformGeneratedChord(generated)
+        }
+      } catch {
+        // Fallback silently if generation fails
+      }
+    }
+
+    // Final fallback: try finding the BASE chord in DB (ignore bass note)
+    if (foundPositions.length === 0) {
+      const baseParsed = parseChord(chordName, { allowBaseFallback: true })
+      if (baseParsed) {
+        const { key, suffix } = baseParsed
+        const chordVariations = guitarData.chords[key]?.find((c) => c.suffix === suffix)
+        if (chordVariations) {
+          foundPositions = chordVariations.positions
+        }
+      }
+    }
+
+    return { positions: foundPositions, totalPositions: foundPositions.length }
+  }, [chordName])
+
   if (!chordName) return null
 
-  const parsed = parseChord(chordName)
-  if (!parsed) return null
-
-  const { key, suffix } = parsed
-  const chordVariations = guitarData.chords[key]?.find((c) => c.suffix === suffix)
-
-  if (!chordVariations) {
+  if (totalPositions === 0) {
     return (
       <Dialog open={!!chordName} onOpenChange={(open) => !open && onClose()}>
         <DialogContent className="sm:max-w-[425px]">
@@ -138,15 +299,14 @@ export function ChordDiagram({ chordName, onClose }: ChordDiagramProps) {
     )
   }
 
-  const positions = chordVariations.positions
   const currentChord = positions[positionIndex]
 
   const handlePrev = () => {
-    setPositionIndex((prev) => (prev > 0 ? prev - 1 : positions.length - 1))
+    setPositionIndex((prev) => (prev > 0 ? prev - 1 : totalPositions - 1))
   }
 
   const handleNext = () => {
-    setPositionIndex((prev) => (prev < positions.length - 1 ? prev + 1 : 0))
+    setPositionIndex((prev) => (prev < totalPositions - 1 ? prev + 1 : 0))
   }
 
   return (
@@ -158,7 +318,7 @@ export function ChordDiagram({ chordName, onClose }: ChordDiagramProps) {
             <span className="text-sm font-normal text-muted-foreground">
               {t.chords.positionOf
                 .replace("{current}", (positionIndex + 1).toString())
-                .replace("{total}", positions.length.toString())}
+                .replace("{total}", totalPositions.toString())}
             </span>
           </DialogTitle>
         </DialogHeader>
@@ -175,7 +335,7 @@ export function ChordDiagram({ chordName, onClose }: ChordDiagramProps) {
             />
           </div>
 
-          {positions.length > 1 && (
+          {totalPositions > 1 && (
             <div className="flex items-center gap-4 mt-6">
               <Button variant="outline" size="icon" onClick={handlePrev}>
                 <ChevronLeft className="h-4 w-4" />
