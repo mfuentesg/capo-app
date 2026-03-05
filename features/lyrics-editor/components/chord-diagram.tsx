@@ -18,8 +18,6 @@ import { useLocale } from "@/features/settings"
 // @ts-expect-error - no types for this library
 import { findGuitarChord as findGuitarChordRaw } from "chord-fingering"
 
-const findGuitarChord = findGuitarChordRaw as (chordName: string) => GeneratedChord
-
 interface ChordPosition {
   frets: number[]
   fingers: number[]
@@ -71,6 +69,8 @@ interface GeneratedChord {
   fingerings: GeneratedFingering[]
 }
 
+const findGuitarChord = findGuitarChordRaw as (chordName: string) => GeneratedChord
+
 // Transform chord-fingering output to react-chords format
 function transformGeneratedChord(generated: GeneratedChord): ChordPosition[] {
   if (!generated || !generated.fingerings) return []
@@ -87,9 +87,10 @@ function transformGeneratedChord(generated: GeneratedChord): ChordPosition[] {
     let baseFret = 1
 
     if (activeFrets.length > 0) {
+      const minFret = Math.min(...activeFrets)
       const maxFret = Math.max(...activeFrets)
       if (maxFret > 4) {
-        baseFret = Math.min(...activeFrets)
+        baseFret = minFret
       }
     }
 
@@ -165,17 +166,16 @@ function parseChord(
     return dbKeyMap[normalizedKey] || normalizedKey
   }
 
-  const normalizeSuffix = (rawSuffix: string | null) => {
-    const suffix = (rawSuffix || "").trim().replace(/[()]/g, "")
-    if (suffix === "" || suffix === "major") return "major"
-    if (
-      suffix === "m" ||
-      suffix === "min" ||
-      suffix === "minor" ||
-      suffix === "mi" ||
-      suffix === "-"
-    )
-      return "minor"
+  const normalizeSuffix = (rawSuffix: string | null, isMinor: boolean) => {
+    let suffix = (rawSuffix || "").trim().replace(/[()]/g, "")
+
+    // Force minor if root says so, or if suffix indicates minor
+    const minorPrefixes = ["m", "min", "minor", "mi", "-"]
+    const looksMinor = isMinor || minorPrefixes.includes(suffix.toLowerCase())
+
+    if (suffix === "" || suffix === "major") return looksMinor ? "minor" : "major"
+    if (minorPrefixes.includes(suffix.toLowerCase())) return "minor"
+
     if (suffix === "ø" || suffix === "ø7" || suffix === "m7b5" || suffix === "-7b5") return "m7b5"
     if (suffix === "o7" || suffix === "dim7" || suffix === "°7") return "dim7"
     if (suffix === "o" || suffix === "dim" || suffix === "°") return "dim"
@@ -217,7 +217,6 @@ function parseChord(
     const bassNote = parsed.bass.originalKeyString + (parsed.bass.modifier || "")
     let baseSuffix = (parsed.suffix || "").trim()
 
-    // Database slash chords have suffixes like "/G" or "m/G"
     if (baseSuffix === "m" || baseSuffix === "min" || baseSuffix === "minor") baseSuffix = "m"
     else if (baseSuffix === "" || baseSuffix === "maj" || baseSuffix === "major") baseSuffix = ""
 
@@ -230,7 +229,7 @@ function parseChord(
   }
 
   // 2. Fallback to base chord normalization
-  const normalized = normalizeSuffix(parsed.suffix)
+  const normalized = normalizeSuffix(parsed.suffix, parsed.root.minor)
   return { key: lookupKey, suffix: normalized }
 }
 

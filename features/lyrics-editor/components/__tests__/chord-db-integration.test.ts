@@ -140,6 +140,7 @@ describe("Chord Database Integration", () => {
   const testCases = [
     { name: "C", expectedKey: "C", expectedSuffix: "major" },
     { name: "Cm", expectedKey: "C", expectedSuffix: "minor" },
+    { name: "Gm", expectedKey: "G", expectedSuffix: "minor" },
     { name: "Cmin", expectedKey: "C", expectedSuffix: "minor" },
     { name: "C-", expectedKey: "C", expectedSuffix: "minor" },
     { name: "Cmaj7", expectedKey: "C", expectedSuffix: "maj7" },
