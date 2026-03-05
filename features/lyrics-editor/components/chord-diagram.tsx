@@ -323,8 +323,11 @@ export function ChordDiagram({ chordName, onClose }: ChordDiagramProps) {
 
   return (
     <Dialog open={!!chordName} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="w-full h-full max-w-none sm:h-auto sm:max-w-[450px] p-0 overflow-hidden gap-0 border-none shadow-2xl transition-all duration-300 flex flex-col justify-center bg-background sm:bg-transparent">
-        <div className="bg-gradient-to-br from-primary/10 via-background to-background p-5 sm:p-6 text-card-foreground flex-1 sm:flex-initial flex flex-col justify-center sm:block">
+      <DialogContent 
+        fancy
+        className="w-full h-full max-w-none sm:h-auto sm:max-w-[450px] flex flex-col justify-center bg-background sm:bg-transparent"
+      >
+        <div className="p-5 sm:p-8 flex-1 sm:flex-initial flex flex-col justify-center sm:block">
           <DialogHeader className="mb-8 sm:mb-6">
             <div className="flex items-center justify-between">
               <div>
@@ -339,9 +342,7 @@ export function ChordDiagram({ chordName, onClose }: ChordDiagramProps) {
           </DialogHeader>
 
           <div className="flex flex-col items-center relative group py-8 sm:py-0">
-            <div className="absolute inset-0 bg-primary/5 blur-3xl rounded-full scale-110 sm:scale-75 opacity-50 group-hover:opacity-100 transition-opacity" />
-            
-            <div className="relative w-full aspect-square max-w-[280px] sm:max-w-[280px] bg-white dark:bg-zinc-950 rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-[0_20px_50px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-border/50 flex items-center justify-center overflow-hidden transition-transform duration-500 group-hover:scale-[1.02]">
+            <div className="relative w-full aspect-square max-w-[280px] bg-white dark:bg-zinc-950 rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-[0_20px_50px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-border/50 flex items-center justify-center overflow-hidden transition-transform duration-500 group-hover:scale-[1.02]">
               <div className="w-full h-full scale-[1.2] sm:scale-[1.3] transition-all duration-500 group-hover:scale-[1.25] sm:group-hover:scale-[1.35]">
                 <Chord
                   chord={currentChord}
