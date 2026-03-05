@@ -1,9 +1,10 @@
 "use client"
 
 import { type ReactNode, useMemo, useState } from "react"
-import { ChordProParser, TextFormatter } from "chordsheetjs"
+import { ChordProParser } from "chordsheetjs"
 import { ChevronDown, Music2, Repeat2 } from "lucide-react"
 import { useLocale } from "@/features/settings"
+import { ChordDiagram } from "./chord-diagram"
 
 interface RenderedSongProps {
   lyrics?: string
@@ -17,13 +18,6 @@ type LyricsSegment =
   | { type: "normal"; html: string }
   | { type: "section"; name: string; sectionType: string; html: string }
   | { type: "repeat"; name: string; count: number; html: string; found: boolean }
-
-// Lookbehind/lookahead avoids the \b bug where chords ending in # or b (non-word chars)
-// would only colour the leading letter — e.g. "A#" → only "A" was wrapped.
-const CHORD_RE =
-  /(?<![A-Za-z])([A-G][#b]?(?:m|maj|min|sus|dim|aug|add)?[0-9]?(?:\/[A-G][#b]?)?)(?![A-Za-z0-9])/g
-const HAS_CHORD_RE =
-  /(?<![A-Za-z])[A-G][#b]?(?:m|maj|min|sus|dim|aug|add)?[0-9]?(?:\/[A-G][#b]?)?(?![A-Za-z0-9])/
 
 // Unique tokens that survive ChordProParser unchanged (no [A-G] at word start).
 const COMMENT_TOKEN = "SECTIONLBL"
@@ -42,21 +36,18 @@ const SECTION_DIRECTIVE_MAP: Record<string, string> = {
   sog: "grid"
 }
 
-const SECTION_DEFAULT_LABELS: Record<string, string> = {
-  chorus: "Chorus",
-  verse: "Verse",
-  bridge: "Bridge",
-  tab: "Tab",
-  grid: "Grid"
-}
-
 const SECTION_END_RE =
   /\{(?:end_of_chorus|eoc|end_of_verse|eov|end_of_bridge|eob|end_of_tab|eot|end_of_grid|eog)\}/gi
 
 const SECTION_START_RE =
   /\{(start_of_chorus|soc|start_of_verse|sov|start_of_bridge|sob|start_of_tab|sot|start_of_grid|sog)(?::\s*([^}]+))?\}/gi
 
-function formatLyricsToHtml(text: string, transpose: number, capo: number): string {
+function formatLyricsToHtml(
+  text: string,
+  transpose: number,
+  capo: number,
+  sectionLabels: Record<string, string>
+): string {
   const commentLabels: string[] = []
   const sectionStarts: { type: string; label: string }[] = []
 
@@ -73,48 +64,71 @@ function formatLyricsToHtml(text: string, transpose: number, capo: number): stri
   processedText = processedText
     .replace(SECTION_START_RE, (_, directive: string, name?: string) => {
       const type = SECTION_DIRECTIVE_MAP[directive.toLowerCase()] ?? "section"
-      const label = name?.trim() ?? SECTION_DEFAULT_LABELS[type] ?? type
+      const label = name?.trim() ?? sectionLabels[type] ?? type
       sectionStarts.push({ type, label })
       return `${SECTION_START_TOKEN}${sectionStarts.length - 1}`
     })
     .replace(SECTION_END_RE, "")
 
   const parser = new ChordProParser()
-  const formatter = new TextFormatter()
-
   let parsedSong = parser.parse(processedText)
 
-  if (transpose > 0) {
-    for (let i = 0; i < transpose; i++) parsedSong = parsedSong.transposeUp()
-  } else if (transpose < 0) {
-    for (let i = 0; i < Math.abs(transpose); i++) parsedSong = parsedSong.transposeDown()
+  if (transpose !== 0) {
+    parsedSong = parsedSong.transpose(transpose, { normalizeChordSuffix: false })
   }
 
   if (capo > 0) {
-    for (let i = 0; i < capo; i++) parsedSong = parsedSong.transposeDown()
+    parsedSong = parsedSong.transpose(-capo, { normalizeChordSuffix: false })
   }
 
-  const formattedText = formatter.format(parsedSong)
-
-  return formattedText
-    .split("\n")
+  // Custom formatter that preserves chord strings as-is from ChordLyricsPair
+  return parsedSong.lines
     .map((line) => {
-      const commentMatch = line.match(new RegExp(`${COMMENT_TOKEN}(\\d+)`))
+      // Check for tokens first
+      const rawText = line.toString()
+      const commentMatch = rawText.match(new RegExp(`${COMMENT_TOKEN}(\\d+)`))
       if (commentMatch) {
         const label = commentLabels[parseInt(commentMatch[1], 10)]
         return label ? `<span class="section-label">${label}</span>` : ""
       }
 
-      const sectionMatch = line.match(new RegExp(`${SECTION_START_TOKEN}(\\d+)`))
+      const sectionMatch = rawText.match(new RegExp(`${SECTION_START_TOKEN}(\\d+)`))
       if (sectionMatch) {
         const { type, label } = sectionStarts[parseInt(sectionMatch[1], 10)]
         return `<span class="section-label section-label--${type}">${label}</span>`
       }
 
-      if (HAS_CHORD_RE.test(line) && !line.trim().startsWith("{")) {
-        return line.replace(CHORD_RE, '<span class="chord">$1</span>')
+      let chordLine = ""
+      let lyricsLine = ""
+      let currentPos = 0
+
+      line.items.forEach((item) => {
+        // Use type casting to safely access properties that might exist on different item types
+        const chordPair = item as { chords?: string; lyrics?: string | null }
+        const contentItem = item as { content?: string }
+
+        const chord = chordPair.chords || ""
+        const lyrics = chordPair.lyrics || ""
+
+        if (chord || lyrics) {
+          if (chord) {
+            // Add chord with class and padding
+            const offset = Math.max(0, currentPos - chordLine.replace(/<[^>]*>/g, "").length)
+            chordLine += " ".repeat(offset) + `<span class="chord">${chord}</span>`
+          }
+
+          lyricsLine += lyrics
+          currentPos += Math.max(chord.length + 1, lyrics.length)
+        } else if (contentItem.content) {
+          lyricsLine += contentItem.content
+          currentPos += contentItem.content.length
+        }
+      })
+
+      if (chordLine.trim()) {
+        return `${chordLine}\n${lyricsLine}`
       }
-      return line
+      return lyricsLine
     })
     .join("\n")
 }
@@ -181,7 +195,8 @@ function buildSegments(
   lyrics: string,
   sectionMap: Map<string, string>,
   transpose: number,
-  capo: number
+  capo: number,
+  sectionLabels: Record<string, string>
 ): LyricsSegment[] {
   const segments: LyricsSegment[] = []
   let pos = 0
@@ -193,7 +208,11 @@ function buildSegments(
 
     if (!match) {
       const tail = lyrics.slice(pos).trim()
-      if (tail) segments.push({ type: "normal", html: formatLyricsToHtml(tail, transpose, capo) })
+      if (tail)
+        segments.push({
+          type: "normal",
+          html: formatLyricsToHtml(tail, transpose, capo, sectionLabels)
+        })
       break
     }
 
@@ -203,7 +222,11 @@ function buildSegments(
 
     // Normal content before this boundary
     const before = lyrics.slice(pos, match.index).trim()
-    if (before) segments.push({ type: "normal", html: formatLyricsToHtml(before, transpose, capo) })
+    if (before)
+      segments.push({
+        type: "normal",
+        html: formatLyricsToHtml(before, transpose, capo, sectionLabels)
+      })
 
     let newPos = matchEnd
 
@@ -216,7 +239,7 @@ function buildSegments(
             type: "repeat",
             name,
             count,
-            html: formatLyricsToHtml(content, transpose, capo),
+            html: formatLyricsToHtml(content, transpose, capo, sectionLabels),
             found: true
           })
         } else {
@@ -233,14 +256,14 @@ function buildSegments(
           type: "section",
           name: value,
           sectionType: "comment",
-          html: formatLyricsToHtml(content, transpose, capo)
+          html: formatLyricsToHtml(content, transpose, capo, sectionLabels)
         })
         newPos = matchEnd + (nextBoundary ? nextBoundary.index : remaining.length)
       }
     } else {
       // start_of_X — find the matching end_of_X
       const sectionType = SECTION_DIRECTIVE_MAP[directive] ?? "section"
-      const name = value || (SECTION_DEFAULT_LABELS[sectionType] ?? sectionType)
+      const name = value || (sectionLabels[sectionType] ?? sectionType)
       const remaining = lyrics.slice(matchEnd)
       const endMatch =
         /\{(?:end_of_chorus|eoc|end_of_verse|eov|end_of_bridge|eob|end_of_tab|eot|end_of_grid|eog)\}/i.exec(
@@ -251,7 +274,7 @@ function buildSegments(
         type: "section",
         name,
         sectionType,
-        html: formatLyricsToHtml(content, transpose, capo)
+        html: formatLyricsToHtml(content, transpose, capo, sectionLabels)
       })
       newPos = matchEnd + (endMatch ? endMatch.index + endMatch[0].length : remaining.length)
     }
@@ -328,6 +351,27 @@ export function RenderedSong({
   columns = 2
 }: RenderedSongProps) {
   const [collapsedSet, setCollapsedSet] = useState<Set<number>>(new Set())
+  const [selectedChord, setSelectedChord] = useState<string | null>(null)
+
+  const { t } = useLocale()
+
+  const sectionLabels = useMemo(
+    () => ({
+      chorus: t.songSections.chorus,
+      verse: t.songSections.verse,
+      bridge: t.songSections.bridge,
+      tab: t.songSections.tab,
+      grid: t.songSections.grid
+    }),
+    [t]
+  )
+
+  const handleChordClick = (e: React.MouseEvent) => {
+    const target = e.target as HTMLElement
+    if (target.classList.contains("chord")) {
+      setSelectedChord(target.textContent)
+    }
+  }
 
   const toggleCollapse = (index: number) => {
     setCollapsedSet((prev) => {
@@ -346,14 +390,12 @@ export function RenderedSong({
 
     try {
       const sectionMap = buildSectionMap(lyrics)
-      return buildSegments(lyrics, sectionMap, transpose, capo)
+      return buildSegments(lyrics, sectionMap, transpose, capo, sectionLabels)
     } catch (error) {
       console.error("Error parsing ChordPro:", error)
       return null
     }
-  }, [lyrics, transpose, capo])
-
-  const { t } = useLocale()
+  }, [lyrics, transpose, capo, sectionLabels])
 
   if (!lyrics) {
     return (
@@ -374,16 +416,19 @@ export function RenderedSong({
 
     if (!hasComplexSegments) {
       return (
-        <pre
-          className="chordsheet-content multi-column-lyrics"
-          style={fontStyle}
-          dangerouslySetInnerHTML={{ __html: segments[0]?.html ?? "" }}
-        />
+        <div onClick={handleChordClick}>
+          <pre
+            className="chordsheet-content multi-column-lyrics"
+            style={fontStyle}
+            dangerouslySetInnerHTML={{ __html: segments[0]?.html ?? "" }}
+          />
+          <ChordDiagram chordName={selectedChord} onClose={() => setSelectedChord(null)} />
+        </div>
       )
     }
 
     return (
-      <div className="multi-column-lyrics space-y-6" style={fontStyle}>
+      <div className="multi-column-lyrics space-y-6" style={fontStyle} onClick={handleChordClick}>
         {segments.map((segment, index) => {
           if (segment.type === "normal") {
             return (
@@ -405,7 +450,7 @@ export function RenderedSong({
                   onToggle={() => toggleCollapse(index)}
                 />
                 {!isCollapsed && (
-                  <div className="section-repeat-content [&_.chord]:[color:var(--section-accent)]">
+                  <div className="section-repeat-content">
                     <pre
                       className="chordsheet-content"
                       dangerouslySetInnerHTML={{ __html: segment.html }}
@@ -427,7 +472,10 @@ export function RenderedSong({
                 className="section-repeat section-repeat--not-found"
                 data-section-type="repeat"
               >
-                <SectionHeader name={`${repeatLabel} (not found)`} isCollapsed={false} />
+                <SectionHeader
+                  name={`${repeatLabel} (${t.chords.notFound})`}
+                  isCollapsed={false}
+                />
               </div>
             )
           }
@@ -457,6 +505,7 @@ export function RenderedSong({
             </div>
           )
         })}
+        <ChordDiagram chordName={selectedChord} onClose={() => setSelectedChord(null)} />
       </div>
     )
   }
