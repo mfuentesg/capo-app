@@ -368,8 +368,9 @@ export function RenderedSong({
 
   const handleChordClick = (e: React.MouseEvent) => {
     const target = e.target as HTMLElement
-    if (target.classList.contains("chord")) {
-      setSelectedChord(target.textContent)
+    const chordElement = target.closest(".chord")
+    if (chordElement) {
+      setSelectedChord(chordElement.textContent)
     }
   }
 

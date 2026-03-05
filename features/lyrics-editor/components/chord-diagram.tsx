@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { Chord as ChordJS } from "chordsheetjs"
 // @ts-expect-error - no types for this library
 import Chord from "@tombatossals/react-chords/lib/Chord"
 import guitarDataRaw from "@tombatossals/chords-db/lib/guitar.json"
@@ -11,9 +12,12 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog"
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import { ChevronLeft, ChevronRight, Info } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useLocale } from "@/features/settings"
+// @ts-expect-error - no types for this library
+import { findGuitarChord as findGuitarChordRaw } from "chord-fingering"
+import { cn } from "@/lib/utils"
 
 interface ChordPosition {
   frets: number[]
@@ -21,7 +25,7 @@ interface ChordPosition {
   baseFret: number
   barres: number[]
   capo?: boolean
-  midi: number[]
+  midi?: number[]
 }
 
 interface ChordVariation {
@@ -52,53 +56,189 @@ interface ChordDiagramProps {
   onClose: () => void
 }
 
-// Normalize chord names to the database
-function parseChord(chordName: string) {
-  if (!chordName) return null
+interface GeneratedPosition {
+  stringIndex: number
+  fret: number
+}
 
-  // Split key and suffix
-  // Key is [A-G][#b]?
-  const match = chordName.match(/^([A-G][#b]?)(.*)$/)
-  if (!match) return null
+interface GeneratedFingering {
+  positions: GeneratedPosition[]
+  barre: { fret: number } | null
+}
 
-  const [, rawKey, rawSuffix] = match
-  let key = rawKey
-  let suffix = rawSuffix
+interface GeneratedChord {
+  fingerings: GeneratedFingering[]
+}
 
-  // Normalize key
+const findGuitarChord = findGuitarChordRaw as (chordName: string) => GeneratedChord
+
+// Transform chord-fingering output to react-chords format
+function transformGeneratedChord(generated: GeneratedChord): ChordPosition[] {
+  if (!generated || !generated.fingerings) return []
+
+  return generated.fingerings.map((f) => {
+    const frets = [-1, -1, -1, -1, -1, -1]
+    f.positions.forEach((p) => {
+      if (p.stringIndex >= 0 && p.stringIndex < 6) {
+        frets[p.stringIndex] = p.fret
+      }
+    })
+
+    const activeFrets = frets.filter((fr) => fr > 0)
+    let baseFret = 1
+
+    if (activeFrets.length > 0) {
+      const maxFret = Math.max(...activeFrets)
+      if (maxFret > 4) {
+        baseFret = Math.min(...activeFrets)
+      }
+    }
+
+    const relativeFrets = frets.map((fr) => {
+      if (fr <= 0) return fr
+      return fr - baseFret + 1
+    })
+
+    const barres: number[] = []
+    if (f.barre) {
+      barres.push(f.barre.fret - baseFret + 1)
+    }
+
+    return {
+      frets: relativeFrets,
+      fingers: [0, 0, 0, 0, 0, 0],
+      baseFret: baseFret,
+      barres: barres,
+      capo: false,
+    }
+  })
+}
+
+// Map any musical note name to the standard keys used in chords-db
+function getStandardNote(rootName: string): string {
+  const normalizedRoot = rootName.charAt(0).toUpperCase() + rootName.slice(1)
+  
   const keyMap: Record<string, string> = {
     "A#": "Bb",
-    Db: "C#",
+    "Db": "C#",
     "D#": "Eb",
-    Gb: "F#",
+    "Gb": "F#",
     "G#": "Ab",
   }
+  
+  const standardRoot = keyMap[normalizedRoot] || normalizedRoot
+  
+  const dbKeyMap: Record<string, string> = {
+    "C#": "Csharp",
+    "F#": "Fsharp",
+  }
+  
+  return dbKeyMap[standardRoot] || standardRoot
+}
 
-  if (keyMap[key]) {
-    key = keyMap[key]
+// Normalize chord names to the database
+function parseChord(
+  chordName: string,
+  options: { allowBaseFallback?: boolean } = { allowBaseFallback: true }
+): { key: string; suffix: string } | null {
+  if (!chordName) return null
+
+  // 1. Pre-normalization
+  const normalizedInput = chordName
+    .replace(/ø/g, "m7b5")
+    .replace(/°/g, "dim")
+    .replace(/Δ/g, "maj7")
+    .replace(/6\/9/g, "69")
+
+  let parsed: ChordJS | null = null
+  try {
+    parsed = ChordJS.parse(normalizedInput)
+  } catch {
+    const basicMatch = normalizedInput.match(/^([A-G][#b]?)(.*)$/i)
+    if (basicMatch) {
+      return { key: getStandardNote(basicMatch[1]), suffix: basicMatch[2] || "major" }
+    }
+    return null
   }
 
-  // Normalize suffix
-  if (!suffix || suffix === "") {
-    suffix = "major"
-  } else if (suffix === "m") {
-    suffix = "minor"
+  if (!parsed || !parsed.root || parsed.root.type !== "symbol") {
+    const basicMatch = normalizedInput.match(/^([A-G][#b]?)(.*)$/i)
+    if (basicMatch) {
+      const rootName = basicMatch[1]
+      const suffix = basicMatch[2] || "major"
+      return { key: getStandardNote(rootName), suffix }
+    }
+    return null
   }
 
-  // Handle common suffixes that might not match exactly
-  const suffixMap: Record<string, string> = {
-    maj: "major",
-    min: "minor",
-    dim7: "dim7",
-    sus2: "sus2",
-    sus4: "sus4",
+  const normalizeSuffix = (rawSuffix: string | null, isMinor: boolean) => {
+    const suffix = (rawSuffix || "").trim().replace(/[()]/g, "")
+
+    const minorPrefixes = ["m", "min", "minor", "mi", "-"]
+    const looksMinor = isMinor || minorPrefixes.includes(suffix.toLowerCase())
+
+    if (suffix === "" || suffix === "major") return looksMinor ? "minor" : "major"
+    if (minorPrefixes.includes(suffix.toLowerCase())) return "minor"
+
+    if (suffix === "ø" || suffix === "ø7" || suffix === "m7b5" || suffix === "-7b5") return "m7b5"
+    if (suffix === "o7" || suffix === "dim7" || suffix === "°7") return "dim7"
+    if (suffix === "o" || suffix === "dim" || suffix === "°") return "dim"
+    if (suffix === "+" || suffix === "aug" || suffix === "+5" || suffix === "#5") return "aug"
+    if (suffix === "sus" || suffix === "sus4") return "sus4"
+    if (suffix === "sus2") return "sus2"
+    if (suffix === "7sus4" || suffix === "7sus") return "7sus4"
+    if (suffix === "6/9" || suffix === "69") return "69"
+    if (suffix === "7" || suffix === "dom7") return "7"
+    if (suffix === "M7" || suffix === "maj7" || suffix === "ma7" || suffix === "Δ" || suffix === "Δ7")
+      return "maj7"
+    if (suffix === "m7" || suffix === "min7" || suffix === "mi7" || suffix === "-7") return "m7"
+    if (suffix === "mM7" || suffix === "m(maj7)" || suffix === "mmaj7" || suffix === "-Δ7")
+      return "mmaj7"
+    if (suffix === "9") return "9"
+    if (suffix === "M9" || suffix === "maj9") return "maj9"
+    if (suffix === "m9" || suffix === "min9" || suffix === "-9") return "m9"
+    if (suffix === "add9" || suffix === "add2" || suffix === "2") return "add9"
+    if (suffix === "11") return "11"
+    if (suffix === "13") return "13"
+
+    const exactMap: Record<string, string> = {
+      "7b9": "7b9",
+      "7#9": "7#9",
+      "7+9": "7#9",
+      m11: "m11",
+      maj13: "maj13",
+      "6": "6",
+      m6: "m6",
+      "-6": "m6",
+    }
+    return exactMap[suffix] || suffix
   }
 
-  if (suffixMap[suffix]) {
-    suffix = suffixMap[suffix]
+  const lookupKey = getStandardNote((parsed.root.originalKeyString || "") + (parsed.root.modifier || ""))
+
+  // 1. Try slash chord lookup if applicable
+  if (parsed.bass && parsed.bass.type === "symbol") {
+    // Note: Bass note also needs to be normalized to database standard (e.g. /Gb -> /F#)
+    const rawBassNote = parsed.bass.originalKeyString + (parsed.bass.modifier || "")
+    const standardBass = getStandardNote(rawBassNote)
+      .replace("Csharp", "C#")
+      .replace("Fsharp", "F#")
+    
+    let baseSuffix = (parsed.suffix || "").trim()
+
+    if (baseSuffix === "m" || baseSuffix === "min" || baseSuffix === "minor") baseSuffix = "m"
+    else if (baseSuffix === "" || baseSuffix === "maj" || baseSuffix === "major") baseSuffix = ""
+
+    const dbSlashSuffix = (baseSuffix + "/" + standardBass).trim()
+    const exists = guitarData.chords[lookupKey]?.some((c) => c.suffix === dbSlashSuffix)
+    if (exists) return { key: lookupKey, suffix: dbSlashSuffix }
+
+    if (!options.allowBaseFallback) return null
   }
 
-  return { key, suffix }
+  // 2. Fallback to base chord normalization
+  const normalized = normalizeSuffix(parsed.suffix, parsed.root.minor)
+  return { key: lookupKey, suffix: normalized }
 }
 
 export function ChordDiagram({ chordName, onClose }: ChordDiagramProps) {
@@ -109,78 +249,153 @@ export function ChordDiagram({ chordName, onClose }: ChordDiagramProps) {
     setPositionIndex(0)
   }, [chordName])
 
+  const { positions, totalPositions, isAlgorithmic } = React.useMemo(() => {
+    if (!chordName) return { positions: [], totalPositions: 0, isAlgorithmic: false }
+
+    // First try finding the EXACT chord in DB (including slash)
+    const exactParsed = parseChord(chordName, { allowBaseFallback: false })
+    let foundPositions: ChordPosition[] = []
+
+    if (exactParsed) {
+      const { key, suffix } = exactParsed
+      const chordVariations = guitarData.chords[key]?.find((c) => c.suffix === suffix)
+      if (chordVariations) {
+        foundPositions = chordVariations.positions
+      }
+    }
+
+    // Algorithmic fallback if not found in DB exactly
+    if (foundPositions.length === 0) {
+      try {
+        const generated = findGuitarChord(chordName)
+        if (generated && generated.fingerings && generated.fingerings.length > 0) {
+          return { positions: transformGeneratedChord(generated), totalPositions: generated.fingerings.length, isAlgorithmic: true }
+        }
+      } catch {
+        // Fallback silently if generation fails
+      }
+    }
+
+    // Final fallback: try finding the BASE chord in DB (ignore bass note)
+    if (foundPositions.length === 0) {
+      const baseParsed = parseChord(chordName, { allowBaseFallback: true })
+      if (baseParsed) {
+        const { key, suffix } = baseParsed
+        const chordVariations = guitarData.chords[key]?.find((c) => c.suffix === suffix)
+        if (chordVariations) {
+          foundPositions = chordVariations.positions
+        }
+      }
+    }
+
+    return { positions: foundPositions, totalPositions: foundPositions.length, isAlgorithmic: false }
+  }, [chordName])
+
   if (!chordName) return null
 
-  const parsed = parseChord(chordName)
-  if (!parsed) return null
-
-  const { key, suffix } = parsed
-  const chordVariations = guitarData.chords[key]?.find((c) => c.suffix === suffix)
-
-  if (!chordVariations) {
+  if (totalPositions === 0) {
     return (
       <Dialog open={!!chordName} onOpenChange={(open) => !open && onClose()}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[400px]">
           <DialogHeader>
-            <DialogTitle>{t.chords.title.replace("{chordName}", chordName)}</DialogTitle>
-            <DialogDescription>{t.chords.noDiagram}</DialogDescription>
+            <DialogTitle className="text-xl">{chordName}</DialogTitle>
+            <div className="pt-4 flex flex-col items-center text-center">
+              <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-4">
+                <Info className="w-6 h-6 text-muted-foreground" />
+              </div>
+              <DialogDescription>{t.chords.noDiagram}</DialogDescription>
+            </div>
           </DialogHeader>
         </DialogContent>
       </Dialog>
     )
   }
 
-  const positions = chordVariations.positions
   const currentChord = positions[positionIndex]
 
   const handlePrev = () => {
-    setPositionIndex((prev) => (prev > 0 ? prev - 1 : positions.length - 1))
+    setPositionIndex((prev) => (prev > 0 ? prev - 1 : totalPositions - 1))
   }
 
   const handleNext = () => {
-    setPositionIndex((prev) => (prev < positions.length - 1 ? prev + 1 : 0))
+    setPositionIndex((prev) => (prev < totalPositions - 1 ? prev + 1 : 0))
   }
 
   return (
     <Dialog open={!!chordName} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-bold flex items-center justify-between">
-            <span>{chordName}</span>
-            <span className="text-sm font-normal text-muted-foreground">
-              {t.chords.positionOf
-                .replace("{current}", (positionIndex + 1).toString())
-                .replace("{total}", positions.length.toString())}
-            </span>
-          </DialogTitle>
-        </DialogHeader>
-
-        <div className="flex flex-col items-center justify-center py-6">
-          <div className="w-48 h-48 bg-white rounded-lg p-4 flex items-center justify-center shadow-sm border">
-            <Chord
-              chord={currentChord}
-              instrument={{
-                ...guitarData.main,
-                tunings: guitarData.tunings,
-              }}
-              lite={false}
-            />
-          </div>
-
-          {positions.length > 1 && (
-            <div className="flex items-center gap-4 mt-6">
-              <Button variant="outline" size="icon" onClick={handlePrev}>
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <div className="text-sm font-medium">
-                {t.chords.variation.replace("{count}", (positionIndex + 1).toString())}
+      <DialogContent className="sm:max-w-[450px] p-0 overflow-hidden gap-0 border-none shadow-2xl transition-all duration-300">
+        <div className="bg-gradient-to-br from-primary/10 via-background to-background p-6 text-card-foreground">
+          <DialogHeader className="mb-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <DialogTitle className="text-4xl font-black tracking-tight">
+                  {chordName}
+                </DialogTitle>
+                <div className="mt-1 font-medium text-muted-foreground uppercase tracking-widest text-[10px]">
+                  {isAlgorithmic ? "Generated Diagram" : "Verified Shape"}
+                </div>
               </div>
-              <Button variant="outline" size="icon" onClick={handleNext}>
-                <ChevronRight className="h-4 w-4" />
-              </Button>
+              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20">
+                <span className="text-primary font-bold text-sm" data-testid="position-indicator">{positionIndex + 1}</span>
+              </div>
             </div>
-          )}
+          </DialogHeader>
+
+          <div className="flex flex-col items-center relative group">
+            <div className="absolute inset-0 bg-primary/5 blur-3xl rounded-full scale-75 opacity-50 group-hover:opacity-100 transition-opacity" />
+            
+            <div className="relative w-full aspect-square max-w-[280px] bg-white dark:bg-zinc-950 rounded-3xl p-8 shadow-[0_20px_50px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-border/50 flex items-center justify-center overflow-hidden transition-transform duration-500 group-hover:scale-[1.02]">
+              <div className="w-full h-full scale-[1.35] translate-y-[-5%] transition-all duration-500 group-hover:scale-[1.4]">
+                <Chord
+                  chord={currentChord}
+                  instrument={{
+                    ...guitarData.main,
+                    tunings: guitarData.tunings,
+                  }}
+                  lite={false}
+                />
+              </div>
+            </div>
+
+            {totalPositions > 1 && (
+              <div className="flex gap-1.5 mt-8 mb-2">
+                {Array.from({ length: totalPositions }).map((_, i) => (
+                  <button 
+                    key={i} 
+                    type="button"
+                    className={cn(
+                      "h-1.5 rounded-full transition-all duration-300",
+                      i === positionIndex ? "w-6 bg-primary" : "w-1.5 bg-muted-foreground/30 hover:bg-muted-foreground/50 cursor-pointer"
+                    )}
+                    onClick={() => setPositionIndex(i)}
+                    aria-label={`Go to variation ${i + 1}`}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
         </div>
+
+        {totalPositions > 1 && (
+          <div className="grid grid-cols-2 border-t border-border bg-muted/30">
+            <Button 
+              variant="ghost" 
+              className="h-14 rounded-none border-r border-border hover:bg-background transition-colors font-semibold gap-2 group" 
+              onClick={handlePrev}
+            >
+              <ChevronLeft className="h-5 w-5 transition-transform group-hover:-translate-x-1" />
+              {t.common?.previous || "Previous"}
+            </Button>
+            <Button 
+              variant="ghost" 
+              className="h-14 rounded-none hover:bg-background transition-colors font-semibold gap-2 group text-primary" 
+              onClick={handleNext}
+            >
+              {t.common?.next || "Next"}
+              <ChevronRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+            </Button>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   )

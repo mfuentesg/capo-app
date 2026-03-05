@@ -30,7 +30,9 @@
     "userMenu": "User menu",
     "removeSong": "Remove song",
     "clearSearch": "Clear search",
-    "copyToClipboardFailed": "Failed to copy to clipboard"
+    "copyToClipboardFailed": "Failed to copy to clipboard",
+    "previous": "Previous",
+    "next": "Next"
   },
   "metadata": {
     "title": "Capo",
