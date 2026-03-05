@@ -324,18 +324,18 @@ export function ChordDiagram({ chordName, onClose }: ChordDiagramProps) {
   return (
     <Dialog open={!!chordName} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-[450px] p-0 overflow-hidden gap-0 border-none shadow-2xl transition-all duration-300">
-        <div className="bg-gradient-to-br from-primary/10 via-background to-background p-6 text-card-foreground">
-          <DialogHeader className="mb-6">
+        <div className="bg-gradient-to-br from-primary/10 via-background to-background p-5 sm:p-6 text-card-foreground">
+          <DialogHeader className="mb-4 sm:mb-6">
             <div className="flex items-center justify-between">
               <div>
-                <DialogTitle className="text-4xl font-black tracking-tight">
+                <DialogTitle className="text-3xl sm:text-4xl font-black tracking-tight">
                   {chordName}
                 </DialogTitle>
                 <div className="mt-1 font-medium text-muted-foreground uppercase tracking-widest text-[10px]">
                   {isAlgorithmic ? "Generated Diagram" : "Verified Shape"}
                 </div>
               </div>
-              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20">
+              <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20">
                 <span className="text-primary font-bold text-sm" data-testid="position-indicator">{positionIndex + 1}</span>
               </div>
             </div>
@@ -344,8 +344,8 @@ export function ChordDiagram({ chordName, onClose }: ChordDiagramProps) {
           <div className="flex flex-col items-center relative group">
             <div className="absolute inset-0 bg-primary/5 blur-3xl rounded-full scale-75 opacity-50 group-hover:opacity-100 transition-opacity" />
             
-            <div className="relative w-full aspect-square max-w-[280px] bg-white dark:bg-zinc-950 rounded-3xl p-8 shadow-[0_20px_50px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-border/50 flex items-center justify-center overflow-hidden transition-transform duration-500 group-hover:scale-[1.02]">
-              <div className="w-full h-full scale-[1.35] translate-y-[-5%] transition-all duration-500 group-hover:scale-[1.4]">
+            <div className="relative w-full aspect-square max-w-[260px] sm:max-w-[280px] bg-white dark:bg-zinc-950 rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-[0_20px_50px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-border/50 flex items-center justify-center overflow-hidden transition-transform duration-500 group-hover:scale-[1.02]">
+              <div className="w-full h-full scale-[1.1] sm:scale-[1.3] translate-y-[-2%] sm:translate-y-[-5%] transition-all duration-500 group-hover:scale-[1.15] sm:group-hover:scale-[1.35]">
                 <Chord
                   chord={currentChord}
                   instrument={{
@@ -358,7 +358,7 @@ export function ChordDiagram({ chordName, onClose }: ChordDiagramProps) {
             </div>
 
             {totalPositions > 1 && (
-              <div className="flex gap-1.5 mt-8 mb-2">
+              <div className="flex gap-1.5 mt-6 sm:mt-8 mb-2">
                 {Array.from({ length: totalPositions }).map((_, i) => (
                   <button 
                     key={i} 
