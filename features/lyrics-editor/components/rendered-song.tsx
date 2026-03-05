@@ -450,7 +450,7 @@ export function RenderedSong({
                   onToggle={() => toggleCollapse(index)}
                 />
                 {!isCollapsed && (
-                  <div className="section-repeat-content [&_.chord]:[color:var(--section-accent)]">
+                  <div className="section-repeat-content">
                     <pre
                       className="chordsheet-content"
                       dangerouslySetInnerHTML={{ __html: segment.html }}
@@ -495,7 +495,7 @@ export function RenderedSong({
                 }
               />
               {!isCollapsed && (
-                <div className="section-repeat-content [&_.chord]:[color:var(--section-accent)]">
+                <div className="section-repeat-content">
                   <pre
                     className="chordsheet-content"
                     dangerouslySetInnerHTML={{ __html: segment.html }}
