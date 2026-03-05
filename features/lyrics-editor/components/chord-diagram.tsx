@@ -345,7 +345,7 @@ export function ChordDiagram({ chordName, onClose }: ChordDiagramProps) {
             <div className="absolute inset-0 bg-primary/5 blur-3xl rounded-full scale-75 opacity-50 group-hover:opacity-100 transition-opacity" />
             
             <div className="relative w-full aspect-square max-w-[260px] sm:max-w-[280px] bg-white dark:bg-zinc-950 rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-[0_20px_50px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-border/50 flex items-center justify-center overflow-hidden transition-transform duration-500 group-hover:scale-[1.02]">
-              <div className="w-full h-full scale-[1.1] sm:scale-[1.3] translate-y-[-2%] sm:translate-y-[-5%] transition-all duration-500 group-hover:scale-[1.15] sm:group-hover:scale-[1.35]">
+              <div className="w-full h-full scale-[1.1] sm:scale-[1.3] transition-all duration-500 group-hover:scale-[1.15] sm:group-hover:scale-[1.35]">
                 <Chord
                   chord={currentChord}
                   instrument={{
