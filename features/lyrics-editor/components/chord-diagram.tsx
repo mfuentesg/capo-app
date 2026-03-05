@@ -87,10 +87,9 @@ function transformGeneratedChord(generated: GeneratedChord): ChordPosition[] {
     let baseFret = 1
 
     if (activeFrets.length > 0) {
-      const minFret = Math.min(...activeFrets)
       const maxFret = Math.max(...activeFrets)
       if (maxFret > 4) {
-        baseFret = minFret
+        baseFret = Math.min(...activeFrets)
       }
     }
 
@@ -114,6 +113,28 @@ function transformGeneratedChord(generated: GeneratedChord): ChordPosition[] {
   })
 }
 
+// Map any musical note name to the standard keys used in chords-db
+function getStandardNote(rootName: string): string {
+  const normalizedRoot = rootName.charAt(0).toUpperCase() + rootName.slice(1)
+  
+  const keyMap: Record<string, string> = {
+    "A#": "Bb",
+    "Db": "C#",
+    "D#": "Eb",
+    "Gb": "F#",
+    "G#": "Ab",
+  }
+  
+  const standardRoot = keyMap[normalizedRoot] || normalizedRoot
+  
+  const dbKeyMap: Record<string, string> = {
+    "C#": "Csharp",
+    "F#": "Fsharp",
+  }
+  
+  return dbKeyMap[standardRoot] || standardRoot
+}
+
 // Normalize chord names to the database
 function parseChord(
   chordName: string,
@@ -132,44 +153,26 @@ function parseChord(
   try {
     parsed = ChordJS.parse(normalizedInput)
   } catch {
-    const basicMatch = normalizedInput.match(/^([A-G][#b]?)(.*)$/)
+    const basicMatch = normalizedInput.match(/^([A-G][#b]?)(.*)$/i)
     if (basicMatch) {
-      return { key: basicMatch[1], suffix: basicMatch[2] || "major" }
+      return { key: getStandardNote(basicMatch[1]), suffix: basicMatch[2] || "major" }
     }
     return null
   }
 
   if (!parsed || !parsed.root || parsed.root.type !== "symbol") {
-    const basicMatch = normalizedInput.match(/^([A-G][#b]?)(.*)$/)
+    const basicMatch = normalizedInput.match(/^([A-G][#b]?)(.*)$/i)
     if (basicMatch) {
       const rootName = basicMatch[1]
       const suffix = basicMatch[2] || "major"
-      return { key: rootName, suffix }
+      return { key: getStandardNote(rootName), suffix }
     }
     return null
   }
 
-  const getLookupKey = (key: string, modifier: string | null) => {
-    const rootName = key + (modifier || "")
-    const keyMap: Record<string, string> = {
-      "A#": "Bb",
-      Db: "C#",
-      "D#": "Eb",
-      Gb: "F#",
-      "G#": "Ab",
-    }
-    const normalizedKey = keyMap[rootName] || rootName
-    const dbKeyMap: Record<string, string> = {
-      "C#": "Csharp",
-      "F#": "Fsharp",
-    }
-    return dbKeyMap[normalizedKey] || normalizedKey
-  }
-
   const normalizeSuffix = (rawSuffix: string | null, isMinor: boolean) => {
-    let suffix = (rawSuffix || "").trim().replace(/[()]/g, "")
+    const suffix = (rawSuffix || "").trim().replace(/[()]/g, "")
 
-    // Force minor if root says so, or if suffix indicates minor
     const minorPrefixes = ["m", "min", "minor", "mi", "-"]
     const looksMinor = isMinor || minorPrefixes.includes(suffix.toLowerCase())
 
@@ -210,21 +213,26 @@ function parseChord(
     return exactMap[suffix] || suffix
   }
 
-  const lookupKey = getLookupKey(parsed.root.originalKeyString || "", parsed.root.modifier)
+  const rootName = (parsed.root.originalKeyString || "") + (parsed.root.modifier || "")
+  const lookupKey = getStandardNote(rootName)
 
   // 1. Try slash chord lookup if applicable
   if (parsed.bass && parsed.bass.type === "symbol") {
-    const bassNote = parsed.bass.originalKeyString + (parsed.bass.modifier || "")
+    // Note: Bass note also needs to be normalized to database standard (e.g. /Gb -> /F#)
+    const rawBassNote = parsed.bass.originalKeyString + (parsed.bass.modifier || "")
+    const standardBass = getStandardNote(rawBassNote)
+      .replace("Csharp", "C#")
+      .replace("Fsharp", "F#")
+    
     let baseSuffix = (parsed.suffix || "").trim()
 
     if (baseSuffix === "m" || baseSuffix === "min" || baseSuffix === "minor") baseSuffix = "m"
     else if (baseSuffix === "" || baseSuffix === "maj" || baseSuffix === "major") baseSuffix = ""
 
-    const dbSlashSuffix = (baseSuffix + "/" + bassNote).trim()
+    const dbSlashSuffix = (baseSuffix + "/" + standardBass).trim()
     const exists = guitarData.chords[lookupKey]?.some((c) => c.suffix === dbSlashSuffix)
     if (exists) return { key: lookupKey, suffix: dbSlashSuffix }
 
-    // If no exact slash match, and we don't want base fallback, return null
     if (!options.allowBaseFallback) return null
   }
 
