@@ -1,12 +1,31 @@
 "use client"
 
-import { useMemo } from "react"
+import { useMemo, useCallback } from "react"
 import { Music } from "lucide-react"
 import { SongItem } from "@/features/songs"
 import { Empty, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription } from "@/components/ui/empty"
+import { Skeleton } from "@/components/ui/skeleton"
 import type { Song, SongListProps } from "@/features/songs/types"
 import { usePlaylistDraft } from "@/features/playlist-draft"
 import { useTranslation } from "@/hooks/use-translation"
+
+export function SongSkeleton() {
+  return (
+    <div className="flex items-start gap-4 rounded-lg border p-4 bg-card">
+      <Skeleton className="h-10 w-10 shrink-0 rounded-full" />
+      <div className="flex-1 min-w-0 space-y-2">
+        <div className="space-y-1">
+          <Skeleton className="h-4 w-3/4" />
+          <Skeleton className="h-3 w-1/2" />
+        </div>
+        <div className="flex gap-2">
+          <Skeleton className="h-5 w-16 rounded-full" />
+          <Skeleton className="h-5 w-20 rounded-full" />
+        </div>
+      </div>
+    </div>
+  )
+}
 
 export function SongList({
   songs,
@@ -17,8 +36,9 @@ export function SongList({
   filterStatus,
   bpmRange,
   isCreatingNewSong = false,
+  isLoading = false,
   onSelectSong
-}: SongListProps) {
+}: SongListProps & { isLoading?: boolean }) {
   const { toggleSongInDraft, isSongInDraft } = usePlaylistDraft()
   const { t } = useTranslation()
 
@@ -71,13 +91,26 @@ export function SongList({
     return Object.keys(groupedSongs).sort((a, b) => a.localeCompare(b))
   }, [groupedSongs])
 
-  const handleSelectSong = (song: Song) => {
-    onSelectSong(song)
-  }
+  const handleSelectSong = useCallback(
+    (song: Song) => {
+      onSelectSong(song)
+    },
+    [onSelectSong]
+  )
 
   const hasAnySongs =
     Object.keys(groupedSongs).length > 0 &&
     Object.values(groupedSongs).some((group) => group.length > 0)
+
+  if (isLoading) {
+    return (
+      <div className="p-4 space-y-3">
+        {Array.from({ length: 8 }).map((_, i) => (
+          <SongSkeleton key={i} />
+        ))}
+      </div>
+    )
+  }
 
   if (!hasAnySongs) {
     return (

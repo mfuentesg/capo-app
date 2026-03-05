@@ -4,6 +4,7 @@ import { keepPreviousData, useQuery } from "@tanstack/react-query"
 import { teamsKeys } from "../hooks/query-keys"
 import { api as teamsApi } from "../api"
 import { useUser } from "@/features/auth"
+import { useAppContext } from "@/features/app-context"
 import {
   useDeleteTeam,
   useLeaveTeam,
@@ -32,11 +33,19 @@ export function TeamDetailClient({
   initialInvitations
 }: TeamDetailClientProps) {
   const { data: user } = useUser()
-  const deleteTeamMutation = useDeleteTeam()
-  const leaveTeamMutation = useLeaveTeam()
+  const { context, switchToPersonal } = useAppContext()
+
+  const onTeamActionSuccess = (teamId: string) => {
+    if (context?.type === "team" && context.teamId === teamId) {
+      switchToPersonal()
+    }
+  }
+
+  const deleteTeamMutation = useDeleteTeam({ onSuccess: onTeamActionSuccess })
+  const leaveTeamMutation = useLeaveTeam({ onSuccess: onTeamActionSuccess })
   const updateTeamMutation = useUpdateTeam()
   const transferOwnershipMutation = useTransferOwnershipAndStay()
-  const transferAndLeaveMutation = useTransferAndLeave()
+  const transferAndLeaveMutation = useTransferAndLeave({ onSuccess: onTeamActionSuccess })
 
   // Use React Query to manage team data for optimistic updates
   const { data: team = initialTeam } = useQuery<

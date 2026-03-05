@@ -60,6 +60,6 @@ describe("ChordDiagram Fallback", () => {
     render(<ChordDiagram chordName="C" onClose={jest.fn()} />)
     expect(screen.getByText("C")).toBeInTheDocument()
     expect(screen.getByTestId("chord-svg")).toBeInTheDocument()
-    expect(screen.getByTestId("position-indicator")).toHaveTextContent("1")
+    expect(screen.getByLabelText(/Go to variation 1/i)).toBeInTheDocument()
   })
 })

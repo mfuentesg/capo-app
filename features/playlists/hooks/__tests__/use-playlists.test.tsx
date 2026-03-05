@@ -11,7 +11,7 @@ import {
 import {
   updatePlaylistAction,
   reorderPlaylistSongsAction,
-  addSongToPlaylistAction
+  addSongsToPlaylistAction
 } from "@/features/playlists/api/actions"
 import { useAppContext } from "@/features/app-context"
 
@@ -26,6 +26,7 @@ jest.mock("@/features/playlists/api/actions", () => ({
   updatePlaylistAction: jest.fn(),
   deletePlaylistAction: jest.fn(),
   addSongToPlaylistAction: jest.fn(),
+  addSongsToPlaylistAction: jest.fn(),
   reorderPlaylistSongsAction: jest.fn()
 }))
 
@@ -58,7 +59,7 @@ jest.mock("next/navigation", () => ({
 const mockUseAppContext = useAppContext as jest.Mock
 const mockUpdatePlaylistAction = updatePlaylistAction as jest.Mock
 const mockReorderPlaylistSongsAction = reorderPlaylistSongsAction as jest.Mock
-const mockAddSongToPlaylistAction = addSongToPlaylistAction as jest.Mock
+const mockAddSongsToPlaylistAction = addSongsToPlaylistAction as jest.Mock
 
 const context = { type: "personal" as const, userId: "user-1" }
 
@@ -137,8 +138,8 @@ describe("usePlaylists mutations", () => {
     )
   })
 
-  it("adds each song to an existing playlist via individual song actions", async () => {
-    mockAddSongToPlaylistAction.mockResolvedValue(undefined)
+  it("adds songs to an existing playlist via bulk action", async () => {
+    mockAddSongsToPlaylistAction.mockResolvedValue(undefined)
 
     const { result } = renderHook(() => useAddSongsToPlaylist(), { wrapper })
 
@@ -149,14 +150,11 @@ describe("usePlaylists mutations", () => {
       })
     })
 
-    expect(mockAddSongToPlaylistAction).toHaveBeenCalledTimes(3)
-    expect(mockAddSongToPlaylistAction).toHaveBeenNthCalledWith(1, "playlist-1", "song-a")
-    expect(mockAddSongToPlaylistAction).toHaveBeenNthCalledWith(2, "playlist-1", "song-b")
-    expect(mockAddSongToPlaylistAction).toHaveBeenNthCalledWith(3, "playlist-1", "song-c")
+    expect(mockAddSongsToPlaylistAction).toHaveBeenCalledWith("playlist-1", ["song-a", "song-b", "song-c"])
   })
 
   it("invalidates playlist cache after adding songs to an existing playlist", async () => {
-    mockAddSongToPlaylistAction.mockResolvedValue(undefined)
+    mockAddSongsToPlaylistAction.mockResolvedValue(undefined)
     const queryKey = playlistsKeys.list(context)
     queryClient.setQueryData<Playlist[]>(queryKey, [makePlaylist()])
 

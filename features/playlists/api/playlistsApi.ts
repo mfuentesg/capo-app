@@ -67,6 +67,8 @@ function transformPlaylistRow(row: PlaylistRow): Playlist {
 
   return {
     id: row.id,
+    userId: row.user_id,
+    teamId: row.team_id,
     name: row.name,
     description: row.description || undefined,
     date: row.date || undefined,
@@ -141,6 +143,8 @@ export async function getPlaylistWithSongs(
 
   return {
     id: data.id,
+    userId: data.user_id,
+    teamId: data.team_id,
     name: data.name,
     description: data.description || undefined,
     date: data.date || undefined,
@@ -202,6 +206,8 @@ export async function getPublicPlaylistByShareCode(
 
   return {
     id: data.id,
+    userId: data.user_id,
+    teamId: data.team_id,
     name: data.name,
     description: data.description || undefined,
     date: data.date || undefined,
@@ -262,6 +268,8 @@ export async function getPlaylistByShareCode(
 
   return {
     id: data.id,
+    userId: data.user_id,
+    teamId: data.team_id,
     name: data.name,
     description: data.description || undefined,
     date: data.date || undefined,
@@ -370,6 +378,8 @@ export async function createPlaylist(
   // Construct the response from the already-known data — no extra round-trip needed
   return {
     id: playlistRow.id,
+    userId: playlistRow.user_id,
+    teamId: playlistRow.team_id,
     name: playlistRow.name,
     description: playlistRow.description || undefined,
     date: playlistRow.date || undefined,
@@ -511,6 +521,40 @@ export async function addSongToPlaylist(
     p_song_id: songId
   })
 
+  if (error) throw error
+}
+
+/**
+ * Add multiple songs to a playlist in bulk
+ *
+ * @param supabase - Supabase client instance
+ * @param playlistId - Playlist UUID
+ * @param songIds - Array of song UUIDs
+ * @returns Promise<void>
+ */
+export async function addSongsToPlaylist(
+  supabase: SupabaseClient<Database>,
+  playlistId: string,
+  songIds: string[]
+): Promise<void> {
+  // Get current max position
+  const { data: maxPosData } = await supabase
+    .from("playlist_songs")
+    .select("position")
+    .eq("playlist_id", playlistId)
+    .order("position", { ascending: false })
+    .limit(1)
+    .single()
+
+  const startPos = maxPosData ? maxPosData.position + 1 : 0
+
+  const playlistSongs = songIds.map((songId, index) => ({
+    playlist_id: playlistId,
+    song_id: songId,
+    position: startPos + index
+  }))
+
+  const { error } = await supabase.from("playlist_songs").insert(playlistSongs)
   if (error) throw error
 }
 

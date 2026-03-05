@@ -39,7 +39,6 @@ export default async function SongLyricsPage({ params }: { params: Promise<{ id:
     <LyricsPageClient
       song={song}
       initialUserSettings={initialUserSettings}
-      initialMinimalistView={profileData?.preferences.minimalistLyricsView ?? false}
       initialLyricsColumns={profileData?.preferences.lyricsColumns ?? 2}
     />
   )

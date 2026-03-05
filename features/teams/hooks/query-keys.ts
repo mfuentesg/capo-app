@@ -14,5 +14,6 @@ export const teamsKeys = {
   details: () => [...teamsKeys.all, "detail"] as const,
   detail: (id: string) => [...teamsKeys.details(), id] as const,
   members: (teamId: string) => [...teamsKeys.detail(teamId), "members"] as const,
-  invitations: (teamId: string) => [...teamsKeys.detail(teamId), "invitations"] as const
+  invitations: (teamId: string) => [...teamsKeys.detail(teamId), "invitations"] as const,
+  pendingInvitations: () => [...teamsKeys.all, "pending-invitations"] as const
 } as const

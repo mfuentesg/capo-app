@@ -3,7 +3,14 @@ import type { ReactNode } from "react"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { PlaylistShareView } from "../playlist-share-view"
 import { LocaleProvider } from "@/features/settings"
+import { AppContextProvider } from "@/features/app-context"
+import { AppRouterContext } from "next/dist/shared/lib/app-router-context.shared-runtime"
+import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime"
 import type { PlaylistWithSongs } from "@/features/playlists/types"
+
+jest.mock("@uidotdev/usehooks", () => ({
+  useToggle: (initial: boolean) => [initial, jest.fn()]
+}))
 
 jest.mock("next/link", () => ({
   __esModule: true,
@@ -45,10 +52,23 @@ jest.mock("@hello-pangea/dnd", () => ({
 
 function renderWithProviders(ui: ReactNode) {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+  const mockRouter: AppRouterInstance = {
+    push: jest.fn(),
+    replace: jest.fn(),
+    prefetch: jest.fn(),
+    refresh: jest.fn(),
+    back: jest.fn(),
+    forward: jest.fn()
+  }
+
   return render(
-    <QueryClientProvider client={queryClient}>
-      <LocaleProvider>{ui}</LocaleProvider>
-    </QueryClientProvider>
+    <AppRouterContext.Provider value={mockRouter}>
+      <QueryClientProvider client={queryClient}>
+        <AppContextProvider>
+          <LocaleProvider>{ui}</LocaleProvider>
+        </AppContextProvider>
+      </QueryClientProvider>
+    </AppRouterContext.Provider>
   )
 }
 

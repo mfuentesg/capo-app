@@ -6,6 +6,7 @@ import { toast } from "sonner"
 import { Search, Music2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Skeleton } from "@/components/ui/skeleton"
 import {
   Sheet,
   SheetContent,
@@ -15,7 +16,7 @@ import {
   SheetDescription
 } from "@/components/ui/sheet"
 import { useSongs } from "@/features/songs"
-import { addSongToPlaylistAction } from "../../api/actions"
+import { addSongsToPlaylistAction } from "../../api/actions"
 import { playlistsKeys } from "../../hooks/query-keys"
 import { useTranslation } from "@/hooks/use-translation"
 import type { Song } from "@/features/songs"
@@ -35,7 +36,7 @@ export function AddSongsSheet({
 }: AddSongsSheetProps) {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
-  const { data: allSongs = [] } = useSongs()
+  const { data: allSongs = [], isLoading } = useSongs()
   const [search, setSearch] = useState("")
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
 
@@ -51,11 +52,7 @@ export function AddSongsSheet({
     : addableSongs
 
   const addMutation = useMutation({
-    mutationFn: async (songIds: string[]) => {
-      for (const songId of songIds) {
-        await addSongToPlaylistAction(playlistId, songId)
-      }
-    },
+    mutationFn: (songIds: string[]) => addSongsToPlaylistAction(playlistId, songIds),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: playlistsKeys.lists() })
       queryClient.invalidateQueries({ queryKey: playlistsKeys.detail(playlistId) })
@@ -113,7 +110,20 @@ export function AddSongsSheet({
         </div>
 
         <div className="flex-1 overflow-y-auto">
-          {filtered.length === 0 ? (
+          {isLoading ? (
+            <div className="divide-y">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="flex w-full items-center gap-3 px-6 py-3">
+                  <Skeleton className="h-5 w-5 shrink-0 rounded" />
+                  <div className="min-w-0 flex-1 space-y-2">
+                    <Skeleton className="h-4 w-3/4" />
+                    <Skeleton className="h-3 w-1/2" />
+                  </div>
+                  <Skeleton className="h-3 w-8 shrink-0" />
+                </div>
+              ))}
+            </div>
+          ) : filtered.length === 0 ? (
             <div className="flex flex-col items-center gap-3 py-16 text-center px-6">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
                 <Music2 className="h-5 w-5 text-muted-foreground" />

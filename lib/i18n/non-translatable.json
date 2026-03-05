@@ -4,7 +4,32 @@
     "brand_names": ["English", "Español", "Capo", "ChordPro"],
     "technical_terms": ["Next.js", "Google", "TypeScript", "JavaScript"],
     "abbreviations": ["HTML", "CSS", "JSON", "XML", "API", "UUID", "URL"],
-    "proper_nouns": []
+    "proper_nouns": [],
+    "chordpro_directives": [
+      "start_of_chorus",
+      "end_of_chorus",
+      "start_of_verse",
+      "end_of_verse",
+      "start_of_bridge",
+      "end_of_bridge",
+      "start_of_tab",
+      "end_of_tab",
+      "start_of_grid",
+      "end_of_grid",
+      "comment_italic",
+      "comment_box",
+      "soc",
+      "eoc",
+      "sov",
+      "eov",
+      "sob",
+      "eob",
+      "sot",
+      "eot",
+      "sog",
+      "eog"
+    ],
+    "metadata": ["Song Not Found", "Team Not Found"]
   },
   "whitelist": [
     "English",
@@ -14,6 +39,20 @@
     "Next.js",
     "Google",
     "TypeScript",
-    "JavaScript"
+    "JavaScript",
+    "start_of_chorus",
+    "end_of_chorus",
+    "start_of_verse",
+    "end_of_verse",
+    "start_of_bridge",
+    "end_of_bridge",
+    "start_of_tab",
+    "end_of_tab",
+    "start_of_grid",
+    "end_of_grid",
+    "comment_italic",
+    "comment_box",
+    "Song Not Found",
+    "Team Not Found"
   ]
 }

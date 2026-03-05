@@ -4,6 +4,7 @@ export { NewSongsProvider, useNewSongs } from "./contexts"
 export type { NewSongsContextType } from "./contexts"
 
 export { useSongs, useUpdateSong } from "./hooks/use-songs"
+export { useSongRealtime } from "./hooks/use-song-realtime"
 export {
   useUserSongSettings,
   useUpsertUserSongSettings,

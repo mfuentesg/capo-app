@@ -33,15 +33,22 @@ interface TeamCardProps {
 }
 
 export function TeamCard({ team, memberCount = 1, initialSelectedTeamId = null }: TeamCardProps) {
-  const { context, switchToTeam } = useAppContext()
+  const { context, switchToTeam, switchToPersonal } = useAppContext()
   const { data: user } = useUser()
   const { t } = useTranslation()
   const router = useRouter()
   const [isLeaveDialogOpen, toggleIsLeaveDialogOpen] = useToggle(false)
   const [isDeleteDialogOpen, toggleIsDeleteDialogOpen] = useToggle(false)
   const [editingIcon, setEditingIcon] = useState(team.icon || "")
-  const leaveTeamMutation = useLeaveTeam()
-  const deleteTeamMutation = useDeleteTeam()
+
+  const onTeamActionSuccess = (teamId: string) => {
+    if (context?.type === "team" && context.teamId === teamId) {
+      switchToPersonal()
+    }
+  }
+
+  const leaveTeamMutation = useLeaveTeam({ onSuccess: onTeamActionSuccess })
+  const deleteTeamMutation = useDeleteTeam({ onSuccess: onTeamActionSuccess })
   const updateTeamMutation = useUpdateTeam()
 
   const isCurrentTeam = context

@@ -20,7 +20,7 @@ import { createOverlayIds } from "@/lib/ui/stable-overlay-ids"
 export function SongsClient() {
   const { t } = useTranslation()
   const { data: user } = useUser()
-  const { data: songs = [] } = useSongs()
+  const { data: songs = [], isLoading } = useSongs()
   const createSongMutation = useCreateSong()
   const updateSongMutation = useUpdateSong()
   const deleteSongMutation = useDeleteSong()
@@ -367,6 +367,7 @@ export function SongsClient() {
               filterStatus={filterStatus}
               bpmRange={bpmRange}
               isCreatingNewSong={isCreatingNewSong}
+              isLoading={isLoading && songs.length === 0}
               onSelectSong={handleSelectSong}
             />
           </div>

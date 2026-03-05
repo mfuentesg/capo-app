@@ -13,8 +13,10 @@ import {
   inviteTeamMember as inviteTeamMemberApi,
   removeTeamMember as removeTeamMemberApi,
   changeTeamMemberRole as changeTeamMemberRoleApi,
-  deleteTeamInvitation as deleteTeamInvitationApi
+  deleteTeamInvitation as deleteTeamInvitationApi,
+  getPendingInvitations as getPendingInvitationsApi
 } from "./teamsApi"
+import type { PendingInvitation } from "../types"
 
 export async function createTeamAction(teamData: TablesInsert<"teams">): Promise<string> {
   const supabase = await createClient()
@@ -79,6 +81,11 @@ export async function changeTeamMemberRoleAction(
 export async function deleteTeamInvitationAction(invitationId: string): Promise<void> {
   const supabase = await createClient()
   await deleteTeamInvitationApi(supabase, invitationId)
+}
+
+export async function getPendingInvitationsAction(): Promise<PendingInvitation[]> {
+  const supabase = await createClient()
+  return getPendingInvitationsApi(supabase)
 }
 
 export interface AcceptTeamInvitationResult {

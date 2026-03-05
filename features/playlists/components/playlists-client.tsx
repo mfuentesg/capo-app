@@ -23,7 +23,7 @@ interface PlaylistsClientProps {
 }
 
 export function PlaylistsClient({ initialPlaylists = [] }: PlaylistsClientProps) {
-  const { data: playlists = initialPlaylists } = usePlaylists()
+  const { data: playlists = initialPlaylists, isLoading } = usePlaylists()
   const { data: user } = useUser()
   const createPlaylistMutation = useCreatePlaylist()
   const updatePlaylistMutation = useUpdatePlaylist()
@@ -263,6 +263,7 @@ export function PlaylistsClient({ initialPlaylists = [] }: PlaylistsClientProps)
               filterStatus={filterStatus}
               filterVisibility={filterVisibility}
               selectedPlaylistId={selectedPlaylistId}
+              isLoading={isLoading && playlists.length === 0}
               onSelectPlaylist={handleSelectPlaylist}
             />
           </div>

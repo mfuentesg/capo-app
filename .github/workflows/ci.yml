@@ -33,11 +33,22 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Validate Translations
+        run: pnpm run i18n:validate
+
       - name: ESLint
         run: pnpm run lint
 
       - name: TypeScript Typecheck
         run: pnpm run typecheck
+
+      - name: Build
+        run: pnpm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: "https://example.supabase.co"
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: "dummy-key"
+          # Skip typecheck/lint during build since they are separate steps
+          NEXT_TELEMETRY_DISABLED: 1
 
   test:
     name: Tests

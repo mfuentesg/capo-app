@@ -7,7 +7,7 @@ import {
   createPlaylistAction,
   updatePlaylistAction,
   deletePlaylistAction,
-  addSongToPlaylistAction,
+  addSongsToPlaylistAction,
   reorderPlaylistSongsAction
 } from "../api/actions"
 import { playlistsKeys } from "./query-keys"
@@ -166,9 +166,7 @@ export function useAddSongsToPlaylist() {
 
   return useMutation({
     mutationFn: async ({ playlistId, songIds }: { playlistId: string; songIds: string[] }) => {
-      for (const songId of songIds) {
-        await addSongToPlaylistAction(playlistId, songId)
-      }
+      return addSongsToPlaylistAction(playlistId, songIds)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: playlistsKeys.lists() })

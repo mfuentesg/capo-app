@@ -39,16 +39,18 @@ const SortableSong = memo(
 
     const [swipeOffset, setSwipeOffset] = useState(0)
     const [isAnimating, setIsAnimating] = useState(false)
+    const [isDeleted, setIsDeleted] = useState(false)
     const swipeStartX = useRef<number | null>(null)
     const didSwipe = useRef(false)
 
     const sortStyle = {
       transform: CSS.Transform.toString(transform),
-      transition
+      transition,
+      display: isDeleted ? "none" : undefined
     }
 
     const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-      if (isDragging || !onRemoveSong) return
+      if (isDragging || !onRemoveSong || isDeleted) return
       // Ignore events that originate from the drag handle — those belong to @dnd-kit
       if ((e.target as HTMLElement).closest("[data-drag-handle]")) return
       ;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
@@ -57,7 +59,7 @@ const SortableSong = memo(
     }
 
     const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-      if (swipeStartX.current === null || isDragging || !onRemoveSong) return
+      if (swipeStartX.current === null || isDragging || !onRemoveSong || isDeleted) return
       const delta = e.clientX - swipeStartX.current
       if (delta < -8) {
         didSwipe.current = true
@@ -77,6 +79,7 @@ const SortableSong = memo(
       blockNextDocumentClick()
 
       if (swipeOffset < SWIPE_DELETE_THRESHOLD) {
+        setIsDeleted(true)
         onRemoveSong?.(song.id)
       } else {
         setIsAnimating(true)

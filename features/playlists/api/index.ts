@@ -18,6 +18,7 @@ export {
   updatePlaylistAction,
   deletePlaylistAction,
   addSongToPlaylistAction,
+  addSongsToPlaylistAction,
   removeSongFromPlaylistAction,
   reorderPlaylistSongsAction
 } from "./actions"

@@ -34,6 +34,28 @@ export function usePlaylistRealtime(playlistId: string) {
           queryClient.invalidateQueries({ queryKey: playlistsKeys.detail(playlistId) })
         }
       )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "songs"
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: playlistsKeys.detail(playlistId) })
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "user_song_settings"
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: playlistsKeys.detail(playlistId) })
+        }
+      )
       .subscribe((status) => {
         setIsConnected(status === "SUBSCRIBED")
       })

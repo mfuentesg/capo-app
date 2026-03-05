@@ -6,10 +6,9 @@ type PreferencesJson = Database["public"]["Tables"]["profiles"]["Row"]["preferen
 
 function mapJsonToPreferences(json: PreferencesJson): UserPreferences {
   if (typeof json !== "object" || json === null || Array.isArray(json)) {
-    return { minimalistLyricsView: false, lyricsColumns: 2 }
+    return { lyricsColumns: 2 }
   }
   return {
-    minimalistLyricsView: json["minimalistLyricsView"] === true,
     lyricsColumns: json["lyricsColumns"] === 1 ? 1 : 2
   }
 }
@@ -68,7 +67,6 @@ export async function upsertUserPreferences(
     .from("profiles")
     .update({
       preferences: {
-        minimalistLyricsView: preferences.minimalistLyricsView,
         lyricsColumns: preferences.lyricsColumns
       },
       updated_at: new Date().toISOString()

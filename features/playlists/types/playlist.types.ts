@@ -2,6 +2,8 @@ import type { Song } from "@/features/songs"
 
 export interface Playlist {
   id: string
+  userId?: string | null
+  teamId?: string | null
   name: string
   description?: string
   date?: string

@@ -12,14 +12,15 @@ import {
   inviteTeamMemberAction,
   removeTeamMemberAction,
   changeTeamMemberRoleAction,
-  deleteTeamInvitationAction
+  deleteTeamInvitationAction,
+  getPendingInvitationsAction
 } from "../api/actions"
 import { teamsKeys } from "./query-keys"
 import { useUser } from "@/features/auth"
-import { useAppContext } from "@/features/app-context"
 import { useLocale } from "@/features/settings"
 import { toast } from "sonner"
 import type { Tables, TablesUpdate } from "@/lib/supabase/database.types"
+import type { PendingInvitation } from "../types"
 
 /**
  * Hook to fetch teams the current user belongs to
@@ -33,6 +34,20 @@ export function useTeams() {
     enabled: !!user?.id,
     staleTime: 5 * 60 * 1000, // 5 minutes
     retry: 1
+  })
+}
+
+/**
+ * Hook to fetch pending invitations for the current user
+ */
+export function usePendingInvitations() {
+  const { data: user } = useUser()
+
+  return useQuery<PendingInvitation[]>({
+    queryKey: teamsKeys.pendingInvitations(),
+    queryFn: () => getPendingInvitationsAction(),
+    enabled: !!user?.id,
+    staleTime: 30 * 1000
   })
 }
 
@@ -96,21 +111,17 @@ export function useUpdateTeam() {
 /**
  * Hook to delete a team
  */
-export function useDeleteTeam() {
+export function useDeleteTeam(options?: { onSuccess?: (teamId: string) => void }) {
   const queryClient = useQueryClient()
   const router = useRouter()
   const { t } = useLocale()
-  const { context, switchToPersonal } = useAppContext()
 
   return useMutation({
     mutationFn: async (teamId: string) => {
       return deleteTeamAction(teamId)
     },
     onSuccess: async (_, teamId) => {
-      // If the deleted team was active, switch to personal
-      if (context?.type === "team" && context.teamId === teamId) {
-        switchToPersonal()
-      }
+      options?.onSuccess?.(teamId)
       queryClient.invalidateQueries({ queryKey: teamsKeys.list() })
       queryClient.removeQueries({ queryKey: teamsKeys.detail(teamId) })
       toast.success(t.toasts?.teamDeleted || "Team deleted")
@@ -126,21 +137,17 @@ export function useDeleteTeam() {
 /**
  * Hook to leave a team
  */
-export function useLeaveTeam() {
+export function useLeaveTeam(options?: { onSuccess?: (teamId: string) => void }) {
   const queryClient = useQueryClient()
   const router = useRouter()
   const { t } = useLocale()
-  const { context, switchToPersonal } = useAppContext()
 
   return useMutation({
     mutationFn: async (teamId: string) => {
       return leaveTeamAction(teamId)
     },
     onSuccess: async (_, teamId) => {
-      // If the left team was active, switch to personal
-      if (context?.type === "team" && context.teamId === teamId) {
-        switchToPersonal()
-      }
+      options?.onSuccess?.(teamId)
       queryClient.invalidateQueries({ queryKey: teamsKeys.list() })
       toast.success(t.toasts?.teamLeft || "You have left the team")
       router.push("/dashboard/teams")
@@ -203,11 +210,10 @@ export function useTransferOwnershipAndStay() {
 /**
  * Hook to transfer ownership and leave the team (for owners)
  */
-export function useTransferAndLeave() {
+export function useTransferAndLeave(options?: { onSuccess?: (teamId: string) => void }) {
   const queryClient = useQueryClient()
   const router = useRouter()
   const { t } = useLocale()
-  const { context, switchToPersonal } = useAppContext()
 
   return useMutation({
     mutationFn: async ({ teamId, newOwnerId }: { teamId: string; newOwnerId: string }) => {
@@ -215,9 +221,7 @@ export function useTransferAndLeave() {
       await leaveTeamAction(teamId)
     },
     onSuccess: async (_, { teamId }) => {
-      if (context?.type === "team" && context.teamId === teamId) {
-        switchToPersonal()
-      }
+      options?.onSuccess?.(teamId)
       queryClient.invalidateQueries({ queryKey: teamsKeys.list() })
       queryClient.removeQueries({ queryKey: teamsKeys.detail(teamId) })
       toast.success(t.toasts?.teamLeft || "You have left the team")
@@ -476,6 +480,7 @@ export function useAcceptTeamInvitation() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: teamsKeys.list() })
+      queryClient.invalidateQueries({ queryKey: teamsKeys.pendingInvitations() })
     }
   })
 }

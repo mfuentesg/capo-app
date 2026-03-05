@@ -51,7 +51,8 @@ import {
   useUserSongSettings,
   useEffectiveSongSettings,
   useUpsertUserSongSettings,
-  useUserPreferences
+  useUserPreferences,
+  SongSkeleton
 } from "@/features/songs"
 import type { Playlist } from "@/features/playlists/types"
 import type { SongWithPosition, PlaylistWithSongs } from "@/types/extended"
@@ -94,7 +95,6 @@ const ActiveSongLyrics = forwardRef<LyricsViewHandle, ActiveSongLyricsProps>(
         isSaving={isSaving}
         initialSettings={effectiveSettings}
         onSettingsChange={upsertSettings}
-        initialMinimalistView={preferences?.minimalistLyricsView ?? false}
         initialLyricsColumns={preferences?.lyricsColumns ?? 2}
       />
     )
@@ -210,7 +210,7 @@ function EditableField({
 export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: PlaylistDetailProps) {
   usePlaylistRealtime(playlist.id)
   const reorderMutation = useReorderPlaylistSongs()
-  const { data: playlistWithSongsData } = usePlaylistSongs(playlist.id)
+  const { data: playlistWithSongsData, isLoading } = usePlaylistSongs(playlist.id)
   const { t } = useTranslation()
   const { locale } = useLocale()
   const queryClient = useQueryClient()
@@ -240,13 +240,32 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
 
   const removeSongMutation = useMutation({
     mutationFn: (songId: string) => removeSongFromPlaylistAction(playlist.id, songId),
+    onMutate: async (songId) => {
+      const queryKey = playlistsKeys.detail(playlist.id)
+      await queryClient.cancelQueries({ queryKey })
+      const previousData = queryClient.getQueryData<PlaylistWithSongs>(queryKey)
+
+      if (previousData) {
+        queryClient.setQueryData<PlaylistWithSongs>(queryKey, {
+          ...previousData,
+          songs: previousData.songs.filter((s) => s.id !== songId)
+        })
+      }
+
+      return { previousData }
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: playlistsKeys.lists() })
-      queryClient.invalidateQueries({ queryKey: playlistsKeys.detail(playlist.id) })
       toast.success(t.toasts.songDeleted)
     },
-    onError: () => {
+    onError: (_err, _songId, context) => {
+      if (context?.previousData) {
+        queryClient.setQueryData(playlistsKeys.detail(playlist.id), context.previousData)
+      }
       toast.error(t.toasts?.error || "Something went wrong")
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: playlistsKeys.detail(playlist.id) })
     }
   })
 
@@ -442,7 +461,13 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
               {t.playlistDetail.addSongsButton}
             </Button>
           </div>
-          {playlist.songs.length === 0 ? (
+          {isLoading ? (
+            <div className="space-y-3">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <SongSkeleton key={i} />
+              ))}
+            </div>
+          ) : playlist.songs.length === 0 ? (
             <Empty>
               <EmptyHeader>
                 <EmptyMedia variant="icon">

@@ -11,6 +11,7 @@ import {
   updatePlaylist as updatePlaylistApi,
   deletePlaylist as deletePlaylistApi,
   addSongToPlaylist as addSongToPlaylistApi,
+  addSongsToPlaylist as addSongsToPlaylistApi,
   removeSongFromPlaylist as removeSongFromPlaylistApi,
   reorderPlaylistSongs as reorderPlaylistSongsApi
 } from "./playlistsApi"
@@ -70,6 +71,15 @@ export async function addSongToPlaylistAction(
 ): Promise<void> {
   const supabase = await createClient()
   await addSongToPlaylistApi(supabase, playlistId, songId)
+  revalidatePath("/dashboard/playlists")
+}
+
+export async function addSongsToPlaylistAction(
+  playlistId: string,
+  songIds: string[]
+): Promise<void> {
+  const supabase = await createClient()
+  await addSongsToPlaylistApi(supabase, playlistId, songIds)
   revalidatePath("/dashboard/playlists")
 }
 

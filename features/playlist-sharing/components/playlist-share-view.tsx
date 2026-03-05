@@ -20,14 +20,15 @@ import { useMutation } from "@tanstack/react-query"
 import { DragDropContext, Droppable, Draggable, type DropResult } from "@hello-pangea/dnd"
 import { useLocale } from "@/features/settings"
 import { useUser } from "@/features/auth"
+import { useAppContext } from "@/features/app-context"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Switch } from "@/components/ui/switch"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer"
 import { LyricsView } from "@/features/lyrics-editor"
-import type { PlaylistWithSongs } from "@/features/playlists/types"
-import type { Playlist } from "@/features/playlists/types"
+import { api, reorderPlaylistSongsAction, updatePlaylistAction } from "@/features/playlists"
+import type { PlaylistWithSongs, Playlist } from "@/features/playlists/types"
 import type { Song } from "@/features/songs"
 import {
   useAllUserSongSettings,
@@ -35,11 +36,6 @@ import {
   useUpsertUserSongSettings,
   useUserPreferences
 } from "@/features/songs"
-import {
-  reorderPlaylistSongsAction,
-  updatePlaylistAction,
-  getPublicPlaylistByShareCode
-} from "@/features/playlists"
 import { createClient } from "@/lib/supabase/client"
 import { formatLongDate } from "@/lib/utils"
 
@@ -47,9 +43,15 @@ interface ActiveSongLyricsForShareProps {
   song: Song
   onClose: () => void
   isAuthenticated: boolean
+  canEdit?: boolean
 }
 
-function ActiveSongLyricsForShare({ song, onClose, isAuthenticated }: ActiveSongLyricsForShareProps) {
+function ActiveSongLyricsForShare({
+  song,
+  onClose,
+  isAuthenticated,
+  canEdit = false
+}: ActiveSongLyricsForShareProps) {
   const effectiveSettings = useEffectiveSongSettings(song)
   const { mutate: upsertSettings } = useUpsertUserSongSettings(song)
   const { data: preferences } = useUserPreferences()
@@ -57,7 +59,7 @@ function ActiveSongLyricsForShare({ song, onClose, isAuthenticated }: ActiveSong
   return (
     <LyricsView
       mode="panel"
-      readOnly
+      readOnly={!canEdit}
       song={{
         ...song,
         lyrics: song.lyrics ?? "",
@@ -68,7 +70,6 @@ function ActiveSongLyricsForShare({ song, onClose, isAuthenticated }: ActiveSong
       onClose={onClose}
       initialSettings={effectiveSettings}
       onSettingsChange={isAuthenticated ? upsertSettings : undefined}
-      initialMinimalistView={preferences?.minimalistLyricsView ?? false}
       initialLyricsColumns={preferences?.lyricsColumns ?? 2}
     />
   )
@@ -81,6 +82,7 @@ interface PlaylistShareViewProps {
 export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
   const { t, locale } = useLocale()
   const { data: user } = useUser()
+  const { teams } = useAppContext()
   // Pre-populate individual song settings caches so the lyrics drawer has warm data on open.
   useAllUserSongSettings()
   const [activeIndex, setActiveIndex] = useState<number | null>(null)
@@ -152,12 +154,42 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
         {
           event: "*",
           schema: "public",
+          table: "songs"
+        },
+        () => {
+          // Re-fetch playlist and songs via public API if changed
+          if (playlist.shareCode) {
+            api.getPublicPlaylistByShareCode(playlist.shareCode).then((data) => {
+              if (data) setSongs(data.songs)
+            })
+          }
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "user_song_settings"
+        },
+        () => {
+          // Song settings are fetched via hooks, so invalidating the cache is enough
+          // but we also need to ensure the local user who might be viewing this gets the update.
+          // Since this view is often used by guests, user_song_settings might not apply
+          // unless they are logged in.
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
           table: "playlist_songs",
           filter: `playlist_id=eq.${playlist.id}`
         },
         async () => {
           if (!playlist.shareCode) return
-          const updated = await getPublicPlaylistByShareCode(supabase, playlist.shareCode)
+          const updated = await api.getPublicPlaylistByShareCode(playlist.shareCode)
           if (updated) setSongs(updated.songs)
         }
       )
@@ -170,6 +202,10 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
 
   const activeSong = activeIndex !== null ? songs[activeIndex] : null
   const totalSongs = songs.length
+
+  const isOwner = user && playlist.userId === user.id
+  const isTeamMember = !!(user && playlist.teamId && teams.some((t) => t.id === playlist.teamId))
+  const canEditSongs = !!(isOwner || isTeamMember)
 
   const handleCloseDrawer = () => setActiveIndex(null)
   const handlePrevSong = () => {
@@ -497,6 +533,7 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
                   song={activeSong}
                   onClose={handleCloseDrawer}
                   isAuthenticated={!!user}
+                  canEdit={canEditSongs}
                 />
               )}
             </div>

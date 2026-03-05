@@ -7,6 +7,7 @@
 
 import type { SupabaseClient } from "@supabase/supabase-js"
 import type { Database, Tables, TablesInsert, TablesUpdate } from "@/lib/supabase/database.types"
+import type { PendingInvitation } from "../types"
 
 export type TeamWithMemberCount = Tables<"teams"> & {
   member_count: number
@@ -291,4 +292,48 @@ export async function removeTeamMember(
   })
 
   if (error) throw error
+}
+
+/**
+ * Team invitation with related data
+ */
+interface InvitationWithRelations extends Tables<"team_invitations"> {
+  team: { name: string } | null
+  inviter: { full_name: string | null; email: string | null } | null
+}
+
+/**
+ * Fetches all pending invitations for the current user by email.
+ */
+export async function getPendingInvitations(
+  supabase: SupabaseClient<Database>
+): Promise<PendingInvitation[]> {
+  const {
+    data: { user }
+  } = await supabase.auth.getUser()
+
+  if (!user?.email) return []
+
+  const { data, error } = await supabase
+    .from("team_invitations")
+    .select(
+      `
+      *,
+      team:teams(name),
+      inviter:profiles(full_name, email)
+    `
+    )
+    .ilike("email", user.email)
+    .is("accepted_at", null)
+    .gt("expires_at", new Date().toISOString())
+    .order("created_at", { ascending: false })
+
+  if (error) throw error
+
+  const invitations = (data ?? []) as unknown as InvitationWithRelations[]
+  return invitations.map((inv) => ({
+    ...inv,
+    teamName: inv.team?.name ?? undefined,
+    inviterName: inv.inviter?.full_name ?? inv.inviter?.email ?? "A team member"
+  }))
 }
