@@ -289,7 +289,7 @@ export function ChordDiagram({ chordName, onClose }: ChordDiagramProps) {
   if (totalPositions === 0) {
     return (
       <Dialog open={!!chordName} onOpenChange={(open) => !open && onClose()}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle>{t.chords.title.replace("{chordName}", chordName)}</DialogTitle>
             <DialogDescription>{t.chords.noDiagram}</DialogDescription>
@@ -311,7 +311,7 @@ export function ChordDiagram({ chordName, onClose }: ChordDiagramProps) {
 
   return (
     <Dialog open={!!chordName} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold flex items-center justify-between">
             <span>{chordName}</span>
@@ -323,8 +323,8 @@ export function ChordDiagram({ chordName, onClose }: ChordDiagramProps) {
           </DialogTitle>
         </DialogHeader>
 
-        <div className="flex flex-col items-center justify-center py-6">
-          <div className="w-48 h-48 bg-white rounded-lg p-4 flex items-center justify-center shadow-sm border">
+        <div className="flex flex-col items-center justify-center py-8">
+          <div className="w-64 h-64 bg-white rounded-xl p-6 flex items-center justify-center shadow-md border">
             <Chord
               chord={currentChord}
               instrument={{
