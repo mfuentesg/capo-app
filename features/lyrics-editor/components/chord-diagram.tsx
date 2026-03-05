@@ -12,11 +12,12 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog"
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import { ChevronLeft, ChevronRight, Info } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useLocale } from "@/features/settings"
 // @ts-expect-error - no types for this library
 import { findGuitarChord as findGuitarChordRaw } from "chord-fingering"
+import { cn } from "@/lib/utils"
 
 interface ChordPosition {
   frets: number[]
@@ -213,8 +214,7 @@ function parseChord(
     return exactMap[suffix] || suffix
   }
 
-  const rootName = (parsed.root.originalKeyString || "") + (parsed.root.modifier || "")
-  const lookupKey = getStandardNote(rootName)
+  const lookupKey = getStandardNote((parsed.root.originalKeyString || "") + (parsed.root.modifier || ""))
 
   // 1. Try slash chord lookup if applicable
   if (parsed.bass && parsed.bass.type === "symbol") {
@@ -249,8 +249,8 @@ export function ChordDiagram({ chordName, onClose }: ChordDiagramProps) {
     setPositionIndex(0)
   }, [chordName])
 
-  const { positions, totalPositions } = React.useMemo(() => {
-    if (!chordName) return { positions: [], totalPositions: 0 }
+  const { positions, totalPositions, isAlgorithmic } = React.useMemo(() => {
+    if (!chordName) return { positions: [], totalPositions: 0, isAlgorithmic: false }
 
     // First try finding the EXACT chord in DB (including slash)
     const exactParsed = parseChord(chordName, { allowBaseFallback: false })
@@ -269,7 +269,7 @@ export function ChordDiagram({ chordName, onClose }: ChordDiagramProps) {
       try {
         const generated = findGuitarChord(chordName)
         if (generated && generated.fingerings && generated.fingerings.length > 0) {
-          foundPositions = transformGeneratedChord(generated)
+          return { positions: transformGeneratedChord(generated), totalPositions: generated.fingerings.length, isAlgorithmic: true }
         }
       } catch {
         // Fallback silently if generation fails
@@ -288,7 +288,7 @@ export function ChordDiagram({ chordName, onClose }: ChordDiagramProps) {
       }
     }
 
-    return { positions: foundPositions, totalPositions: foundPositions.length }
+    return { positions: foundPositions, totalPositions: foundPositions.length, isAlgorithmic: false }
   }, [chordName])
 
   if (!chordName) return null
@@ -296,10 +296,15 @@ export function ChordDiagram({ chordName, onClose }: ChordDiagramProps) {
   if (totalPositions === 0) {
     return (
       <Dialog open={!!chordName} onOpenChange={(open) => !open && onClose()}>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className="sm:max-w-[400px]">
           <DialogHeader>
-            <DialogTitle>{t.chords.title.replace("{chordName}", chordName)}</DialogTitle>
-            <DialogDescription>{t.chords.noDiagram}</DialogDescription>
+            <DialogTitle className="text-xl">{chordName}</DialogTitle>
+            <div className="pt-4 flex flex-col items-center text-center">
+              <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-4">
+                <Info className="w-6 h-6 text-muted-foreground" />
+              </div>
+              <DialogDescription>{t.chords.noDiagram}</DialogDescription>
+            </div>
           </DialogHeader>
         </DialogContent>
       </Dialog>
@@ -318,44 +323,79 @@ export function ChordDiagram({ chordName, onClose }: ChordDiagramProps) {
 
   return (
     <Dialog open={!!chordName} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-bold flex items-center justify-between">
-            <span>{chordName}</span>
-            <span className="text-sm font-normal text-muted-foreground">
-              {t.chords.positionOf
-                .replace("{current}", (positionIndex + 1).toString())
-                .replace("{total}", totalPositions.toString())}
-            </span>
-          </DialogTitle>
-        </DialogHeader>
-
-        <div className="flex flex-col items-center justify-center py-8">
-          <div className="w-64 h-64 bg-white rounded-xl p-6 flex items-center justify-center shadow-md border">
-            <Chord
-              chord={currentChord}
-              instrument={{
-                ...guitarData.main,
-                tunings: guitarData.tunings,
-              }}
-              lite={false}
-            />
-          </div>
-
-          {totalPositions > 1 && (
-            <div className="flex items-center gap-4 mt-6">
-              <Button variant="outline" size="icon" onClick={handlePrev}>
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <div className="text-sm font-medium">
-                {t.chords.variation.replace("{count}", (positionIndex + 1).toString())}
+      <DialogContent className="sm:max-w-[450px] p-0 overflow-hidden gap-0 border-none shadow-2xl transition-all duration-300">
+        <div className="bg-gradient-to-br from-primary/10 via-background to-background p-6 text-card-foreground">
+          <DialogHeader className="mb-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <DialogTitle className="text-4xl font-black tracking-tight">
+                  {chordName}
+                </DialogTitle>
+                <div className="mt-1 font-medium text-muted-foreground uppercase tracking-widest text-[10px]">
+                  {isAlgorithmic ? "Generated Diagram" : "Verified Shape"}
+                </div>
               </div>
-              <Button variant="outline" size="icon" onClick={handleNext}>
-                <ChevronRight className="h-4 w-4" />
-              </Button>
+              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20">
+                <span className="text-primary font-bold text-sm" data-testid="position-indicator">{positionIndex + 1}</span>
+              </div>
             </div>
-          )}
+          </DialogHeader>
+
+          <div className="flex flex-col items-center relative group">
+            <div className="absolute inset-0 bg-primary/5 blur-3xl rounded-full scale-75 opacity-50 group-hover:opacity-100 transition-opacity" />
+            
+            <div className="relative w-full aspect-square max-w-[280px] bg-white dark:bg-zinc-950 rounded-3xl p-8 shadow-[0_20px_50px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-border/50 flex items-center justify-center overflow-hidden transition-transform duration-500 group-hover:scale-[1.02]">
+              <div className="w-full h-full scale-[1.35] translate-y-[-5%] transition-all duration-500 group-hover:scale-[1.4]">
+                <Chord
+                  chord={currentChord}
+                  instrument={{
+                    ...guitarData.main,
+                    tunings: guitarData.tunings,
+                  }}
+                  lite={false}
+                />
+              </div>
+            </div>
+
+            {totalPositions > 1 && (
+              <div className="flex gap-1.5 mt-8 mb-2">
+                {Array.from({ length: totalPositions }).map((_, i) => (
+                  <button 
+                    key={i} 
+                    type="button"
+                    className={cn(
+                      "h-1.5 rounded-full transition-all duration-300",
+                      i === positionIndex ? "w-6 bg-primary" : "w-1.5 bg-muted-foreground/30 hover:bg-muted-foreground/50 cursor-pointer"
+                    )}
+                    onClick={() => setPositionIndex(i)}
+                    aria-label={`Go to variation ${i + 1}`}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
         </div>
+
+        {totalPositions > 1 && (
+          <div className="grid grid-cols-2 border-t border-border bg-muted/30">
+            <Button 
+              variant="ghost" 
+              className="h-14 rounded-none border-r border-border hover:bg-background transition-colors font-semibold gap-2 group" 
+              onClick={handlePrev}
+            >
+              <ChevronLeft className="h-5 w-5 transition-transform group-hover:-translate-x-1" />
+              {t.common?.previous || "Previous"}
+            </Button>
+            <Button 
+              variant="ghost" 
+              className="h-14 rounded-none hover:bg-background transition-colors font-semibold gap-2 group text-primary" 
+              onClick={handleNext}
+            >
+              {t.common?.next || "Next"}
+              <ChevronRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+            </Button>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   )

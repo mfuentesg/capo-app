@@ -11,13 +11,17 @@ jest.mock("@/components/ui/dialog", () => ({
   ),
   DialogHeader: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   DialogTitle: ({ children }: { children: React.ReactNode }) => <h2>{children}</h2>,
-  DialogDescription: ({ children }: { children: React.ReactNode }) => <p>{children}</p>,
+  DialogDescription: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }))
 
 // Mock useLocale hook
 jest.mock("@/features/settings", () => ({
   useLocale: () => ({
     t: {
+      common: {
+        previous: "Previous",
+        next: "Next"
+      },
       chords: {
         title: "Chord: {chordName}",
         noDiagram: "No diagram available for this chord.",
@@ -56,7 +60,6 @@ describe("ChordDiagram Fallback", () => {
     render(<ChordDiagram chordName="C" onClose={jest.fn()} />)
     expect(screen.getByText("C")).toBeInTheDocument()
     expect(screen.getByTestId("chord-svg")).toBeInTheDocument()
-    // Position 1 of 4 from DB
-    expect(screen.getByText("Position 1 of 4")).toBeInTheDocument()
+    expect(screen.getByTestId("position-indicator")).toHaveTextContent("1")
   })
 })

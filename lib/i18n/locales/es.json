@@ -30,8 +30,11 @@
     "userMenu": "Menú de usuario",
     "removeSong": "Eliminar canción",
     "clearSearch": "Limpiar búsqueda",
-    "copyToClipboardFailed": "No se pudo copiar al portapapeles"
-  },
+    "copyToClipboardFailed": "Error al copiar al portapapeles",
+    "previous": "Anterior",
+    "next": "Siguiente"
+    },
+
   "metadata": {
     "title": "Capo",
     "description": "Una aplicación moderna de biblioteca de canciones para músicos con acordes y letras, construida con Next.js y formato ChordPro."
