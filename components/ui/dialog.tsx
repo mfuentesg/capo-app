@@ -61,7 +61,7 @@ const DialogContent = React.forwardRef<
       ) : children}
       <DialogPrimitive.Close className={cn(
         "absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground",
-        fancy && "right-6 top-6 h-8 w-8 rounded-full bg-background/50 backdrop-blur-sm flex items-center justify-center border border-border/50 hover:bg-background"
+        fancy && "z-50 right-6 top-6 h-8 w-8 rounded-full bg-background/50 backdrop-blur-sm flex items-center justify-center border border-border/50 hover:bg-background"
       )}>
         <X className={cn("h-4 w-4", fancy && "h-5 w-5")} />
         <span className="sr-only">Close</span>
