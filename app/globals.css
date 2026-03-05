@@ -128,13 +128,11 @@
 }
 
 .chordsheet-content .chord {
-  @apply font-semibold cursor-pointer [color:var(--chord)] inline-block;
-  line-height: 1.2;
-  padding: 0 2px;
-  margin: 0 -2px;
+  @apply font-semibold cursor-pointer [color:var(--chord)];
+  padding: 0 1px;
+  margin: 0 -1px;
   border-radius: 2px;
   transition: background-color 0.1s ease;
-  vertical-align: baseline;
 }
 
 .section-repeat-content .chord {
