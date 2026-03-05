@@ -48,8 +48,9 @@ describe("ChordDiagram", () => {
   it("renders chord diagram for a valid chord (C)", () => {
     render(<ChordDiagram chordName="C" onClose={jest.fn()} />)
     expect(screen.getByText("C")).toBeInTheDocument()
-    expect(screen.getByTestId("position-indicator")).toHaveTextContent("1")
     expect(screen.getByTestId("chord-svg")).toBeInTheDocument()
+    // Verify at least one variation button is rendered
+    expect(screen.getByLabelText(/Go to variation 1/i)).toBeInTheDocument()
   })
 
   it("renders chord diagram for a minor chord (Am)", () => {

@@ -335,9 +335,6 @@ export function ChordDiagram({ chordName, onClose }: ChordDiagramProps) {
                   {isAlgorithmic ? "Generated Diagram" : "Verified Shape"}
                 </div>
               </div>
-              <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20">
-                <span className="text-primary font-bold text-sm" data-testid="position-indicator">{positionIndex + 1}</span>
-              </div>
             </div>
           </DialogHeader>
 
@@ -380,19 +377,19 @@ export function ChordDiagram({ chordName, onClose }: ChordDiagramProps) {
           <div className="grid grid-cols-2 border-t border-border bg-muted/30">
             <Button 
               variant="ghost" 
-              className="h-14 rounded-none border-r border-border hover:bg-background transition-colors font-semibold gap-2 group" 
+              className="h-12 rounded-none border-r border-border hover:bg-background transition-colors font-semibold gap-2 group text-xs sm:text-sm" 
               onClick={handlePrev}
             >
-              <ChevronLeft className="h-5 w-5 transition-transform group-hover:-translate-x-1" />
+              <ChevronLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
               {t.common?.previous || "Previous"}
             </Button>
             <Button 
               variant="ghost" 
-              className="h-14 rounded-none hover:bg-background transition-colors font-semibold gap-2 group text-primary" 
+              className="h-12 rounded-none hover:bg-background transition-colors font-semibold gap-2 group text-primary text-xs sm:text-sm" 
               onClick={handleNext}
             >
               {t.common?.next || "Next"}
-              <ChevronRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+              <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Button>
           </div>
         )}
