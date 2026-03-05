@@ -495,7 +495,7 @@ export function RenderedSong({
                 }
               />
               {!isCollapsed && (
-                <div className="section-repeat-content">
+                <div className="section-repeat-content [&_.chord]:[color:var(--section-accent)]">
                   <pre
                     className="chordsheet-content"
                     dangerouslySetInnerHTML={{ __html: segment.html }}
