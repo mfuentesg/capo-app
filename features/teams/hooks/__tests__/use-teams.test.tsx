@@ -148,7 +148,7 @@ describe("useInviteTeamMember", () => {
           teamId,
           email: "new@example.com"
         })
-      } catch (e) {
+      } catch {
         // Expected
       }
     })

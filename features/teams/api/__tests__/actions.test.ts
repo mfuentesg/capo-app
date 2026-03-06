@@ -114,7 +114,8 @@ describe("team actions", () => {
       "member@example.com",
       "member"
     )
-    expect(revalidatePath).not.toHaveBeenCalled()
+    expect(revalidatePath).toHaveBeenCalledWith("/dashboard/teams/team-1")
+    expect(revalidatePath).toHaveBeenCalledTimes(2)
   })
 
   it("removes members, changes role, and deletes invitations", async () => {
@@ -130,7 +131,9 @@ describe("team actions", () => {
       "viewer"
     )
     expect(deleteTeamInvitationApi).toHaveBeenCalledWith(mockSupabase, "invite-1")
-    expect(revalidatePath).not.toHaveBeenCalled()
+    expect(revalidatePath).toHaveBeenCalledWith("/dashboard/teams/team-1")
+    expect(revalidatePath).toHaveBeenCalledWith("/dashboard/invitations")
+    expect(revalidatePath).toHaveBeenCalledTimes(3)
   })
 
   it("accepts invitation and revalidates invitation and team routes", async () => {

@@ -89,7 +89,7 @@ export function useUpdateTeam() {
 
       return { previousTeam, previousTeams }
     },
-    onSuccess: (_, { teamId }) => {
+    onSuccess: () => {
       toast.success(t.toasts?.teamUpdated || "Team updated")
     },
     onError: (error, { teamId }, context) => {
@@ -530,7 +530,7 @@ export function useAcceptTeamInvitation() {
         queryClient.invalidateQueries({ queryKey: teamsKeys.pendingInvitations() })
       ])
     },
-    onSettled: (_, __, { token }) => {
+    onSettled: () => {
       // We don't have teamId here easily from the parameters, but onSuccess should have covered it
     }
   })
