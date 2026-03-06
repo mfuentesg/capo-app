@@ -62,11 +62,13 @@ export async function inviteTeamMemberAction(
 ): Promise<void> {
   const supabase = await createClient()
   await inviteTeamMemberApi(supabase, teamId, email, role)
+  revalidatePath(`/dashboard/teams/${teamId}`)
 }
 
 export async function removeTeamMemberAction(teamId: string, userId: string): Promise<void> {
   const supabase = await createClient()
   await removeTeamMemberApi(supabase, teamId, userId)
+  revalidatePath(`/dashboard/teams/${teamId}`)
 }
 
 export async function changeTeamMemberRoleAction(
@@ -76,11 +78,14 @@ export async function changeTeamMemberRoleAction(
 ): Promise<void> {
   const supabase = await createClient()
   await changeTeamMemberRoleApi(supabase, teamId, userId, newRole)
+  revalidatePath(`/dashboard/teams/${teamId}`)
 }
 
 export async function deleteTeamInvitationAction(invitationId: string): Promise<void> {
   const supabase = await createClient()
+  // We don't have teamId here easily, but we can revalidate the invitations dashboard
   await deleteTeamInvitationApi(supabase, invitationId)
+  revalidatePath("/dashboard/invitations")
 }
 
 export async function getPendingInvitationsAction(): Promise<PendingInvitation[]> {

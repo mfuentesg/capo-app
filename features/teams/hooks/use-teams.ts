@@ -90,20 +90,24 @@ export function useUpdateTeam() {
       return { previousTeam, previousTeams }
     },
     onSuccess: (_, { teamId }) => {
-      queryClient.invalidateQueries({ queryKey: teamsKeys.list() })
-      queryClient.invalidateQueries({ queryKey: teamsKeys.detail(teamId), exact: true })
       toast.success(t.toasts?.teamUpdated || "Team updated")
     },
     onError: (error, { teamId }, context) => {
       // Rollback to previous data (exact key — setQueryData is always exact)
-      if (context?.previousTeam) {
+      if (context?.previousTeam !== undefined) {
         queryClient.setQueryData(teamsKeys.detail(teamId), context.previousTeam)
       }
-      if (context?.previousTeams) {
+      if (context?.previousTeams !== undefined) {
         queryClient.setQueryData(teamsKeys.list(), context.previousTeams)
       }
       console.error("Error updating team:", error)
       toast.error(t.toasts?.teamUpdatedFailed || "Failed to update team")
+    },
+    onSettled: (_, __, { teamId }) => {
+      return Promise.all([
+        queryClient.invalidateQueries({ queryKey: teamsKeys.list() }),
+        queryClient.invalidateQueries({ queryKey: teamsKeys.detail(teamId), exact: true })
+      ])
     }
   })
 }
@@ -122,10 +126,14 @@ export function useDeleteTeam(options?: { onSuccess?: (teamId: string) => void }
     },
     onSuccess: async (_, teamId) => {
       options?.onSuccess?.(teamId)
-      queryClient.invalidateQueries({ queryKey: teamsKeys.list() })
-      queryClient.removeQueries({ queryKey: teamsKeys.detail(teamId) })
       toast.success(t.toasts?.teamDeleted || "Team deleted")
       router.push("/dashboard/teams")
+    },
+    onSettled: (_, __, teamId) => {
+      return Promise.all([
+        queryClient.invalidateQueries({ queryKey: teamsKeys.list() }),
+        queryClient.removeQueries({ queryKey: teamsKeys.detail(teamId) })
+      ])
     },
     onError: (error) => {
       console.error("Error deleting team:", error)
@@ -148,9 +156,11 @@ export function useLeaveTeam(options?: { onSuccess?: (teamId: string) => void })
     },
     onSuccess: async (_, teamId) => {
       options?.onSuccess?.(teamId)
-      queryClient.invalidateQueries({ queryKey: teamsKeys.list() })
       toast.success(t.toasts?.teamLeft || "You have left the team")
       router.push("/dashboard/teams")
+    },
+    onSettled: () => {
+      return queryClient.invalidateQueries({ queryKey: teamsKeys.list() })
     },
     onError: (error) => {
       console.error("Error leaving team:", error)
@@ -170,10 +180,14 @@ export function useTransferOwnership() {
     mutationFn: async ({ teamId, newOwnerId }: { teamId: string; newOwnerId: string }) => {
       return transferTeamOwnershipAction(teamId, newOwnerId)
     },
-    onSuccess: async (_, { teamId }) => {
-      queryClient.invalidateQueries({ queryKey: teamsKeys.detail(teamId) })
-      queryClient.invalidateQueries({ queryKey: teamsKeys.members(teamId) })
+    onSuccess: async () => {
       toast.success(t.toasts?.ownershipTransferred || "Ownership transferred successfully")
+    },
+    onSettled: (_, __, { teamId }) => {
+      return Promise.all([
+        queryClient.invalidateQueries({ queryKey: teamsKeys.detail(teamId) }),
+        queryClient.invalidateQueries({ queryKey: teamsKeys.members(teamId) })
+      ])
     },
     onError: (error) => {
       console.error("Error transferring ownership:", error)
@@ -194,11 +208,15 @@ export function useTransferOwnershipAndStay() {
       // transfer_team_ownership already demotes the current owner to admin.
       await transferTeamOwnershipAction(teamId, newOwnerId)
     },
-    onSuccess: async (_, { teamId }) => {
-      queryClient.invalidateQueries({ queryKey: teamsKeys.list() })
-      queryClient.invalidateQueries({ queryKey: teamsKeys.detail(teamId) })
-      queryClient.invalidateQueries({ queryKey: teamsKeys.members(teamId) })
+    onSuccess: async () => {
       toast.success(t.toasts?.ownershipTransferred || "Ownership transferred successfully")
+    },
+    onSettled: (_, __, { teamId }) => {
+      return Promise.all([
+        queryClient.invalidateQueries({ queryKey: teamsKeys.list() }),
+        queryClient.invalidateQueries({ queryKey: teamsKeys.detail(teamId) }),
+        queryClient.invalidateQueries({ queryKey: teamsKeys.members(teamId) })
+      ])
     },
     onError: (error) => {
       console.error("Error transferring ownership:", error)
@@ -222,10 +240,14 @@ export function useTransferAndLeave(options?: { onSuccess?: (teamId: string) => 
     },
     onSuccess: async (_, { teamId }) => {
       options?.onSuccess?.(teamId)
-      queryClient.invalidateQueries({ queryKey: teamsKeys.list() })
-      queryClient.removeQueries({ queryKey: teamsKeys.detail(teamId) })
       toast.success(t.toasts?.teamLeft || "You have left the team")
       router.push("/dashboard/teams")
+    },
+    onSettled: (_, __, { teamId }) => {
+      return Promise.all([
+        queryClient.invalidateQueries({ queryKey: teamsKeys.list() }),
+        queryClient.removeQueries({ queryKey: teamsKeys.detail(teamId) })
+      ])
     },
     onError: (error) => {
       console.error("Error transferring and leaving team:", error)
@@ -275,17 +297,22 @@ export function useInviteTeamMember() {
 
       queryClient.setQueryData<Tables<"team_invitations">[]>(
         teamsKeys.invitations(teamId),
-        (old = []) => [...old, optimisticInvitation]
+        (old) => {
+          if (!old) return [optimisticInvitation]
+          return [...old, optimisticInvitation]
+        }
       )
 
       return { previousInvitations }
     },
-    onSuccess: async (_, { teamId }) => {
-      queryClient.invalidateQueries({ queryKey: teamsKeys.invitations(teamId) })
+    onSuccess: async () => {
       toast.success(t.toasts?.invitationSent || "Invitation sent successfully")
     },
+    onSettled: (_, __, { teamId }) => {
+      return queryClient.invalidateQueries({ queryKey: teamsKeys.invitations(teamId) })
+    },
     onError: (error, { teamId }, context) => {
-      if (context?.previousInvitations) {
+      if (context?.previousInvitations !== undefined) {
         queryClient.setQueryData(teamsKeys.invitations(teamId), context.previousInvitations)
       }
       console.error("Error inviting team member:", error)
@@ -321,17 +348,22 @@ export function useRemoveTeamMember() {
 
       queryClient.setQueryData<MemberWithUser[]>(
         teamsKeys.members(teamId),
-        (old = []) => old.filter((m) => m.user_id !== userId)
+        (old) => {
+          if (!old) return []
+          return old.filter((m) => m.user_id !== userId)
+        }
       )
 
       return { previousMembers }
     },
-    onSuccess: async (_, { teamId }) => {
-      queryClient.invalidateQueries({ queryKey: teamsKeys.members(teamId) })
+    onSuccess: async () => {
       toast.success(t.toasts?.memberRemoved || "Member removed successfully")
     },
+    onSettled: (_, __, { teamId }) => {
+      return queryClient.invalidateQueries({ queryKey: teamsKeys.members(teamId) })
+    },
     onError: (error, { teamId }, context) => {
-      if (context?.previousMembers) {
+      if (context?.previousMembers !== undefined) {
         queryClient.setQueryData(teamsKeys.members(teamId), context.previousMembers)
       }
       console.error("Error removing team member:", error)
@@ -360,9 +392,11 @@ export function useChangeTeamMemberRole() {
     }) => {
       return changeTeamMemberRoleAction(teamId, userId, newRole)
     },
-    onSuccess: async (_, { teamId }) => {
-      queryClient.invalidateQueries({ queryKey: teamsKeys.members(teamId) })
+    onSuccess: async () => {
       toast.success(t.toasts?.roleChanged || "Member role updated")
+    },
+    onSettled: (_, __, { teamId }) => {
+      return queryClient.invalidateQueries({ queryKey: teamsKeys.members(teamId) })
     },
     onError: (error) => {
       console.error("Error changing member role:", error)
@@ -406,17 +440,26 @@ export function useCancelTeamInvitation() {
 
       queryClient.setQueryData<Tables<"team_invitations">[]>(
         teamsKeys.invitations(teamId),
-        (old = []) => old.filter((inv) => inv.id !== invitationId)
+        (old) => {
+          if (!old) return []
+          return old.filter((inv) => inv.id !== invitationId)
+        }
       )
 
       return { previousInvitations }
     },
-    onSuccess: async (_, { teamId }) => {
-      queryClient.invalidateQueries({ queryKey: teamsKeys.invitations(teamId) })
+    onSuccess: async () => {
       toast.success(t.toasts?.invitationCanceled || "Invitation canceled")
     },
+    onSettled: (_, __, { teamId }) => {
+      return Promise.all([
+        queryClient.invalidateQueries({ queryKey: teamsKeys.invitations(teamId) }),
+        // Also invalidate pending invitations for the current user just in case
+        queryClient.invalidateQueries({ queryKey: teamsKeys.pendingInvitations() })
+      ])
+    },
     onError: (error, { teamId }, context) => {
-      if (context?.previousInvitations) {
+      if (context?.previousInvitations !== undefined) {
         queryClient.setQueryData(teamsKeys.invitations(teamId), context.previousInvitations)
       }
       console.error("Error canceling invitation:", error)
@@ -448,9 +491,11 @@ export function useResendTeamInvitation() {
       await deleteTeamInvitationAction(invitationId)
       return inviteTeamMemberAction(teamId, email, role)
     },
-    onSuccess: async (_, { teamId }) => {
-      queryClient.invalidateQueries({ queryKey: teamsKeys.invitations(teamId) })
+    onSuccess: async () => {
       toast.success(t.toasts?.invitationResent || "Invitation resent successfully")
+    },
+    onSettled: (_, __, { teamId }) => {
+      return queryClient.invalidateQueries({ queryKey: teamsKeys.invitations(teamId) })
     },
     onError: (error, { teamId }) => {
       queryClient.invalidateQueries({ queryKey: teamsKeys.invitations(teamId) })
@@ -479,8 +524,14 @@ export function useAcceptTeamInvitation() {
       return result.teamId
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: teamsKeys.list() })
-      queryClient.invalidateQueries({ queryKey: teamsKeys.pendingInvitations() })
+      // Invalidate everything to be safe as user is now part of a new team
+      return Promise.all([
+        queryClient.invalidateQueries({ queryKey: teamsKeys.list() }),
+        queryClient.invalidateQueries({ queryKey: teamsKeys.pendingInvitations() })
+      ])
+    },
+    onSettled: (_, __, { token }) => {
+      // We don't have teamId here easily from the parameters, but onSuccess should have covered it
     }
   })
 }
