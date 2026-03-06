@@ -9,7 +9,3 @@
 export type { AppContext } from "./types"
 export { AppContextProvider, useAppContext } from "./context"
 export { SELECTED_TEAM_ID_KEY } from "./constants"
-export {
-  setSelectedTeamId as setClientSelectedTeamId,
-  unsetSelectedTeamId as unsetClientSelectedTeamId
-} from "./server"

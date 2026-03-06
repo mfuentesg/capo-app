@@ -1,6 +1,5 @@
 "use server"
 
-import { cookies } from "next/headers"
 import { isValidLocale, type Locale } from "@/lib/i18n/config"
 
 export async function setLocaleAction(locale: Locale) {
@@ -8,6 +7,7 @@ export async function setLocaleAction(locale: Locale) {
     throw new Error("Invalid locale")
   }
 
+  const { cookies } = await import("next/headers")
   const cookieStore = await cookies()
   cookieStore.set("NEXT_LOCALE", locale, {
     path: "/",

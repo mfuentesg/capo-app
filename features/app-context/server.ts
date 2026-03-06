@@ -7,7 +7,6 @@
 
 "use server"
 
-import { cookies } from "next/headers"
 import type { AppContext } from "./types"
 import type { UserInfo } from "@/features/auth"
 import type { Tables } from "@/lib/supabase/database.types"
@@ -18,6 +17,7 @@ import { getTeamsWithClient } from "@/features/teams"
 import { getUser } from "@/features/auth/api"
 
 export async function setSelectedTeamId(teamId: string) {
+  const { cookies } = await import("next/headers")
   const cookieStore = await cookies()
   cookieStore.set(SELECTED_TEAM_ID_KEY, teamId, {
     path: "/",
@@ -29,11 +29,13 @@ export async function setSelectedTeamId(teamId: string) {
 }
 
 export async function unsetSelectedTeamId() {
+  const { cookies } = await import("next/headers")
   const cookieStore = await cookies()
   cookieStore.delete(SELECTED_TEAM_ID_KEY)
 }
 
 export async function getSelectedTeamId(): Promise<string | null> {
+  const { cookies } = await import("next/headers")
   const cookieStore = await cookies()
   return cookieStore.get(SELECTED_TEAM_ID_KEY)?.value ?? null
 }
