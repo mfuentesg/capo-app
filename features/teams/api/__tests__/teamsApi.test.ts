@@ -46,7 +46,7 @@ describe("getTeamsWithClient", () => {
 
     expect(from).toHaveBeenCalledWith("team_members")
     expect(select).toHaveBeenCalledWith(
-      expect.stringContaining("all_members:team_members!team_id (count)")
+      expect.stringContaining("all_members:team_members(count)")
     )
     expect(eq).toHaveBeenCalledWith("user_id", "user-1")
     expect(order).toHaveBeenCalledWith("joined_at", { ascending: false })

@@ -36,7 +36,6 @@ export async function getTeamsWithClient(
   userId: string
 ): Promise<TeamWithMemberCount[]> {
   // Embed `all_members(count)` to get per-team counts in a single round-trip.
-  // PostgREST returns the count as an array [{ count: N }] on the embedded resource.
   const { data, error } = await supabase
     .from("team_members")
     .select(
@@ -65,11 +64,16 @@ export async function getTeamsWithClient(
   const result: TeamWithMemberCount[] = []
   for (const item of data || []) {
     // PostgREST might return team as an array if it's not sure about cardinality
-    const teamData = (
-      Array.isArray(item.team) ? item.team[0] : item.team
-    ) as unknown as (Tables<"teams"> & { all_members: [{ count: number }] | null }) | null
+    const teamData = (Array.isArray(item.team) ? item.team[0] : item.team) as
+      | (Tables<"teams"> & { all_members: [{ count: number }] | { count: number } | null })
+      | null
 
     if (teamData && item.role) {
+      const memberCountData = teamData.all_members
+      const memberCount = Array.isArray(memberCountData)
+        ? memberCountData[0]?.count ?? 1
+        : memberCountData?.count ?? 1
+
       result.push({
         id: teamData.id,
         name: teamData.name,
@@ -80,7 +84,7 @@ export async function getTeamsWithClient(
         created_by: teamData.created_by,
         updated_at: teamData.updated_at,
         role: item.role,
-        member_count: teamData.all_members?.[0]?.count ?? 1
+        member_count: memberCount
       })
     }
   }
@@ -190,15 +194,21 @@ export async function getTeamMembersWithClient(
 
   // Map results to include user_full_name/user_email at the top level
   type MemberWithProfile = Tables<"team_members"> & {
-    profiles: { full_name: string | null; email: string | null; avatar_url: string | null } | null
+    profiles:
+      | { full_name: string | null; email: string | null; avatar_url: string | null }
+      | { full_name: string | null; email: string | null; avatar_url: string | null }[]
+      | null
   }
   return (
-    (data as MemberWithProfile[] | null)?.map((item) => ({
-      ...item,
-      user_full_name: item.profiles?.full_name || null,
-      user_email: item.profiles?.email || null,
-      user_avatar_url: item.profiles?.avatar_url || null
-    })) || []
+    (data as MemberWithProfile[] | null)?.map((item) => {
+      const profile = Array.isArray(item.profiles) ? item.profiles[0] : item.profiles
+      return {
+        ...item,
+        user_full_name: profile?.full_name || null,
+        user_email: profile?.email || null,
+        user_avatar_url: profile?.avatar_url || null
+      }
+    }) || []
   )
 }
 
