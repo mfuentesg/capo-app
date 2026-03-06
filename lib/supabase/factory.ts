@@ -45,8 +45,31 @@ function createServerApi<M extends Record<string, AnyFunction>>(module: M): M {
   for (const [key, fn] of Object.entries(module)) {
     if (typeof fn === "function") {
       ;(api as Record<string, unknown>)[key] = async (...args: Parameters<typeof fn>) => {
-        const { createClient } = await import("./server")
-        const supabase = await createClient()
+        const { cookies } = await import("next/headers")
+        const { createServerClient } = await import("@supabase/ssr")
+        const { env } = await import("@/lib/env")
+
+        const cookieStore = await cookies()
+        const supabase = createServerClient(
+          env.required.supabaseUrl,
+          env.required.supabasePublishableKey,
+          {
+            cookies: {
+              getAll() {
+                return cookieStore.getAll()
+              },
+              setAll(cookiesToSet) {
+                try {
+                  cookiesToSet.forEach(({ name, value, options }) => {
+                    cookieStore.set(name, value, options)
+                  })
+                } catch {
+                  // Called from Server Component - can be ignored
+                }
+              }
+            }
+          }
+        )
 
         return fn(supabase as Parameters<typeof fn>[0], ...args)
       }
