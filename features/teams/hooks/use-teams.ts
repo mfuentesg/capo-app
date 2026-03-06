@@ -309,7 +309,11 @@ export function useInviteTeamMember() {
       toast.success(t.toasts?.invitationSent || "Invitation sent successfully")
     },
     onSettled: (_, __, { teamId }) => {
-      return queryClient.invalidateQueries({ queryKey: teamsKeys.invitations(teamId) })
+      return Promise.all([
+        queryClient.invalidateQueries({ queryKey: teamsKeys.invitations(teamId) }),
+        queryClient.invalidateQueries({ queryKey: teamsKeys.members(teamId) }),
+        queryClient.invalidateQueries({ queryKey: teamsKeys.list() })
+      ])
     },
     onError: (error, { teamId }, context) => {
       if (context?.previousInvitations !== undefined) {

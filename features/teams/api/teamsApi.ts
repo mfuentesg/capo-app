@@ -50,7 +50,7 @@ export async function getTeamsWithClient(
         created_at,
         created_by,
         updated_at,
-        all_members:team_members!team_id (count)
+        all_members:team_members(count)
       ),
       role
     `
@@ -64,21 +64,23 @@ export async function getTeamsWithClient(
 
   const result: TeamWithMemberCount[] = []
   for (const item of data || []) {
-    const team = item.team as unknown as
-      | (Tables<"teams"> & { all_members: [{ count: number }] | null })
-      | null
-    if (team && item.role) {
+    // PostgREST might return team as an array if it's not sure about cardinality
+    const teamData = (
+      Array.isArray(item.team) ? item.team[0] : item.team
+    ) as unknown as (Tables<"teams"> & { all_members: [{ count: number }] | null }) | null
+
+    if (teamData && item.role) {
       result.push({
-        id: team.id,
-        name: team.name,
-        avatar_url: team.avatar_url,
-        icon: team.icon,
-        is_public: team.is_public,
-        created_at: team.created_at,
-        created_by: team.created_by,
-        updated_at: team.updated_at,
+        id: teamData.id,
+        name: teamData.name,
+        avatar_url: teamData.avatar_url,
+        icon: teamData.icon,
+        is_public: teamData.is_public,
+        created_at: teamData.created_at,
+        created_by: teamData.created_by,
+        updated_at: teamData.updated_at,
         role: item.role,
-        member_count: team.all_members?.[0]?.count ?? 1
+        member_count: teamData.all_members?.[0]?.count ?? 1
       })
     }
   }
@@ -178,7 +180,7 @@ export async function getTeamMembersWithClient(
 > {
   const { data, error } = await supabase
     .from("team_members")
-    .select(`*, profiles!user_id(full_name,email,avatar_url)`)
+    .select(`*, profiles(full_name,email,avatar_url)`)
     .eq("team_id", teamId)
     .order("joined_at", { ascending: true })
 
