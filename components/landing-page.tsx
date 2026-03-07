@@ -77,40 +77,6 @@ const SHARE_SONGS = [
   "4. Great Are You Lord — All Sons & Daughters"
 ]
 
-// ── D chord SVG diagram ───────────────────────────────────────────────────────
-// D = x x 0 2 3 2  (strings E A D G B e, left = low E)
-function DChordDiagram({ label }: { label: string }) {
-  const sx = [8, 22, 36, 50, 64, 78] // string x-positions
-  const nutY = 24
-  const fretH = 16
-  const fretLineY = (f: number) => nutY + 3 + f * fretH
-  const dotY = (f: number) => nutY + 3 + (f - 0.5) * fretH
-
-  return (
-    <svg width="86" height="96" viewBox="0 0 86 96" aria-label={label}>
-      {/* String lines */}
-      {sx.map((x, i) => (
-        <line key={i} x1={x} y1={nutY + 3} x2={x} y2={fretLineY(4)} stroke="currentColor" strokeWidth="0.8" opacity="0.4" />
-      ))}
-      {/* Nut */}
-      <rect x={sx[0]} y={nutY} width={sx[5] - sx[0]} height={3} fill="currentColor" opacity="0.85" />
-      {/* Fret lines */}
-      {[1, 2, 3, 4].map((f) => (
-        <line key={f} x1={sx[0]} y1={fretLineY(f)} x2={sx[5]} y2={fretLineY(f)} stroke="currentColor" strokeWidth="0.6" opacity="0.25" />
-      ))}
-      {/* Muted: E (0) and A (1) */}
-      <text x={sx[0]} y={nutY - 7} textAnchor="middle" fontSize="10" fill="currentColor" opacity="0.5" fontFamily="system-ui,sans-serif">×</text>
-      <text x={sx[1]} y={nutY - 7} textAnchor="middle" fontSize="10" fill="currentColor" opacity="0.5" fontFamily="system-ui,sans-serif">×</text>
-      {/* Open: D (2) */}
-      <circle cx={sx[2]} cy={nutY - 10} r={4} fill="none" stroke="currentColor" strokeWidth="1.2" />
-      {/* Dots: G(3)=fret2, B(4)=fret3, e(5)=fret2 */}
-      <circle cx={sx[3]} cy={dotY(2)} r={6} fill="currentColor" />
-      <circle cx={sx[4]} cy={dotY(3)} r={6} fill="currentColor" />
-      <circle cx={sx[5]} cy={dotY(2)} r={6} fill="currentColor" />
-    </svg>
-  )
-}
-
 // ── Main component ────────────────────────────────────────────────────────────
 export function LandingPage() {
   const { t } = useLocale()
@@ -318,17 +284,6 @@ export function LandingPage() {
                   </div>
                 </div>
 
-                {/* D chord diagram */}
-                <div className="mt-4 pt-3 border-t border-border/30 flex items-start gap-4">
-                  <div>
-                    <div className="text-xs text-muted-foreground mb-1.5 font-medium">
-                      {l.hero.chordDiagramLabel}
-                    </div>
-                    <div className="text-foreground/80">
-                      <DChordDiagram label={l.hero.chordDiagramLabel} />
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
           </div>

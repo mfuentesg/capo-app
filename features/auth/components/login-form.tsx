@@ -9,7 +9,11 @@ import { Field, FieldGroup } from "@/components/ui/field"
 import { useLocale } from "@/features/settings"
 import { useSignInWithGoogle } from "@/features/auth/hooks"
 
-export function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
+interface LoginFormProps extends React.ComponentProps<"div"> {
+  showLogo?: boolean
+}
+
+export function LoginForm({ className, showLogo = true, ...props }: LoginFormProps) {
   const { t } = useLocale()
   const searchParams = useSearchParams()
   const signInWithGoogle = useSignInWithGoogle()
@@ -42,8 +46,8 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
       <form>
         <FieldGroup>
           <div className="flex flex-col items-center gap-2 text-center">
-            <a href="#" className="flex flex-col items-center gap-2 font-medium">
-              <div className="flex items-center justify-center rounded-md">
+            {showLogo && (
+              <div className="flex items-center justify-center rounded-md mb-2">
                 <OptimizedLogo
                   name="capo"
                   alt={t.common.capoApp}
@@ -54,8 +58,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
                   style={{ color: "hsl(var(--foreground))" }}
                 />
               </div>
-              <span className="sr-only">{t.common.capoApp}</span>
-            </a>
+            )}
             <h1 className="text-xl font-bold">{t.auth.welcomeToCapo}</h1>
             <h2 className="text-muted-foreground">{t.auth.signInDescription}</h2>
           </div>
