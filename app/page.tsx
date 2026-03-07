@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { OptimizedLogo } from "@/components/optimized-logo"
 import { ThemeToggle } from "@/components/layout"
+import { SignInDialog } from "@/components/sign-in-dialog"
 import {
   Music,
   FileText,
@@ -95,15 +96,15 @@ export default function LandingPage() {
 
           <div className="flex items-center gap-2">
             <ThemeToggle />
-            <Button asChild variant="outline" size="sm">
-              <Link href="/login">Sign In</Link>
-            </Button>
-            <Button asChild size="sm">
-              <Link href="/login">
+            <SignInDialog>
+              <Button variant="outline" size="sm">Sign In</Button>
+            </SignInDialog>
+            <SignInDialog>
+              <Button size="sm">
                 Get Started
                 <ChevronRight className="ml-1 h-3.5 w-3.5" />
-              </Link>
-            </Button>
+              </Button>
+            </SignInDialog>
           </div>
         </nav>
       </header>
@@ -143,12 +144,12 @@ export default function LandingPage() {
         </p>
 
         <div className="relative mt-8 flex flex-wrap items-center justify-center gap-3">
-          <Button asChild size="lg" className="h-12 px-8 text-base font-semibold">
-            <Link href="/login">
+          <SignInDialog>
+            <Button size="lg" className="h-12 px-8 text-base font-semibold">
               Start for free
               <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
-          </Button>
+            </Button>
+          </SignInDialog>
           <Button asChild variant="outline" size="lg" className="h-12 px-8 text-base">
             <Link href="#features">Explore features</Link>
           </Button>
@@ -566,12 +567,12 @@ export default function LandingPage() {
             perform with confidence.
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-            <Button asChild size="lg" className="h-12 px-10 text-base font-semibold">
-              <Link href="/login">
+            <SignInDialog>
+              <Button size="lg" className="h-12 px-10 text-base font-semibold">
                 Get started for free
                 <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
+              </Button>
+            </SignInDialog>
           </div>
           <p className="mt-4 text-sm text-muted-foreground">
             Sign in with Google · No credit card required
@@ -590,9 +591,9 @@ export default function LandingPage() {
             </span>
           </div>
           <div className="flex items-center gap-4 text-xs text-muted-foreground">
-            <Link href="/login" className="hover:text-foreground transition-colors">
-              Sign In
-            </Link>
+            <SignInDialog>
+              <button className="hover:text-foreground transition-colors">Sign In</button>
+            </SignInDialog>
             <span>·</span>
             <span>© {new Date().getFullYear()} Capo</span>
           </div>
