@@ -1,7 +1,7 @@
 "use client"
 
 // Components
-export { LoginForm, LandingFeatures } from "./components"
+export { LoginForm } from "./components"
 
 
 // Hooks

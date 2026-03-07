@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { LoginForm, LandingFeatures } from "@/features/auth"
+import { LoginForm } from "@/features/auth"
 import { ThemeToggle } from "@/components/layout"
 
 export const metadata: Metadata = {
@@ -10,24 +10,27 @@ export const metadata: Metadata = {
 
 export default function LoginPage() {
   return (
-    <div className="bg-background relative min-h-svh">
+    <div className="bg-background relative flex min-h-svh flex-col items-center justify-center p-4 sm:p-8">
+      {/* Ambient top glow */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 overflow-hidden"
+      >
+        <div
+          className="absolute -top-40 left-1/2 h-96 w-[700px] -translate-x-1/2 rounded-full blur-3xl"
+          style={{
+            background:
+              "radial-gradient(ellipse at center, color-mix(in oklch, var(--primary) 10%, transparent), transparent 70%)"
+          }}
+        />
+      </div>
+
       <div className="absolute top-4 right-4 z-10">
         <ThemeToggle />
       </div>
 
-      <div className="grid min-h-svh lg:grid-cols-[1fr_420px]">
-        {/* Landing / hero panel — hidden on mobile */}
-        <div className="from-primary/5 to-background relative hidden flex-col justify-between bg-gradient-to-br p-10 lg:flex">
-          <LandingFeatures className="my-auto max-w-md" />
-          <p className="text-muted-foreground text-xs">{metadata.description as string}</p>
-        </div>
-
-        {/* Login panel */}
-        <div className="border-border flex min-h-svh flex-col items-center justify-center gap-6 p-8 lg:min-h-0 lg:border-l">
-          <div className="w-full max-w-sm">
-            <LoginForm />
-          </div>
-        </div>
+      <div className="bg-card border-border relative w-full max-w-sm rounded-2xl border p-8 shadow-lg">
+        <LoginForm />
       </div>
     </div>
   )

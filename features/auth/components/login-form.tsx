@@ -1,13 +1,21 @@
 "use client"
 
-import { useState, useLayoutEffect, useRef } from "react"
+import { useState, useLayoutEffect, useRef, useMemo } from "react"
 import { useSearchParams } from "next/navigation"
+import { Music, ListMusic, Users, Share2 } from "lucide-react"
 import { OptimizedLogo } from "@/components/optimized-logo"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Field, FieldGroup } from "@/components/ui/field"
 import { useLocale } from "@/features/settings"
 import { useSignInWithGoogle } from "@/features/auth/hooks"
+
+const FEATURE_ICONS = [
+  <Music key="songs" className="h-4 w-4" />,
+  <ListMusic key="playlists" className="h-4 w-4" />,
+  <Users key="teams" className="h-4 w-4" />,
+  <Share2 key="sharing" className="h-4 w-4" />
+] as const
 
 export function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
   const { t } = useLocale()
@@ -37,33 +45,61 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
     }
   }
 
+  const features = useMemo(
+    () => [
+      { icon: FEATURE_ICONS[0], label: t.auth.landing.features.songs.title },
+      { icon: FEATURE_ICONS[1], label: t.auth.landing.features.playlists.title },
+      { icon: FEATURE_ICONS[2], label: t.auth.landing.features.teams.title },
+      { icon: FEATURE_ICONS[3], label: t.auth.landing.features.sharing.title }
+    ],
+    [t]
+  )
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <form>
         <FieldGroup>
-          <div className="flex flex-col items-center gap-2 text-center">
-            <a href="#" className="flex flex-col items-center gap-2 font-medium">
-              <div className="flex items-center justify-center rounded-md">
-                <OptimizedLogo
-                  name="capo"
-                  alt={t.common.capoApp}
-                  width={150}
-                  height={150}
-                  priority
-                  className="text-foreground dark:invert"
-                  style={{ color: "hsl(var(--foreground))" }}
-                />
-              </div>
-              <span className="sr-only">{t.common.capoApp}</span>
-            </a>
-            <h1 className="text-xl font-bold">{t.auth.welcomeToCapo}</h1>
-            <h2 className="text-muted-foreground">{t.auth.signInDescription}</h2>
+          {/* Branding */}
+          <div className="flex flex-col items-center gap-3 text-center">
+            <div className="flex items-center justify-center">
+              <OptimizedLogo
+                name="capo"
+                alt={t.common.capoApp}
+                width={80}
+                height={80}
+                priority
+                className="text-foreground dark:invert"
+                style={{ color: "hsl(var(--foreground))" }}
+              />
+            </div>
+            <span className="sr-only">{t.common.capoApp}</span>
+            <div className="flex flex-col gap-1">
+              <h1 className="text-xl font-bold">{t.auth.welcomeToCapo}</h1>
+              <p className="text-muted-foreground text-sm">{t.auth.signInDescription}</p>
+            </div>
           </div>
-          <Field className="flex justify-center items-center">
+
+          {/* Feature pills */}
+          <ul className="grid grid-cols-2 gap-2 list-none p-0 m-0">
+            {features.map(({ icon, label }) => (
+              <li
+                key={label}
+                className="bg-muted/50 flex items-center gap-2 rounded-lg px-3 py-2.5"
+              >
+                <span className="text-primary shrink-0" aria-hidden="true">
+                  {icon}
+                </span>
+                <span className="text-xs font-medium leading-tight">{label}</span>
+              </li>
+            ))}
+          </ul>
+
+          {/* Sign in */}
+          <Field>
             <Button
               variant="outline"
               type="button"
-              className="max-w-9/12 p-4"
+              className="w-full"
               onClick={handleGoogleSignIn}
               disabled={isLoading}
             >
@@ -91,3 +127,5 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
     </div>
   )
 }
+
+
