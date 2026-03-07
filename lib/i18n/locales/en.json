@@ -439,5 +439,114 @@
     "songTitle": "Song title",
     "artistName": "Artist name",
     "key": "Key"
+  },
+  "landing": {
+    "nav": {
+      "signIn": "Sign In"
+    },
+    "badge": "Built for musicians, by musicians",
+    "hero": {
+      "headline1": "Your Song Library,",
+      "headline2": "Perfectly Tuned",
+      "description": "Manage your complete song catalog with chords and lyrics. Build setlists, collaborate with your band, and share with the world — all in one place.",
+      "startFree": "Start for free",
+      "exploreFeatures": "Explore features",
+      "livePreview": "Live Preview",
+      "verseLabel": "Verse 1",
+      "chorusLabel": "Chorus",
+      "chordDiagramLabel": "D chord diagram"
+    },
+    "highlights": {
+      "chordpro": "ChordPro format support",
+      "themes": "Dark & light themes",
+      "multilanguage": "Multi-language support",
+      "realtime": "Real-time collaboration",
+      "dragdrop": "Drag-and-drop setlists",
+      "publicLinks": "Public playlist links"
+    },
+    "features": {
+      "sectionBadge": "Everything you need",
+      "sectionTitle": "Features built for the stage",
+      "sectionDescription": "From the first rehearsal to the last encore, Capo has you covered.",
+      "songLibrary": {
+        "title": "Song Library",
+        "description": "Keep your entire catalog in one place. Filter by key, BPM, or status. Find the right song in seconds."
+      },
+      "chordproEditor": {
+        "title": "ChordPro Editor",
+        "description": "Write and edit songs in ChordPro format with a live-preview split-pane editor and syntax highlighting."
+      },
+      "smartSetlists": {
+        "title": "Smart Setlists",
+        "description": "Build playlists for rehearsals and gigs. Drag and drop to reorder. Export and share in seconds."
+      },
+      "teamCollab": {
+        "title": "Team Collaboration",
+        "description": "Invite your bandmates to a shared library. Everyone stays in sync with the same songs and setlists."
+      },
+      "instantSharing": {
+        "title": "Instant Sharing",
+        "description": "Share any playlist via a unique link — no account needed. Perfect for session players and venue staff."
+      },
+      "chordDiagrams": {
+        "title": "Chord Diagrams",
+        "description": "Tap any chord to see a fingering diagram. Color-coded by section: verse, chorus, bridge, and more."
+      }
+    },
+    "songLibrarySection": {
+      "badge": "Song Library",
+      "headline1": "Your entire catalog,",
+      "headline2": "always at hand",
+      "description": "Import and organize all your songs with rich metadata — key, BPM, tags, and status. Powerful filters help you find the right song in seconds, even with hundreds in your library.",
+      "feature1": "Filter by key, BPM, and status",
+      "feature2": "Custom tags for any genre or mood",
+      "feature3": "Archive songs without losing them",
+      "feature4": "Instant full-text search",
+      "mockTitle": "Song Library",
+      "filterAll": "All",
+      "filterAMajor": "A Major",
+      "filterGMajor": "G Major",
+      "filterActive": "Active"
+    },
+    "teamsSection": {
+      "badge": "Team Collaboration",
+      "headline1": "Your whole band,",
+      "headline2": "in perfect harmony",
+      "description": "Invite bandmates to a shared library. Everyone works from the same songs and setlists, so nobody shows up to rehearsal with outdated charts.",
+      "feature1": "Shared song libraries across the team",
+      "feature2": "Invite members by email",
+      "feature3": "Switch between personal and team context",
+      "feature4": "Real-time updates for everyone",
+      "mockTitle": "Worship Team",
+      "invite": "+ Invite",
+      "sharedSetlists": "Shared Setlists",
+      "roleAdmin": "Admin",
+      "roleMember": "Member",
+      "roleInvited": "Invited"
+    },
+    "sharingSection": {
+      "badge": "Instant Sharing",
+      "headline1": "Share your setlist",
+      "headline2": "in one click",
+      "description": "Generate a unique link for any playlist and share it with session players, sound engineers, or the venue. They can view songs and lyrics without creating an account.",
+      "feature1": "Unique share code for every playlist",
+      "feature2": "No account required for viewers",
+      "feature3": "Full song lyrics and chords visible",
+      "feature4": "Works on any device",
+      "mockSubtitle": "songs · Shared playlist",
+      "copy": "Copy",
+      "moreSongs": "more songs..."
+    },
+    "cta": {
+      "headline": "Ready to play?",
+      "description": "Join musicians who use Capo to stay organized, rehearse smarter, and perform with confidence.",
+      "button": "Get started for free",
+      "signInMethod": "Sign in with Google · No credit card required"
+    },
+    "footer": {
+      "tagline": "Song library for musicians",
+      "signIn": "Sign In",
+      "viewOnGitHub": "View on GitHub"
+    }
   }
 }
