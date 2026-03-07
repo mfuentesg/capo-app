@@ -41,6 +41,14 @@ const mockInviteAction = inviteTeamMemberAction as jest.Mock
 describe("useInviteTeamMember", () => {
   let queryClient: QueryClient
 
+  beforeAll(() => {
+    jest.spyOn(console, "error").mockImplementation(() => {})
+  })
+
+  afterAll(() => {
+    jest.restoreAllMocks()
+  })
+
   beforeEach(() => {
     queryClient = new QueryClient({
       defaultOptions: {

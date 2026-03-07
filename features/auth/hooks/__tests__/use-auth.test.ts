@@ -8,10 +8,16 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { useSession, useSignInWithGoogle, useSignOut } from "@/features/auth"
 import { authKeys, DEFAULT_REDIRECT_PATH, AUTH_CALLBACK_PATH } from "@/lib/supabase/constants"
 import { LocaleProvider } from "@/features/settings"
+import { signOut } from "@/features/auth/actions"
 
 // Mock Supabase client
 jest.mock("@/lib/supabase/client", () => ({
   createClient: jest.fn()
+}))
+
+// Mock server actions
+jest.mock("@/features/auth/actions", () => ({
+  signOut: jest.fn()
 }))
 
 // Mock the factory to return a client API
@@ -236,26 +242,18 @@ describe("Auth Hooks", () => {
 
   describe("useSignOut", () => {
     it("should sign out successfully", async () => {
-      mockSupabase.auth.signOut.mockResolvedValue({
-        error: null
-      })
+      ;(signOut as jest.Mock).mockResolvedValue(undefined)
 
       const { result } = renderHook(() => useSignOut(), { wrapper })
 
-      result.current.mutate()
+      await result.current.mutateAsync()
 
-      await waitFor(() => {
-        expect(result.current.isSuccess).toBe(true)
-      })
-
-      expect(mockSupabase.auth.signOut).toHaveBeenCalledTimes(1)
+      expect(signOut).toHaveBeenCalledTimes(1)
     })
 
     it("should handle sign out error", async () => {
-      const mockError = { message: "Sign out failed" }
-      mockSupabase.auth.signOut.mockResolvedValue({
-        error: mockError
-      })
+      const mockError = new Error("Sign out failed")
+      ;(signOut as jest.Mock).mockRejectedValue(mockError)
 
       const { result } = renderHook(() => useSignOut(), { wrapper })
 
@@ -273,17 +271,11 @@ describe("Auth Hooks", () => {
       queryClient.setQueryData(authKeys.session(), { access_token: "token" })
       queryClient.setQueryData(authKeys.user(), { id: "123" })
 
-      mockSupabase.auth.signOut.mockResolvedValue({
-        error: null
-      })
+      ;(signOut as jest.Mock).mockResolvedValue(undefined)
 
       const { result } = renderHook(() => useSignOut(), { wrapper })
 
-      result.current.mutate()
-
-      await waitFor(() => {
-        expect(result.current.isSuccess).toBe(true)
-      })
+      await result.current.mutateAsync()
 
       // Auth queries should be removed
       const sessionQuery = queryClient.getQueryCache().find({ queryKey: authKeys.session() })
@@ -294,17 +286,11 @@ describe("Auth Hooks", () => {
     })
 
     it("should redirect to login on success", async () => {
-      mockSupabase.auth.signOut.mockResolvedValue({
-        error: null
-      })
+      ;(signOut as jest.Mock).mockResolvedValue(undefined)
 
       const { result } = renderHook(() => useSignOut(), { wrapper })
 
-      result.current.mutate()
-
-      await waitFor(() => {
-        expect(result.current.isSuccess).toBe(true)
-      })
+      await result.current.mutateAsync()
 
       expect(mockPush).toHaveBeenCalledWith("/")
     })

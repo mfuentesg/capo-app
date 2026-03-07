@@ -16,6 +16,7 @@ import { useLocale } from "@/features/settings"
 import type { UserInfo } from "@/features/auth/types"
 import type { Session } from "@supabase/supabase-js"
 import { api as authApi } from "@/features/auth/api"
+import { signOut } from "@/features/auth/actions"
 
 export function useSession() {
   return useQuery<Session | null, Error, Session | null, readonly ["auth", "session"]>({
@@ -97,12 +98,7 @@ export function useSignOut() {
 
   return useMutation({
     mutationFn: async () => {
-      const supabase = createClient()
-      const { error } = await supabase.auth.signOut()
-
-      if (error) {
-        throw error
-      }
+      await signOut()
     },
     onSuccess: () => {
       // Clear auth queries
