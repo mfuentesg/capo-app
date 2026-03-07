@@ -133,9 +133,9 @@ export function LandingPage() {
           <div className="flex items-center gap-1.5">
             <ThemeToggle />
             <LanguageSwitcher />
-            <SignInDialog>
+            <Link href="/login">
               <Button variant="outline" size="sm">{l.nav.signIn}</Button>
-            </SignInDialog>
+            </Link>
           </div>
         </nav>
       </header>
