@@ -89,7 +89,7 @@ export default function LandingPage() {
       <header className="fixed top-0 inset-x-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-md">
         <nav className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
           <Link href="/" className="flex items-center gap-2.5">
-            <OptimizedLogo name="capo" alt="Capo" width={32} height={32} priority />
+            <OptimizedLogo name="capo" alt="Capo" width={32} height={32} priority className="dark:invert" />
             <span className="font-bold text-lg tracking-tight">Capo</span>
           </Link>
 
@@ -556,7 +556,7 @@ export default function LandingPage() {
         </div>
         <div className="relative mx-auto max-w-2xl text-center">
           <div className="mb-6 flex justify-center">
-            <OptimizedLogo name="capo" alt="Capo" width={72} height={72} className="opacity-90" />
+            <OptimizedLogo name="capo" alt="Capo" width={72} height={72} className="opacity-90 dark:invert" />
           </div>
           <h2 className="text-4xl font-bold tracking-tight sm:text-5xl">
             Ready to play?
@@ -583,7 +583,7 @@ export default function LandingPage() {
       <footer className="border-t border-border/40 px-4 py-8">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 sm:flex-row">
           <div className="flex items-center gap-2.5">
-            <OptimizedLogo name="capo" alt="Capo" width={24} height={24} />
+            <OptimizedLogo name="capo" alt="Capo" width={24} height={24} className="dark:invert" />
             <span className="text-sm font-semibold">Capo</span>
             <span className="text-xs text-muted-foreground">
               — Song library for musicians
