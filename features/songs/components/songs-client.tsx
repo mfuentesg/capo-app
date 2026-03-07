@@ -392,6 +392,7 @@ export function SongsClient() {
               }}
               onSave={handleSaveSong}
               onChange={handleUpdatePreview}
+              autoFocus
             />
           ) : selectedSong ? (
             <SongDetail

@@ -47,10 +47,11 @@ interface SongDraftFormProps {
   onClose: () => void
   onSave: (song: Song) => void
   onChange?: (updates: Partial<Song>) => void
+  autoFocus?: boolean
 }
 
 export const SongDraftForm = forwardRef<SongDraftFormHandle, SongDraftFormProps>(
-  function SongDraftForm({ song, onClose, onSave, onChange }, ref) {
+  function SongDraftForm({ song, onClose, onSave, onChange, autoFocus = false }, ref) {
     const { t } = useTranslation()
 
     const songFormSchema = z.object({
@@ -169,7 +170,7 @@ export const SongDraftForm = forwardRef<SongDraftFormHandle, SongDraftFormProps>
                             placeholder={t.songs.songTitlePlaceholder}
                             {...field}
                             className="shadow-none"
-                            autoFocus
+                            autoFocus={autoFocus}
                           />
                         </FormControl>
                         <FormMessage />
