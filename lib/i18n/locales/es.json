@@ -294,7 +294,13 @@
     "loginWith": "Iniciar sesión con {provider}",
     "loggingIn": "Iniciando sesión",
     "logout": "Cerrar sesión",
-    "welcome": "Bienvenido de nuevo"
+    "welcome": "Bienvenido de nuevo",
+    "githubLabel": "GitHub",
+    "githubComingSoon": "Próximamente",
+    "errorAuthFailed": "La autenticación falló. Por favor, inténtalo de nuevo.",
+    "errorAuthError": "Algo salió mal durante el inicio de sesión. Por favor, inténtalo de nuevo.",
+    "errorMissingCode": "Enlace de inicio de sesión inválido. Por favor, inténtalo de nuevo.",
+    "errorGeneric": "El inicio de sesión falló. Por favor, inténtalo de nuevo."
   },
   "account": {
     "title": "Cuenta",

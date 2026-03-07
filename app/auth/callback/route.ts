@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
   const redirectTo = isValidRedirect(next, requestUrl.origin) && next ? next : DEFAULT_REDIRECT_PATH
 
   if (!code) {
-    const loginUrl = new URL("/login", requestUrl.origin)
+    const loginUrl = new URL("/", requestUrl.origin)
     loginUrl.searchParams.set("error", "missing_code")
     return NextResponse.redirect(loginUrl)
   }
@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
     const { error } = await supabase.auth.exchangeCodeForSession(code)
 
     if (error) {
-      const loginUrl = new URL("/login", requestUrl.origin)
+      const loginUrl = new URL("/", requestUrl.origin)
       loginUrl.searchParams.set("error", "auth_failed")
 
       console.error("Error exchanging code for session:", error)
@@ -71,7 +71,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error("Unexpected error during auth callback:", error)
     // Redirect to login with error
-    const loginUrl = new URL("/login", requestUrl.origin)
+    const loginUrl = new URL("/", requestUrl.origin)
     loginUrl.searchParams.set("error", "auth_error")
     return NextResponse.redirect(loginUrl)
   }

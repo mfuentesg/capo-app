@@ -293,7 +293,13 @@
     "loginWith": "Login with {provider}",
     "loggingIn": "Logging in",
     "logout": "Logout",
-    "welcome": "Welcome back"
+    "welcome": "Welcome back",
+    "githubLabel": "GitHub",
+    "githubComingSoon": "Coming soon",
+    "errorAuthFailed": "Authentication failed. Please try again.",
+    "errorAuthError": "Something went wrong during sign-in. Please try again.",
+    "errorMissingCode": "Invalid sign-in link. Please try again.",
+    "errorGeneric": "Sign-in failed. Please try again."
   },
   "account": {
     "title": "Account",
