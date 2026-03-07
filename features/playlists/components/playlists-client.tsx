@@ -278,7 +278,7 @@ export function PlaylistsClient({ initialPlaylists = [] }: PlaylistsClientProps)
           className="hidden md:flex"
         >
           {isCreating ? (
-            <PlaylistCreateForm onSubmit={handleCreateSubmit} onCancel={handleCreateCancel} />
+            <PlaylistCreateForm onSubmit={handleCreateSubmit} onCancel={handleCreateCancel} autoFocus />
           ) : selectedPlaylist ? (
             <PlaylistDetail
               playlist={selectedPlaylist}

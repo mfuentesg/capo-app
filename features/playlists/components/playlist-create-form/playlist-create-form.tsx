@@ -18,9 +18,10 @@ import { createOverlayIds } from "@/lib/ui/stable-overlay-ids"
 interface PlaylistCreateFormProps {
   onSubmit: (playlist: Playlist) => Promise<void>
   onCancel: () => void
+  autoFocus?: boolean
 }
 
-export function PlaylistCreateForm({ onSubmit, onCancel }: PlaylistCreateFormProps) {
+export function PlaylistCreateForm({ onSubmit, onCancel, autoFocus = false }: PlaylistCreateFormProps) {
   const { t } = useTranslation()
   const { locale } = useLocale()
   const [name, setName] = useState("")
@@ -72,7 +73,7 @@ export function PlaylistCreateForm({ onSubmit, onCancel }: PlaylistCreateFormPro
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder={t.playlists.playlistNamePlaceholder}
-              autoFocus
+              autoFocus={autoFocus}
             />
           </div>
 
