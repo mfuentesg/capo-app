@@ -5,8 +5,10 @@ import { useSearchParams } from "next/navigation"
 import { OptimizedLogo } from "@/components/optimized-logo"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { useLocale } from "@/features/settings"
 import { useSignInWithGoogle } from "@/features/auth/hooks"
+import { Music, FileText, ListMusic, Users, Share2, Guitar } from "lucide-react"
 
 interface LoginFormProps extends React.ComponentProps<"div"> {
   showLogo?: boolean
@@ -28,6 +30,15 @@ function getErrorMessage(
       return t.auth.errorGeneric
   }
 }
+
+const FEATURE_DOTS = [
+  { Icon: Music, color: "text-blue-500", bg: "bg-blue-500/10" },
+  { Icon: FileText, color: "text-violet-500", bg: "bg-violet-500/10" },
+  { Icon: ListMusic, color: "text-primary", bg: "bg-primary/10" },
+  { Icon: Users, color: "text-green-500", bg: "bg-green-500/10" },
+  { Icon: Share2, color: "text-pink-500", bg: "bg-pink-500/10" },
+  { Icon: Guitar, color: "text-amber-500", bg: "bg-amber-500/10" }
+]
 
 export function LoginForm({ className, showLogo = true, ...props }: LoginFormProps) {
   const { t } = useLocale()
@@ -60,7 +71,7 @@ export function LoginForm({ className, showLogo = true, ...props }: LoginFormPro
   const errorMessage = getErrorMessage(searchParams.get("error"), t)
 
   return (
-    <div className={cn("flex flex-col gap-5", className)} {...props}>
+    <div className={cn("flex flex-col gap-6", className)} {...props}>
       {showLogo && (
         <div className="flex items-center justify-center">
           <OptimizedLogo
@@ -69,8 +80,7 @@ export function LoginForm({ className, showLogo = true, ...props }: LoginFormPro
             width={56}
             height={56}
             priority
-            className="text-foreground dark:invert"
-            style={{ color: "hsl(var(--foreground))" }}
+            className="dark:invert"
           />
         </div>
       )}
@@ -81,16 +91,18 @@ export function LoginForm({ className, showLogo = true, ...props }: LoginFormPro
       </div>
 
       {errorMessage && (
-        <div className="rounded-md border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+        <div className="flex items-start gap-2.5 rounded-lg border border-destructive/30 bg-destructive/8 px-4 py-3 text-sm text-destructive">
+          <span className="mt-0.5 shrink-0 text-base leading-none">⚠</span>
           {errorMessage}
         </div>
       )}
 
+      {/* Social providers */}
       <div className="flex flex-col gap-3">
         <Button
           variant="outline"
           type="button"
-          className="w-full gap-3"
+          className="h-11 w-full gap-3 font-medium"
           onClick={handleGoogleSignIn}
           disabled={isLoading}
         >
@@ -111,7 +123,7 @@ export function LoginForm({ className, showLogo = true, ...props }: LoginFormPro
           <Button
             variant="outline"
             type="button"
-            className="w-full gap-3 opacity-50"
+            className="h-11 w-full gap-3 font-medium opacity-50"
             disabled
             aria-label={t.auth.loginWith.replace("{provider}", t.auth.githubLabel)}
           >
@@ -125,10 +137,47 @@ export function LoginForm({ className, showLogo = true, ...props }: LoginFormPro
             </svg>
             {t.auth.loginWith.replace("{provider}", t.auth.githubLabel)}
           </Button>
-          <span className="absolute -top-2 right-3 rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+          <span className="absolute -top-2.5 right-3 rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground ring-1 ring-border/50">
             {t.auth.githubComingSoon}
           </span>
         </div>
+      </div>
+
+      {/* Divider */}
+      <div className="flex items-center gap-3">
+        <div className="h-px flex-1 bg-border" />
+        <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+          {t.auth.orContinueWith}
+        </span>
+        <div className="h-px flex-1 bg-border" />
+      </div>
+
+      {/* Magic link — coming soon */}
+      <div className="relative flex flex-col gap-2">
+        <div className="flex gap-2 opacity-50">
+          <Input
+            type="email"
+            placeholder={t.auth.emailPlaceholder}
+            disabled
+            className="h-11 flex-1"
+          />
+          <Button variant="outline" type="button" disabled className="h-11 shrink-0 px-4">
+            {t.auth.sendMagicLink}
+          </Button>
+        </div>
+        <p className="text-center text-[11px] text-muted-foreground">{t.auth.magicLinkDescription}</p>
+        <span className="absolute -top-2.5 right-0 rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground ring-1 ring-border/50">
+          {t.auth.githubComingSoon}
+        </span>
+      </div>
+
+      {/* Feature-color footer — mirrors landing page section palette */}
+      <div className="flex items-center justify-center gap-2 pt-1" aria-hidden>
+        {FEATURE_DOTS.map(({ Icon, color, bg }, i) => (
+          <div key={i} className={cn("flex items-center justify-center rounded-full p-1.5", bg)}>
+            <Icon className={cn("h-3 w-3", color)} />
+          </div>
+        ))}
       </div>
     </div>
   )

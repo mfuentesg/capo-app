@@ -299,7 +299,13 @@
     "errorAuthFailed": "Authentication failed. Please try again.",
     "errorAuthError": "Something went wrong during sign-in. Please try again.",
     "errorMissingCode": "Invalid sign-in link. Please try again.",
-    "errorGeneric": "Sign-in failed. Please try again."
+    "errorGeneric": "Sign-in failed. Please try again.",
+    "tagline": "Chords. Lyrics. Setlists. In tune with your team.",
+    "orContinueWith": "or continue with email",
+    "magicLinkLabel": "Magic Link",
+    "magicLinkDescription": "Sign in without a password",
+    "sendMagicLink": "Send Magic Link",
+    "emailPlaceholder": "your@email.com"
   },
   "account": {
     "title": "Account",

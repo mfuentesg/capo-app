@@ -300,7 +300,13 @@
     "errorAuthFailed": "La autenticación falló. Por favor, inténtalo de nuevo.",
     "errorAuthError": "Algo salió mal durante el inicio de sesión. Por favor, inténtalo de nuevo.",
     "errorMissingCode": "Enlace de inicio de sesión inválido. Por favor, inténtalo de nuevo.",
-    "errorGeneric": "El inicio de sesión falló. Por favor, inténtalo de nuevo."
+    "errorGeneric": "El inicio de sesión falló. Por favor, inténtalo de nuevo.",
+    "tagline": "Acordes. Letras. Setlists. Al ritmo de tu equipo.",
+    "orContinueWith": "o continúa con tu correo",
+    "magicLinkLabel": "Magic Link",
+    "magicLinkDescription": "Inicia sesión sin contraseña",
+    "sendMagicLink": "Enviar Magic Link",
+    "emailPlaceholder": "tu@correo.com"
   },
   "account": {
     "title": "Cuenta",
