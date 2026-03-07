@@ -32,9 +32,11 @@
     "clearSearch": "Limpiar búsqueda",
     "copyToClipboardFailed": "Error al copiar al portapapeles",
     "previous": "Anterior",
-    "next": "Siguiente"
-    },
-
+    "next": "Siguiente",
+    "create": "Crear",
+    "clearAll": "Limpiar todo",
+    "getStarted": "Comenzar"
+  },
   "metadata": {
     "title": "Capo",
     "description": "Una aplicación moderna de biblioteca de canciones para músicos con acordes y letras, construida con Next.js y formato ChordPro."
@@ -58,6 +60,18 @@
     "profile": "Perfil",
     "account": "Cuenta",
     "invitations": "Invitaciones"
+  },
+  "landing": {
+    "title": "Domina tu biblioteca musical.",
+    "subtitle": "El compañero definitivo para músicos, líderes de alabanza y bandas.",
+    "chordProTitle": "Editor ChordPro",
+    "chordProDesc": "Potente editor visual para letras y acordes con transposición dinámica.",
+    "playlistsTitle": "Playlists Inteligentes",
+    "playlistsDesc": "Organiza tus canciones en sets para ensayos o presentaciones en vivo.",
+    "teamsTitle": "Colaboración en Equipo",
+    "teamsDesc": "Comparte tu biblioteca con los miembros de tu banda y colabora en tiempo real.",
+    "performanceTitle": "Modo Presentación",
+    "performanceDesc": "Una vista sin distracciones con texto grande optimizada para escenario y iPad."
   },
   "settings": {
     "title": "Configuración",
@@ -132,6 +146,8 @@
     "lyricsTitle": "Letra",
     "noLyrics": "Esta canción aún no tiene letra.",
     "lyricsAvailable": "La letra está disponible para esta canción.",
+    "songSelected": "canción seleccionada",
+    "songsSelected": "canciones seleccionadas",
     "lyrics": {
       "settings": "Configuración",
       "displaySettings": "Configuración de Visualización",
@@ -141,7 +157,13 @@
       "standardView": "Vista estándar",
       "columnLayout": "Diseño",
       "oneColumn": "1 columna",
-      "twoColumns": "2 columnas"
+      "twoColumns": "2 columnas",
+      "performanceMode": "Modo Presentación"
+    },
+    "editor": {
+      "chordPlaceholder": "[Acorde]",
+      "insertChordBrackets": "Insertar corchetes de acorde",
+      "comment": "Comentario"
     }
   },
   "playlists": {
@@ -159,7 +181,8 @@
     "searchPlaceholder": "Buscar playlists...",
     "playlistName": "Nombre del playlist",
     "playlistNamePlaceholder": "ej. Adoración del Domingo",
-    "openPlaylist": "Abrir playlist"
+    "openPlaylist": "Abrir playlist",
+    "songsCount": "canciones"
   },
   "playlistDetail": {
     "details": "Detalles",
@@ -189,7 +212,10 @@
     "noSongsToAdd": "Todas tus canciones ya están en este playlist",
     "addSelectedSongs": "Agregar {count} canciones",
     "dropToRemove": "Soltar aquí para eliminar",
-    "guestEditingDisabledHint": "Solo disponible cuando el playlist es público"
+    "guestEditingDisabledHint": "Solo disponible cuando el playlist es público",
+    "previewAsGuest": "Vista previa como invitado",
+    "openPublicView": "Abrir vista pública",
+    "inPlaylist": "en playlist"
   },
   "playlistItem": {
     "privatePlaylist": "Playlist privado",
@@ -271,7 +297,8 @@
     "recentActivity": "Actividad Reciente",
     "recentActivityDescription": "Tus últimas acciones",
     "noSongsYet": "Aún no hay canciones",
-    "addYourFirstSong": "Agrega tu primera canción"
+    "addYourFirstSong": "Agrega tu primera canción",
+    "noSongsDescription": "Comienza a construir tu biblioteca musical hoy. Agrega tus canciones y letras favoritas para empezar."
   },
 
   "playlistShare": {
@@ -372,7 +399,12 @@
     "changeRole": "Cambiar Rol",
     "removeMember": "Eliminar Miembro",
     "removeMemberConfirm": "¿Estás seguro de que deseas eliminar a {name} del equipo?",
-    "removeMemberWarning": "Esta acción no se puede deshacer. Necesitarán ser invitados de nuevo para volver a unirse."
+    "removeMemberWarning": "Esta acción no se puede deshacer. Necesitarán ser invitados de nuevo para volver a unirse.",
+    "teamSongs": "Canciones del equipo",
+    "teamPlaylists": "Playlists del equipo",
+    "noSharedSongs": "Aún no hay canciones compartidas con este equipo.",
+    "noSharedPlaylists": "Aún no hay playlists compartidas con este equipo.",
+    "teamSettings": "Configuración del equipo"
   },
   "invitations": {
     "title": "Invitación de equipo",
@@ -398,7 +430,6 @@
     "acceptedTitle": "¡Invitación aceptada con éxito! 🎉",
     "redirecting": "Redirigiéndote a tus equipos...",
     "failedToAccept": "Error al aceptar la invitación",
-
     "invalidLinkTitle": "Enlace de invitación inválido",
     "invalidLinkDescription": "Este enlace de invitación es inválido o ya se ha usado.",
     "signInRequiredTitle": "Inicio de sesión requerido",

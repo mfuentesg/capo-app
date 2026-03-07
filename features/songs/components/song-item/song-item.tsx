@@ -1,6 +1,7 @@
 "use client"
 import { memo } from "react"
-import { Check, Music3, Music2, Clock } from "lucide-react"
+import { Check, Music2, Clock } from "lucide-react"
+import { useLongPress } from "@uidotdev/usehooks"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import type { Song } from "@/features/songs/types"
@@ -11,6 +12,8 @@ interface SongItemProps {
   isInCart: boolean
   isDisabled?: boolean
   isPreview?: boolean
+  isSelectMode?: boolean
+  onSelectModeChange?: (isSelectMode: boolean) => void
   onSelect: (song: Song) => void
   onToggleCart: (song: Song) => void
 }
@@ -21,18 +24,37 @@ export const SongItem = memo(function SongItem({
   isInCart,
   isDisabled = false,
   isPreview = false,
+  isSelectMode = false,
+  onSelectModeChange,
   onSelect,
   onToggleCart
 }: SongItemProps) {
+  const attrs = useLongPress(
+    () => {
+      if (!isSelectMode && !isDisabled && onSelectModeChange) {
+        onSelectModeChange(true)
+        if (!isInCart) onToggleCart(song)
+      }
+    },
+    { threshold: 500 }
+  )
+
   return (
     <div
-      onClick={() => !isDisabled && onSelect(song)}
+      onClick={() => {
+        if (!isDisabled) {
+          if (isSelectMode) onToggleCart(song)
+          else onSelect(song)
+        }
+      }}
+      {...attrs}
       className={cn(
-        "group flex items-start gap-4 rounded-lg border p-4 transition-all",
+        "group flex items-start gap-4 rounded-lg border p-4 transition-all md:hover:shadow-sm",
         isPreview ? "bg-orange-100/80 dark:bg-orange-900/30" : "bg-card",
-        !isDisabled && "hover:shadow-sm cursor-pointer",
+        !isDisabled && "cursor-pointer",
         isDisabled && "opacity-50 cursor-not-allowed",
-        isSelected && !isDisabled && "ring-2 ring-primary"
+        isSelected && !isDisabled && !isSelectMode && "ring-2 ring-primary",
+        isInCart && isSelectMode && "bg-primary/5 border-primary/30"
       )}
     >
       <button
@@ -46,12 +68,14 @@ export const SongItem = memo(function SongItem({
         className={cn(
           "flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-semibold transition-all",
           isInCart
-            ? "bg-primary text-primary-foreground"
-            : "bg-primary/10 text-primary hover:bg-primary/20",
+            ? "bg-primary text-primary-foreground opacity-100 ring-2 ring-primary ring-offset-2"
+            : "bg-primary/10 text-primary md:hover:bg-primary/20",
+          !isInCart && !isSelectMode && "opacity-0 md:group-hover:opacity-100 focus-visible:opacity-100",
+          !isInCart && isSelectMode && "opacity-100",
           isDisabled && "cursor-not-allowed"
         )}
       >
-        {isInCart ? <Check className="h-4 w-4" /> : <Music3 className="h-4 w-4" />}
+        {isInCart ? <Check className="h-4 w-4" /> : <div className="h-4 w-4 rounded-full border-2 border-primary/40" />}
       </button>
 
       <div className="flex min-w-0 flex-1 flex-col gap-2">

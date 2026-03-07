@@ -13,7 +13,7 @@ import { songsKeys } from "./query-keys"
 import type { Song } from "../types"
 import { toast } from "sonner"
 import { useLocale } from "@/features/settings"
-import { useAppContext } from "@/features/app-context"
+import { useAppContext, type AppContext } from "@/features/app-context"
 
 type SongQuerySnapshot = Array<[readonly unknown[], Song[] | undefined]>
 
@@ -36,9 +36,10 @@ function restoreSongQueries(
  * Hook to fetch songs for the current context (personal or team)
  * Uses AppContext to determine if fetching personal or team songs
  */
-export function useSongs() {
-  const { context } = useAppContext()
+export function useSongs(overrideContext?: AppContext) {
+  const { context: defaultContext } = useAppContext()
   const { data: user } = useUser()
+  const context = overrideContext || defaultContext
 
   return useQuery({
     queryKey: context ? songsKeys.list(context) : songsKeys.lists(),

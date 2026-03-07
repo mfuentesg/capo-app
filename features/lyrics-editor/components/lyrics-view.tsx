@@ -17,7 +17,8 @@ import {
   Pencil,
   Save,
   Columns2,
-  ExternalLink
+  ExternalLink,
+  MonitorPlay
 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import type { Song } from "@/types"
@@ -80,6 +81,7 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
   const [editedLyrics, setEditedLyrics] = useState(song.lyrics || "")
   const [savedLyrics, setSavedLyrics] = useState(song.lyrics || "")
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+  const [isPerformanceMode, setIsPerformanceMode] = useState(false)
   const [lyricsColumns, setLyricsColumnsState] = useState<1 | 2>(initialLyricsColumns)
   const { mutate: upsertPreferences } = useUpsertUserPreferences()
 
@@ -423,8 +425,18 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
                     >
                       <Pencil className="h-3.5 w-3.5" />
                     </Button>
-                    )}
-                    {isPanel && (
+                  )}
+                  <Button
+                    variant={isPerformanceMode ? "secondary" : "ghost"}
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() => setIsPerformanceMode(!isPerformanceMode)}
+                    aria-label={t.songs.lyrics.performanceMode}
+                    title={t.songs.lyrics.performanceMode}
+                  >
+                    <MonitorPlay className="h-3.5 w-3.5" />
+                  </Button>
+                  {isPanel && (
                     <Button
                       variant="ghost"
                       size="icon"
@@ -499,8 +511,8 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
                   lyrics={isEditing && isPreviewing ? editedLyrics : savedLyrics}
                   transpose={transpose.value}
                   capo={capo.value}
-                  fontSize={font.value}
-                  columns={lyricsColumns}
+                  fontSize={isPerformanceMode ? font.value + 4 : font.value}
+                  columns={isPerformanceMode ? 1 : lyricsColumns}
                 />
               </div>
             )}

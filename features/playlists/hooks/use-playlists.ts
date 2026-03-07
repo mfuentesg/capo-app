@@ -14,7 +14,7 @@ import { playlistsKeys } from "./query-keys"
 import type { Playlist } from "../types"
 import { toast } from "sonner"
 import { useLocale } from "@/features/settings"
-import { useAppContext } from "@/features/app-context"
+import { useAppContext, type AppContext } from "@/features/app-context"
 import { useRouter } from "next/navigation"
 
 type PlaylistQuerySnapshot = Array<[readonly unknown[], Playlist[] | undefined]>
@@ -37,8 +37,9 @@ function restorePlaylistQueries(
 /**
  * Hook to fetch playlists for the current context (personal or team)
  */
-export function usePlaylists() {
-  const { context } = useAppContext()
+export function usePlaylists(overrideContext?: AppContext) {
+  const { context: defaultContext } = useAppContext()
+  const context = overrideContext || defaultContext
 
   return useQuery({
     queryKey: context ? playlistsKeys.list(context) : playlistsKeys.lists(),

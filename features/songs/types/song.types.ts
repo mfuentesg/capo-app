@@ -46,6 +46,8 @@ export interface SongListProps {
   filterStatus: SongFilterStatus
   bpmRange: BPMRange
   isCreatingNewSong?: boolean
+  isSelectMode?: boolean
+  onSelectModeChange?: (isSelectMode: boolean) => void
   onSelectSong: (song: Song) => void
 }
 

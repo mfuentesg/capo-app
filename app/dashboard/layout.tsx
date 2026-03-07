@@ -1,5 +1,5 @@
 import type React from "react"
-import { Navbar } from "@/components/layout"
+import { Navbar, BottomNav } from "@/components/layout"
 import { DraftIndicator } from "@/components/layout/draft-indicator"
 import { PlaylistDraftProvider } from "@/features/playlist-draft"
 
@@ -10,10 +10,11 @@ export default function DashboardLayout({
 }>) {
   return (
     <PlaylistDraftProvider>
-      <main className="flex-1">
+      <main className="flex-1 pb-16 md:pb-0">
         <Navbar />
         {children}
         <DraftIndicator />
+        <BottomNav />
       </main>
     </PlaylistDraftProvider>
   )

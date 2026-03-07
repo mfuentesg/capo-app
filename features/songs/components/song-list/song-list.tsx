@@ -36,6 +36,8 @@ export function SongList({
   filterStatus,
   bpmRange,
   isCreatingNewSong = false,
+  isSelectMode = false,
+  onSelectModeChange,
   isLoading = false,
   onSelectSong
 }: SongListProps & { isLoading?: boolean }) {
@@ -175,6 +177,8 @@ export function SongList({
                 isSelected={!isCreatingNewSong && selectedSong?.id === song.id}
                 isInCart={isSongInDraft(song.id)}
                 isDisabled={isCreatingNewSong}
+                isSelectMode={isSelectMode}
+                onSelectModeChange={onSelectModeChange}
                 onSelect={handleSelectSong}
                 onToggleCart={toggleSongInDraft}
               />

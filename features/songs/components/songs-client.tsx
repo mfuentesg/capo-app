@@ -8,19 +8,22 @@ import { Drawer, DrawerContent, DrawerTitle, DrawerDescription } from "@/compone
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
-import { Plus, Search, Music, LayoutList, Music2, Music3, Settings2, X } from "lucide-react"
+import { Plus, Search, Music, LayoutList, Music2, Music3, Settings2, X, CheckSquare, ListPlus } from "lucide-react"
 import { SongList, SongDetail, useAllUserSongSettings } from "@/features/songs"
 import { SongDraftForm, type SongDraftFormHandle } from "@/features/song-draft"
 import { useSongs, useCreateSong, useUpdateSong, useDeleteSong } from "../hooks/use-songs"
 import { useUser } from "@/features/auth"
+import { usePlaylistDraft } from "@/features/playlist-draft"
 import type { Song, GroupBy, BPMRange, SongFilterStatus } from "../types"
 import { useTranslation } from "@/hooks/use-translation"
 import { createOverlayIds } from "@/lib/ui/stable-overlay-ids"
+import { cn } from "@/lib/utils"
 
 export function SongsClient() {
   const { t } = useTranslation()
   const { data: user } = useUser()
   const { data: songs = [], isLoading } = useSongs()
+  const { playlistDraft, setIsDraftOpen, clearDraft } = usePlaylistDraft()
   const createSongMutation = useCreateSong()
   const updateSongMutation = useUpdateSong()
   const deleteSongMutation = useDeleteSong()
@@ -34,6 +37,7 @@ export function SongsClient() {
   const [bpmRange, setBpmRange] = useState<BPMRange>("all")
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false)
   const [isCreatingNewSong, setIsCreatingNewSong] = useState(false)
+  const [isSelectMode, setIsSelectMode] = useState(false)
   const [previewSong, setPreviewSong] = useState<Song | null>(null)
   const songDraftFormRef = useRef<SongDraftFormHandle>(null)
   const filterPopoverIds = createOverlayIds("songs-filter-popover")
@@ -133,7 +137,7 @@ export function SongsClient() {
   }
 
   return (
-    <div className="h-[calc(100vh-4rem)] bg-background">
+    <div className="relative h-[calc(100vh-4rem)] bg-background overflow-hidden">
       <ResizablePanelGroup id="songs-layout-group" direction="horizontal" className="h-full">
         <ResizablePanel
           id="songs-list-panel"
@@ -150,15 +154,31 @@ export function SongsClient() {
                 </h1>
                 <Badge variant="secondary">{songs.length}</Badge>
               </div>
-              <Button
-                size="sm"
-                className="gap-1.5 rounded-full"
-                onClick={handleCreateNewSong}
-                disabled={isCreatingNewSong}
-              >
-                <Plus className="h-4 w-4" />
-                {t.songs.addSong}
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant={isSelectMode ? "secondary" : "ghost"}
+                  size="sm"
+                  className={cn(
+                    "gap-1.5 rounded-full",
+                    !isSelectMode && "hidden md:flex"
+                  )}
+                  onClick={() => setIsSelectMode(!isSelectMode)}
+                >
+                  <CheckSquare className="h-4 w-4" />
+                  {isSelectMode ? t.common.cancel : t.songs.selectSong}
+                </Button>
+                {!isSelectMode && (
+                  <Button
+                    size="sm"
+                    className="hidden md:flex gap-1.5 rounded-full"
+                    onClick={handleCreateNewSong}
+                    disabled={isCreatingNewSong}
+                  >
+                    <Plus className="h-4 w-4" />
+                    {t.songs.addSong}
+                  </Button>
+                )}
+              </div>
             </div>
 
             <div className="relative mt-4 flex items-center gap-2">
@@ -367,6 +387,8 @@ export function SongsClient() {
               filterStatus={filterStatus}
               bpmRange={bpmRange}
               isCreatingNewSong={isCreatingNewSong}
+              isSelectMode={isSelectMode}
+              onSelectModeChange={setIsSelectMode}
               isLoading={isLoading && songs.length === 0}
               onSelectSong={handleSelectSong}
             />
@@ -413,6 +435,64 @@ export function SongsClient() {
           )}
         </ResizablePanel>
       </ResizablePanelGroup>
+
+      {/* Bulk Actions Bar */}
+      {isSelectMode && (
+        <div className="fixed bottom-20 left-4 right-4 z-50 animate-in slide-in-from-bottom-4 duration-300 md:bottom-8 md:left-auto md:right-8 md:w-96">
+          <div className="flex items-center justify-between gap-4 rounded-2xl border bg-background/95 p-4 shadow-2xl backdrop-blur supports-[backdrop-filter]:bg-background/80">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+                <CheckSquare className="h-5 w-5" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-sm font-bold">
+                  {playlistDraft.length} {playlistDraft.length === 1 ? t.songs.songSelected : t.songs.songsSelected || "songs selected"}
+                </span>
+                <button 
+                  onClick={clearDraft}
+                  className="text-left text-xs text-muted-foreground hover:text-destructive transition-colors"
+                >
+                  {t.common.clearAll}
+                </button>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <Button 
+                size="sm" 
+                className="rounded-full gap-2 px-4 shadow-md"
+                disabled={playlistDraft.length === 0}
+                onClick={() => setIsDraftOpen(true)}
+              >
+                <ListPlus className="h-4 w-4" />
+                <span className="hidden sm:inline">{t.dashboard.newPlaylist}</span>
+                <span className="sm:hidden">{t.common.create}</span>
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="rounded-full text-muted-foreground hover:text-foreground md:hidden"
+                onClick={() => setIsSelectMode(false)}
+              >
+                <X className="h-5 w-5" />
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Mobile FAB */}
+      {!isSelectMode && (
+        <Button
+          className="fixed bottom-[84px] right-4 z-40 h-14 w-14 rounded-full shadow-lg md:hidden"
+          size="icon"
+          onClick={handleCreateNewSong}
+          disabled={isCreatingNewSong || isMobileDrawerOpen}
+        >
+          <Plus className="h-6 w-6" />
+          <span className="sr-only">{t.songs.addSong}</span>
+        </Button>
+      )}
 
       {isMobile && (
         <Drawer

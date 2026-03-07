@@ -101,8 +101,13 @@ function getActivityLink(activity: Activity): string | null {
   return null
 }
 
-export function ActivityFeed() {
-  const { data: activities, isLoading } = useActivities(5)
+interface ActivityFeedProps {
+  limit?: number
+  filters?: { entityType?: string; entityId?: string }
+}
+
+export function ActivityFeed({ limit = 5, filters }: ActivityFeedProps) {
+  const { data: activities, isLoading } = useActivities(limit, filters)
   const { locale, t } = useTranslation()
 
   if (isLoading) {
@@ -123,9 +128,8 @@ export function ActivityFeed() {
 
   if (!activities || activities.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center p-8 text-center">
-        <Music className="h-12 w-12 text-muted-foreground mb-4 opacity-50" />
-        <p className="text-sm text-muted-foreground">{t.activity.noActivity}</p>
+      <div className="flex flex-col items-center justify-center p-6 text-center">
+        <p className="text-sm font-medium text-muted-foreground">{t.activity.noActivity}</p>
         <p className="text-xs text-muted-foreground mt-1">{t.activity.noActivityDescription}</p>
       </div>
     )
