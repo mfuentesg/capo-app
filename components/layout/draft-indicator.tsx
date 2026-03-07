@@ -16,8 +16,15 @@ import type { Playlist } from "@/features/playlists"
  * Extracted from dashboard layout to keep layout as a Server Component.
  */
 export function DraftIndicator() {
-  const { playlistDraft, isDraftOpen, setIsDraftOpen, clearDraft, removeFromDraft, reorderDraft } =
-    usePlaylistDraft()
+  const {
+    playlistDraft,
+    isDraftOpen,
+    setIsDraftOpen,
+    clearDraft,
+    removeFromDraft,
+    reorderDraft,
+    isSelectMode
+  } = usePlaylistDraft()
   const { data: playlists = [] } = usePlaylists()
   const { data: user } = useUser()
   const { t } = useTranslation()
@@ -25,6 +32,8 @@ export function DraftIndicator() {
   const addSongsMutation = useAddSongsToPlaylist()
 
   const isSubmitting = createPlaylistMutation.isPending || addSongsMutation.isPending
+
+  if (playlistDraft.length === 0 || isSelectMode) return null
 
   const handleSubmit = async (
     selection: { type: "new"; name: string } | { type: "existing"; playlistId: string }

@@ -6,7 +6,9 @@ import type { Song } from "@/features/songs"
 export interface PlaylistDraftContextType {
   playlistDraft: Song[]
   isDraftOpen: boolean
+  isSelectMode: boolean
   setIsDraftOpen: (open: boolean) => void
+  setIsSelectMode: (isSelectMode: boolean) => void
   toggleSongInDraft: (song: Song) => void
   isSongInDraft: (songId: string) => boolean
   clearDraft: () => void
@@ -19,6 +21,7 @@ const PlaylistDraftContext = createContext<PlaylistDraftContextType | undefined>
 export function PlaylistDraftProvider({ children }: { children: ReactNode }) {
   const [playlistDraft, setPlaylistDraft] = useState<Song[]>([])
   const [isDraftOpen, setIsDraftOpen] = useState(false)
+  const [isSelectMode, setIsSelectMode] = useState(false)
 
   const toggleSongInDraft = useCallback((song: Song) => {
     setPlaylistDraft((prev) => {
@@ -55,7 +58,9 @@ export function PlaylistDraftProvider({ children }: { children: ReactNode }) {
     () => ({
       playlistDraft,
       isDraftOpen,
+      isSelectMode,
       setIsDraftOpen,
+      setIsSelectMode,
       toggleSongInDraft,
       isSongInDraft,
       clearDraft,
@@ -65,6 +70,8 @@ export function PlaylistDraftProvider({ children }: { children: ReactNode }) {
     [
       playlistDraft,
       isDraftOpen,
+      isSelectMode,
+      setIsSelectMode,
       toggleSongInDraft,
       isSongInDraft,
       clearDraft,
