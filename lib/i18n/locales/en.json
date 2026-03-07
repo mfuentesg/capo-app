@@ -293,7 +293,29 @@
     "loginWith": "Login with {provider}",
     "loggingIn": "Logging in",
     "logout": "Logout",
-    "welcome": "Welcome back"
+    "welcome": "Welcome back",
+    "landing": {
+      "headline": "Your song library, always in tune",
+      "subheadline": "Manage chords, lyrics, and playlists — built for musicians who perform.",
+      "features": {
+        "songs": {
+          "title": "Song Library",
+          "description": "Store your songs with chords and lyrics in ChordPro format. Transpose keys and set capo positions on the fly."
+        },
+        "playlists": {
+          "title": "Playlists",
+          "description": "Organize songs into setlists for every gig. Reorder songs with drag-and-drop and share them instantly."
+        },
+        "teams": {
+          "title": "Team Collaboration",
+          "description": "Create a shared workspace for your band. Everyone can access the same songs and playlists in real time."
+        },
+        "sharing": {
+          "title": "Easy Sharing",
+          "description": "Share any playlist with a unique link. Guests can view songs without needing an account."
+        }
+      }
+    }
   },
   "account": {
     "title": "Account",

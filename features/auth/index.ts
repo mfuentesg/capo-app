@@ -1,7 +1,8 @@
 "use client"
 
 // Components
-export { LoginForm } from "./components"
+export { LoginForm, LandingFeatures } from "./components"
+
 
 // Hooks
 export { useSession, useSignInWithGoogle, useSignOut, useUser } from "./hooks"

@@ -294,7 +294,29 @@
     "loginWith": "Iniciar sesión con {provider}",
     "loggingIn": "Iniciando sesión",
     "logout": "Cerrar sesión",
-    "welcome": "Bienvenido de nuevo"
+    "welcome": "Bienvenido de nuevo",
+    "landing": {
+      "headline": "Tu biblioteca de canciones, siempre afinada",
+      "subheadline": "Gestiona acordes, letras y listas de reproducción — diseñado para músicos que actúan.",
+      "features": {
+        "songs": {
+          "title": "Biblioteca de Canciones",
+          "description": "Guarda tus canciones con acordes y letras en formato ChordPro. Transpone tonos y ajusta la cejilla al instante."
+        },
+        "playlists": {
+          "title": "Listas de Reproducción",
+          "description": "Organiza canciones en setlists para cada actuación. Reordena arrastrando y compártelas al instante."
+        },
+        "teams": {
+          "title": "Colaboración en Equipo",
+          "description": "Crea un espacio compartido para tu banda. Todos acceden a las mismas canciones y listas en tiempo real."
+        },
+        "sharing": {
+          "title": "Compartir Fácilmente",
+          "description": "Comparte cualquier lista con un enlace único. Los invitados pueden ver canciones sin necesitar una cuenta."
+        }
+      }
+    }
   },
   "account": {
     "title": "Cuenta",
