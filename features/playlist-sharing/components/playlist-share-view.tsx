@@ -155,28 +155,16 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
           event: "*",
           schema: "public",
           table: "songs"
+          // No row-level filter: songs.playlist_id doesn't exist (relationship is via
+          // playlist_songs). Any song edit triggers a refetch via the public share-code
+          // API, which naturally scopes the result to this playlist.
         },
         () => {
-          // Re-fetch playlist and songs via public API if changed
           if (playlist.shareCode) {
             api.getPublicPlaylistByShareCode(playlist.shareCode).then((data) => {
               if (data) setSongs(data.songs)
             })
           }
-        }
-      )
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "user_song_settings"
-        },
-        () => {
-          // Song settings are fetched via hooks, so invalidating the cache is enough
-          // but we also need to ensure the local user who might be viewing this gets the update.
-          // Since this view is often used by guests, user_song_settings might not apply
-          // unless they are logged in.
         }
       )
       .on(
