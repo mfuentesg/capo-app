@@ -105,7 +105,7 @@ function EditableField({ value, onSave, className, inputClassName }: EditableFie
     <button
       onClick={() => setIsEditing(true)}
       className={cn(
-        "group inline-flex items-center gap-1.5 rounded px-1 -ml-1 hover:bg-muted transition-colors text-left",
+        "group inline-flex min-w-0 items-center gap-1.5 rounded px-1 -ml-1 hover:bg-muted transition-colors text-left",
         className
       )}
     >
@@ -200,12 +200,12 @@ export function SongDetail({ song, onClose, onUpdate, onDelete }: SongDetailProp
           </div>
         </div>
         <div className="flex items-center gap-1 shrink-0">
-          <Link href={`/dashboard/songs/${song.id}`}>
-            <Button variant="outline" size="sm" className="gap-1.5">
+          <Button variant="outline" size="sm" className="gap-1.5" aria-label={t.songs.openSong} asChild>
+            <Link href={`/dashboard/songs/${song.id}`}>
               <ExternalLink className="h-4 w-4" />
-              <span className="inline">{t.songs.openSong}</span>
-            </Button>
-          </Link>
+              <span className="hidden sm:inline">{t.songs.openSong}</span>
+            </Link>
+          </Button>
           <Button variant="ghost" size="icon" onClick={onClose} aria-label={t.common.close}>
             <X className="h-4 w-4" />
           </Button>
