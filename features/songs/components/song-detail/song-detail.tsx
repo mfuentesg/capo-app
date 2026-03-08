@@ -200,12 +200,12 @@ export function SongDetail({ song, onClose, onUpdate, onDelete }: SongDetailProp
           </div>
         </div>
         <div className="flex items-center gap-1 shrink-0">
-          <Link href={`/dashboard/songs/${song.id}`} aria-label={t.songs.openSong}>
-            <Button variant="outline" size="sm" className="gap-1.5">
+          <Button variant="outline" size="sm" className="gap-1.5" aria-label={t.songs.openSong} asChild>
+            <Link href={`/dashboard/songs/${song.id}`}>
               <ExternalLink className="h-4 w-4" />
               <span className="hidden sm:inline">{t.songs.openSong}</span>
-            </Button>
-          </Link>
+            </Link>
+          </Button>
           <Button variant="ghost" size="icon" onClick={onClose} aria-label={t.common.close}>
             <X className="h-4 w-4" />
           </Button>
