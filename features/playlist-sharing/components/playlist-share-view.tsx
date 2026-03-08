@@ -241,6 +241,10 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
         <div className="mb-6 space-y-2">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0 space-y-1.5">
+              <div className="inline-flex items-center gap-1.5 rounded-full border border-pink-500/30 bg-pink-500/10 px-3 py-1 text-xs font-medium text-pink-500 mb-1">
+                <Share2 className="h-3 w-3" />
+                {t.playlistShare.share}
+              </div>
               <div className="flex flex-wrap items-center gap-1.5">
                 {localVisibility === "public" && (
                   <Badge variant="secondary" className="h-5 gap-1 px-1.5 text-xs font-normal">
