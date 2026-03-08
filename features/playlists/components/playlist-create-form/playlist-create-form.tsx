@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { useToggle } from "@uidotdev/usehooks"
 import { Calendar as CalendarIcon, ListMusic } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -27,7 +26,7 @@ export function PlaylistCreateForm({ onSubmit, onCancel, autoFocus = false }: Pl
   const [name, setName] = useState("")
   const [description, setDescription] = useState("")
   const [date, setDate] = useState<Date | undefined>(undefined)
-  const [isCalendarOpen, toggleIsCalendarOpen] = useToggle(false)
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const calendarPopoverIds = createOverlayIds("playlist-create-calendar-popover")
 
@@ -89,7 +88,7 @@ export function PlaylistCreateForm({ onSubmit, onCancel, autoFocus = false }: Pl
 
           <div className="space-y-2">
             <Label>{t.playlistDetail.pickDate}</Label>
-            <Popover open={isCalendarOpen} onOpenChange={toggleIsCalendarOpen}>
+            <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
               <PopoverTrigger asChild>
                 <Button
                   type="button"
@@ -116,7 +115,7 @@ export function PlaylistCreateForm({ onSubmit, onCancel, autoFocus = false }: Pl
                   selected={date}
                   onSelect={(d) => {
                     setDate(d)
-                    toggleIsCalendarOpen(false)
+                    setIsCalendarOpen(false)
                   }}
                   autoFocus
                 />

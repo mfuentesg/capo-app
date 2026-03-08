@@ -1,6 +1,6 @@
 "use client"
 
-import { useToggle } from "@uidotdev/usehooks"
+import { useState } from "react"
 import {
   Music,
   Music2,
@@ -215,14 +215,14 @@ export function IconPicker({
   triggerClassName,
   idBase
 }: IconPickerProps) {
-  const [open, toggleOpen] = useToggle(false)
+  const [open, setOpen] = useState(false)
   const ids = createOverlayIds(idBase ?? "icon-picker")
 
   const selectedIconName = value && TEAM_ICONS[value] ? value : "Users"
   const SelectedIcon = TEAM_ICONS[selectedIconName] || Users
 
   return (
-    <Popover open={open} onOpenChange={toggleOpen}>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <button
           id={ids.triggerId}
@@ -261,7 +261,7 @@ export function IconPicker({
                 )}
                 onClick={() => {
                   onChange(name)
-                  toggleOpen(false)
+                  setOpen(false)
                 }}
               >
                 <Icon className="size-6" />
