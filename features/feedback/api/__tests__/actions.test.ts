@@ -55,10 +55,11 @@ describe("submitFeedback", () => {
         name: "Alice",
         email: "alice@example.com",
         message: "Great app!",
-        newsletter_opt_in: true,
-        opt_in_at: expect.any(String)
+        newsletter_opt_in: true
       })
     )
+    const [[insertedData]] = mockInsert.mock.calls as unknown as [Record<string, unknown>][]
+    expect(typeof insertedData.opt_in_at).toBe("string")
   })
 
   it("stores null for opt_in_at when newsletterOptIn is false", async () => {
