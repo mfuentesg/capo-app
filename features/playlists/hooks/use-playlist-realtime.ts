@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { useQueryClient } from "@tanstack/react-query"
 import { createClient } from "@/lib/supabase/client"
+import { useUser } from "@/features/auth"
 import { playlistsKeys } from "./query-keys"
 
 /**
@@ -14,6 +15,7 @@ import { playlistsKeys } from "./query-keys"
  */
 export function usePlaylistRealtime(playlistId: string) {
   const queryClient = useQueryClient()
+  const { data: user } = useUser()
   const [isConnected, setIsConnected] = useState(false)
 
   useEffect(() => {
@@ -50,7 +52,8 @@ export function usePlaylistRealtime(playlistId: string) {
         {
           event: "*",
           schema: "public",
-          table: "user_song_settings"
+          table: "user_song_settings",
+          filter: user?.id ? `user_id=eq.${user.id}` : undefined
         },
         () => {
           queryClient.invalidateQueries({ queryKey: playlistsKeys.detail(playlistId) })
@@ -64,7 +67,7 @@ export function usePlaylistRealtime(playlistId: string) {
       channel.unsubscribe()
       setIsConnected(false)
     }
-  }, [playlistId, queryClient])
+  }, [playlistId, queryClient, user?.id])
 
   return { isConnected }
 }

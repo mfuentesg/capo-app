@@ -170,20 +170,6 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
         {
           event: "*",
           schema: "public",
-          table: "user_song_settings"
-        },
-        () => {
-          // Song settings are fetched via hooks, so invalidating the cache is enough
-          // but we also need to ensure the local user who might be viewing this gets the update.
-          // Since this view is often used by guests, user_song_settings might not apply
-          // unless they are logged in.
-        }
-      )
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
           table: "playlist_songs",
           filter: `playlist_id=eq.${playlist.id}`
         },
