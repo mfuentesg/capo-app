@@ -8,6 +8,14 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select"
+import { MUSICAL_KEYS } from "@/lib/constants"
+import {
   Sheet,
   SheetContent,
   SheetHeader,
@@ -19,7 +27,7 @@ import { useSongs } from "@/features/songs"
 import { addSongsToPlaylistAction } from "../../api/actions"
 import { playlistsKeys } from "../../hooks/query-keys"
 import { useTranslation } from "@/hooks/use-translation"
-import type { Song } from "@/features/songs"
+import type { Song, BPMRange } from "@/features/songs"
 
 interface AddSongsSheetProps {
   open: boolean
@@ -38,18 +46,30 @@ export function AddSongsSheet({
   const queryClient = useQueryClient()
   const { data: allSongs = [], isLoading } = useSongs()
   const [search, setSearch] = useState("")
+  const [keyFilter, setKeyFilter] = useState("all")
+  const [bpmFilter, setBpmFilter] = useState<BPMRange | "all">("all")
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
 
   const existingSet = new Set(existingSongIds)
   const addableSongs = allSongs.filter((s) => !existingSet.has(s.id))
 
-  const filtered = search.trim()
-    ? addableSongs.filter(
-        (s) =>
-          s.title.toLowerCase().includes(search.toLowerCase()) ||
-          s.artist.toLowerCase().includes(search.toLowerCase())
-      )
-    : addableSongs
+  const filtered = addableSongs.filter((s) => {
+    if (search.trim()) {
+      const q = search.trim().toLowerCase()
+      if (!s.title.toLowerCase().includes(q) && !s.artist.toLowerCase().includes(q)) return false
+    }
+
+    if (keyFilter !== "all" && s.key !== keyFilter) return false
+
+    if (bpmFilter !== "all") {
+      const bpm = s.bpm || 0
+      if (bpmFilter === "slow" && bpm >= 100) return false
+      if (bpmFilter === "medium" && (bpm < 100 || bpm > 140)) return false
+      if (bpmFilter === "fast" && bpm <= 140) return false
+    }
+
+    return true
+  })
 
   const addMutation = useMutation({
     mutationFn: (songIds: string[]) => addSongsToPlaylistAction(playlistId, songIds),
@@ -82,6 +102,8 @@ export function AddSongsSheet({
   const handleOpenChange = (nextOpen: boolean) => {
     if (!nextOpen) {
       setSearch("")
+      setKeyFilter("all")
+      setBpmFilter("all")
       setSelectedIds(new Set())
       onClose()
     }
@@ -97,15 +119,41 @@ export function AddSongsSheet({
           </SheetDescription>
         </SheetHeader>
 
-        <div className="px-6 py-3 border-b">
+        <div className="px-6 py-3 border-b space-y-3">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               placeholder={t.playlistDetail.searchSongs}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-9"
+              className="pl-9 h-9"
             />
+          </div>
+          <div className="flex gap-2">
+            <Select value={keyFilter} onValueChange={setKeyFilter}>
+              <SelectTrigger className="w-1/2 h-8 text-xs font-semibold">
+                <SelectValue placeholder={t.songs.all} />
+              </SelectTrigger>
+              <SelectContent className="max-h-[300px]">
+                <SelectItem value="all">{t.songs.all} {t.songs.byKey.replace("By ", "")}</SelectItem>
+                {MUSICAL_KEYS.map((key) => (
+                  <SelectItem key={key} value={key} className="font-mono">
+                    {key}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={bpmFilter} onValueChange={(val) => setBpmFilter(val as BPMRange | "all")}>
+              <SelectTrigger className="w-1/2 h-8 text-xs font-semibold">
+                <SelectValue placeholder={t.songs.all} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{t.songs.all} BPM</SelectItem>
+                <SelectItem value="slow">{t.songs.slow}</SelectItem>
+                <SelectItem value="medium">{t.songs.medium}</SelectItem>
+                <SelectItem value="fast">{t.songs.fast}</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
 

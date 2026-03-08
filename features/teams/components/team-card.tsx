@@ -18,6 +18,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Users as UsersIcon, Wrench, LogOut, ArrowLeftRight, Trash2 } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from "@/components/ui/tooltip"
 import { useLeaveTeam, useDeleteTeam, useUpdateTeam } from "@/features/teams"
 import { useAppContext } from "@/features/app-context"
 import { useUser } from "@/features/auth"
@@ -114,18 +120,26 @@ export function TeamCard({ team, memberCount = 1, initialSelectedTeamId = null }
                 Active
               </Badge>
             ) : (
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => {
-                  switchToTeam(team.id)
-                }}
-                className="ml-2 shrink-0"
-                aria-label={`${t.teams.switchToTeam}: ${team.name}`}
-                title={`${t.teams.switchToTeam}: ${team.name}`}
-              >
-                <ArrowLeftRight className="h-4 w-4" />
-              </Button>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => {
+                        switchToTeam(team.id)
+                      }}
+                      className="ml-2 shrink-0"
+                      aria-label={`${t.teams.switchToTeam}: ${team.name}`}
+                    >
+                      <ArrowLeftRight className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    {t.teams.switchToTeam}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             )}
           </div>
         </CardHeader>
@@ -146,24 +160,42 @@ export function TeamCard({ team, memberCount = 1, initialSelectedTeamId = null }
               )}
             </div>
             <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleLeaveOrDelete}
-                className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                title={isOwner && isOnlyMember ? t.teams.deleteTeam : t.teams.leaveTeam}
-              >
-                {isOwner && isOnlyMember ? (
-                  <Trash2 className="h-4 w-4" />
-                ) : (
-                  <LogOut className="h-4 w-4" />
-                )}
-              </Button>
-              <Button variant="ghost" size="sm" asChild>
-                <Link href={`/dashboard/teams/${team.id}`}>
-                  <Wrench className="h-4 w-4" />
-                </Link>
-              </Button>
+              <TooltipProvider>
+                <div className="flex items-center gap-2">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleLeaveOrDelete}
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                      >
+                        {isOwner && isOnlyMember ? (
+                          <Trash2 className="h-4 w-4" />
+                        ) : (
+                          <LogOut className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      {isOwner && isOnlyMember ? t.teams.deleteTeam : t.teams.leaveTeam}
+                    </TooltipContent>
+                  </Tooltip>
+
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
+                        <Link href={`/dashboard/teams/${team.id}`}>
+                          <Wrench className="h-4 w-4" />
+                        </Link>
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      {t.teams.teamSettings || "Team Settings"}
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+              </TooltipProvider>
             </div>
           </div>
         </CardContent>

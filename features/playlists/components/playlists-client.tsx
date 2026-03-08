@@ -115,7 +115,7 @@ export function PlaylistsClient({ initialPlaylists = [] }: PlaylistsClientProps)
                 </h1>
                 <Badge variant="secondary" suppressHydrationWarning>{playlists.length}</Badge>
               </div>
-              <Button size="sm" className="gap-1.5 rounded-full" onClick={handleCreateClick}>
+              <Button size="sm" className="hidden md:flex gap-1.5 rounded-full" onClick={handleCreateClick}>
                 <Plus className="h-4 w-4" />
                 {t.playlists.createPlaylist}
               </Button>
@@ -304,6 +304,17 @@ export function PlaylistsClient({ initialPlaylists = [] }: PlaylistsClientProps)
           )}
         </ResizablePanel>
       </ResizablePanelGroup>
+
+      {/* Mobile FAB */}
+      <Button
+        className="fixed bottom-[84px] right-4 z-40 h-14 w-14 rounded-full shadow-lg md:hidden"
+        size="icon"
+        onClick={handleCreateClick}
+        disabled={isCreating || isMobileDrawerOpen}
+      >
+        <Plus className="h-6 w-6" />
+        <span className="sr-only">{t.playlists.createPlaylist}</span>
+      </Button>
 
       {isMobile && (
         <Drawer open={isMobileDrawerOpen} onOpenChange={setIsMobileDrawerOpen}>

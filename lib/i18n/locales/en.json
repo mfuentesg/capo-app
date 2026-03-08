@@ -32,7 +32,10 @@
     "clearSearch": "Clear search",
     "copyToClipboardFailed": "Failed to copy to clipboard",
     "previous": "Previous",
-    "next": "Next"
+    "next": "Next",
+    "create": "Create",
+    "clearAll": "Clear All",
+    "getStarted": "Get Started"
   },
   "metadata": {
     "title": "Capo",
@@ -57,6 +60,18 @@
     "profile": "Profile",
     "account": "Account",
     "invitations": "Invitations"
+  },
+  "landing": {
+    "title": "Master your music library.",
+    "subtitle": "The ultimate companion for musicians, worship leaders, and bands.",
+    "chordProTitle": "ChordPro Editor",
+    "chordProDesc": "Powerful visual editor for lyrics and chords with dynamic transposition.",
+    "playlistsTitle": "Smart Playlists",
+    "playlistsDesc": "Organize your songs into sets for practice or live performances.",
+    "teamsTitle": "Team Collaboration",
+    "teamsDesc": "Share your library with band members and collaborate in real-time.",
+    "performanceTitle": "Performance Mode",
+    "performanceDesc": "A distraction-free, large-text view optimized for stage and iPad."
   },
   "settings": {
     "title": "Settings",
@@ -131,6 +146,8 @@
     "lyricsTitle": "Lyrics",
     "noLyrics": "This song does not have lyrics yet.",
     "lyricsAvailable": "Lyrics are available for this song.",
+    "songSelected": "song selected",
+    "songsSelected": "songs selected",
     "lyrics": {
       "settings": "Settings",
       "displaySettings": "Display Settings",
@@ -140,7 +157,13 @@
       "standardView": "Standard view",
       "columnLayout": "Layout",
       "oneColumn": "1 column",
-      "twoColumns": "2 columns"
+      "twoColumns": "2 columns",
+      "performanceMode": "Performance Mode"
+    },
+    "editor": {
+      "chordPlaceholder": "[Chord]",
+      "insertChordBrackets": "Insert chord brackets",
+      "comment": "Comment"
     }
   },
   "playlists": {
@@ -158,7 +181,8 @@
     "searchPlaceholder": "Search playlists...",
     "playlistName": "Playlist Name",
     "playlistNamePlaceholder": "e.g. Sunday Worship",
-    "openPlaylist": "Open Playlist"
+    "openPlaylist": "Open Playlist",
+    "songsCount": "songs"
   },
   "playlistDetail": {
     "details": "Details",
@@ -188,7 +212,10 @@
     "noSongsToAdd": "All your songs are already in this playlist",
     "addSelectedSongs": "Add {count} songs",
     "dropToRemove": "Drop here to remove",
-    "guestEditingDisabledHint": "Only available when playlist is public"
+    "guestEditingDisabledHint": "Only available when playlist is public",
+    "previewAsGuest": "Preview as guest",
+    "openPublicView": "Open Public View",
+    "inPlaylist": "in playlist"
   },
   "playlistItem": {
     "privatePlaylist": "Private playlist",
@@ -270,7 +297,8 @@
     "recentActivity": "Recent Activity",
     "recentActivityDescription": "Your latest actions",
     "noSongsYet": "No songs yet",
-    "addYourFirstSong": "Add your first song"
+    "addYourFirstSong": "Add your first song",
+    "noSongsDescription": "Start building your music library today. Add your favorite songs and lyrics to get started."
   },
 
   "playlistShare": {
@@ -371,7 +399,12 @@
     "changeRole": "Change Role",
     "removeMember": "Remove Member",
     "removeMemberConfirm": "Are you sure you want to remove {name} from the team?",
-    "removeMemberWarning": "This action cannot be undone. They will need to be invited again to rejoin."
+    "removeMemberWarning": "This action cannot be undone. They will need to be invited again to rejoin.",
+    "teamSongs": "Team Songs",
+    "teamPlaylists": "Team Playlists",
+    "noSharedSongs": "No songs shared with this team yet.",
+    "noSharedPlaylists": "No playlists shared with this team yet.",
+    "teamSettings": "Team Settings"
   },
   "invitations": {
     "title": "Team Invitation",

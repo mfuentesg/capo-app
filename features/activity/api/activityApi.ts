@@ -41,7 +41,8 @@ function mapDBActivityToFrontend(dbActivity: ActivityLog): Activity {
 export async function getActivities(
   supabase: SupabaseClient<Database>,
   context: AppContext,
-  limit = 10
+  limit = 10,
+  filters?: { entityType?: string; entityId?: string }
 ): Promise<Activity[]> {
   let query = supabase
     .from("activity_log")
@@ -50,6 +51,13 @@ export async function getActivities(
     .limit(limit)
 
   query = applyContextFilter(query, context)
+
+  if (filters?.entityType) {
+    query = query.eq("entity_type", filters.entityType)
+  }
+  if (filters?.entityId) {
+    query = query.eq("entity_id", filters.entityId)
+  }
 
   const { data, error } = await query
   if (error) throw error

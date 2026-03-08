@@ -210,23 +210,40 @@ export function PlaylistDraft({
   }
 
   const trigger = (
-    <div className="fixed bottom-6 right-6 z-50">
-      <div className="relative">
-        <Button
-          className="h-14 w-14 rounded-full shadow-lg p-0 flex items-center justify-center"
-          size="lg"
-          aria-label={t.playlistDraft.openDraft}
-          id={drawerIds.triggerId}
-          aria-controls={drawerIds.contentId}
-        >
-          <ListMusic className="h-6 w-6" />
-        </Button>
-        <span className="absolute -top-2 -right-2 flex h-8 w-8">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-600 dark:bg-orange-500 opacity-75"></span>
-          <span className="relative inline-flex items-center justify-center rounded-full h-8 w-8 bg-orange-600 dark:bg-orange-500 text-white text-sm font-bold shadow-lg border-2 border-background">
+    <div className="fixed bottom-6 left-0 right-0 z-50 px-4 pointer-events-none md:left-64 flex justify-center">
+      <div className="bg-foreground text-background shadow-xl rounded-full pl-2 pr-2 py-2 flex items-center gap-4 pointer-events-auto shrink-0 max-w-full overflow-hidden border border-border/50">
+        <div className="flex items-center gap-3 pl-2">
+          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold">
             {songs.length}
           </span>
-        </span>
+          <span className="font-medium text-sm hidden sm:inline whitespace-nowrap">
+            {t.playlistDraft.songsSelected}
+          </span>
+        </div>
+        <div className="flex items-center gap-1 shrink-0">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              handleClear()
+            }}
+            className="text-muted hover:bg-background/20 hover:text-background rounded-full h-8 text-xs px-3"
+          >
+            {t.playlistDraft.clearButton}
+          </Button>
+          <Button
+            size="sm"
+            className="rounded-full gap-2 shrink-0 h-8 font-semibold select-none"
+            id={drawerIds.triggerId}
+            aria-controls={drawerIds.contentId}
+          >
+            <ListMusic className="h-4 w-4" />
+            <span className="hidden sm:inline">{t.playlistDraft.addToPlaylist}</span>
+            <span className="sm:hidden">{t.playlistDraft.addToPlaylist}</span>
+          </Button>
+        </div>
       </div>
     </div>
   )

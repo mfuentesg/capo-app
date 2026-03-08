@@ -5,6 +5,7 @@ import { ChordProParser } from "chordsheetjs"
 import { ChevronDown, Music2, Repeat2 } from "lucide-react"
 import { useLocale } from "@/features/settings"
 import { ChordDiagram } from "./chord-diagram"
+import { Badge } from "@/components/ui/badge"
 
 interface RenderedSongProps {
   lyrics?: string
@@ -417,7 +418,7 @@ export function RenderedSong({
 
     if (!hasComplexSegments) {
       return (
-        <div onClick={handleChordClick}>
+        <div onClick={handleChordClick} className="w-full">
           <pre
             className="chordsheet-content multi-column-lyrics"
             style={fontStyle}
@@ -428,8 +429,30 @@ export function RenderedSong({
       )
     }
 
+    const structureMap = segments.filter((s) => s.type === "section" || s.type === "repeat")
+
     return (
-      <div className="multi-column-lyrics space-y-6" style={fontStyle} onClick={handleChordClick}>
+      <div className="flex flex-col gap-6 w-full">
+        {structureMap.length > 0 && (
+          <div className="flex flex-wrap gap-2 sticky top-[53px] z-10 bg-background/95 backdrop-blur py-3 border-b border-border/50">
+            {structureMap.map((s, idx) => {
+              const label = s.type === "repeat" ? `${s.name} x${s.count}` : s.name
+              return (
+                <Badge
+                  key={idx}
+                  variant="outline"
+                  className="text-[10px] uppercase tracking-wider bg-background cursor-pointer hover:bg-muted"
+                  onClick={() => {
+                    // Could scroll to section in the future
+                  }}
+                >
+                  {label}
+                </Badge>
+              )
+            })}
+          </div>
+        )}
+        <div className="multi-column-lyrics space-y-6" style={fontStyle} onClick={handleChordClick}>
         {segments.map((segment, index) => {
           if (segment.type === "normal") {
             return (
@@ -507,6 +530,7 @@ export function RenderedSong({
           )
         })}
         <ChordDiagram chordName={selectedChord} onClose={() => setSelectedChord(null)} />
+        </div>
       </div>
     )
   }

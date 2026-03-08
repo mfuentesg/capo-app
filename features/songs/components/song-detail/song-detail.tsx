@@ -39,6 +39,7 @@ import { usePlaylistDraft } from "@/features/playlist-draft"
 import { transposeKey, calculateCapoKey } from "@/lib/music-theory"
 import { useTranslation } from "@/hooks/use-translation"
 import { createOverlayIds } from "@/lib/ui/stable-overlay-ids"
+import { ActivityFeed } from "@/features/activity"
 
 interface EditableFieldProps {
   value: string
@@ -213,7 +214,9 @@ export function SongDetail({ song, onClose, onUpdate, onDelete }: SongDetailProp
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 lg:p-6">
-        <div className="max-w-2xl space-y-6">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:gap-8 max-w-[1200px]">
+          {/* Main Content Column */}
+          <div className="space-y-6 lg:col-span-8 xl:col-span-9">
           <div className="flex flex-wrap gap-3">
             <div className="flex items-center gap-2 rounded-full bg-background border px-3 py-1.5">
               <span className="text-xs text-muted-foreground">{t.songs.key}</span>
@@ -386,41 +389,56 @@ export function SongDetail({ song, onClose, onUpdate, onDelete }: SongDetailProp
             </Button>
           </div>
 
-          {/* Danger Zone */}
-          <div className="rounded-lg border border-destructive/50 bg-card p-4">
-            <h3 className="text-sm font-semibold text-destructive mb-3">{t.songs.dangerZone}</h3>
-            <div className="flex items-center justify-between gap-4">
-              <div className="space-y-0.5">
-                <p className="text-sm font-medium">{t.songs.deleteSong}</p>
-                <p className="text-xs text-muted-foreground">{t.songs.deleteSongDescription}</p>
-              </div>
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    className="shrink-0"
-                    id={deleteDialogIds.triggerId}
-                    aria-controls={deleteDialogIds.contentId}
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent id={deleteDialogIds.contentId}>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>{t.songs.deleteSongConfirmTitle}</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      {t.songs.deleteSongConfirmDescription.replace("{title}", song.title)}
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>{t.common.cancel}</AlertDialogCancel>
-                    <AlertDialogAction variant="destructive" onClick={() => onDelete(song.id)}>
+          </div>
+
+          {/* Sidebar / Secondary Panel */}
+          <div className="space-y-6 lg:col-span-4 xl:col-span-3">
+            {/* Context/Activity Panel */}
+            <div className="rounded-lg border bg-card p-4 hidden lg:block">
+              <h3 className="text-sm font-semibold mb-3">{t.dashboard.recentActivity}</h3>
+              <ActivityFeed 
+                limit={5} 
+                filters={{ entityType: "song", entityId: song.id }} 
+              />
+            </div>
+
+            {/* Danger Zone */}
+            <div className="rounded-lg border border-destructive/50 bg-card p-4">
+              <h3 className="text-sm font-semibold text-destructive mb-3">{t.songs.dangerZone}</h3>
+              <div className="flex flex-col gap-3">
+                <div className="space-y-0.5">
+                  <p className="text-sm font-medium">{t.songs.deleteSong}</p>
+                  <p className="text-xs text-muted-foreground">{t.songs.deleteSongDescription}</p>
+                </div>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      className="w-full justify-between"
+                      id={deleteDialogIds.triggerId}
+                      aria-controls={deleteDialogIds.contentId}
+                    >
                       {t.songs.deleteSong}
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent id={deleteDialogIds.contentId}>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>{t.songs.deleteSongConfirmTitle}</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        {t.songs.deleteSongConfirmDescription.replace("{title}", song.title)}
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>{t.common.cancel}</AlertDialogCancel>
+                      <AlertDialogAction variant="destructive" onClick={() => onDelete(song.id)}>
+                        {t.songs.deleteSong}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
             </div>
           </div>
         </div>
