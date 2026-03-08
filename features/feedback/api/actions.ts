@@ -7,7 +7,6 @@ import type { FeedbackPayload, FeedbackResult } from "@/features/feedback"
 // Configure via RESEND_API_KEY and RESEND_FROM_EMAIL env vars
 // RESEND_FROM_EMAIL defaults to onboarding@resend.dev (works in test mode)
 // For production: verify a domain at resend.com and set RESEND_FROM_EMAIL
-const resend = new Resend(process.env.RESEND_API_KEY)
 
 export async function submitFeedback(payload: FeedbackPayload): Promise<FeedbackResult> {
   const { name, email, message, newsletterOptIn } = payload
@@ -34,6 +33,7 @@ export async function submitFeedback(payload: FeedbackPayload): Promise<Feedback
 
     // Send email notification — skip gracefully if API key is missing
     if (process.env.RESEND_API_KEY) {
+      const resend = new Resend(process.env.RESEND_API_KEY)
       const fromEmail = process.env.RESEND_FROM_EMAIL ?? "onboarding@resend.dev"
       const subject = name ? `New feedback from ${name}` : "New Capo feedback"
 
