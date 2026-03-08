@@ -155,28 +155,16 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
           event: "*",
           schema: "public",
           table: "songs"
+          // No row-level filter: songs.playlist_id doesn't exist (relationship is via
+          // playlist_songs). Any song edit triggers a refetch via the public share-code
+          // API, which naturally scopes the result to this playlist.
         },
         () => {
-          // Re-fetch playlist and songs via public API if changed
           if (playlist.shareCode) {
             api.getPublicPlaylistByShareCode(playlist.shareCode).then((data) => {
               if (data) setSongs(data.songs)
             })
           }
-        }
-      )
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "user_song_settings"
-        },
-        () => {
-          // Song settings are fetched via hooks, so invalidating the cache is enough
-          // but we also need to ensure the local user who might be viewing this gets the update.
-          // Since this view is often used by guests, user_song_settings might not apply
-          // unless they are logged in.
         }
       )
       .on(
@@ -253,6 +241,10 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
         <div className="mb-6 space-y-2">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0 space-y-1.5">
+              <div className="inline-flex items-center gap-1.5 rounded-full border border-pink-500/30 bg-pink-500/10 px-3 py-1 text-xs font-medium text-pink-500 mb-1">
+                <Share2 className="h-3 w-3" />
+                {t.playlistShare.share}
+              </div>
               <div className="flex flex-wrap items-center gap-1.5">
                 {localVisibility === "public" && (
                   <Badge variant="secondary" className="h-5 gap-1 px-1.5 text-xs font-normal">

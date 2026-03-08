@@ -304,7 +304,7 @@ export function LandingPage() {
       <section id="features" className="relative px-4 py-24 sm:py-32">
         <div className="mx-auto max-w-6xl">
           <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 rounded-full border border-border bg-muted/40 px-4 py-1.5 text-sm font-medium text-muted-foreground mb-4">
+            <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary mb-4">
               {l.features.sectionBadge}
             </div>
             <h2 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
@@ -337,7 +337,7 @@ export function LandingPage() {
       </section>
 
       {/* ── Spotlight: Song Library ─────────────────────────────────────── */}
-      <section className="relative px-4 py-20 sm:py-28 overflow-hidden">
+      <section className="relative px-4 py-24 sm:py-32 overflow-hidden">
         <div aria-hidden className="pointer-events-none absolute top-1/2 -translate-y-1/2 -left-20 h-[500px] w-[500px] rounded-full bg-blue-500/8 blur-[80px]" />
         <div className="mx-auto max-w-6xl">
           <div className="grid items-center gap-12 lg:grid-cols-2">
@@ -408,7 +408,7 @@ export function LandingPage() {
       </section>
 
       {/* ── Spotlight: Teams ───────────────────────────────────────────── */}
-      <section className="relative px-4 py-20 sm:py-28 overflow-hidden">
+      <section className="relative px-4 py-24 sm:py-32 overflow-hidden">
         <div aria-hidden className="pointer-events-none absolute top-1/2 -translate-y-1/2 -right-20 h-[500px] w-[500px] rounded-full bg-green-500/8 blur-[80px]" />
         <div className="mx-auto max-w-6xl">
           <div className="grid items-center gap-12 lg:grid-cols-2">
@@ -472,7 +472,7 @@ export function LandingPage() {
       </section>
 
       {/* ── Spotlight: Sharing ─────────────────────────────────────────── */}
-      <section className="relative px-4 py-20 sm:py-28 overflow-hidden">
+      <section className="relative px-4 py-24 sm:py-32 overflow-hidden">
         <div aria-hidden className="pointer-events-none absolute top-1/2 -translate-y-1/2 left-1/4 h-[400px] w-[600px] rounded-full bg-pink-500/8 blur-[80px]" />
         <div className="mx-auto max-w-6xl">
           <div className="grid items-center gap-12 lg:grid-cols-2">
@@ -541,7 +541,7 @@ export function LandingPage() {
       <section className="relative px-4 py-24 sm:py-32" id="feedback">
         <div className="mx-auto max-w-3xl">
           <div className="mb-12 flex flex-col items-center gap-3 text-center">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+            <span className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">
               {l.feedback.badge}
             </span>
             <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">{l.feedback.headline}</h2>

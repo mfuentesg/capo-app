@@ -54,6 +54,13 @@ function getActivityIcon(action: string) {
   return <Music className="h-4 w-4" />
 }
 
+function getActivityIconClass(action: string) {
+  if (action.includes("song")) return "bg-blue-500/10 text-blue-500"
+  if (action.includes("playlist")) return "bg-violet-500/10 text-violet-500"
+  if (action.includes("team")) return "bg-green-500/10 text-green-500"
+  return "bg-primary/10 text-primary"
+}
+
 function formatActivityMessage(activity: {
   action: string
   metadata: Record<string, unknown> | null
@@ -124,7 +131,9 @@ export function ActivityFeed() {
   if (!activities || activities.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center p-8 text-center">
-        <Music className="h-12 w-12 text-muted-foreground mb-4 opacity-50" />
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 ring-1 ring-primary/20 mb-4">
+          <Music className="h-6 w-6 text-primary" />
+        </div>
         <p className="text-sm text-muted-foreground">{t.activity.noActivity}</p>
         <p className="text-xs text-muted-foreground mt-1">{t.activity.noActivityDescription}</p>
       </div>
@@ -137,7 +146,7 @@ export function ActivityFeed() {
         const link = getActivityLink(activity)
         const content = (
           <>
-            <div className="mt-0.5 flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <div className={`mt-0.5 flex h-8 w-8 items-center justify-center rounded-full ${getActivityIconClass(activity.action)}`}>
               {getActivityIcon(activity.action)}
             </div>
             <div className="flex-1 min-w-0">

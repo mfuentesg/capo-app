@@ -15,9 +15,9 @@ export function LoginPageContent() {
     <div className="relative min-h-svh bg-background text-foreground">
       {/* Gradient orbs — same palette as landing / dashboard */}
       <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-        <div className="absolute -top-48 -left-24 h-[560px] w-[560px] rounded-full bg-primary/12 blur-[130px]" />
-        <div className="absolute top-1/3 right-0 h-[440px] w-[440px] rounded-full bg-violet-500/8 blur-[110px]" />
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 h-[320px] w-[640px] rounded-full bg-primary/6 blur-[90px]" />
+        <div className="absolute -top-48 -left-24 h-[560px] w-[560px] rounded-full bg-primary/18 blur-[130px]" />
+        <div className="absolute top-1/3 right-0 h-[440px] w-[440px] rounded-full bg-violet-500/12 blur-[110px]" />
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 h-[320px] w-[640px] rounded-full bg-primary/8 blur-[90px]" />
       </div>
 
       {/* Top-left — back link */}
@@ -45,7 +45,11 @@ export function LoginPageContent() {
             <div className="relative">
               <div
                 aria-hidden
-                className="absolute inset-0 -z-10 scale-[2] rounded-full bg-primary/12 blur-2xl"
+                className="absolute inset-0 -z-10 scale-[2] rounded-full bg-primary/15 blur-2xl"
+              />
+              <div
+                aria-hidden
+                className="absolute inset-0 -z-10 scale-[1.5] translate-x-2 rounded-full bg-violet-500/10 blur-xl"
               />
               <OptimizedLogo
                 name="capo"

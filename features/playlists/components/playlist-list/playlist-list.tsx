@@ -82,7 +82,7 @@ export function PlaylistList({
     return (
       <Empty>
         <EmptyHeader>
-          <EmptyMedia variant="icon">
+          <EmptyMedia variant="icon" className="bg-violet-500/10 text-violet-500 ring-1 ring-violet-500/20">
             <ListMusic />
           </EmptyMedia>
           <EmptyTitle>{t.playlists.noPlaylists}</EmptyTitle>

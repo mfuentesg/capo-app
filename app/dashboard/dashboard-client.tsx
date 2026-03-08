@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { Music, ListMusic, Plus, Calendar, TrendingUp, Clock, ArrowRight } from "lucide-react"
+import { Music, ListMusic, Plus, Calendar, TrendingUp, Clock, ArrowRight, Zap } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import KeyBadge from "@/components/key-badge"
@@ -87,10 +87,10 @@ export default function DashboardClient() {
               </>
             ) : (
               <>
-                <div className="rounded-lg border bg-card p-6 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5">
+                <div className="rounded-lg border border-blue-500/20 bg-card p-6 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5">
                   <div className="flex items-center gap-4">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
-                      <Music className="h-6 w-6 text-primary" />
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500/10">
+                      <Music className="h-6 w-6 text-blue-500" />
                     </div>
                     <div>
                       <p className="text-2xl font-bold">{stats?.totalSongs ?? 0}</p>
@@ -99,10 +99,10 @@ export default function DashboardClient() {
                   </div>
                 </div>
 
-                <div className="rounded-lg border bg-card p-6 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5">
+                <div className="rounded-lg border border-violet-500/20 bg-card p-6 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5">
                   <div className="flex items-center gap-4">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
-                      <ListMusic className="h-6 w-6 text-primary" />
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-violet-500/10">
+                      <ListMusic className="h-6 w-6 text-violet-500" />
                     </div>
                     <div>
                       <p className="text-2xl font-bold">{stats?.totalPlaylists ?? 0}</p>
@@ -111,10 +111,10 @@ export default function DashboardClient() {
                   </div>
                 </div>
 
-                <div className="rounded-lg border bg-card p-6 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5">
+                <div className="rounded-lg border border-green-500/20 bg-card p-6 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5">
                   <div className="flex items-center gap-4">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent">
-                      <TrendingUp className="h-6 w-6 text-accent-foreground" />
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-green-500/10">
+                      <TrendingUp className="h-6 w-6 text-green-500" />
                     </div>
                     <div>
                       <p className="text-2xl font-bold">+{stats?.songsThisMonth ?? 0}</p>
@@ -125,11 +125,11 @@ export default function DashboardClient() {
 
                 <Link
                   href="/dashboard/playlists"
-                  className="block rounded-lg border bg-card p-6 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5"
+                  className="block rounded-lg border border-primary/20 bg-card p-6 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent">
-                      <Calendar className="h-6 w-6 text-accent-foreground" />
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
+                      <Calendar className="h-6 w-6 text-primary" />
                     </div>
                     <div>
                       <p className="text-2xl font-bold">{stats?.upcomingPlaylists ?? 0}</p>
@@ -145,7 +145,12 @@ export default function DashboardClient() {
             <div className="lg:col-span-2 rounded-lg border bg-card shadow-sm">
               <div className="flex items-center justify-between p-4 border-b">
                 <div>
-                  <h3 className="text-lg font-semibold">{t.dashboard.recentlyAdded}</h3>
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-500/10">
+                      <Music className="h-3.5 w-3.5 text-blue-500" />
+                    </div>
+                    <h3 className="text-lg font-semibold">{t.dashboard.recentlyAdded}</h3>
+                  </div>
                   <p className="text-sm text-muted-foreground">{t.dashboard.latestSongs}</p>
                 </div>
                 <Button variant="ghost" size="sm" asChild className="hover:bg-accent">
@@ -199,7 +204,12 @@ export default function DashboardClient() {
 
             <div className="rounded-lg border bg-card shadow-sm">
               <div className="p-4 border-b">
-                <h3 className="text-lg font-semibold">{t.dashboard.recentActivity}</h3>
+                <div className="flex items-center gap-2 mb-0.5">
+                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10">
+                    <Zap className="h-3.5 w-3.5 text-primary" />
+                  </div>
+                  <h3 className="text-lg font-semibold">{t.dashboard.recentActivity}</h3>
+                </div>
                 <p className="text-sm text-muted-foreground">
                   {t.dashboard.recentActivityDescription}
                 </p>
