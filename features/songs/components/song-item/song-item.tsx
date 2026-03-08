@@ -32,7 +32,7 @@ export const SongItem = memo(function SongItem({
         isPreview ? "bg-orange-100/80 dark:bg-orange-900/30" : "bg-card",
         !isDisabled && "hover:shadow-sm cursor-pointer",
         isDisabled && "opacity-50 cursor-not-allowed",
-        isSelected && !isDisabled && "ring-2 ring-primary"
+        isSelected && !isDisabled && "ring-2 ring-primary bg-primary/5"
       )}
     >
       <button
