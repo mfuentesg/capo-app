@@ -138,7 +138,9 @@ export default function DashboardClient() {
                       <TrendingUp className="h-6 w-6" style={{ color: "var(--accent-activity)" }} />
                     </div>
                     <div>
-                      <p className="text-2xl font-bold">+{stats?.songsThisMonth ?? 0}</p>
+                      <p className={`text-2xl font-bold ${(stats?.songsThisMonth ?? 0) === 0 ? "text-muted-foreground" : ""}`}>
+                        {(stats?.songsThisMonth ?? 0) > 0 ? `+${stats!.songsThisMonth}` : "—"}
+                      </p>
                       <p className="text-sm text-muted-foreground">{t.dashboard.thisMonth}</p>
                     </div>
                   </div>

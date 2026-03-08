@@ -158,8 +158,16 @@ export function TeamCard({ team, memberCount = 1, initialSelectedTeamId = null }
                   <LogOut className="h-4 w-4" />
                 )}
               </Button>
-              <Button variant="ghost" size="sm" asChild>
-                <Link href={`/dashboard/teams/${team.id}`}>
+              <Button
+                variant="ghost"
+                size="sm"
+                asChild
+                title={`${t.teams.manageTeam}: ${team.name}`}
+              >
+                <Link
+                  href={`/dashboard/teams/${team.id}`}
+                  aria-label={`${t.teams.manageTeam}: ${team.name}`}
+                >
                   <Wrench className="h-4 w-4" />
                 </Link>
               </Button>

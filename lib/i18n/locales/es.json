@@ -34,8 +34,7 @@
     "previous": "Anterior",
     "next": "Siguiente",
     "comingSoon": "Pronto"
-    },
-
+  },
   "metadata": {
     "title": "Capo",
     "description": "Una aplicación moderna de biblioteca de canciones para músicos con acordes y letras, construida con Next.js y formato ChordPro."
@@ -275,7 +274,6 @@
     "noSongsYet": "Aún no hay canciones",
     "addYourFirstSong": "Agrega tu primera canción"
   },
-
   "playlistShare": {
     "publicPlaylist": "Playlist público",
     "emptyDescription": "Este playlist está vacío actualmente",
@@ -387,7 +385,8 @@
     "changeRole": "Cambiar Rol",
     "removeMember": "Eliminar Miembro",
     "removeMemberConfirm": "¿Estás seguro de que deseas eliminar a {name} del equipo?",
-    "removeMemberWarning": "Esta acción no se puede deshacer. Necesitarán ser invitados de nuevo para volver a unirse."
+    "removeMemberWarning": "Esta acción no se puede deshacer. Necesitarán ser invitados de nuevo para volver a unirse.",
+    "manageTeam": "Gestionar Equipo"
   },
   "invitations": {
     "title": "Invitación de equipo",
@@ -413,7 +412,6 @@
     "acceptedTitle": "¡Invitación aceptada con éxito! 🎉",
     "redirecting": "Redirigiéndote a tus equipos...",
     "failedToAccept": "Error al aceptar la invitación",
-
     "invalidLinkTitle": "Enlace de invitación inválido",
     "invalidLinkDescription": "Este enlace de invitación es inválido o ya se ha usado.",
     "signInRequiredTitle": "Inicio de sesión requerido",
