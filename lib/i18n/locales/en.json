@@ -274,7 +274,6 @@
     "noSongsYet": "No songs yet",
     "addYourFirstSong": "Add your first song"
   },
-
   "playlistShare": {
     "publicPlaylist": "Public Playlist",
     "emptyDescription": "This playlist is currently empty",
@@ -386,7 +385,8 @@
     "changeRole": "Change Role",
     "removeMember": "Remove Member",
     "removeMemberConfirm": "Are you sure you want to remove {name} from the team?",
-    "removeMemberWarning": "This action cannot be undone. They will need to be invited again to rejoin."
+    "removeMemberWarning": "This action cannot be undone. They will need to be invited again to rejoin.",
+    "manageTeam": "Manage Team"
   },
   "invitations": {
     "title": "Team Invitation",

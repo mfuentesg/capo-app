@@ -1,12 +1,15 @@
 "use client"
 
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
-import { Search, Music2 } from "lucide-react"
+import { Search, Music2, Settings2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Badge } from "@/components/ui/badge"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Separator } from "@/components/ui/separator"
 import {
   Sheet,
   SheetContent,
@@ -19,6 +22,7 @@ import { useSongs } from "@/features/songs"
 import { addSongsToPlaylistAction } from "../../api/actions"
 import { playlistsKeys } from "../../hooks/query-keys"
 import { useTranslation } from "@/hooks/use-translation"
+import type { BPMRange } from "@/features/songs/types"
 import type { Song } from "@/features/songs"
 
 interface AddSongsSheetProps {
@@ -39,17 +43,41 @@ export function AddSongsSheet({
   const { data: allSongs = [], isLoading } = useSongs()
   const [search, setSearch] = useState("")
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+  const [filterKey, setFilterKey] = useState<string>("all")
+  const [filterBpm, setFilterBpm] = useState<BPMRange>("all")
 
   const existingSet = new Set(existingSongIds)
   const addableSongs = allSongs.filter((s) => !existingSet.has(s.id))
 
-  const filtered = search.trim()
-    ? addableSongs.filter(
-        (s) =>
-          s.title.toLowerCase().includes(search.toLowerCase()) ||
-          s.artist.toLowerCase().includes(search.toLowerCase())
-      )
-    : addableSongs
+  const availableKeys = useMemo(() => {
+    const keys = Array.from(new Set(addableSongs.map((s) => s.key).filter(Boolean))).sort()
+    return keys
+  }, [addableSongs])
+
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase()
+    return addableSongs.filter((s) => {
+      const matchesSearch =
+        q.length === 0 ||
+        s.title.toLowerCase().includes(q) ||
+        s.artist.toLowerCase().includes(q)
+
+      const matchesKey = filterKey === "all" || s.key === filterKey
+
+      const bpm = s.bpm ?? 0
+      const matchesBpm =
+        filterBpm === "all" ||
+        (filterBpm === "slow"
+          ? bpm < 100
+          : filterBpm === "medium"
+            ? bpm >= 100 && bpm <= 140
+            : bpm > 140)
+
+      return matchesSearch && matchesKey && matchesBpm
+    })
+  }, [addableSongs, search, filterKey, filterBpm])
+
+  const activeFilterCount = (filterKey !== "all" ? 1 : 0) + (filterBpm !== "all" ? 1 : 0)
 
   const addMutation = useMutation({
     mutationFn: (songIds: string[]) => addSongsToPlaylistAction(playlistId, songIds),
@@ -83,6 +111,8 @@ export function AddSongsSheet({
     if (!nextOpen) {
       setSearch("")
       setSelectedIds(new Set())
+      setFilterKey("all")
+      setFilterBpm("all")
       onClose()
     }
   }
@@ -97,15 +127,107 @@ export function AddSongsSheet({
           </SheetDescription>
         </SheetHeader>
 
-        <div className="px-6 py-3 border-b">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              placeholder={t.playlistDetail.searchSongs}
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-9"
-            />
+        <div className="px-6 py-3 border-b space-y-2">
+          <div className="flex gap-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder={t.playlistDetail.searchSongs}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-9"
+              />
+            </div>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="sm" className="relative shrink-0 gap-2 self-center">
+                  <Settings2 className="h-4 w-4" />
+                  <span className="hidden sm:inline">{t.songs.filters}</span>
+                  {activeFilterCount > 0 && (
+                    <Badge variant="default" className="ml-1 h-5 w-5 rounded-full p-0 text-xs">
+                      {activeFilterCount}
+                    </Badge>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-72" align="end">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-medium leading-none">{t.songs.filters}</h4>
+                    {activeFilterCount > 0 && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 text-xs"
+                        onClick={() => {
+                          setFilterKey("all")
+                          setFilterBpm("all")
+                        }}
+                      >
+                        {t.filters.clearAll}
+                      </Button>
+                    )}
+                  </div>
+
+                  <Separator />
+
+                  {/* Key filter */}
+                  {availableKeys.length > 0 && (
+                    <div className="space-y-2">
+                      <span className="text-sm font-medium">{t.songs.key}</span>
+                      <div className="flex flex-wrap gap-1.5">
+                        <Button
+                          size="sm"
+                          variant={filterKey === "all" ? "default" : "outline"}
+                          className="h-7 text-xs px-2"
+                          onClick={() => setFilterKey("all")}
+                        >
+                          {t.songs.all}
+                        </Button>
+                        {availableKeys.map((key) => (
+                          <Button
+                            key={key}
+                            size="sm"
+                            variant={filterKey === key ? "default" : "outline"}
+                            className="h-7 text-xs px-2 font-mono"
+                            onClick={() => setFilterKey(key)}
+                          >
+                            {key}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {availableKeys.length > 0 && <Separator />}
+
+                  {/* BPM filter */}
+                  <div className="space-y-2">
+                    <span className="text-sm font-medium">{t.songs.bpmRange}</span>
+                    <div className="grid grid-cols-4 gap-1.5">
+                      {(["all", "slow", "medium", "fast"] as const).map((range) => (
+                        <Button
+                          key={range}
+                          size="sm"
+                          variant={filterBpm === range ? "default" : "outline"}
+                          className="h-7 text-xs justify-center"
+                          onClick={() => setFilterBpm(range)}
+                        >
+                          {range === "all"
+                            ? t.songs.all
+                            : range === "slow"
+                              ? t.songs.slow
+                              : range === "medium"
+                                ? t.songs.medium
+                                : t.songs.fast}
+                        </Button>
+                      ))}
+                    </div>
+                    <p className="text-xs text-muted-foreground">{t.songs.bpmDescription}</p>
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
         </div>
 
@@ -158,7 +280,14 @@ export function AddSongsSheet({
                           className="h-3 w-3 fill-current"
                           aria-hidden="true"
                         >
-                          <path d="M1 4l3 3L9 1" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                          <path
+                            d="M1 4l3 3L9 1"
+                            stroke="currentColor"
+                            strokeWidth="1.5"
+                            fill="none"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
                         </svg>
                       )}
                     </div>
