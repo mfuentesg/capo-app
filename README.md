@@ -1,7 +1,7 @@
 # Capo
 
 <p align="center">
-    <img src="./docs/logo.svg" height="120" alt="Capo logo" />
+    <img src="./public/img/capo.svg" height="120" alt="Capo logo" />
 </p>
 <br />
 
@@ -70,9 +70,14 @@ Sign in with Google OAuth. Sessions are managed via Supabase Auth.
 
 ## Stack
 
-- NextJS
-- TailwindCSS + shadcn/ui
-- Supabase
+- **[Next.js 16](https://nextjs.org/)** (App Router) + **[React 19](https://react.dev/)** + **[TypeScript 5](https://www.typescriptlang.org/)**
+- **[TailwindCSS 4](https://tailwindcss.com/)** + **[shadcn/ui](https://ui.shadcn.com/)** + **[Radix UI](https://www.radix-ui.com/)**
+- **[Supabase](https://supabase.com/)** (PostgreSQL + Auth)
+- **[React Query](https://tanstack.com/query)** for server state management
+- **[CodeMirror](https://codemirror.net/)** for the ChordPro lyrics editor
+- **[ChordPro](https://www.chordpro.org/)** / **[chordsheetjs](https://github.com/martijnversluis/ChordSheetJS)** for song format parsing
+- **[react-hook-form](https://react-hook-form.com/)** + **[Zod](https://zod.dev/)** for form validation
+- **[@dnd-kit](https://dndkit.com/)** + **[@hello-pangea/dnd](https://github.com/hello-pangea/dnd)** for drag-and-drop
 
 ## Architecture
 
@@ -118,9 +123,6 @@ pnpm install
 #### 1. Start Supabase Services Locally
 
 ```bash
-# Initialize Supabase local development (if not already done)
-pnpm supabase init
-
 # Start Supabase services locally
 pnpm supabase start
 ```
