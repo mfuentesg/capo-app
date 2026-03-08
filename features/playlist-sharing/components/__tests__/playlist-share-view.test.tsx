@@ -8,10 +8,6 @@ import { AppRouterContext } from "next/dist/shared/lib/app-router-context.shared
 import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime"
 import type { PlaylistWithSongs } from "@/features/playlists/types"
 
-jest.mock("@uidotdev/usehooks", () => ({
-  useToggle: (initial: boolean) => [initial, jest.fn()]
-}))
-
 jest.mock("next/link", () => ({
   __esModule: true,
   default: ({ href, children }: { href: string; children: ReactNode }) => (
@@ -106,7 +102,7 @@ describe("PlaylistShareView", () => {
   it("renders share button when shareCode is present", () => {
     renderWithProviders(<PlaylistShareView playlist={viewOnlyPlaylist} />)
 
-    expect(screen.getByRole("button", { name: "Share" })).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: "Copy link" })).toBeInTheDocument()
   })
 
   it("shows Guest Editing badge when allowGuestEditing is true", () => {
