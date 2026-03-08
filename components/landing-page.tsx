@@ -4,8 +4,9 @@ import Link from "next/link"
 import { OptimizedLogo } from "@/components/optimized-logo"
 import { ThemeToggle } from "@/components/layout"
 import { LanguageSwitcher } from "@/components/layout"
-import { SignInDialog } from "@/components/sign-in-dialog"
 import { useLocale } from "@/features/settings"
+import { FeedbackForm } from "@/features/feedback"
+import { cn } from "@/lib/utils"
 import {
   Music,
   FileText,
@@ -75,6 +76,15 @@ const SHARE_SONGS = [
   `2. ${AQUI_ESTOY.title} — ${AQUI_ESTOY.artist}`,
   "3. 10,000 Reasons — Matt Redman",
   "4. Great Are You Lord — All Sons & Daughters"
+]
+
+const FEATURE_DOTS = [
+  { Icon: Music, color: "text-blue-500", bg: "bg-blue-500/10" },
+  { Icon: FileText, color: "text-violet-500", bg: "bg-violet-500/10" },
+  { Icon: ListMusic, color: "text-primary", bg: "bg-primary/10" },
+  { Icon: Users, color: "text-green-500", bg: "bg-green-500/10" },
+  { Icon: Share2, color: "text-pink-500", bg: "bg-pink-500/10" },
+  { Icon: Guitar, color: "text-amber-500", bg: "bg-amber-500/10" }
 ]
 
 // ── Main component ────────────────────────────────────────────────────────────
@@ -166,12 +176,12 @@ export function LandingPage() {
         </p>
 
         <div className="relative mt-8 flex flex-wrap items-center justify-center gap-3">
-          <SignInDialog>
-            <Button size="lg" className="h-12 px-8 text-base font-semibold">
+          <Button asChild size="lg" className="h-12 px-8 text-base font-semibold">
+            <Link href="/login">
               {l.hero.startFree}
               <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          </SignInDialog>
+            </Link>
+          </Button>
           <Button asChild variant="outline" size="lg" className="h-12 px-8 text-base">
             <Link href="#features">{l.hero.exploreFeatures}</Link>
           </Button>
@@ -527,6 +537,22 @@ export function LandingPage() {
         </div>
       </section>
 
+      {/* ── Feedback ────────────────────────────────────────────────────── */}
+      <section className="relative px-4 py-24 sm:py-32" id="feedback">
+        <div className="mx-auto max-w-3xl">
+          <div className="mb-12 flex flex-col items-center gap-3 text-center">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+              {l.feedback.badge}
+            </span>
+            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">{l.feedback.headline}</h2>
+            <p className="max-w-lg text-muted-foreground">{l.feedback.description}</p>
+          </div>
+          <div className="rounded-2xl border border-border/50 bg-card/60 p-6 shadow-xl backdrop-blur-sm sm:p-8">
+            <FeedbackForm />
+          </div>
+        </div>
+      </section>
+
       {/* ── CTA ────────────────────────────────────────────────────────── */}
       <section className="relative px-4 py-24 sm:py-32">
         <div aria-hidden className="pointer-events-none absolute inset-0 flex items-center justify-center overflow-hidden">
@@ -539,12 +565,12 @@ export function LandingPage() {
           <h2 className="text-4xl font-bold tracking-tight sm:text-5xl">{l.cta.headline}</h2>
           <p className="mt-4 text-lg text-muted-foreground">{l.cta.description}</p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-            <SignInDialog>
-              <Button size="lg" className="h-12 px-10 text-base font-semibold">
+            <Button asChild size="lg" className="h-12 px-10 text-base font-semibold">
+              <Link href="/login">
                 {l.cta.button}
                 <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </SignInDialog>
+              </Link>
+            </Button>
           </div>
           <p className="mt-4 text-sm text-muted-foreground">{l.cta.signInMethod}</p>
         </div>
@@ -552,28 +578,48 @@ export function LandingPage() {
 
       {/* ── Footer ─────────────────────────────────────────────────────── */}
       <footer className="border-t border-border/40 px-4 py-8">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 sm:flex-row">
-          <div className="flex items-center gap-2.5">
-            <OptimizedLogo name="capo" alt={t.common.capoLogo} width={24} height={24} className="dark:invert" />
-            <span className="text-sm font-semibold">Capo</span>
-            <span className="text-xs text-muted-foreground">— {l.footer.tagline}</span>
+        <div className="mx-auto max-w-6xl">
+          <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
+            <div className="flex items-center gap-2.5">
+              <OptimizedLogo name="capo" alt={t.common.capoLogo} width={24} height={24} className="dark:invert" />
+              <span className="text-sm font-semibold">Capo</span>
+              <span className="text-xs text-muted-foreground">— {l.footer.tagline}</span>
+            </div>
+            <div className="flex items-center gap-4 text-xs text-muted-foreground">
+              <Link href="/login" className="hover:text-foreground transition-colors">
+                {l.footer.signIn}
+              </Link>
+              <span>·</span>
+              <a
+                href="https://github.com/mfuentesg/capo-app"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 hover:text-foreground transition-colors"
+              >
+                <Github className="h-3.5 w-3.5" />
+                {l.footer.viewOnGitHub}
+              </a>
+              <span>·</span>
+              <span>
+                {`© ${new Date().getFullYear()} `}
+                <a
+                  href="https://mfuentesg.dev"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-foreground transition-colors"
+                >
+                  mfuentesg
+                </a>
+              </span>
+            </div>
           </div>
-          <div className="flex items-center gap-4 text-xs text-muted-foreground">
-            <SignInDialog>
-              <button className="hover:text-foreground transition-colors">{l.footer.signIn}</button>
-            </SignInDialog>
-            <span>·</span>
-            <a
-              href="https://github.com/mfuentesg/capo-app"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 hover:text-foreground transition-colors"
-            >
-              <Github className="h-3.5 w-3.5" />
-              {l.footer.viewOnGitHub}
-            </a>
-            <span>·</span>
-            <span>© {new Date().getFullYear()} mfuentesg</span>
+          {/* Feature dots — decorative, mirrors feature section palette */}
+          <div aria-hidden className="mt-6 flex items-center justify-center gap-2">
+            {FEATURE_DOTS.map(({ Icon, color, bg }, i) => (
+              <div key={i} className={cn("flex items-center justify-center rounded-full p-1.5", bg)}>
+                <Icon className={cn("h-3 w-3", color)} />
+              </div>
+            ))}
           </div>
         </div>
       </footer>

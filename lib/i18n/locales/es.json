@@ -310,7 +310,7 @@
   },
   "account": {
     "title": "Cuenta",
-    "info": "La autenticación se gestiona a través de Google. Tu nombre y correo no se pueden cambiar aquí.",
+    "info": "La autenticación se gestiona a través de tu proveedor de inicio de sesión. Tu nombre y correo no se pueden cambiar aquí.",
     "dangerZone": "Zona de Peligro",
     "deleteAccount": "Eliminar Cuenta",
     "deleteAccountDescription": "Eliminar permanentemente tu cuenta y todos los datos asociados. Esta acción no se puede deshacer.",
@@ -555,12 +555,30 @@
       "headline": "¿Listo para tocar?",
       "description": "Únete a los músicos que usan Capo para mantenerse organizados, ensayar mejor y actuar con confianza.",
       "button": "Empieza gratis",
-      "signInMethod": "Inicia sesión con Google · Sin tarjeta de crédito"
+      "signInMethod": "Inicia sesión de forma segura · Sin tarjeta de crédito"
+    },
+    "feedback": {
+      "badge": "Comparte tu opinión",
+      "headline": "Nos encantaría saber de ti",
+      "description": "¿Tienes una idea, encontraste un error o simplemente quieres saludar? Envíanos un mensaje.",
+      "nameLabel": "Nombre",
+      "namePlaceholder": "Tu nombre (opcional)",
+      "emailLabel": "Correo",
+      "emailPlaceholder": "tu@correo.com (opcional)",
+      "messageLabel": "Tu mensaje",
+      "messagePlaceholder": "Cuéntanos qué piensas — solicitudes de funciones, errores o simplemente un hola.",
+      "newsletterLabel": "Me gustaría recibir noticias y actualizaciones sobre Capo",
+      "submit": "Enviar comentario",
+      "submitting": "Enviando...",
+      "successTitle": "¡Gracias por tu comentario!",
+      "successDescription": "Tu mensaje ha sido recibido. Apreciamos que te hayas tomado el tiempo.",
+      "errorMessage": "Algo salió mal. Por favor, inténtalo de nuevo."
     },
     "footer": {
       "tagline": "Biblioteca de canciones para músicos",
       "signIn": "Iniciar sesión",
-      "viewOnGitHub": "Ver en GitHub"
+      "viewOnGitHub": "Ver en GitHub",
+      "madeBy": "Hecho por"
     }
   }
 }

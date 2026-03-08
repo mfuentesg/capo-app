@@ -76,6 +76,36 @@ export type Database = {
           }
         ]
       }
+      feedback: {
+        Row: {
+          id: string
+          name: string | null
+          email: string | null
+          message: string
+          newsletter_opt_in: boolean
+          opt_in_at: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          name?: string | null
+          email?: string | null
+          message: string
+          newsletter_opt_in?: boolean
+          opt_in_at?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string | null
+          email?: string | null
+          message?: string
+          newsletter_opt_in?: boolean
+          opt_in_at?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
       playlist_songs: {
         Row: {
           created_at: string

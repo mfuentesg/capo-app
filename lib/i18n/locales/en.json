@@ -309,7 +309,7 @@
   },
   "account": {
     "title": "Account",
-    "info": "Authentication is managed through Google. Your name and email cannot be changed here.",
+    "info": "Authentication is managed through your sign-in provider. Your name and email cannot be changed here.",
     "dangerZone": "Danger Zone",
     "deleteAccount": "Delete Account",
     "deleteAccountDescription": "Permanently delete your account and all associated data. This action cannot be undone.",
@@ -553,12 +553,30 @@
       "headline": "Ready to play?",
       "description": "Join musicians who use Capo to stay organized, rehearse smarter, and perform with confidence.",
       "button": "Get started for free",
-      "signInMethod": "Sign in with Google · No credit card required"
+      "signInMethod": "Sign in securely · No credit card required"
+    },
+    "feedback": {
+      "badge": "Share your thoughts",
+      "headline": "We'd love to hear from you",
+      "description": "Got an idea, found a bug, or just want to say hi? Drop us a message.",
+      "nameLabel": "Name",
+      "namePlaceholder": "Your name (optional)",
+      "emailLabel": "Email",
+      "emailPlaceholder": "your@email.com (optional)",
+      "messageLabel": "Your message",
+      "messagePlaceholder": "Tell us what you think — feature requests, bug reports, or just a hello.",
+      "newsletterLabel": "I'd like to receive news and updates about Capo",
+      "submit": "Send Feedback",
+      "submitting": "Sending...",
+      "successTitle": "Thanks for your feedback!",
+      "successDescription": "Your message has been received. We appreciate you taking the time.",
+      "errorMessage": "Something went wrong. Please try again."
     },
     "footer": {
       "tagline": "Song library for musicians",
       "signIn": "Sign In",
-      "viewOnGitHub": "View on GitHub"
+      "viewOnGitHub": "View on GitHub",
+      "madeBy": "Made by"
     }
   }
 }
