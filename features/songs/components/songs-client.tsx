@@ -8,7 +8,7 @@ import { Drawer, DrawerContent, DrawerTitle, DrawerDescription } from "@/compone
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
-import { Plus, Search, Music, LayoutList, Music2, Music3, Settings2, X } from "lucide-react"
+import { Plus, Search, Music, LayoutList, Music2, Music3, Settings2, X, Turtle, Rabbit, Zap } from "lucide-react"
 import { SongList, SongDetail, useAllUserSongSettings } from "@/features/songs"
 import { SongDraftForm, type SongDraftFormHandle } from "@/features/song-draft"
 import { useSongs, useCreateSong, useUpdateSong, useDeleteSong } from "../hooks/use-songs"
@@ -283,24 +283,27 @@ export function SongsClient() {
                           onClick={() => setBpmRange("slow")}
                           variant={bpmRange === "slow" ? "default" : "outline"}
                           size="sm"
-                          className="justify-center"
+                          className="justify-center gap-1.5"
                         >
+                          <Turtle className="h-3.5 w-3.5" />
                           {t.songs.slow}
                         </Button>
                         <Button
                           onClick={() => setBpmRange("medium")}
                           variant={bpmRange === "medium" ? "default" : "outline"}
                           size="sm"
-                          className="justify-center"
+                          className="justify-center gap-1.5"
                         >
+                          <Rabbit className="h-3.5 w-3.5" />
                           {t.songs.medium}
                         </Button>
                         <Button
                           onClick={() => setBpmRange("fast")}
                           variant={bpmRange === "fast" ? "default" : "outline"}
                           size="sm"
-                          className="justify-center"
+                          className="justify-center gap-1.5"
                         >
+                          <Zap className="h-3.5 w-3.5" />
                           {t.songs.fast}
                         </Button>
                       </div>

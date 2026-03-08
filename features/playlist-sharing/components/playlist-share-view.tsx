@@ -12,7 +12,8 @@ import {
   GripVertical,
   Settings,
   Copy,
-  ExternalLink
+  ExternalLink,
+  Link as LinkIcon
 } from "lucide-react"
 import { toast } from "sonner"
 import { useEffect, useRef, useState } from "react"
@@ -242,8 +243,8 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0 space-y-1.5">
               <div className="inline-flex items-center gap-1.5 rounded-full border border-pink-500/30 bg-pink-500/10 px-3 py-1 text-xs font-medium text-pink-500 mb-1">
-                <Share2 className="h-3 w-3" />
-                {t.playlistShare.share}
+                <LinkIcon className="h-3 w-3" />
+                {t.playlistShare.sharedPlaylist}
               </div>
               <div className="flex flex-wrap items-center gap-1.5">
                 {localVisibility === "public" && (

@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { useToggle } from "@uidotdev/usehooks"
+import { useState } from "react"
 import { OptimizedLogo } from "@/components/optimized-logo"
 import { ThemeToggle } from "@/components/layout/theme-toggle"
 import { MobileNavDrawer } from "@/components/layout/mobile-nav-drawer"
@@ -13,7 +13,7 @@ import { Music, ListMusic, Users } from "lucide-react"
 
 export function Navbar() {
   const { t } = useLocale()
-  const [isDrawerOpen, toggleIsDrawerOpen] = useToggle(false)
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false)
 
   const navItems = [
     { title: t.nav.songs, href: "/dashboard/songs", icon: Music },
@@ -24,7 +24,7 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-md">
       <div className="flex h-16 items-center px-4 sm:px-6 lg:px-8">
-        <MobileNavDrawer isOpen={isDrawerOpen} onOpenChange={toggleIsDrawerOpen} />
+        <MobileNavDrawer isOpen={isDrawerOpen} onOpenChange={setIsDrawerOpen} />
 
         <Link href="/dashboard" className="mr-6 flex items-center lg:mr-8">
           <OptimizedLogo

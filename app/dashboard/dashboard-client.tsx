@@ -87,41 +87,62 @@ export default function DashboardClient() {
               </>
             ) : (
               <>
-                <div className="rounded-lg border border-blue-500/20 bg-card p-6 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5">
+                <Link
+                  href="/dashboard/songs"
+                  className="block rounded-lg border bg-card p-6 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5"
+                  style={{ borderColor: "color-mix(in oklch, var(--accent-songs) 20%, transparent)" }}
+                >
                   <div className="flex items-center gap-4">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500/10">
-                      <Music className="h-6 w-6 text-blue-500" />
+                    <div
+                      className="flex h-12 w-12 items-center justify-center rounded-xl"
+                      style={{ backgroundColor: "color-mix(in oklch, var(--accent-songs) 10%, transparent)" }}
+                    >
+                      <Music className="h-6 w-6" style={{ color: "var(--accent-songs)" }} />
                     </div>
                     <div>
                       <p className="text-2xl font-bold">{stats?.totalSongs ?? 0}</p>
                       <p className="text-sm text-muted-foreground">{t.dashboard.totalSongs}</p>
                     </div>
                   </div>
-                </div>
+                </Link>
 
-                <div className="rounded-lg border border-violet-500/20 bg-card p-6 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5">
+                <Link
+                  href="/dashboard/playlists"
+                  className="block rounded-lg border bg-card p-6 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5"
+                  style={{ borderColor: "color-mix(in oklch, var(--accent-playlists) 20%, transparent)" }}
+                >
                   <div className="flex items-center gap-4">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-violet-500/10">
-                      <ListMusic className="h-6 w-6 text-violet-500" />
+                    <div
+                      className="flex h-12 w-12 items-center justify-center rounded-xl"
+                      style={{ backgroundColor: "color-mix(in oklch, var(--accent-playlists) 10%, transparent)" }}
+                    >
+                      <ListMusic className="h-6 w-6" style={{ color: "var(--accent-playlists)" }} />
                     </div>
                     <div>
                       <p className="text-2xl font-bold">{stats?.totalPlaylists ?? 0}</p>
                       <p className="text-sm text-muted-foreground">{t.dashboard.playlists}</p>
                     </div>
                   </div>
-                </div>
+                </Link>
 
-                <div className="rounded-lg border border-green-500/20 bg-card p-6 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5">
+                <Link
+                  href="/dashboard/songs"
+                  className="block rounded-lg border bg-card p-6 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5"
+                  style={{ borderColor: "color-mix(in oklch, var(--accent-activity) 20%, transparent)" }}
+                >
                   <div className="flex items-center gap-4">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-green-500/10">
-                      <TrendingUp className="h-6 w-6 text-green-500" />
+                    <div
+                      className="flex h-12 w-12 items-center justify-center rounded-xl"
+                      style={{ backgroundColor: "color-mix(in oklch, var(--accent-activity) 10%, transparent)" }}
+                    >
+                      <TrendingUp className="h-6 w-6" style={{ color: "var(--accent-activity)" }} />
                     </div>
                     <div>
                       <p className="text-2xl font-bold">+{stats?.songsThisMonth ?? 0}</p>
                       <p className="text-sm text-muted-foreground">{t.dashboard.thisMonth}</p>
                     </div>
                   </div>
-                </div>
+                </Link>
 
                 <Link
                   href="/dashboard/playlists"
@@ -146,8 +167,11 @@ export default function DashboardClient() {
               <div className="flex items-center justify-between p-4 border-b">
                 <div>
                   <div className="flex items-center gap-2 mb-0.5">
-                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-500/10">
-                      <Music className="h-3.5 w-3.5 text-blue-500" />
+                    <div
+                      className="flex h-6 w-6 items-center justify-center rounded-full"
+                      style={{ backgroundColor: "color-mix(in oklch, var(--accent-songs) 10%, transparent)" }}
+                    >
+                      <Music className="h-3.5 w-3.5" style={{ color: "var(--accent-songs)" }} />
                     </div>
                     <h3 className="text-lg font-semibold">{t.dashboard.recentlyAdded}</h3>
                   </div>

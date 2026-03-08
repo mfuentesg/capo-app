@@ -1,8 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { useToggle } from "@uidotdev/usehooks"
-import { Calendar as CalendarIcon, ListMusic } from "lucide-react"
+import { Calendar as CalendarIcon, ListMusic, X, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -27,8 +26,27 @@ export function PlaylistCreateForm({ onSubmit, onCancel, autoFocus = false }: Pl
   const [name, setName] = useState("")
   const [description, setDescription] = useState("")
   const [date, setDate] = useState<Date | undefined>(undefined)
-  const [isCalendarOpen, toggleIsCalendarOpen] = useToggle(false)
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isSuggesting, setIsSuggesting] = useState(false)
+
+  const suggestPlaylistName = () => {
+    const adjectives = [
+      "Sunday", "Midnight", "Golden", "Electric", "Acoustic", "Sacred",
+      "Morning", "Twilight", "Revival", "Worship", "Vibrant", "Eternal"
+    ]
+    const nouns = [
+      "Setlist", "Sessions", "Worship", "Gathering", "Anthems", "Melodies",
+      "Journey", "Voices", "Moments", "Reflections", "Praise", "Songs"
+    ]
+    const adj = adjectives[Math.floor(Math.random() * adjectives.length)]
+    const noun = nouns[Math.floor(Math.random() * nouns.length)]
+    setIsSuggesting(true)
+    setTimeout(() => {
+      setName(`${adj} ${noun}`)
+      setIsSuggesting(false)
+    }, 400)
+  }
   const calendarPopoverIds = createOverlayIds("playlist-create-calendar-popover")
 
   const canSubmit = name.trim().length > 0 && !isSubmitting
@@ -62,19 +80,39 @@ export function PlaylistCreateForm({ onSubmit, onCancel, autoFocus = false }: Pl
           <ListMusic className="h-5 w-5 text-muted-foreground" />
           <h2 className="text-lg font-semibold">{t.playlists.createPlaylist}</h2>
         </div>
+        <button
+          type="button"
+          onClick={onCancel}
+          className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors shrink-0"
+          aria-label={t.common.close}
+        >
+          <X className="h-5 w-5" />
+        </button>
       </div>
 
       <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 lg:p-6">
         <div className="space-y-4 max-w-md">
           <div className="space-y-2">
             <Label htmlFor="playlist-name">{t.playlists.playlistName}</Label>
-            <Input
-              id="playlist-name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder={t.playlists.playlistNamePlaceholder}
-              autoFocus={autoFocus}
-            />
+            <div className="flex gap-2">
+              <Input
+                id="playlist-name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder={t.playlists.playlistNamePlaceholder}
+                autoFocus={autoFocus}
+              />
+              <button
+                type="button"
+                onClick={suggestPlaylistName}
+                disabled={isSuggesting}
+                title={t.playlists.suggestName}
+                aria-label={t.playlists.suggestName}
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-input bg-background text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary hover:border-primary/30 disabled:opacity-50"
+              >
+                <Sparkles className={`h-4 w-4 ${isSuggesting ? "animate-pulse" : ""}`} />
+              </button>
+            </div>
           </div>
 
           <div className="space-y-2">
@@ -89,7 +127,7 @@ export function PlaylistCreateForm({ onSubmit, onCancel, autoFocus = false }: Pl
 
           <div className="space-y-2">
             <Label>{t.playlistDetail.pickDate}</Label>
-            <Popover open={isCalendarOpen} onOpenChange={toggleIsCalendarOpen}>
+            <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
               <PopoverTrigger asChild>
                 <Button
                   type="button"
@@ -116,7 +154,7 @@ export function PlaylistCreateForm({ onSubmit, onCancel, autoFocus = false }: Pl
                   selected={date}
                   onSelect={(d) => {
                     setDate(d)
-                    toggleIsCalendarOpen(false)
+                    setIsCalendarOpen(false)
                   }}
                   autoFocus
                 />

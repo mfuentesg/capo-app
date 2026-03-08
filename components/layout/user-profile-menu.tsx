@@ -50,7 +50,7 @@ export function UserProfileMenu() {
               </>
             ) : (
               <>
-                <AvatarImage src={user?.avatarUrl} alt={user?.displayName || "User"} />
+                <AvatarImage src={user?.avatarUrl} alt={user?.displayName || "You"} />
                 <AvatarFallback className="bg-primary/10">
                   <CircleUserRound className="h-5 w-5 text-muted-foreground" />
                 </AvatarFallback>

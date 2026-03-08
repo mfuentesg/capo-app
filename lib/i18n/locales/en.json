@@ -32,7 +32,8 @@
     "clearSearch": "Clear search",
     "copyToClipboardFailed": "Failed to copy to clipboard",
     "previous": "Previous",
-    "next": "Next"
+    "next": "Next",
+    "comingSoon": "Soon"
   },
   "metadata": {
     "title": "Capo",
@@ -158,7 +159,8 @@
     "searchPlaceholder": "Search playlists...",
     "playlistName": "Playlist Name",
     "playlistNamePlaceholder": "e.g. Sunday Worship",
-    "openPlaylist": "Open Playlist"
+    "openPlaylist": "Open Playlist",
+    "suggestName": "Suggest a name"
   },
   "playlistDetail": {
     "details": "Details",
@@ -277,7 +279,8 @@
     "publicPlaylist": "Public Playlist",
     "emptyDescription": "This playlist is currently empty",
     "guestEditing": "Guest Editing",
-    "share": "Share",
+    "share": "Copy link",
+    "sharedPlaylist": "Shared playlist",
     "editSongs": "Edit songs",
     "editSongsHint": "Guest editing from shared links is coming soon.",
     "previousSong": "Previous song",
