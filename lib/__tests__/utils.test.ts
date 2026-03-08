@@ -1,7 +1,7 @@
 /**
  * Test suite for general utility functions
  */
-import { cn, parseDateValue } from "@/lib/utils"
+import { cn, parseDateValue, formatDate, formatLongDate, formatDateISO } from "@/lib/utils"
 
 describe("Utility Functions", () => {
   describe("cn (classname merger)", () => {
@@ -49,6 +49,68 @@ describe("Utility Functions", () => {
       expect(parsed.getFullYear()).toBe(2026)
       expect(parsed.getMonth()).toBe(1) // 0-based
       expect(parsed.getDate()).toBe(16)
+    })
+
+    it("should parse a Date object unchanged", () => {
+      const date = new Date(2026, 0, 5)
+      const parsed = parseDateValue(date)
+      expect(parsed.getFullYear()).toBe(2026)
+      expect(parsed.getMonth()).toBe(0)
+      expect(parsed.getDate()).toBe(5)
+    })
+
+    it("should parse a numeric timestamp", () => {
+      const ts = new Date(2026, 5, 15).getTime()
+      const parsed = parseDateValue(ts)
+      expect(parsed instanceof Date).toBe(true)
+    })
+  })
+
+  describe("formatDate", () => {
+    it("returns a locale date string for a YYYY-MM-DD input", () => {
+      const result = formatDate("2026-03-08")
+      expect(typeof result).toBe("string")
+      expect(result.length).toBeGreaterThan(0)
+    })
+
+    it("returns a locale date string for a Date object", () => {
+      const date = new Date(2026, 2, 8)
+      const result = formatDate(date)
+      expect(typeof result).toBe("string")
+    })
+  })
+
+  describe("formatLongDate", () => {
+    it("formats a date as a long date string in English", () => {
+      const result = formatLongDate("2026-03-08", "en")
+      expect(typeof result).toBe("string")
+      expect(result).toMatch(/2026/)
+    })
+
+    it("formats a date as a long date string in Spanish", () => {
+      const result = formatLongDate("2026-03-08", "es")
+      expect(typeof result).toBe("string")
+      expect(result).toMatch(/2026/)
+    })
+
+    it("defaults to English locale when no locale provided", () => {
+      const result = formatLongDate("2026-03-08")
+      expect(typeof result).toBe("string")
+      expect(result).toMatch(/2026/)
+    })
+  })
+
+  describe("formatDateISO", () => {
+    it("formats a date as yyyy-MM-dd", () => {
+      const date = new Date(2026, 2, 8) // March 8 2026 (local)
+      const result = formatDateISO(date)
+      expect(result).toBe("2026-03-08")
+    })
+
+    it("pads single-digit month and day with zeros", () => {
+      const date = new Date(2026, 0, 5) // January 5
+      const result = formatDateISO(date)
+      expect(result).toBe("2026-01-05")
     })
   })
 })

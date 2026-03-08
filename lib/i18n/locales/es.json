@@ -294,11 +294,23 @@
     "loginWith": "Iniciar sesión con {provider}",
     "loggingIn": "Iniciando sesión",
     "logout": "Cerrar sesión",
-    "welcome": "Bienvenido de nuevo"
+    "welcome": "Bienvenido de nuevo",
+    "githubLabel": "GitHub",
+    "githubComingSoon": "Próximamente",
+    "errorAuthFailed": "La autenticación falló. Por favor, inténtalo de nuevo.",
+    "errorAuthError": "Algo salió mal durante el inicio de sesión. Por favor, inténtalo de nuevo.",
+    "errorMissingCode": "Enlace de inicio de sesión inválido. Por favor, inténtalo de nuevo.",
+    "errorGeneric": "El inicio de sesión falló. Por favor, inténtalo de nuevo.",
+    "tagline": "Acordes. Letras. Setlists. Al ritmo de tu equipo.",
+    "orContinueWith": "o continúa con tu correo",
+    "magicLinkLabel": "Magic Link",
+    "magicLinkDescription": "Inicia sesión sin contraseña",
+    "sendMagicLink": "Enviar Magic Link",
+    "emailPlaceholder": "tu@correo.com"
   },
   "account": {
     "title": "Cuenta",
-    "info": "La autenticación se gestiona a través de Google. Tu nombre y correo no se pueden cambiar aquí.",
+    "info": "La autenticación se gestiona a través de tu proveedor de inicio de sesión. Tu nombre y correo no se pueden cambiar aquí.",
     "dangerZone": "Zona de Peligro",
     "deleteAccount": "Eliminar Cuenta",
     "deleteAccountDescription": "Eliminar permanentemente tu cuenta y todos los datos asociados. Esta acción no se puede deshacer.",
@@ -441,5 +453,132 @@
     "songTitle": "El título de la canción",
     "artistName": "El nombre del artista",
     "key": "La tonalidad"
+  },
+  "landing": {
+    "nav": {
+      "signIn": "Iniciar sesión"
+    },
+    "badge": "Hecho por músicos, para músicos",
+    "hero": {
+      "headline1": "Tu Biblioteca de Canciones,",
+      "headline2": "Perfectamente Afinada",
+      "description": "Gestiona tu catálogo completo de canciones con acordes y letras. Crea listas, colabora con tu banda y comparte con el mundo — todo en un solo lugar.",
+      "startFree": "Empieza gratis",
+      "exploreFeatures": "Explorar funciones",
+      "livePreview": "Vista previa",
+      "verseLabel": "Verso 1",
+      "chorusLabel": "Coro",
+      "chordDiagramLabel": "Diagrama del acorde D"
+    },
+    "highlights": {
+      "chordpro": "Soporte para formato ChordPro",
+      "themes": "Temas oscuro y claro",
+      "multilanguage": "Soporte multiidioma",
+      "realtime": "Colaboración en tiempo real",
+      "dragdrop": "Listas con arrastrar y soltar",
+      "publicLinks": "Enlaces públicos de playlists"
+    },
+    "features": {
+      "sectionBadge": "Todo lo que necesitas",
+      "sectionTitle": "Funciones diseñadas para el escenario",
+      "sectionDescription": "Desde el primer ensayo hasta el último bis, Capo te tiene cubierto.",
+      "songLibrary": {
+        "title": "Biblioteca de Canciones",
+        "description": "Mantén todo tu catálogo en un solo lugar. Filtra por tonalidad, BPM o estado. Encuentra la canción correcta en segundos."
+      },
+      "chordproEditor": {
+        "title": "Editor ChordPro",
+        "description": "Escribe y edita canciones en formato ChordPro con un editor de vista previa en tiempo real y resaltado de sintaxis."
+      },
+      "smartSetlists": {
+        "title": "Listas Inteligentes",
+        "description": "Crea playlists para ensayos y presentaciones. Arrastra y suelta para reordenar. Exporta y comparte en segundos."
+      },
+      "teamCollab": {
+        "title": "Colaboración en Equipo",
+        "description": "Invita a tus compañeros a una biblioteca compartida. Todos se mantienen sincronizados con las mismas canciones y listas."
+      },
+      "instantSharing": {
+        "title": "Compartir al Instante",
+        "description": "Comparte cualquier playlist con un enlace único — sin necesidad de cuenta. Perfecto para músicos de sesión y personal del lugar."
+      },
+      "chordDiagrams": {
+        "title": "Diagramas de Acordes",
+        "description": "Toca cualquier acorde para ver un diagrama de posición. Codificado por colores por sección: verso, coro, puente y más."
+      }
+    },
+    "songLibrarySection": {
+      "badge": "Biblioteca de Canciones",
+      "headline1": "Todo tu catálogo,",
+      "headline2": "siempre a la mano",
+      "description": "Importa y organiza todas tus canciones con metadatos ricos — tonalidad, BPM, etiquetas y estado. Los filtros potentes te ayudan a encontrar la canción correcta en segundos, incluso con cientos en tu biblioteca.",
+      "feature1": "Filtra por tonalidad, BPM y estado",
+      "feature2": "Etiquetas personalizadas para cualquier género",
+      "feature3": "Archiva canciones sin perderlas",
+      "feature4": "Búsqueda de texto completo al instante",
+      "mockTitle": "Biblioteca de Canciones",
+      "filterAll": "Todas",
+      "filterAMajor": "La Mayor",
+      "filterGMajor": "Sol Mayor",
+      "filterActive": "Activas"
+    },
+    "teamsSection": {
+      "badge": "Colaboración en Equipo",
+      "headline1": "Toda tu banda,",
+      "headline2": "en perfecta armonía",
+      "description": "Invita a tus compañeros a una biblioteca compartida. Todos trabajan con las mismas canciones y listas, para que nadie llegue al ensayo con partituras desactualizadas.",
+      "feature1": "Bibliotecas de canciones compartidas en el equipo",
+      "feature2": "Invita miembros por correo electrónico",
+      "feature3": "Cambia entre contexto personal y de equipo",
+      "feature4": "Actualizaciones en tiempo real para todos",
+      "mockTitle": "Equipo de Alabanza",
+      "invite": "+ Invitar",
+      "sharedSetlists": "Listas Compartidas",
+      "roleAdmin": "Admin",
+      "roleMember": "Miembro",
+      "roleInvited": "Invitado"
+    },
+    "sharingSection": {
+      "badge": "Compartir al Instante",
+      "headline1": "Comparte tu lista",
+      "headline2": "con un clic",
+      "description": "Genera un enlace único para cualquier playlist y compártelo con músicos de sesión, ingenieros de sonido o el lugar. Pueden ver canciones y letras sin crear una cuenta.",
+      "feature1": "Código único de compartir para cada playlist",
+      "feature2": "No se necesita cuenta para los espectadores",
+      "feature3": "Letra y acordes completos visibles",
+      "feature4": "Funciona en cualquier dispositivo",
+      "mockSubtitle": "canciones · Playlist compartido",
+      "copy": "Copiar",
+      "moreSongs": "más canciones..."
+    },
+    "cta": {
+      "headline": "¿Listo para tocar?",
+      "description": "Únete a los músicos que usan Capo para mantenerse organizados, ensayar mejor y actuar con confianza.",
+      "button": "Empieza gratis",
+      "signInMethod": "Inicia sesión de forma segura · Sin tarjeta de crédito"
+    },
+    "feedback": {
+      "badge": "Comparte tu opinión",
+      "headline": "Nos encantaría saber de ti",
+      "description": "¿Tienes una idea, encontraste un error o simplemente quieres saludar? Envíanos un mensaje.",
+      "nameLabel": "Nombre",
+      "namePlaceholder": "Tu nombre (opcional)",
+      "emailLabel": "Correo",
+      "emailPlaceholder": "tu@correo.com (opcional)",
+      "messageLabel": "Tu mensaje",
+      "messagePlaceholder": "Cuéntanos qué piensas — solicitudes de funciones, errores o simplemente un hola.",
+      "newsletterLabel": "Me gustaría recibir noticias y actualizaciones sobre Capo",
+      "submit": "Enviar comentario",
+      "submitting": "Enviando...",
+      "successTitle": "¡Gracias por tu comentario!",
+      "successDescription": "Tu mensaje ha sido recibido. Apreciamos que te hayas tomado el tiempo.",
+      "errorMessage": "Algo salió mal. Por favor, inténtalo de nuevo."
+    },
+    "footer": {
+      "tagline": "Biblioteca de canciones para músicos",
+      "signIn": "Iniciar sesión",
+      "viewOnGitHub": "Ver en GitHub",
+      "madeBy": "Hecho por"
+    }
   }
 }

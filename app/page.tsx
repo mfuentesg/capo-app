@@ -1,22 +1,29 @@
 import type { Metadata } from "next"
-import { LoginForm } from "@/features/auth"
-import { ThemeToggle } from "@/components/layout"
+import { LandingPage } from "@/components/landing-page"
+
+const title = "Capo — Song library for musicians"
+const description =
+  "Organize your songs, chords, and setlists in one place. Built for worship teams and musicians who perform live."
 
 export const metadata: Metadata = {
-  title: "Sign In",
-  description: "Sign in to Capo to access your personal song library with chords and lyrics.",
-  robots: { index: false, follow: false }
+  title,
+  description,
+  openGraph: {
+    title,
+    description,
+    siteName: "Capo",
+    locale: "en_US",
+    type: "website",
+    url: "https://capo.mfuentesg.dev"
+  },
+  twitter: {
+    card: "summary_large_image",
+    title,
+    description
+  },
+  metadataBase: new URL("https://capo.mfuentesg.dev")
 }
 
-export default function LoginPage() {
-  return (
-    <div className="bg-background flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
-      <div className="absolute top-4 right-4">
-        <ThemeToggle />
-      </div>
-      <div className="w-full max-w-sm">
-        <LoginForm />
-      </div>
-    </div>
-  )
+export default function Page() {
+  return <LandingPage />
 }

@@ -150,7 +150,7 @@ describe("Auth Callback Route", () => {
       const request = new NextRequest("http://localhost:3000/auth/callback?code=invalid-code")
       const response = await GET(request)
 
-      expect(response.headers.get("location")).toBe("http://localhost:3000/?error=auth_failed")
+      expect(response.headers.get("location")).toBe("http://localhost:3000/login?error=auth_failed")
     })
 
     it("should redirect to login with error when exception occurs", async () => {
@@ -159,7 +159,7 @@ describe("Auth Callback Route", () => {
       const request = new NextRequest("http://localhost:3000/auth/callback?code=test-code")
       const response = await GET(request)
 
-      expect(response.headers.get("location")).toBe("http://localhost:3000/?error=auth_error")
+      expect(response.headers.get("location")).toBe("http://localhost:3000/login?error=auth_error")
     })
 
     it("should redirect to login when code is missing", async () => {
@@ -167,7 +167,7 @@ describe("Auth Callback Route", () => {
       const response = await GET(request)
 
       expect(mockSupabase.auth.exchangeCodeForSession).not.toHaveBeenCalled()
-      expect(response.headers.get("location")).toBe("http://localhost:3000/?error=missing_code")
+      expect(response.headers.get("location")).toBe("http://localhost:3000/login?error=missing_code")
     })
 
     it("should validate relative paths as valid redirects", async () => {
