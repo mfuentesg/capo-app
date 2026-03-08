@@ -155,9 +155,11 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
           event: "*",
           schema: "public",
           table: "songs"
+          // No row-level filter: songs.playlist_id doesn't exist (relationship is via
+          // playlist_songs). Any song edit triggers a refetch via the public share-code
+          // API, which naturally scopes the result to this playlist.
         },
         () => {
-          // Re-fetch playlist and songs via public API if changed
           if (playlist.shareCode) {
             api.getPublicPlaylistByShareCode(playlist.shareCode).then((data) => {
               if (data) setSongs(data.songs)

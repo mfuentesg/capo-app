@@ -42,6 +42,9 @@ export function usePlaylistRealtime(playlistId: string) {
           event: "*",
           schema: "public",
           table: "songs"
+          // No row-level filter: songs.playlist_id doesn't exist (relationship is via
+          // playlist_songs). Any song edit triggers a refetch, but RLS ensures only
+          // authorized rows are returned. Acceptable for the current scale.
         },
         () => {
           queryClient.invalidateQueries({ queryKey: playlistsKeys.detail(playlistId) })
