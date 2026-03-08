@@ -32,7 +32,8 @@
     "clearSearch": "Limpiar búsqueda",
     "copyToClipboardFailed": "Error al copiar al portapapeles",
     "previous": "Anterior",
-    "next": "Siguiente"
+    "next": "Siguiente",
+    "comingSoon": "Pronto"
     },
 
   "metadata": {
@@ -159,7 +160,8 @@
     "searchPlaceholder": "Buscar playlists...",
     "playlistName": "Nombre del playlist",
     "playlistNamePlaceholder": "ej. Adoración del Domingo",
-    "openPlaylist": "Abrir playlist"
+    "openPlaylist": "Abrir playlist",
+    "suggestName": "Sugerir un nombre"
   },
   "playlistDetail": {
     "details": "Detalles",
@@ -278,7 +280,8 @@
     "publicPlaylist": "Playlist público",
     "emptyDescription": "Este playlist está vacío actualmente",
     "guestEditing": "Edición de invitados",
-    "share": "Compartir",
+    "share": "Copiar enlace",
+    "sharedPlaylist": "Lista compartida",
     "editSongs": "Editar canciones",
     "editSongsHint": "La edición de invitados desde enlaces compartidos estará disponible pronto.",
     "previousSong": "Canción anterior",

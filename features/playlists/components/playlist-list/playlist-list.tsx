@@ -20,7 +20,7 @@ interface PlaylistListProps {
 
 export function PlaylistSkeleton() {
   return (
-    <div className="flex w-full items-center gap-3 rounded-lg p-3 border border-transparent">
+    <div className="flex w-full items-center gap-3 rounded-lg p-3 border border-border/60">
       <Skeleton className="h-10 w-10 shrink-0" />
       <div className="flex-1 min-w-0 space-y-2">
         <div className="flex items-center gap-2">

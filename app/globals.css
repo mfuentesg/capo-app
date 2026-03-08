@@ -3,6 +3,45 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/*
+ * ╔══════════════════════════════════════════════════════════════╗
+ * ║                   CAPO COLOUR PALETTE                        ║
+ * ╠══════════════════════════════════════════════════════════════╣
+ * ║ All values use the OKLCH colour space (L C H).               ║
+ * ║                                                              ║
+ * ║ BRAND / PRIMARY                                              ║
+ * ║  --primary          Warm orange — main CTA, highlights       ║
+ * ║  --primary-foreground  Text on primary                       ║
+ * ║  --ring             Focus ring (lighter orange)              ║
+ * ║                                                              ║
+ * ║ SURFACES                                                     ║
+ * ║  --background       Page background                          ║
+ * ║  --card             Card / panel surface                     ║
+ * ║  --popover          Dropdown / overlay surface               ║
+ * ║  --muted            Subtle fill (inputs, hover)              ║
+ * ║                                                              ║
+ * ║ TEXT                                                         ║
+ * ║  --foreground       Primary text                             ║
+ * ║  --muted-foreground Secondary / helper text                  ║
+ * ║                                                              ║
+ * ║ BORDERS & INPUT                                              ║
+ * ║  --border           Dividers, card borders                   ║
+ * ║  --input            Input border                             ║
+ * ║                                                              ║
+ * ║ SEMANTIC ACCENT COLOURS (feature-specific)                   ║
+ * ║  --accent-songs     Blue  — song library card / badge        ║
+ * ║  --accent-playlists Violet — playlists card / badge          ║
+ * ║  --accent-activity  Green  — activity / new-this-month       ║
+ * ║                                                              ║
+ * ║ SECTION ACCENTS (lyrics editor label colours)                ║
+ * ║  Verse: blue · Chorus: violet · Bridge: pink                 ║
+ * ║  Comment: cyan · Repeat/Tab/Grid: yellow/grey                ║
+ * ║                                                              ║
+ * ║ DESTRUCTIVE                                                  ║
+ * ║  --destructive      Red — delete, error states               ║
+ * ╚══════════════════════════════════════════════════════════════╝
+ */
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -37,6 +76,10 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  /* Semantic feature accent colours */
+  --color-accent-songs: var(--accent-songs);
+  --color-accent-playlists: var(--accent-playlists);
+  --color-accent-activity: var(--accent-activity);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -77,6 +120,10 @@
   --sidebar-border: oklch(0.92 0.004 286.32);
   --sidebar-ring: oklch(0.75 0.183 55.934);
   --chord: oklch(0.42 0 0);
+  /* Semantic feature accent colours */
+  --accent-songs: oklch(0.55 0.18 248);      /* blue  — song library    */
+  --accent-playlists: oklch(0.52 0.19 290);  /* violet — playlists      */
+  --accent-activity: oklch(0.52 0.15 155);   /* green  — activity/new   */
 }
 
 .dark {
@@ -112,6 +159,10 @@
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.408 0.123 38.172);
   --chord: oklch(0.72 0 0);
+  /* Semantic feature accent colours (lightened for dark mode) */
+  --accent-songs: oklch(0.68 0.17 248);
+  --accent-playlists: oklch(0.65 0.18 290);
+  --accent-activity: oklch(0.65 0.14 155);
 }
 
 @layer base {

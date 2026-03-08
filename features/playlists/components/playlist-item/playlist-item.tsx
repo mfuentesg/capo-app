@@ -22,10 +22,8 @@ export function PlaylistItem({ playlist, isSelected, onSelect }: PlaylistItemPro
   return (
     <div
       onClick={() => onSelect(playlist)}
-      className={`flex w-full items-center gap-3 rounded-lg p-3 cursor-pointer transition-colors ${
-        isSelected
-          ? "bg-primary/10 border-primary border"
-          : "hover:bg-muted/50 border border-transparent"
+      className={`flex w-full items-center gap-3 rounded-lg p-3 cursor-pointer transition-colors border ${
+        isSelected ? "bg-primary/10 border-primary" : "border-border/60 hover:bg-muted/50 hover:border-border"
       }`}
     >
       <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 shrink-0">

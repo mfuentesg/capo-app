@@ -147,7 +147,7 @@ export const SongDraftForm = forwardRef<SongDraftFormHandle, SongDraftFormProps>
           </div>
           <button
             onClick={triggerClose}
-            className="text-muted-foreground hover:text-foreground transition-colors"
+            className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors shrink-0"
             aria-label={t.common.close}
           >
             <X className="h-5 w-5" />
