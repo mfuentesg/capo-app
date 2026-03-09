@@ -289,6 +289,13 @@
   from { opacity: 0; translate: 0 12px; }
 }
 
+/* The browser blocks all pointer events during view transitions by default.
+ * Allow clicks to pass through — the page has already navigated, so the
+ * underlying elements are safe to interact with mid-animation. */
+::view-transition {
+  pointer-events: none;
+}
+
 ::view-transition-old(root) {
   animation: 200ms ease-out both vt-fade-out;
 }
