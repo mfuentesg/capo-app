@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable"
-import { Drawer, DrawerContent, DrawerTitle, DrawerDescription } from "@/components/ui/drawer"
+import { Drawer, DrawerContent, DrawerTitle, DrawerDescription, DrawerScrollArea } from "@/components/ui/drawer"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
@@ -439,7 +439,7 @@ export function SongsClient() {
             <DrawerDescription className="sr-only">
               {isCreatingNewSong ? t.songs.enterSongDetails : t.songs.selectSongDescription}
             </DrawerDescription>
-            <div className="flex-1 overflow-y-auto">
+            <DrawerScrollArea>
               {isCreatingNewSong ? (
                 <SongDraftForm
                   ref={songDraftFormRef}
@@ -456,7 +456,7 @@ export function SongsClient() {
                   onDelete={handleDeleteSong}
                 />
               ) : null}
-            </div>
+            </DrawerScrollArea>
           </DrawerContent>
         </Drawer>
       )}

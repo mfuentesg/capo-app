@@ -40,7 +40,7 @@ export function UserProfileMenu() {
           aria-controls={menuIds.contentId}
           aria-label={t.common.userMenu}
         >
-          <Avatar className="h-9 w-9 ring-2 ring-background transition-all">
+          <Avatar className="h-9 w-9 ring-2 ring-background transition-shadow">
             {context?.type === "team" && currentTeam ? (
               <>
                 <AvatarImage src={currentTeam.avatar_url || undefined} alt={currentTeam.name} />

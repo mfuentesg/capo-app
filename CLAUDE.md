@@ -154,3 +154,69 @@ The local Supabase stack:
 ## i18n
 
 Translation files are validated with `pnpm i18n:validate`. Translation hook is `hooks/use-translation.ts`. Translations live in `lib/i18n/`.
+
+## Mobile Interaction Rules
+
+These rules exist because violating them caused "multiple taps required" and general sluggishness on mobile. They are enforced by ESLint where possible, but the architectural ones require human/Claude review.
+
+### 1. Overlay panels must disable pointer events immediately on close
+
+Any `fixed`/`absolute` panel that uses an exit animation **must** have `data-[state=closed]:pointer-events-none` in its className. Without it, the panel remains interactive for the full animation duration and silently swallows taps directed at content behind it.
+
+Already applied to:
+- `DrawerContent` ✓
+- `DrawerOverlay` ✓
+- `DialogOverlay` ✓
+- `DialogContent` ✓
+- `SheetContent` ✓
+- `SheetOverlay` ✓
+
+**Rule**: if you add a new overlay-like component (Portal + fixed + animated exit), add `data-[state=closed]:pointer-events-none`.
+
+### 2. Scrollable content inside a Drawer must use `<DrawerScrollArea>`
+
+```tsx
+// ✅ CORRECT — data-vaul-no-drag is applied automatically
+import { DrawerScrollArea } from "@/components/ui/drawer"
+<DrawerContent>
+  <DrawerScrollArea>
+    {/* content */}
+  </DrawerScrollArea>
+</DrawerContent>
+
+// ❌ WRONG — vaul's swipe detection intercepts taps inside scrollable areas
+<DrawerContent>
+  <div className="flex-1 overflow-y-auto">
+    {/* content */}
+  </div>
+</DrawerContent>
+```
+
+**Why**: Vaul registers `onPointerDown` on the entire `DrawerContent` to track swipe-to-close gestures. Without `data-vaul-no-drag`, vertical scroll inside a drawer conflicts with drag detection and can consume the first tap as a drag candidate on iOS.
+
+Non-scrollable areas inside drawers (e.g. a fixed-height nav list) should use `data-vaul-no-drag` directly on the element.
+
+### 3. No `transition-all` — enforced by ESLint
+
+`transition-all` animates **every CSS property** on every change. On mobile this forces the browser to check all properties on each frame. The ESLint rule `no-restricted-syntax` will **error** on any string literal containing `transition-all`.
+
+Use the narrowest correct alternative:
+| What changes on interaction | Use |
+|---|---|
+| Colors, background, border-color | `transition-colors` |
+| Opacity | `transition-opacity` |
+| Transform (scale, rotate, translate) | `transition-transform` |
+| Box-shadow | `transition-shadow` |
+| Colors + shadow + transform | `transition` (covers all visual properties, not layout) |
+
+### 4. No `backdrop-blur` on mobile sticky/fixed elements
+
+`backdrop-filter: blur()` on a sticky navbar forces the browser to composite the entire page behind it on every frame. On mobile GPUs this is very expensive.
+
+```tsx
+// ✅ CORRECT — blur only on desktop
+<header className="... bg-background md:bg-background/80 md:backdrop-blur-md">
+
+// ❌ WRONG — blur applies on mobile too
+<header className="... bg-background/80 backdrop-blur-md">
+```

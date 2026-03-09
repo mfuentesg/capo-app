@@ -110,6 +110,28 @@ function DrawerDescription({
   )
 }
 
+/**
+ * Scrollable region inside a Drawer.
+ *
+ * Always use this instead of a bare <div className="overflow-y-auto"> inside
+ * DrawerContent. It applies data-vaul-no-drag so that:
+ *  - Vaul's drag-to-close detection is skipped for touches that originate
+ *    within this area, preventing the first tap from being silently consumed
+ *    as a potential drag candidate on mobile.
+ *  - Vertical scroll gestures inside the area work correctly without
+ *    accidentally triggering the drawer's swipe-to-close.
+ */
+function DrawerScrollArea({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="drawer-scroll-area"
+      data-vaul-no-drag
+      className={cn("flex-1 overflow-y-auto", className)}
+      {...props}
+    />
+  )
+}
+
 export {
   Drawer,
   DrawerPortal,
@@ -120,5 +142,6 @@ export {
   DrawerHeader,
   DrawerFooter,
   DrawerTitle,
-  DrawerDescription
+  DrawerDescription,
+  DrawerScrollArea
 }
