@@ -239,9 +239,12 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
     <div className="min-h-[calc(100vh-4rem)] bg-background">
       <main className="mx-auto max-w-2xl px-4 pb-20 pt-6">
         {/* Playlist header */}
-        <div className="mb-6 space-y-2">
+        <div className="rounded-xl border border-border/60 bg-gradient-to-br from-pink-500/10 via-violet-500/5 to-transparent p-6 mb-6">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0 space-y-1.5">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-pink-500/20 mb-3">
+                <ListMusic className="h-5 w-5 text-pink-500" />
+              </div>
               <div className="inline-flex items-center gap-1.5 rounded-full border border-pink-500/30 bg-pink-500/10 px-3 py-1 text-xs font-medium text-pink-500 mb-1">
                 <LinkIcon className="h-3 w-3" />
                 {t.playlistShare.sharedPlaylist}
