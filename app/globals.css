@@ -271,6 +271,33 @@
   }
 }
 
+/* ── Sonner toast — mobile fix ─────────────────────────────────── */
+/*
+ * Sonner v2's @media (max-width: 600px) block sets
+ * `left: 16px; right: 16px; width: 100%` on the toast container.
+ * That is overconstrained (left + width + right > viewport width), so
+ * CSS drops the `right` value, leaving the container 100vw wide
+ * starting at x=16px — it overflows 16px past the right edge.
+ * Similarly, the individual toast gets `left: 0; right: 0; width: calc(100% - 32px)`,
+ * which is also overconstrained and resolves asymmetrically.
+ *
+ * Fix: anchor the container flush to both edges (left:0, right:0) so
+ * the `width: 100%` is no longer overconstrained, then give the
+ * individual toasts explicit symmetric 16 px insets.
+ */
+@media (max-width: 600px) {
+  [data-sonner-toaster] {
+    left: 0 !important;
+    right: 0 !important;
+  }
+
+  [data-sonner-toaster] [data-sonner-toast] {
+    left: 16px !important;
+    right: 16px !important;
+    width: auto !important;
+  }
+}
+
 /* ── View Transitions ──────────────────────────────────────────── */
 /*
  * document.startViewTransition() is triggered by ViewTransitionNavigator
