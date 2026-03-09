@@ -28,7 +28,7 @@ export const SongItem = memo(function SongItem({
     <div
       onClick={() => !isDisabled && onSelect(song)}
       className={cn(
-        "group flex items-center gap-3 rounded-lg border p-3 transition-all",
+        "group flex items-center gap-3 rounded-lg border p-3 transition-colors",
         isPreview
           ? "bg-orange-100/80 dark:bg-orange-900/30"
           : isSelected && !isDisabled
@@ -50,7 +50,7 @@ export const SongItem = memo(function SongItem({
         aria-label={isInCart ? "Remove from playlist" : "Add to playlist"}
         title={isInCart ? "Remove from playlist" : "Add to playlist"}
         className={cn(
-          "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold transition-all",
+          "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold transition-colors",
           isInCart
             ? "bg-primary text-primary-foreground"
             : "bg-muted text-muted-foreground hover:bg-primary/10 hover:text-primary",

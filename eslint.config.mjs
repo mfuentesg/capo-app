@@ -44,7 +44,29 @@ const eslintConfig = [
       "@typescript-eslint/no-unsafe-assignment": "error",
       "@typescript-eslint/no-unsafe-member-access": "error",
       "@typescript-eslint/no-unsafe-call": "error",
-      "@typescript-eslint/restrict-template-expressions": "error"
+      "@typescript-eslint/restrict-template-expressions": "error",
+
+      // ── Mobile performance guards ────────────────────────────────────────
+      // `transition-all` animates every CSS property simultaneously. On mobile
+      // GPUs this is significantly more expensive than animating only the
+      // properties that actually change (e.g. transition-colors, transition-opacity).
+      // Use a specific transition utility instead: transition-colors, transition-opacity,
+      // transition-transform, transition-shadow, or transition-none.
+      "no-restricted-syntax": [
+        "error",
+        {
+          // Catches bare string literals: className="... transition-all ..."
+          selector: "Literal[value=/\\btransition-all\\b/]",
+          message:
+            "Avoid 'transition-all' — it animates every CSS property and causes unnecessary GPU work on mobile. Use transition-colors, transition-opacity, transition-transform, or transition-shadow instead."
+        },
+        {
+          // Catches template literal segments: className={`... transition-all ...`}
+          selector: "TemplateElement[value.raw=/\\btransition-all\\b/]",
+          message:
+            "Avoid 'transition-all' — it animates every CSS property and causes unnecessary GPU work on mobile. Use transition-colors, transition-opacity, transition-transform, or transition-shadow instead."
+        }
+      ]
     }
   }
 ]

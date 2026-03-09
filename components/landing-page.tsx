@@ -321,7 +321,7 @@ export function LandingPage() {
               return (
                 <div
                   key={feature.title}
-                  className="group relative rounded-xl border border-border/60 bg-card p-6 transition-all duration-300 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5"
+                  className="group relative rounded-xl border border-border/60 bg-card p-6 transition duration-300 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5"
                 >
                   <div aria-hidden className="absolute inset-0 rounded-xl bg-gradient-to-br from-primary/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                   <div className={`relative mb-4 inline-flex items-center justify-center rounded-lg p-2.5 ${feature.bg}`}>
