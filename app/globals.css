@@ -273,9 +273,8 @@
 
 /* ── View Transitions ──────────────────────────────────────────── */
 /*
- * Enabled by experimental.viewTransition: true in next.config.ts.
- * Next.js wraps every <Link> / router.push navigation with
- * document.startViewTransition() automatically.
+ * document.startViewTransition() is triggered by ViewTransitionNavigator
+ * (components/view-transition-navigator.tsx) on every internal link click.
  *
  * Default browser behaviour is a cross-fade. We override it with
  * a 200ms fade-out on the leaving page and a 250ms fade-in + 12px
