@@ -2,7 +2,6 @@ import type { Metadata } from "next"
 import { cookies } from "next/headers"
 import localFont from "next/font/local"
 import { Analytics } from "@vercel/analytics/react"
-import NextTopLoader from "nextjs-toploader"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/sonner"
 import { LocaleProvider } from "@/features/settings"
@@ -96,7 +95,6 @@ export default async function RootLayout({
         <link rel="preload" href="/img/optimized/capo-text.webp" as="image" type="image/webp" />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <NextTopLoader showSpinner={false} />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
