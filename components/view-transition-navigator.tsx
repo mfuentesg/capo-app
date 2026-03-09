@@ -54,11 +54,18 @@ export function ViewTransitionNavigator() {
       if (url.pathname === location.pathname) return
 
       // Skip transitions for links inside overlay components (drawer, dialog, sheet).
-      // document.startViewTransition pauses the CSS animation timeline, which can
-      // prevent the overlay's close animation from firing animationend. vaul/Radix
-      // waits for animationend before unmounting content, so a disrupted animation
-      // leaves the fixed-positioned drawer panel stuck in the DOM blocking all input.
-      if ((e.target as HTMLElement).closest('[role="dialog"]')) return
+      // document.startViewTransition can disrupt the overlay's close animation,
+      // preventing animationend/transitionend from firing. vaul/Radix waits for
+      // those events before unmounting, so a disrupted animation leaves the
+      // fixed-positioned panel stuck in the DOM and blocking all input.
+      // We check multiple attributes to cover vaul v1 ([data-vaul-drawer]),
+      // Radix ([role="dialog"]), and our own wrapper ([data-slot="drawer-content"]).
+      if (
+        (e.target as HTMLElement).closest(
+          '[role="dialog"],[data-vaul-drawer],[data-slot="drawer-content"],[data-slot="sheet-content"]'
+        )
+      )
+        return
 
       // Resolve any in-flight transition before starting a new one, so the
       // old promise doesn't hang if the user navigates again mid-flight.
