@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { cookies } from "next/headers"
 import localFont from "next/font/local"
 import { Analytics } from "@vercel/analytics/react"
+import { SpeedInsights } from "@vercel/speed-insights/next"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/sonner"
 import { LocaleProvider } from "@/features/settings"
@@ -117,6 +118,7 @@ export default async function RootLayout({
           <Toaster />
         </ThemeProvider>
         {process.env.NODE_ENV === "production" && <Analytics />}
+        <SpeedInsights />
       </body>
     </html>
   )
