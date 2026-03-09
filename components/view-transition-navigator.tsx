@@ -18,10 +18,17 @@ import { usePathname } from "next/navigation"
 export function ViewTransitionNavigator() {
   const pathname = usePathname()
   const resolveRef = useRef<(() => void) | null>(null)
+  // Tracks the latest committed pathname so the startViewTransition callback
+  // can detect whether navigation already completed before it was invoked.
+  // On desktop (fast prefetch / hardware), the pathname effect can fire before
+  // startViewTransition even calls its update callback, leaving resolveRef null
+  // and the promise hanging for the full 3-second safety timeout.
+  const committedPathnameRef = useRef(pathname)
 
   // When the pathname changes, the new page is in the DOM — resolve the
   // pending transition so the browser can snapshot the new state.
   useEffect(() => {
+    committedPathnameRef.current = pathname
     resolveRef.current?.()
     resolveRef.current = null
   }, [pathname])
@@ -72,6 +79,8 @@ export function ViewTransitionNavigator() {
       )
       if (isInsideOverlay || hasOpenOverlay) return
 
+      const targetPathname = url.pathname
+
       // Resolve any in-flight transition before starting a new one, so the
       // old promise doesn't hang if the user navigates again mid-flight.
       resolveRef.current?.()
@@ -80,6 +89,14 @@ export function ViewTransitionNavigator() {
       document.startViewTransition(() => {
         let timeoutId: ReturnType<typeof setTimeout>
         return new Promise<void>((resolve) => {
+          // On desktop, prefetched navigations can complete and update the
+          // pathname before startViewTransition invokes this callback. In that
+          // case resolveRef was already null when the pathname effect ran, so
+          // we must resolve immediately here instead of waiting.
+          if (committedPathnameRef.current === targetPathname) {
+            resolve()
+            return
+          }
           resolveRef.current = resolve
           // Safety net: resolve after 3 s in case navigation never commits.
           timeoutId = setTimeout(() => {
