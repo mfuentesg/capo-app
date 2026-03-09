@@ -48,15 +48,27 @@ export function ViewTransitionNavigator() {
       // Skip _blank targets and downloads
       if (anchor.target && anchor.target !== "_self") return
       if (anchor.hasAttribute("download")) return
-      // Skip hash-only jumps on the same page
-      if (url.pathname === location.pathname && url.search === location.search) return
+      // Skip same-pathname navigations (hash jumps, search-param changes).
+      // usePathname() won't update for these, so the transition promise
+      // would never resolve.
+      if (url.pathname === location.pathname) return
 
-      document.startViewTransition(
-        () =>
-          new Promise<void>((resolve) => {
-            resolveRef.current = resolve
-          })
-      )
+      // Resolve any in-flight transition before starting a new one, so the
+      // old promise doesn't hang if the user navigates again mid-flight.
+      resolveRef.current?.()
+      resolveRef.current = null
+
+      document.startViewTransition(() => {
+        let timeoutId: ReturnType<typeof setTimeout>
+        return new Promise<void>((resolve) => {
+          resolveRef.current = resolve
+          // Safety net: resolve after 3 s in case navigation never commits.
+          timeoutId = setTimeout(() => {
+            if (resolveRef.current === resolve) resolveRef.current = null
+            resolve()
+          }, 3000)
+        }).finally(() => clearTimeout(timeoutId))
+      })
     }
 
     // Capture phase runs before the <Link> element's own click handler,
