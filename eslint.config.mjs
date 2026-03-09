@@ -17,7 +17,9 @@ const eslintConfig = [
       "build/**",
       "next-env.d.ts",
       "coverage",
-      "supabase/functions/**"
+      "supabase/functions/**",
+      "public/sw.js",
+      "public/swe-worker-*.js"
     ]
   },
   ...nextVitals,
