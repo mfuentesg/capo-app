@@ -78,6 +78,13 @@ describe("Utility Functions", () => {
       const result = formatDate(date)
       expect(typeof result).toBe("string")
     })
+
+    it("uses the UTC calendar date for full timestamps to avoid timezone-induced hydration mismatches", () => {
+      // 2026-02-23T01:30:00Z — in UTC-5 this would be 2/22 without the fix
+      const result = formatDate("2026-02-23T01:30:00Z")
+      const expected = new Date(2026, 1, 23).toLocaleDateString()
+      expect(result).toBe(expected)
+    })
   })
 
   describe("formatLongDate", () => {

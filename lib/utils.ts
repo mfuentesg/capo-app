@@ -21,7 +21,14 @@ export function parseDateValue(date: string | number | Date): Date {
 }
 
 export function formatDate(date: string | number | Date): string {
-  return parseDateValue(date).toLocaleDateString()
+  if (typeof date === "string" && DATE_ONLY_REGEX.test(date)) {
+    return parseDateValue(date).toLocaleDateString()
+  }
+  // For full timestamps, pin to the UTC calendar date so server and client render
+  // the same value regardless of the local timezone (avoids hydration mismatches).
+  const parsed = new Date(date)
+  const utcDate = new Date(parsed.getUTCFullYear(), parsed.getUTCMonth(), parsed.getUTCDate())
+  return utcDate.toLocaleDateString()
 }
 
 /**
