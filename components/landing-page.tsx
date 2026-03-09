@@ -591,7 +591,7 @@ export function LandingPage() {
               </Link>
               <span>·</span>
               <a
-                href="https://github.com/mfuentesg/capo-app"
+                href="https://github.com/mfuentesg/capo"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 hover:text-foreground transition-colors"

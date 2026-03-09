@@ -51,11 +51,11 @@ Protected routes (require authentication):
 
 ## Developer Resources
 
-- [README](https://github.com/mfuentesg/capo-app/blob/main/README.md): Project overview, feature descriptions, and getting-started guide.
-- [FBA Guide](https://github.com/mfuentesg/capo-app/blob/main/features/docs/FBA_GUIDE.md): Complete Feature-Based Architecture guide covering patterns, testing, and deployment checklist.
-- [CLAUDE.md](https://github.com/mfuentesg/capo-app/blob/main/CLAUDE.md): Developer commands, architecture rules, data layer patterns, and code style guidelines.
+- [README](https://github.com/mfuentesg/capo/blob/main/README.md): Project overview, feature descriptions, and getting-started guide.
+- [FBA Guide](https://github.com/mfuentesg/capo/blob/main/features/docs/FBA_GUIDE.md): Complete Feature-Based Architecture guide covering patterns, testing, and deployment checklist.
+- [CLAUDE.md](https://github.com/mfuentesg/capo/blob/main/CLAUDE.md): Developer commands, architecture rules, data layer patterns, and code style guidelines.
 
 ## Optional
 
-- [GitHub Repository](https://github.com/mfuentesg/capo-app): Source code, issues, and pull requests.
+- [GitHub Repository](https://github.com/mfuentesg/capo): Source code, issues, and pull requests.
 - [Buy Me a Coffee](https://www.buymeacoffee.com/mfuentesg): Support the project.

@@ -23,11 +23,13 @@ export function PlaylistItem({ playlist, isSelected, onSelect }: PlaylistItemPro
     <div
       onClick={() => onSelect(playlist)}
       className={`flex w-full items-center gap-3 rounded-lg p-3 cursor-pointer transition-colors border ${
-        isSelected ? "bg-primary/10 border-primary" : "border-border/60 hover:bg-muted/50 hover:border-border"
+        isSelected
+          ? "bg-primary/10 border-primary"
+          : "bg-gradient-to-br from-pink-500/5 via-violet-500/5 to-transparent border-border/60 hover:bg-muted/50 hover:border-border"
       }`}
     >
-      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 shrink-0">
-        <Music3 className="h-5 w-5 text-primary" />
+      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-pink-500/20 shrink-0">
+        <Music3 className="h-5 w-5 text-pink-500" />
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">

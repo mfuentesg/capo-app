@@ -581,5 +581,9 @@
       "viewOnGitHub": "View on GitHub",
       "madeBy": "Made by"
     }
+  },
+  "offline": {
+    "title": "You are offline",
+    "description": "This page is not available offline. Check your connection and try again."
   }
 }
