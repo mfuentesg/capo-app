@@ -1,8 +1,13 @@
+"use client"
+
 import Link from "next/link"
 import { WifiOff } from "lucide-react"
 import { OptimizedLogo } from "@/components/optimized-logo"
+import { useTranslation } from "@/hooks/use-translation"
 
 export default function OfflinePage() {
+  const { t } = useTranslation()
+
   return (
     <div className="flex min-h-screen flex-col items-center justify-center px-4 text-center">
       <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
@@ -18,16 +23,14 @@ export default function OfflinePage() {
         <WifiOff className="h-8 w-8 text-muted-foreground" />
       </div>
 
-      <h1 className="text-2xl font-semibold tracking-tight mb-2">You are offline</h1>
-      <p className="text-muted-foreground max-w-sm mb-8">
-        This page is not available offline. Check your connection and try again.
-      </p>
+      <h1 className="text-2xl font-semibold tracking-tight mb-2">{t.offline.title}</h1>
+      <p className="text-muted-foreground max-w-sm mb-8">{t.offline.description}</p>
 
       <Link
         href="/"
         className="inline-flex items-center rounded-lg border px-4 py-2 text-sm font-medium transition-colors hover:bg-muted"
       >
-        Try again
+        {t.common.tryAgain}
       </Link>
     </div>
   )

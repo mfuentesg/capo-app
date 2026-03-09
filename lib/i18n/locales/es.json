@@ -581,5 +581,9 @@
       "viewOnGitHub": "Ver en GitHub",
       "madeBy": "Hecho por"
     }
+  },
+  "offline": {
+    "title": "Estás sin conexión",
+    "description": "Esta página no está disponible sin conexión. Verifica tu conexión e intenta de nuevo."
   }
 }
