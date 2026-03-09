@@ -13,6 +13,7 @@ import {
   useTransferAndLeave
 } from "../hooks"
 import type { Tables, TablesUpdate } from "@/lib/supabase/database.types"
+import type { UserInfo } from "@/features/auth"
 import { TeamDetailHeader } from "@/features/teams"
 import { TeamMembersSection } from "@/features/teams"
 import { TeamDangerZone } from "@/features/teams"
@@ -25,14 +26,16 @@ interface TeamDetailClientProps {
     user_avatar_url: string | null
   })[]
   initialInvitations: Tables<"team_invitations">[]
+  initialUser?: UserInfo | null
 }
 
 export function TeamDetailClient({
   initialTeam,
   initialMembers,
-  initialInvitations
+  initialInvitations,
+  initialUser
 }: TeamDetailClientProps) {
-  const { data: user } = useUser()
+  const { data: user } = useUser(initialUser)
   const { context, switchToPersonal } = useAppContext()
 
   const onTeamActionSuccess = (teamId: string) => {
