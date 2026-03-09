@@ -317,7 +317,7 @@ export function PlaylistsClient({ initialPlaylists = [] }: PlaylistsClientProps)
             <DrawerDescription className="sr-only">
               {t.playlistDetail.editDescription}
             </DrawerDescription>
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto" data-vaul-no-drag>
               {isCreating ? (
                 <PlaylistCreateForm onSubmit={handleCreateSubmit} onCancel={handleCreateCancel} />
               ) : selectedPlaylist ? (

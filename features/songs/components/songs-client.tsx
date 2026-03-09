@@ -439,7 +439,7 @@ export function SongsClient() {
             <DrawerDescription className="sr-only">
               {isCreatingNewSong ? t.songs.enterSongDetails : t.songs.selectSongDescription}
             </DrawerDescription>
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto" data-vaul-no-drag>
               {isCreatingNewSong ? (
                 <SongDraftForm
                   ref={songDraftFormRef}

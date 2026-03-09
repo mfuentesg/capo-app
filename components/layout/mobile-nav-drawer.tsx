@@ -59,7 +59,7 @@ export function MobileNavDrawer({ isOpen, onOpenChange }: MobileNavDrawerProps) 
             />
           </DrawerTitle>
         </DrawerHeader>
-        <nav className="mt-8 flex flex-col gap-2">
+        <nav className="mt-8 flex flex-col gap-2" data-vaul-no-drag>
           <NavLinks items={navItems} variant="vertical" onItemClick={() => onOpenChange(false)} />
         </nav>
       </DrawerContent>

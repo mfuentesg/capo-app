@@ -302,7 +302,7 @@ export function PlaylistDraft({
             {songs.length} {t.playlistDraft.songsSelected}
           </DrawerDescription>
         </DrawerHeader>
-        <div className="flex-1 overflow-y-auto py-4 px-4">
+        <div className="flex-1 overflow-y-auto py-4 px-4" data-vaul-no-drag>
           <PlaylistDraftBody {...bodyProps} />
         </div>
         <DrawerFooter className="flex-col gap-2">{actionButtons}</DrawerFooter>
