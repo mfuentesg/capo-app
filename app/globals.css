@@ -270,3 +270,37 @@
     @apply [column-width:100%] [column-count:1] [column-rule:none];
   }
 }
+
+/* ── View Transitions ──────────────────────────────────────────── */
+/*
+ * Enabled by experimental.viewTransition: true in next.config.ts.
+ * Next.js wraps every <Link> / router.push navigation with
+ * document.startViewTransition() automatically.
+ *
+ * Default browser behaviour is a cross-fade. We override it with
+ * a 200ms fade-out on the leaving page and a 250ms fade-in + 12px
+ * upward slide on the entering page — subtle and direction-agnostic
+ * so it works for any pair of pages.
+ */
+@keyframes vt-fade-out {
+  to { opacity: 0; }
+}
+
+@keyframes vt-fade-in {
+  from { opacity: 0; translate: 0 12px; }
+}
+
+::view-transition-old(root) {
+  animation: 200ms ease-out both vt-fade-out;
+}
+
+::view-transition-new(root) {
+  animation: 250ms ease-out both vt-fade-in;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
+}
