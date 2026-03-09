@@ -53,19 +53,24 @@ export function ViewTransitionNavigator() {
       // would never resolve.
       if (url.pathname === location.pathname) return
 
-      // Skip transitions for links inside overlay components (drawer, dialog, sheet).
-      // document.startViewTransition can disrupt the overlay's close animation,
-      // preventing animationend/transitionend from firing. vaul/Radix waits for
-      // those events before unmounting, so a disrupted animation leaves the
-      // fixed-positioned panel stuck in the DOM and blocking all input.
-      // We check multiple attributes to cover vaul v1 ([data-vaul-drawer]),
-      // Radix ([role="dialog"]), and our own wrapper ([data-slot="drawer-content"]).
-      if (
-        (e.target as HTMLElement).closest(
-          '[role="dialog"],[data-vaul-drawer],[data-slot="drawer-content"],[data-slot="sheet-content"]'
-        )
+      // Skip transitions for links inside overlay components, or if any overlay
+      // is currently open in the document. startViewTransition can disrupt the
+      // overlay's close animation, preventing animationend/transitionend from
+      // firing and leaving fixed overlays stuck in the DOM blocking all input.
+      //
+      // Two-pronged check for maximum reliability:
+      // 1. Ancestor check — covers clicks from inside the overlay (e.g. nav
+      //    links, "Open song" links inside the songs drawer). Checks for vaul v1
+      //    ([data-vaul-drawer]), Radix ([role="dialog"]), and our own wrappers.
+      // 2. Document-level check — catches any case the ancestor walk might miss
+      //    (e.g. SVG targets, portal boundary edge cases in some mobile browsers).
+      const isInsideOverlay = !!(e.target as HTMLElement).closest(
+        '[role="dialog"],[data-vaul-drawer],[data-slot="drawer-content"],[data-slot="sheet-content"]'
       )
-        return
+      const hasOpenOverlay = !!document.querySelector(
+        '[data-vaul-drawer][data-state="open"],[data-slot="drawer-content"][data-state="open"],[data-slot="sheet-content"][data-state="open"]'
+      )
+      if (isInsideOverlay || hasOpenOverlay) return
 
       // Resolve any in-flight transition before starting a new one, so the
       // old promise doesn't hang if the user navigates again mid-flight.
