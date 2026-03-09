@@ -18,6 +18,7 @@ import {
   DrawerDescription,
   DrawerFooter,
   DrawerHeader,
+  DrawerScrollArea,
   DrawerTitle,
   DrawerTrigger
 } from "@/components/ui/drawer"
@@ -302,9 +303,9 @@ export function PlaylistDraft({
             {songs.length} {t.playlistDraft.songsSelected}
           </DrawerDescription>
         </DrawerHeader>
-        <div className="flex-1 overflow-y-auto py-4 px-4" data-vaul-no-drag>
+        <DrawerScrollArea className="py-4 px-4">
           <PlaylistDraftBody {...bodyProps} />
-        </div>
+        </DrawerScrollArea>
         <DrawerFooter className="flex-col gap-2">{actionButtons}</DrawerFooter>
       </DrawerContent>
     </Drawer>

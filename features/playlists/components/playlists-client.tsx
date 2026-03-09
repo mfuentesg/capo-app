@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable"
-import { Drawer, DrawerContent, DrawerTitle, DrawerDescription } from "@/components/ui/drawer"
+import { Drawer, DrawerContent, DrawerTitle, DrawerDescription, DrawerScrollArea } from "@/components/ui/drawer"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
@@ -317,7 +317,7 @@ export function PlaylistsClient({ initialPlaylists = [] }: PlaylistsClientProps)
             <DrawerDescription className="sr-only">
               {t.playlistDetail.editDescription}
             </DrawerDescription>
-            <div className="flex-1 overflow-y-auto" data-vaul-no-drag>
+            <DrawerScrollArea>
               {isCreating ? (
                 <PlaylistCreateForm onSubmit={handleCreateSubmit} onCancel={handleCreateCancel} />
               ) : selectedPlaylist ? (
@@ -333,7 +333,7 @@ export function PlaylistsClient({ initialPlaylists = [] }: PlaylistsClientProps)
                   }}
                 />
               ) : null}
-            </div>
+            </DrawerScrollArea>
           </DrawerContent>
         </Drawer>
       )}

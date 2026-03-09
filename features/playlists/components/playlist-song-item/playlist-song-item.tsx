@@ -16,7 +16,7 @@ export function PlaylistSongItem({ song, index, className }: PlaylistSongItemPro
   return (
     <div
       className={cn(
-        "group flex items-start gap-4 rounded-lg border bg-card p-4 transition-all hover:shadow-sm",
+        "group flex items-start gap-4 rounded-lg border bg-card p-4 transition-shadow hover:shadow-sm",
         className
       )}
     >

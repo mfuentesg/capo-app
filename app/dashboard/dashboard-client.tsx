@@ -61,14 +61,14 @@ export default function DashboardClient() {
               <Button
                 variant="outline"
                 asChild
-                className="transition-all hover:shadow-md bg-transparent"
+                className="transition-shadow hover:shadow-md bg-transparent"
               >
                 <Link href="/dashboard/playlists">
                   <ListMusic className="mr-2 h-4 w-4" />
                   {t.dashboard.newPlaylist}
                 </Link>
               </Button>
-              <Button asChild className="transition-all hover:shadow-md">
+              <Button asChild className="transition-shadow hover:shadow-md">
                 <Link href="/dashboard/songs">
                   <Plus className="mr-2 h-4 w-4" />
                   {t.dashboard.addSong}
@@ -89,7 +89,7 @@ export default function DashboardClient() {
               <>
                 <Link
                   href="/dashboard/songs"
-                  className="block rounded-lg border bg-card p-6 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5"
+                  className="block rounded-lg border bg-card p-6 shadow-sm transition hover:shadow-md hover:-translate-y-0.5"
                   style={{ borderColor: "color-mix(in oklch, var(--accent-songs) 20%, transparent)" }}
                 >
                   <div className="flex items-center gap-4">
@@ -108,7 +108,7 @@ export default function DashboardClient() {
 
                 <Link
                   href="/dashboard/playlists"
-                  className="block rounded-lg border bg-card p-6 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5"
+                  className="block rounded-lg border bg-card p-6 shadow-sm transition hover:shadow-md hover:-translate-y-0.5"
                   style={{ borderColor: "color-mix(in oklch, var(--accent-playlists) 20%, transparent)" }}
                 >
                   <div className="flex items-center gap-4">
@@ -127,7 +127,7 @@ export default function DashboardClient() {
 
                 <Link
                   href="/dashboard/songs"
-                  className="block rounded-lg border bg-card p-6 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5"
+                  className="block rounded-lg border bg-card p-6 shadow-sm transition hover:shadow-md hover:-translate-y-0.5"
                   style={{ borderColor: "color-mix(in oklch, var(--accent-activity) 20%, transparent)" }}
                 >
                   <div className="flex items-center gap-4">
@@ -148,7 +148,7 @@ export default function DashboardClient() {
 
                 <Link
                   href="/dashboard/playlists"
-                  className="block rounded-lg border border-primary/20 bg-card p-6 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5"
+                  className="block rounded-lg border border-primary/20 bg-card p-6 shadow-sm transition hover:shadow-md hover:-translate-y-0.5"
                 >
                   <div className="flex items-center gap-4">
                     <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
@@ -198,7 +198,7 @@ export default function DashboardClient() {
                     <Link
                       key={song.id}
                       href={`/dashboard/songs/${song.id}`}
-                      className="flex items-center gap-4 rounded-xl p-3 transition-all hover:bg-muted/50 hover:shadow-sm cursor-pointer"
+                      className="flex items-center gap-4 rounded-xl p-3 transition hover:bg-muted/50 hover:shadow-sm cursor-pointer"
                     >
                       <KeyBadge keyValue={song.key} size="md" />
                       <div className="flex-1 min-w-0">
