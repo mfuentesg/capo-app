@@ -93,8 +93,8 @@ export default async function RootLayout({
   // Unauthenticated visitors (e.g. landing page) skip the round-trips entirely.
   const { createClient } = await import("@/lib/supabase/server")
   const supabase = await createClient()
-  const { data: { session } } = await supabase.auth.getSession()
-  const appContextData = session
+  const { data: { user } } = await supabase.auth.getUser()
+  const appContextData = user
     ? await getInitialAppContextData()
     : { user: null, teams: [], initialSelectedTeamId: null }
 

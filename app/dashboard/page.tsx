@@ -19,16 +19,16 @@ export default async function DashboardPage() {
   const supabase = await createClient()
   const cookieStore = await cookies()
 
-  // 1. Get session first (fastest)
+  // 1. Get user first (verified, secure)
   const {
-    data: { session }
-  } = await supabase.auth.getSession()
+    data: { user: authUser }
+  } = await supabase.auth.getUser()
 
-  if (!session?.user) {
+  if (!authUser) {
     redirect("/")
   }
 
-  const userId = session.user.id
+  const userId = authUser.id
   const selectedTeamIdCookie = cookieStore.get(SELECTED_TEAM_ID_KEY)?.value
   const localeCookie = cookieStore.get("NEXT_LOCALE")
   const locale =

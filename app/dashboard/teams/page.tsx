@@ -18,6 +18,15 @@ export default async function TeamsPage() {
   const locale =
     localeCookie && isValidLocale(localeCookie.value) ? localeCookie.value : defaultLocale
 
+  const {
+    data: { user: authUser }
+  } = await supabase.auth.getUser()
+
+  if (!authUser) {
+    const { redirect } = await import("next/navigation")
+    redirect("/")
+  }
+
   const [initialTeams, initialSelectedTeamId, t] = await Promise.all([
     teamsApi.getTeams(supabase).catch(() => []),
     getSelectedTeamId(),

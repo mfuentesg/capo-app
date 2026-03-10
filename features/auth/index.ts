@@ -1,5 +1,3 @@
-"use client"
-
 // Components
 export { LoginForm } from "./components"
 

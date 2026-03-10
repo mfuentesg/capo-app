@@ -43,16 +43,16 @@ export async function getSelectedTeamId(): Promise<string | null> {
 export async function getAppContext(): Promise<AppContext | null> {
   const supabase = await createClient()
 
-  // Get session first (fast, cookie-based)
+  // Get user first (verified, secure)
   const {
-    data: { session }
-  } = await supabase.auth.getSession()
+    data: { user }
+  } = await supabase.auth.getUser()
 
-  if (!session?.user) {
+  if (!user) {
     return null
   }
 
-  const userId = session.user.id
+  const userId = user.id
 
   // Fetch teams and selected team ID in parallel
   const [teams, selectedTeamId] = await Promise.all([
@@ -121,12 +121,12 @@ export async function getAppContextFromCookies(userId: string): Promise<AppConte
 export async function getInitialAppContextData() {
   const supabase = await createClient()
 
-  // Get session first (fast, cookie-based)
+  // Get user first (verified, secure)
   const {
-    data: { session }
-  } = await supabase.auth.getSession()
+    data: { user: authUser }
+  } = await supabase.auth.getUser()
 
-  if (!session?.user) {
+  if (!authUser) {
     return {
       user: null,
       teams: [],
@@ -134,16 +134,16 @@ export async function getInitialAppContextData() {
     }
   }
 
-  const userId = session.user.id
+  const userId = authUser.id
 
   // Fetch user profile and teams in parallel
-  const [user, teams, selectedTeamId] = await Promise.all([
-    getUser(supabase),
+  const [userProfile, teams, selectedTeamId] = await Promise.all([
+    getUser(supabase), // This is our custom getUser that returns UserInfo
     getTeamsWithClient(supabase, userId),
     getSelectedTeamId()
   ])
 
-  if (!user) {
+  if (!userProfile) {
     return {
       user: null,
       teams: [],
@@ -155,7 +155,7 @@ export async function getInitialAppContextData() {
     selectedTeamId && teams.some((team) => team.id === selectedTeamId) ? selectedTeamId : null
 
   return {
-    user,
+    user: userProfile,
     teams,
     initialSelectedTeamId
   }

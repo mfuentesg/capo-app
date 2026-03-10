@@ -28,15 +28,15 @@ export default async function SongLyricsPage({ params }: { params: Promise<{ id:
   const { id } = await params
   const supabase = await createClient()
 
-  // 1. Get session first (fastest)
+  // 1. Get user first (verified, secure)
   const {
-    data: { session }
-  } = await supabase.auth.getSession()
+    data: { user: authUser }
+  } = await supabase.auth.getUser()
 
   // 2. Fetch song and profile data in parallel
   const [song, profileData] = await Promise.all([
     getSongApi(supabase, id),
-    session?.user ? getUserProfileDataApi(supabase, session.user.id).catch(() => null) : Promise.resolve(null)
+    authUser ? getUserProfileDataApi(supabase, authUser.id).catch(() => null) : Promise.resolve(null)
   ])
 
   if (!song) {

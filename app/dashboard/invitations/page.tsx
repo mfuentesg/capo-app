@@ -19,6 +19,15 @@ export default async function PendingInvitationsPage() {
   const locale =
     localeCookie && isValidLocale(localeCookie.value) ? localeCookie.value : defaultLocale
 
+  const {
+    data: { user: authUser }
+  } = await supabase.auth.getUser()
+
+  if (!authUser) {
+    const { redirect } = await import("next/navigation")
+    redirect("/")
+  }
+
   const [t, initialInvitations] = await Promise.all([
     getTranslations(locale),
     teamsApi.getPendingInvitations(supabase).catch(() => [])
