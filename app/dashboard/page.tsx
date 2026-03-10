@@ -1,8 +1,7 @@
 import type { Metadata } from "next"
 import { redirect } from "next/navigation"
-import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query"
 import { getAppContext } from "@/features/app-context/server"
-import { api, dashboardKeys } from "@/features/dashboard"
+import { api } from "@/features/dashboard"
 import DashboardClient from "./dashboard-client"
 
 export const metadata: Metadata = {
@@ -16,22 +15,15 @@ export default async function DashboardPage() {
     redirect("/")
   }
 
-  const queryClient = new QueryClient()
-
-  await Promise.all([
-    queryClient.prefetchQuery({
-      queryKey: dashboardKeys.stats(context),
-      queryFn: () => api.getDashboardStats(context)
-    }),
-    queryClient.prefetchQuery({
-      queryKey: dashboardKeys.recentSongs(context, 3),
-      queryFn: () => api.getRecentSongs(context, 3)
-    })
+  const [initialStats, initialRecentSongs] = await Promise.all([
+    api.getDashboardStats(context).catch(() => ({
+      totalSongs: 0,
+      totalPlaylists: 0,
+      songsThisMonth: 0,
+      upcomingPlaylists: 0
+    })),
+    api.getRecentSongs(context, 3).catch(() => [])
   ])
 
-  return (
-    <HydrationBoundary state={dehydrate(queryClient)}>
-      <DashboardClient />
-    </HydrationBoundary>
-  )
+  return <DashboardClient initialStats={initialStats} initialRecentSongs={initialRecentSongs} />
 }

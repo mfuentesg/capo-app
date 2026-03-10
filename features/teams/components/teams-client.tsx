@@ -14,17 +14,20 @@ import { TeamsEmptyState } from "@/features/teams"
 import { toast } from "sonner"
 import { api } from "@/features/teams"
 
+import type { TeamWithMemberCount } from "@/features/teams"
+
 interface TeamsClientProps {
   initialSelectedTeamId?: string | null
+  initialTeams?: TeamWithMemberCount[]
 }
 
-export function TeamsClient({ initialSelectedTeamId = null }: TeamsClientProps) {
+export function TeamsClient({ initialSelectedTeamId = null, initialTeams = [] }: TeamsClientProps) {
   const { data: user } = useUser()
   const { switchToTeam } = useAppContext()
   const { t } = useTranslation()
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { data: teams = [] } = useQuery({
+  const { data: teams = initialTeams } = useQuery({
     queryKey: teamsKeys.list(),
     queryFn: async () => await api.getTeams(),
     enabled: !!user?.id,

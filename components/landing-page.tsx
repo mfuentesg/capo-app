@@ -127,7 +127,7 @@ export function LandingPage() {
   return (
     <div className="min-h-svh bg-background text-foreground overflow-x-hidden">
       {/* ── Navbar ─────────────────────────────────────────────────────── */}
-      <header className="fixed top-0 inset-x-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-md">
+      <header className="fixed top-0 inset-x-0 z-50 border-b border-border/40 bg-background md:bg-background/80 md:backdrop-blur-md">
         <nav className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
           <Link href="/" className="flex items-center">
             <OptimizedLogo

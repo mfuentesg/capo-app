@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import KeyBadge from "@/components/key-badge"
 import { useTranslation } from "@/hooks/use-translation"
 import { ActivityFeed, useActivityRealtime } from "@/features/activity"
+import type { DashboardStats, RecentSong } from "@/features/dashboard"
 import { useDashboardStats, useRecentSongs } from "@/features/dashboard"
 import { Skeleton } from "@/components/ui/skeleton"
 import { getBpmColorClasses } from "@/lib/badge-colors"
@@ -42,10 +43,18 @@ function RecentSongSkeleton() {
   )
 }
 
-export default function DashboardClient() {
+interface DashboardClientProps {
+  initialStats?: DashboardStats
+  initialRecentSongs?: RecentSong[]
+}
+
+export default function DashboardClient({
+  initialStats,
+  initialRecentSongs = []
+}: DashboardClientProps) {
   const { t } = useTranslation()
-  const { data: stats, isLoading: statsLoading } = useDashboardStats()
-  const { data: recentSongs, isLoading: songsLoading } = useRecentSongs(3)
+  const { data: stats = initialStats, isLoading: statsLoading } = useDashboardStats()
+  const { data: recentSongs = initialRecentSongs, isLoading: songsLoading } = useRecentSongs(3)
 
   // Enable real-time activity updates
   useActivityRealtime()

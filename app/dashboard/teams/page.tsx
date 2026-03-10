@@ -1,7 +1,6 @@
 import type { Metadata } from "next"
-import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query"
 import { getSelectedTeamId } from "@/features/app-context/server"
-import { TeamsClient, api, teamsKeys } from "@/features/teams"
+import { TeamsClient, api } from "@/features/teams"
 
 export const metadata: Metadata = {
   title: "Teams",
@@ -9,19 +8,12 @@ export const metadata: Metadata = {
 }
 
 export default async function TeamsPage() {
-  const queryClient = new QueryClient()
-
-  const [, initialSelectedTeamId] = await Promise.all([
-    queryClient.prefetchQuery({
-      queryKey: teamsKeys.list(),
-      queryFn: () => api.getTeams()
-    }),
+  const [initialTeams, initialSelectedTeamId] = await Promise.all([
+    api.getTeams().catch(() => []),
     getSelectedTeamId()
   ])
 
   return (
-    <HydrationBoundary state={dehydrate(queryClient)}>
-      <TeamsClient initialSelectedTeamId={initialSelectedTeamId} />
-    </HydrationBoundary>
+    <TeamsClient initialTeams={initialTeams} initialSelectedTeamId={initialSelectedTeamId} />
   )
 }
