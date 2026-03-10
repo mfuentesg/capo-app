@@ -10,7 +10,7 @@ import { getTranslations } from "@/lib/i18n/translations"
 import { cookies } from "next/headers"
 import { defaultLocale, isValidLocale } from "@/lib/i18n/config"
 import { createClient } from "@/lib/supabase/server"
-import { getPendingInvitations as getPendingInvitationsApi } from "@/features/teams/api/teamsApi"
+import { rawApi as teamsApi } from "@/features/teams"
 
 export default async function PendingInvitationsPage() {
   const supabase = await createClient()
@@ -21,7 +21,7 @@ export default async function PendingInvitationsPage() {
 
   const [t, initialInvitations] = await Promise.all([
     getTranslations(locale),
-    getPendingInvitationsApi(supabase).catch(() => [])
+    teamsApi.getPendingInvitations(supabase).catch(() => [])
   ])
 
   return <PendingInvitationsClient t={t} initialInvitations={initialInvitations} />

@@ -14,7 +14,7 @@ export {
 export { useUserPreferences, useUpsertUserPreferences } from "./hooks/use-user-preferences"
 export { songsKeys } from "./hooks/query-keys"
 
-export { api } from "./api"
+export { api, rawApi } from "./api"
 
 export type {
   Song,

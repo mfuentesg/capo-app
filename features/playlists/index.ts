@@ -16,6 +16,7 @@ export { DraggablePlaylist } from "./utils"
 
 export {
   api,
+  rawApi,
   getPlaylists,
   getPublicPlaylistByShareCode,
   updatePlaylistAction,

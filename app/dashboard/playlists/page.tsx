@@ -3,8 +3,7 @@ import { redirect } from "next/navigation"
 import { cookies } from "next/headers"
 import { createClient } from "@/lib/supabase/server"
 import { getTeamsWithClient } from "@/features/teams"
-import { getPlaylists as getPlaylistsApi } from "@/features/playlists/api"
-import { PlaylistsClient } from "@/features/playlists"
+import { PlaylistsClient, rawApi as playlistsApi } from "@/features/playlists"
 import { getTranslations } from "@/lib/i18n/translations"
 import { defaultLocale, isValidLocale } from "@/lib/i18n/config"
 import { SELECTED_TEAM_ID_KEY } from "@/features/app-context/constants"
@@ -50,7 +49,7 @@ export default async function PlaylistsPage() {
     : { type: "personal" as const, userId }
 
   // 3. Fetch playlists
-  const initialPlaylists = await getPlaylistsApi(supabase, context).catch(() => [])
+  const initialPlaylists = await playlistsApi.getPlaylists(supabase, context).catch(() => [])
 
   return <PlaylistsClient initialPlaylists={initialPlaylists} t={t} />
 }

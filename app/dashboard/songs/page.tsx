@@ -3,8 +3,7 @@ import { redirect } from "next/navigation"
 import { cookies } from "next/headers"
 import { createClient } from "@/lib/supabase/server"
 import { getTeamsWithClient } from "@/features/teams"
-import { getSongs as getSongsApi } from "@/features/songs/api"
-import { SongsClient } from "@/features/songs"
+import { SongsClient, rawApi as songsApi } from "@/features/songs"
 import { getTranslations } from "@/lib/i18n/translations"
 import { defaultLocale, isValidLocale } from "@/lib/i18n/config"
 import { SELECTED_TEAM_ID_KEY } from "@/features/app-context/constants"
@@ -50,7 +49,7 @@ export default async function SongsPage() {
     : { type: "personal" as const, userId }
 
   // 3. Fetch songs
-  const initialSongs = await getSongsApi(supabase, context).catch(() => [])
+  const initialSongs = await songsApi.getSongs(supabase, context).catch(() => [])
 
   return <SongsClient initialSongs={initialSongs} t={t} />
 }

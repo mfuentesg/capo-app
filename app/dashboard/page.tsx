@@ -2,9 +2,9 @@ import type { Metadata } from "next"
 import { redirect } from "next/navigation"
 import { cookies } from "next/headers"
 import { createClient } from "@/lib/supabase/server"
-import { getUser } from "@/features/auth/api"
+import { getUser } from "@/features/auth"
 import { getTeamsWithClient } from "@/features/teams"
-import { rawApi } from "@/features/dashboard"
+import { rawApi as dashboardApi } from "@/features/dashboard"
 import DashboardClient from "./dashboard-client"
 import { getTranslations } from "@/lib/i18n/translations"
 import { defaultLocale, isValidLocale } from "@/lib/i18n/config"
@@ -57,13 +57,13 @@ export default async function DashboardPage() {
 
   // 3. Fetch stats and recent songs based on determined context
   const [initialStats, initialRecentSongs] = await Promise.all([
-    rawApi.getDashboardStats(supabase, context).catch(() => ({
+    dashboardApi.getDashboardStats(supabase, context).catch(() => ({
       totalSongs: 0,
       totalPlaylists: 0,
       songsThisMonth: 0,
       upcomingPlaylists: 0
     })),
-    rawApi.getRecentSongs(supabase, context, 3).catch(() => [])
+    dashboardApi.getRecentSongs(supabase, context, 3).catch(() => [])
   ])
 
   return (
