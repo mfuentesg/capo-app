@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
+import dynamic from "next/dynamic"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable"
@@ -10,8 +11,6 @@ import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
 import { Plus, Search, ListMusic, Settings2, X } from "lucide-react"
 import { PlaylistList } from "./playlist-list"
-import { PlaylistDetail } from "./playlist-detail"
-import { PlaylistCreateForm } from "./playlist-create-form"
 import type { Playlist } from "../types"
 import { useTranslation } from "@/hooks/use-translation"
 import { usePlaylists, useCreatePlaylist, useUpdatePlaylist, useDeletePlaylist } from "../hooks"
@@ -21,6 +20,16 @@ import { createOverlayIds } from "@/lib/ui/stable-overlay-ids"
 interface PlaylistsClientProps {
   initialPlaylists?: Playlist[]
 }
+
+const PlaylistDetailLazy = dynamic(
+  () => import("./playlist-detail").then((mod) => mod.PlaylistDetail),
+  { ssr: false }
+)
+
+const PlaylistCreateFormLazy = dynamic(
+  () => import("./playlist-create-form").then((mod) => mod.PlaylistCreateForm),
+  { ssr: false }
+)
 
 export function PlaylistsClient({ initialPlaylists = [] }: PlaylistsClientProps) {
   const { data: playlists = initialPlaylists, isLoading } = usePlaylists()
@@ -282,9 +291,13 @@ export function PlaylistsClient({ initialPlaylists = [] }: PlaylistsClientProps)
           className="hidden md:flex"
         >
           {isCreating ? (
-            <PlaylistCreateForm onSubmit={handleCreateSubmit} onCancel={handleCreateCancel} autoFocus />
+            <PlaylistCreateFormLazy
+              onSubmit={handleCreateSubmit}
+              onCancel={handleCreateCancel}
+              autoFocus
+            />
           ) : selectedPlaylist ? (
-            <PlaylistDetail
+            <PlaylistDetailLazy
               playlist={selectedPlaylist}
               onClose={handleClosePlaylistDetail}
               onUpdate={(playlistId, updates) =>
@@ -323,9 +336,12 @@ export function PlaylistsClient({ initialPlaylists = [] }: PlaylistsClientProps)
             </DrawerDescription>
             <DrawerScrollArea>
               {isCreating ? (
-                <PlaylistCreateForm onSubmit={handleCreateSubmit} onCancel={handleCreateCancel} />
+                <PlaylistCreateFormLazy
+                  onSubmit={handleCreateSubmit}
+                  onCancel={handleCreateCancel}
+                />
               ) : selectedPlaylist ? (
-                <PlaylistDetail
+                <PlaylistDetailLazy
                   playlist={selectedPlaylist}
                   onClose={handleClosePlaylistDetail}
                   onUpdate={(playlistId, updates) =>

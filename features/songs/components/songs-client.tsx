@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useMemo, useRef } from "react"
+import dynamic from "next/dynamic"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable"
@@ -9,8 +10,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
 import { Plus, Search, Music, LayoutList, Music2, Music3, Settings2, X, Turtle, Rabbit, Zap } from "lucide-react"
-import { SongList, SongDetail, useAllUserSongSettings } from "@/features/songs"
-import { SongDraftForm, type SongDraftFormHandle } from "@/features/song-draft"
+import { SongList, useAllUserSongSettings } from "@/features/songs"
+import type { SongDraftFormHandle } from "@/features/song-draft"
 import { useSongs, useCreateSong, useUpdateSong, useDeleteSong } from "../hooks/use-songs"
 import { useUser } from "@/features/auth"
 import type { Song, GroupBy, BPMRange, SongFilterStatus } from "../types"
@@ -21,6 +22,16 @@ interface SongsClientProps {
   initialSongs?: Song[]
 }
 
+const SongDetailLazy = dynamic(
+  () => import("@/features/songs").then((mod) => mod.SongDetail),
+  { ssr: false }
+)
+
+const SongDraftFormLazy = dynamic(
+  () => import("@/features/song-draft").then((mod) => mod.SongDraftForm),
+  { ssr: false }
+)
+
 export function SongsClient({ initialSongs = [] }: SongsClientProps) {
   const { t } = useTranslation()
   const { data: user } = useUser()
@@ -29,7 +40,10 @@ export function SongsClient({ initialSongs = [] }: SongsClientProps) {
   const updateSongMutation = useUpdateSong()
   const deleteSongMutation = useDeleteSong()
   // Pre-populate individual song settings caches so SongDetail has warm data on open.
-  useAllUserSongSettings()
+  // Run this only after initial mount to keep first render lighter.
+  useEffect(() => {
+    useAllUserSongSettings()
+  }, [])
   const [isMobile, setIsMobile] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedSong, setSelectedSong] = useState<Song | null>(null)
@@ -393,7 +407,7 @@ export function SongsClient({ initialSongs = [] }: SongsClientProps) {
           className="hidden md:flex"
         >
           {isCreatingNewSong ? (
-            <SongDraftForm
+            <SongDraftFormLazy
               ref={songDraftFormRef}
               song={previewSong || undefined}
               onClose={() => {
@@ -406,7 +420,7 @@ export function SongsClient({ initialSongs = [] }: SongsClientProps) {
               autoFocus
             />
           ) : selectedSong ? (
-            <SongDetail
+            <SongDetailLazy
               song={selectedSong}
               onClose={handleCloseSongDetail}
               onUpdate={updateSong}
@@ -449,7 +463,7 @@ export function SongsClient({ initialSongs = [] }: SongsClientProps) {
             </DrawerDescription>
             <DrawerScrollArea>
               {isCreatingNewSong ? (
-                <SongDraftForm
+                <SongDraftFormLazy
                   ref={songDraftFormRef}
                   song={previewSong || undefined}
                   onClose={handleCloseSongDetail}
@@ -457,7 +471,7 @@ export function SongsClient({ initialSongs = [] }: SongsClientProps) {
                   onChange={handleUpdatePreview}
                 />
               ) : selectedSong ? (
-                <SongDetail
+                <SongDetailLazy
                   song={selectedSong}
                   onClose={handleCloseSongDetail}
                   onUpdate={updateSong}
