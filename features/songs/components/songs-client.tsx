@@ -17,10 +17,14 @@ import type { Song, GroupBy, BPMRange, SongFilterStatus } from "../types"
 import { useTranslation } from "@/hooks/use-translation"
 import { createOverlayIds } from "@/lib/ui/stable-overlay-ids"
 
-export function SongsClient() {
+interface SongsClientProps {
+  initialSongs?: Song[]
+}
+
+export function SongsClient({ initialSongs = [] }: SongsClientProps) {
   const { t } = useTranslation()
   const { data: user } = useUser()
-  const { data: songs = [], isLoading } = useSongs()
+  const { data: songs = initialSongs, isLoading } = useSongs()
   const createSongMutation = useCreateSong()
   const updateSongMutation = useUpdateSong()
   const deleteSongMutation = useDeleteSong()

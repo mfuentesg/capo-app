@@ -1,10 +1,10 @@
 import Link from "next/link"
-import dynamic from "next/dynamic"
 import { OptimizedLogo } from "@/components/optimized-logo"
 import { ThemeToggle } from "@/components/layout"
 import { LanguageSwitcher } from "@/components/layout"
 import { cn } from "@/lib/utils"
 import type { getTranslations } from "@/lib/i18n/translations"
+import { LandingFeedbackSection } from "@/components/landing-feedback-section"
 import {
   Music,
   FileText,
@@ -85,14 +85,6 @@ const FEATURE_DOTS = [
   { Icon: Guitar, color: "text-amber-500", bg: "bg-amber-500/10" }
 ]
 
-const FeedbackFormLazy = dynamic(
-  () => import("@/features/feedback").then((mod) => mod.FeedbackForm),
-  {
-    ssr: false,
-    loading: () => null
-  }
-)
-
 // ── Main component ────────────────────────────────────────────────────────────
 export function LandingPage({ t }: { t: ReturnType<typeof getTranslations> }) {
   const l = t.landing
@@ -132,7 +124,7 @@ export function LandingPage({ t }: { t: ReturnType<typeof getTranslations> }) {
   return (
     <div className="min-h-svh bg-background text-foreground overflow-x-hidden">
       {/* ── Navbar ─────────────────────────────────────────────────────── */}
-      <header className="fixed top-0 inset-x-0 z-50 border-b border-border/40 bg-background md:bg-background/80 md:backdrop-blur-sm">
+      <header className="fixed top-0 inset-x-0 z-50 border-b border-border/40 bg-background md:bg-background/80 md:backdrop-blur-md">
         <nav className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
           <Link href="/" className="flex items-center">
             <OptimizedLogo
@@ -544,20 +536,11 @@ export function LandingPage({ t }: { t: ReturnType<typeof getTranslations> }) {
       </section>
 
       {/* ── Feedback ────────────────────────────────────────────────────── */}
-      <section className="relative px-4 py-24 sm:py-32" id="feedback">
-        <div className="mx-auto max-w-3xl">
-          <div className="mb-12 flex flex-col items-center gap-3 text-center">
-            <span className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">
-              {l.feedback.badge}
-            </span>
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">{l.feedback.headline}</h2>
-            <p className="max-w-lg text-muted-foreground">{l.feedback.description}</p>
-          </div>
-          <div className="rounded-2xl border border-border/50 bg-card/60 p-6 shadow-xl backdrop-blur-sm sm:p-8">
-            <FeedbackFormLazy />
-          </div>
-        </div>
-      </section>
+      <LandingFeedbackSection
+        badge={l.feedback.badge}
+        headline={l.feedback.headline}
+        description={l.feedback.description}
+      />
 
       {/* ── CTA ────────────────────────────────────────────────────────── */}
       <section className="relative px-4 py-24 sm:py-32">
