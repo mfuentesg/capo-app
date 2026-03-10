@@ -3,6 +3,7 @@ import { memo } from "react"
 import { Check, Music2, Turtle, Rabbit, Zap, Plus } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
+import { getKeyColorClasses, getBpmColorClasses } from "@/lib/badge-colors"
 import type { Song } from "@/features/songs/types"
 
 interface SongItemProps {
@@ -30,10 +31,10 @@ export const SongItem = memo(function SongItem({
       className={cn(
         "group flex items-center gap-3 rounded-lg border p-3 transition-colors",
         isPreview
-          ? "bg-orange-100/80 dark:bg-orange-900/30"
+          ? "bg-muted"
           : isSelected && !isDisabled
-            ? "bg-primary/5"
-            : "bg-gradient-to-br from-pink-500/5 via-violet-500/5 to-transparent",
+            ? "bg-muted"
+            : "bg-card",
         !isDisabled && "hover:shadow-sm cursor-pointer",
         isDisabled && "opacity-50 cursor-not-allowed",
         isSelected && !isDisabled && "ring-2 ring-primary"
@@ -70,11 +71,11 @@ export const SongItem = memo(function SongItem({
 
         {/* Metadata Row */}
         <div className="flex flex-wrap items-center gap-1.5">
-          <Badge variant="outline" className="gap-1.5 font-mono text-xs">
+          <Badge variant="outline" className={cn("gap-1.5 font-mono text-xs", getKeyColorClasses(song.key))}>
             <Music2 className="h-3 w-3" />
             {song.key}
           </Badge>
-          <Badge variant="secondary" className="gap-1.5 text-xs">
+          <Badge variant="secondary" className={cn("gap-1.5 text-xs", getBpmColorClasses(song.bpm))}>
             {song.bpm < 90 ? (
               <Turtle className="h-3 w-3" />
             ) : song.bpm <= 120 ? (

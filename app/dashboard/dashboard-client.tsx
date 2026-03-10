@@ -9,6 +9,8 @@ import { useTranslation } from "@/hooks/use-translation"
 import { ActivityFeed, useActivityRealtime } from "@/features/activity"
 import { useDashboardStats, useRecentSongs } from "@/features/dashboard"
 import { Skeleton } from "@/components/ui/skeleton"
+import { getBpmColorClasses } from "@/lib/badge-colors"
+import { cn } from "@/lib/utils"
 
 function StatCardSkeleton() {
   return (
@@ -49,7 +51,13 @@ export default function DashboardClient() {
   useActivityRealtime()
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="relative min-h-screen bg-background overflow-hidden">
+      {/* Background gradient orbs — subtle, same language as landing page */}
+      <div className="pointer-events-none absolute inset-0 -z-10" aria-hidden>
+        <div className="absolute -top-32 -right-32 h-[500px] w-[500px] rounded-full bg-violet-500/5 blur-[100px]" />
+        <div className="absolute top-1/2 -left-48 h-[600px] w-[600px] rounded-full bg-primary/5 blur-[120px]" />
+        <div className="absolute -bottom-32 right-1/3 h-[400px] w-[400px] rounded-full bg-blue-500/5 blur-[80px]" />
+      </div>
       <main className="px-4 py-6 sm:px-8 sm:py-10 lg:px-12 lg:py-12">
         <div className="mx-auto max-w-7xl space-y-6 sm:space-y-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -206,7 +214,7 @@ export default function DashboardClient() {
                         <p className="text-sm text-muted-foreground truncate">{song.artist}</p>
                       </div>
                       <div className="hidden sm:flex items-center gap-3 text-sm text-muted-foreground">
-                        <Badge variant="secondary" className="rounded-full">
+                        <Badge variant="secondary" className={cn("rounded-full", getBpmColorClasses(song.bpm))}>
                           {song.bpm} BPM
                         </Badge>
                         <span className="flex items-center gap-1">

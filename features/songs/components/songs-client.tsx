@@ -133,7 +133,11 @@ export function SongsClient() {
   }
 
   return (
-    <div className="h-[calc(100vh-4rem)] bg-background">
+    <div className="relative h-[calc(100vh-4rem)] bg-background overflow-hidden">
+      <div className="pointer-events-none absolute inset-0 -z-10" aria-hidden>
+        <div className="absolute -top-32 -right-32 h-[400px] w-[400px] rounded-full bg-primary/5 blur-[100px]" />
+        <div className="absolute bottom-0 -left-32 h-[500px] w-[500px] rounded-full bg-blue-500/5 blur-[100px]" />
+      </div>
       <ResizablePanelGroup id="songs-layout-group" direction="horizontal" className="h-full">
         <ResizablePanel
           id="songs-list-panel"

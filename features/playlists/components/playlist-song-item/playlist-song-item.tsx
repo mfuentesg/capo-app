@@ -3,6 +3,7 @@
 import { Music2, Clock } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
+import { getKeyColorClasses, getBpmColorClasses } from "@/lib/badge-colors"
 import type { SongWithPosition } from "@/types/extended"
 
 interface PlaylistSongItemProps {
@@ -36,11 +37,11 @@ export function PlaylistSongItem({ song, index, className }: PlaylistSongItemPro
 
         {/* Metadata Row */}
         <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="outline" className="gap-1.5 font-mono text-xs">
+          <Badge variant="outline" className={cn("gap-1.5 font-mono text-xs", getKeyColorClasses(song.key))}>
             <Music2 className="h-3 w-3" />
             {song.key}
           </Badge>
-          <Badge variant="secondary" className="gap-1.5 text-xs">
+          <Badge variant="secondary" className={cn("gap-1.5 text-xs", getBpmColorClasses(song.bpm))}>
             <Clock className="h-3 w-3" />
             {song.bpm} BPM
           </Badge>

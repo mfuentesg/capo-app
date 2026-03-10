@@ -60,7 +60,11 @@ export function TeamsClient({ initialSelectedTeamId = null }: TeamsClientProps) 
   )
 
   return (
-    <div className="min-h-screen bg-background p-4 sm:p-6 lg:p-8">
+    <div className="relative min-h-screen bg-background overflow-hidden p-4 sm:p-6 lg:p-8">
+      <div className="pointer-events-none absolute inset-0 -z-10" aria-hidden>
+        <div className="absolute -top-32 -right-32 h-[500px] w-[500px] rounded-full bg-green-500/5 blur-[100px]" />
+        <div className="absolute -bottom-32 -left-32 h-[500px] w-[500px] rounded-full bg-primary/5 blur-[100px]" />
+      </div>
       <div className="mx-auto max-w-7xl space-y-6">
         <TeamsHeader />
         <TeamsSearch value={searchQuery} onChange={setSearchQuery} />

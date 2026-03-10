@@ -3,6 +3,8 @@
 import { X, GripVertical, Music2, Clock } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { cn } from "@/lib/utils"
+import { getKeyColorClasses, getBpmColorClasses } from "@/lib/badge-colors"
 import { useTranslation } from "@/hooks/use-translation"
 import type { Song } from "@/types"
 
@@ -31,11 +33,11 @@ export function PlaylistDraftItem({ song, index, onRemove }: PlaylistDraftItemPr
 
         {/* Metadata Row */}
         <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="outline" className="gap-1.5 font-mono text-xs">
+          <Badge variant="outline" className={cn("gap-1.5 font-mono text-xs", getKeyColorClasses(song.key))}>
             <Music2 className="h-3 w-3" />
             {song.key}
           </Badge>
-          <Badge variant="secondary" className="gap-1.5 text-xs">
+          <Badge variant="secondary" className={cn("gap-1.5 text-xs", getBpmColorClasses(song.bpm))}>
             <Clock className="h-3 w-3" />
             {song.bpm} BPM
           </Badge>
