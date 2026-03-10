@@ -36,6 +36,12 @@ jest.mock("next/navigation", () => ({
   useRouter: () => ({ push: jest.fn() })
 }))
 
+const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {})
+
+afterAll(() => {
+  consoleErrorSpy.mockRestore()
+})
+
 const mockInviteAction = inviteTeamMemberAction as jest.Mock
 
 describe("useInviteTeamMember", () => {
