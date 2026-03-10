@@ -41,11 +41,41 @@ export async function getSelectedTeamId(): Promise<string | null> {
 }
 
 export async function getAppContext(): Promise<AppContext | null> {
-  const user = await getUser(await createClient())
-  if (!user) {
+  const supabase = await createClient()
+
+  // Get session first (fast, cookie-based)
+  const {
+    data: { session }
+  } = await supabase.auth.getSession()
+
+  if (!session?.user) {
     return null
   }
-  return getAppContextFromCookies(user.id)
+
+  const userId = session.user.id
+
+  // Fetch teams and selected team ID in parallel
+  const [teams, selectedTeamId] = await Promise.all([
+    getTeamsWithClient(supabase, userId),
+    getSelectedTeamId()
+  ])
+
+  if (selectedTeamId) {
+    const isValid = teams.some((t) => t.id === selectedTeamId)
+
+    if (isValid) {
+      return {
+        type: "team",
+        teamId: selectedTeamId,
+        userId
+      }
+    }
+  }
+
+  return {
+    type: "personal",
+    userId
+  }
 }
 
 export async function isTeamContext(): Promise<boolean> {
@@ -90,7 +120,28 @@ export async function getAppContextFromCookies(userId: string): Promise<AppConte
 
 export async function getInitialAppContextData() {
   const supabase = await createClient()
-  const user = await getUser(supabase)
+
+  // Get session first (fast, cookie-based)
+  const {
+    data: { session }
+  } = await supabase.auth.getSession()
+
+  if (!session?.user) {
+    return {
+      user: null,
+      teams: [],
+      initialSelectedTeamId: null
+    }
+  }
+
+  const userId = session.user.id
+
+  // Fetch user profile and teams in parallel
+  const [user, teams, selectedTeamId] = await Promise.all([
+    getUser(supabase),
+    getTeamsWithClient(supabase, userId),
+    getSelectedTeamId()
+  ])
 
   if (!user) {
     return {
@@ -100,8 +151,6 @@ export async function getInitialAppContextData() {
     }
   }
 
-  const teams = await getTeamsWithClient(supabase, user.id)
-  const selectedTeamId = await getSelectedTeamId()
   const initialSelectedTeamId =
     selectedTeamId && teams.some((team) => team.id === selectedTeamId) ? selectedTeamId : null
 

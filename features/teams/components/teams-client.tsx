@@ -1,38 +1,35 @@
 "use client"
 
 import { useState, useMemo, useEffect } from "react"
-import { useQuery } from "@tanstack/react-query"
 import { useSearchParams, useRouter } from "next/navigation"
-import { teamsKeys } from "../hooks/query-keys"
 import { useUser } from "@/features/auth"
 import { useAppContext } from "@/features/app-context"
-import { useTranslation } from "@/hooks/use-translation"
 import { TeamsHeader } from "@/features/teams"
 import { TeamsSearch } from "@/features/teams"
 import { TeamCard } from "@/features/teams"
 import { TeamsEmptyState } from "@/features/teams"
 import { toast } from "sonner"
-import { api } from "@/features/teams"
+import { TeamWithMemberCount } from "@/features/teams"
 
-import type { TeamWithMemberCount } from "@/features/teams"
+import { useTeams } from "../hooks/use-teams"
+import { getTranslations } from "@/lib/i18n/translations"
 
 interface TeamsClientProps {
   initialSelectedTeamId?: string | null
   initialTeams?: TeamWithMemberCount[]
+  t: ReturnType<typeof getTranslations>
 }
 
-export function TeamsClient({ initialSelectedTeamId = null, initialTeams = [] }: TeamsClientProps) {
+export function TeamsClient({
+  initialSelectedTeamId = null,
+  initialTeams = [],
+  t
+}: TeamsClientProps) {
   const { data: user } = useUser()
   const { switchToTeam } = useAppContext()
-  const { t } = useTranslation()
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { data: teams = initialTeams } = useQuery({
-    queryKey: teamsKeys.list(),
-    queryFn: async () => await api.getTeams(),
-    enabled: !!user?.id,
-    staleTime: 5 * 60 * 1000
-  })
+  const { data: teams = initialTeams } = useTeams(initialTeams)
   const [searchQuery, setSearchQuery] = useState("")
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("")
 

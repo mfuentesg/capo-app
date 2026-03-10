@@ -1,19 +1,19 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { } from "react"
 import Link from "next/link"
 import dynamic from "next/dynamic"
 import { Music, ListMusic, Plus, Calendar, TrendingUp, Clock, ArrowRight, Zap } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import KeyBadge from "@/components/key-badge"
-import { useTranslation } from "@/hooks/use-translation"
 import { useActivityRealtime } from "@/features/activity"
 import type { DashboardStats, RecentSong } from "@/features/dashboard"
 import { useDashboardStats, useRecentSongs } from "@/features/dashboard"
 import { Skeleton } from "@/components/ui/skeleton"
 import { getBpmColorClasses } from "@/lib/badge-colors"
 import { cn } from "@/lib/utils"
+import type { getTranslations } from "@/lib/i18n/translations"
 
 const ActivityFeedLazy = dynamic(
   () => import("@/features/activity").then((mod) => mod.ActivityFeed),
@@ -68,28 +68,23 @@ function RecentSongSkeleton() {
 interface DashboardClientProps {
   initialStats?: DashboardStats
   initialRecentSongs?: RecentSong[]
+  t: ReturnType<typeof getTranslations>
 }
 
 export default function DashboardClient({
   initialStats,
-  initialRecentSongs = []
+  initialRecentSongs = [],
+  t
 }: DashboardClientProps) {
-  const [shouldEnableRealtime, setShouldEnableRealtime] = useState(false)
-  const { t } = useTranslation()
-  const { data: stats = initialStats, isLoading: statsLoading } = useDashboardStats()
-  const { data: recentSongs = initialRecentSongs, isLoading: songsLoading } = useRecentSongs(3)
+  const { data: stats = initialStats, isLoading: statsLoading } = useDashboardStats(initialStats)
+  const { data: recentSongs = initialRecentSongs, isLoading: songsLoading } = useRecentSongs(
+    3,
+    initialRecentSongs
+  )
 
-  // Enable real-time activity updates after initial paint to keep hydration light
-  useEffect(() => {
-    const id = window.setTimeout(() => {
-      setShouldEnableRealtime(true)
-    }, 1500)
-    return () => window.clearTimeout(id)
-  }, [])
-
-  if (shouldEnableRealtime) {
-    useActivityRealtime()
-  }
+  // Fix: useActivityRealtime must be at top level
+  // The hook already handles context/user availability internally
+  useActivityRealtime()
 
   return (
     <div className="relative min-h-screen bg-background overflow-hidden">
@@ -261,7 +256,7 @@ export default function DashboardClient({
                     <RecentSongSkeleton />
                   </>
                 ) : recentSongs && recentSongs.length > 0 ? (
-                  recentSongs.map((song) => (
+                  recentSongs.map((song: RecentSong) => (
                     <Link
                       key={song.id}
                       href={`/dashboard/songs/${song.id}`}

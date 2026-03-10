@@ -12,13 +12,14 @@ import { Badge } from "@/components/ui/badge"
 import { Plus, Search, ListMusic, Settings2, X } from "lucide-react"
 import { PlaylistList } from "./playlist-list"
 import type { Playlist } from "../types"
-import { useTranslation } from "@/hooks/use-translation"
 import { usePlaylists, useCreatePlaylist, useUpdatePlaylist, useDeletePlaylist } from "../hooks"
 import { useUser } from "@/features/auth"
+import { getTranslations } from "@/lib/i18n/translations"
 import { createOverlayIds } from "@/lib/ui/stable-overlay-ids"
 
 interface PlaylistsClientProps {
   initialPlaylists?: Playlist[]
+  t: ReturnType<typeof getTranslations>
 }
 
 const PlaylistDetailLazy = dynamic(
@@ -31,13 +32,12 @@ const PlaylistCreateFormLazy = dynamic(
   { ssr: false }
 )
 
-export function PlaylistsClient({ initialPlaylists = [] }: PlaylistsClientProps) {
-  const { data: playlists = initialPlaylists, isLoading } = usePlaylists()
+export function PlaylistsClient({ initialPlaylists = [], t }: PlaylistsClientProps) {
+  const { data: playlists = initialPlaylists, isLoading } = usePlaylists(initialPlaylists)
   const { data: user } = useUser()
   const createPlaylistMutation = useCreatePlaylist()
   const updatePlaylistMutation = useUpdatePlaylist()
   const deletePlaylistMutation = useDeletePlaylist()
-  const { t } = useTranslation()
   const [isMobile, setIsMobile] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [filterStatus, setFilterStatus] = useState<"all" | "drafts" | "completed">("all")

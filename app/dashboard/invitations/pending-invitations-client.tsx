@@ -2,9 +2,10 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { useTranslation } from "@/hooks/use-translation"
 import { useUser } from "@/features/auth"
 import { useAcceptTeamInvitation, usePendingInvitations, mapInvitationAcceptError } from "@/features/teams"
+import type { PendingInvitation } from "@/features/teams/types"
+import { getTranslations } from "@/lib/i18n/translations"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -45,15 +46,20 @@ export function InvitationCardSkeleton() {
   )
 }
 
-export function PendingInvitationsClient() {
+export function PendingInvitationsClient({
+  t,
+  initialInvitations = []
+}: {
+  t: ReturnType<typeof getTranslations>
+  initialInvitations?: PendingInvitation[]
+}) {
   const router = useRouter()
-  const { t } = useTranslation()
   const { isLoading: userLoading } = useUser()
   const {
-    data: invitations = [],
+    data: invitations = initialInvitations,
     isLoading: invitationsLoading,
     error: fetchError
-  } = usePendingInvitations()
+  } = usePendingInvitations(initialInvitations)
   const acceptInvitationMutation = useAcceptTeamInvitation()
   const [error, setError] = useState<string>("")
   const [acceptingId, setAcceptingId] = useState<string | null>(null)

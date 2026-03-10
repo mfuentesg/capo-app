@@ -3,6 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
 import { api as teamsApi } from "../api"
+import { TeamWithMemberCount } from "../api/teamsApi"
 import {
   acceptTeamInvitationAction,
   updateTeamAction,
@@ -25,29 +26,31 @@ import type { PendingInvitation } from "../types"
 /**
  * Hook to fetch teams the current user belongs to
  */
-export function useTeams() {
+export function useTeams(initialData?: TeamWithMemberCount[]) {
   const { data: user } = useUser()
 
-  return useQuery<Tables<"teams">[], Error, Tables<"teams">[], readonly ["teams", "list"]>({
+  return useQuery<TeamWithMemberCount[], Error, TeamWithMemberCount[], readonly ["teams", "list"]>({
     queryKey: teamsKeys.list(),
     queryFn: async () => await teamsApi.getTeams(),
-    enabled: !!user?.id,
+    enabled: !!user?.id || !!initialData,
     staleTime: 5 * 60 * 1000, // 5 minutes
-    retry: 1
+    retry: 1,
+    initialData
   })
 }
 
 /**
  * Hook to fetch pending invitations for the current user
  */
-export function usePendingInvitations() {
+export function usePendingInvitations(initialData?: PendingInvitation[]) {
   const { data: user } = useUser()
 
   return useQuery<PendingInvitation[]>({
     queryKey: teamsKeys.pendingInvitations(),
     queryFn: () => getPendingInvitationsAction(),
-    enabled: !!user?.id,
-    staleTime: 30 * 1000
+    enabled: !!user?.id || !!initialData,
+    staleTime: 30 * 1000,
+    initialData
   })
 }
 

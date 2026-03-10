@@ -37,7 +37,7 @@ function restorePlaylistQueries(
 /**
  * Hook to fetch playlists for the current context (personal or team)
  */
-export function usePlaylists() {
+export function usePlaylists(initialData?: Playlist[]) {
   const { context } = useAppContext()
 
   return useQuery({
@@ -50,7 +50,8 @@ export function usePlaylists() {
     },
     enabled: !!context,
     staleTime: 30 * 1000,
-    placeholderData: (previousData) => previousData
+    placeholderData: (previousData) => previousData,
+    initialData
   })
 }
 

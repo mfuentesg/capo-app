@@ -1,7 +1,13 @@
 import type { Metadata } from "next"
 import { redirect } from "next/navigation"
-import { getAppContext } from "@/features/app-context/server"
-import { PlaylistsClient, api } from "@/features/playlists"
+import { cookies } from "next/headers"
+import { createClient } from "@/lib/supabase/server"
+import { getTeamsWithClient } from "@/features/teams"
+import { getPlaylists as getPlaylistsApi } from "@/features/playlists/api"
+import { PlaylistsClient } from "@/features/playlists"
+import { getTranslations } from "@/lib/i18n/translations"
+import { defaultLocale, isValidLocale } from "@/lib/i18n/config"
+import { SELECTED_TEAM_ID_KEY } from "@/features/app-context/constants"
 
 export const metadata: Metadata = {
   title: "Playlists",
@@ -9,12 +15,42 @@ export const metadata: Metadata = {
 }
 
 export default async function PlaylistsPage() {
-  const context = await getAppContext()
-  if (!context) {
+  const supabase = await createClient()
+  const cookieStore = await cookies()
+
+  // 1. Get session first (fastest)
+  const {
+    data: { session }
+  } = await supabase.auth.getSession()
+
+  if (!session?.user) {
     redirect("/")
   }
 
-  const initialPlaylists = await api.getPlaylists(context).catch(() => [])
+  const userId = session.user.id
+  const selectedTeamIdCookie = cookieStore.get(SELECTED_TEAM_ID_KEY)?.value
+  const localeCookie = cookieStore.get("NEXT_LOCALE")
+  const locale =
+    localeCookie && isValidLocale(localeCookie.value) ? localeCookie.value : defaultLocale
 
-  return <PlaylistsClient initialPlaylists={initialPlaylists} />
+  // 2. Fetch everything else in parallel
+  const [teams, t] = await Promise.all([
+    getTeamsWithClient(supabase, userId),
+    getTranslations(locale)
+  ])
+
+  // Determine context
+  const initialSelectedTeamId =
+    selectedTeamIdCookie && teams.some((team) => team.id === selectedTeamIdCookie)
+      ? selectedTeamIdCookie
+      : null
+
+  const context = initialSelectedTeamId
+    ? { type: "team" as const, teamId: initialSelectedTeamId, userId }
+    : { type: "personal" as const, userId }
+
+  // 3. Fetch playlists
+  const initialPlaylists = await getPlaylistsApi(supabase, context).catch(() => [])
+
+  return <PlaylistsClient initialPlaylists={initialPlaylists} t={t} />
 }

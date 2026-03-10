@@ -15,11 +15,12 @@ import type { SongDraftFormHandle } from "@/features/song-draft"
 import { useSongs, useCreateSong, useUpdateSong, useDeleteSong } from "../hooks/use-songs"
 import { useUser } from "@/features/auth"
 import type { Song, GroupBy, BPMRange, SongFilterStatus } from "../types"
-import { useTranslation } from "@/hooks/use-translation"
+import { getTranslations } from "@/lib/i18n/translations"
 import { createOverlayIds } from "@/lib/ui/stable-overlay-ids"
 
 interface SongsClientProps {
   initialSongs?: Song[]
+  t: ReturnType<typeof getTranslations>
 }
 
 const SongDetailLazy = dynamic(
@@ -32,8 +33,7 @@ const SongDraftFormLazy = dynamic(
   { ssr: false }
 )
 
-export function SongsClient({ initialSongs = [] }: SongsClientProps) {
-  const { t } = useTranslation()
+export function SongsClient({ initialSongs = [], t }: SongsClientProps) {
   const { data: user } = useUser()
   const { data: songs = initialSongs, isLoading } = useSongs()
   const createSongMutation = useCreateSong()
@@ -41,9 +41,8 @@ export function SongsClient({ initialSongs = [] }: SongsClientProps) {
   const deleteSongMutation = useDeleteSong()
   // Pre-populate individual song settings caches so SongDetail has warm data on open.
   // Run this only after initial mount to keep first render lighter.
-  useEffect(() => {
-    useAllUserSongSettings()
-  }, [])
+  useAllUserSongSettings()
+
   const [isMobile, setIsMobile] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedSong, setSelectedSong] = useState<Song | null>(null)

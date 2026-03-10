@@ -1,5 +1,6 @@
 import { createApi } from "@/lib/supabase/factory"
 import * as dashboardApi from "./dashboardApi"
+export { dashboardApi as rawApi }
 
 /**
  * Dashboard API
