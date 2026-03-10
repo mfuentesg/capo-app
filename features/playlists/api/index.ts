@@ -7,6 +7,7 @@ import * as playlistsApi from "./playlistsApi"
  * Auto-detects server vs client context and uses appropriate Supabase client.
  * Can be used in both Server Components and Client Components.
  */
+export { playlistsApi as rawApi }
 export const api = createApi(playlistsApi)
 
 // Re-export all functions

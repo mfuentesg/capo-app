@@ -89,10 +89,10 @@ export async function getAllUserSongSettingsAction(): Promise<UserSongSettings[]
 export async function getUserProfileDataAction(): Promise<UserProfileData | null> {
   const supabase = await createClient()
   const {
-    data: { user }
-  } = await supabase.auth.getUser()
-  if (!user) return null
-  return getUserProfileDataApi(supabase, user.id)
+    data: { session }
+  } = await supabase.auth.getSession()
+  if (!session?.user) return null
+  return getUserProfileDataApi(supabase, session.user.id)
 }
 
 export async function upsertUserPreferencesAction(

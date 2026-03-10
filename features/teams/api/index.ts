@@ -7,6 +7,7 @@ import * as teamsApi from "./teamsApi"
  * Auto-detects server vs client context and uses appropriate Supabase client.
  * Can be used in both Server Components and Client Components.
  */
+export { teamsApi as rawApi }
 export const api = createApi(teamsApi)
 
 // Re-export functions

@@ -18,8 +18,8 @@ const nextConfig: NextConfig = {
         ]
       },
       {
-        // Also cache SVG logos (though they're used less now)
-        source: "/img/:path*.svg",
+        // Cache all images under /img (including any additional marketing artwork)
+        source: "/img/:path*",
         headers: [
           {
             key: "Cache-Control",

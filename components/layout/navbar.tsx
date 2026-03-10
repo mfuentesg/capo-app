@@ -22,7 +22,7 @@ export function Navbar() {
   ]
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background md:bg-background/80 md:backdrop-blur-md">
+    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background md:bg-background/80 md:backdrop-blur-sm">
       <div className="flex h-16 items-center px-4 sm:px-6 lg:px-8">
         <MobileNavDrawer isOpen={isDrawerOpen} onOpenChange={setIsDrawerOpen} />
 

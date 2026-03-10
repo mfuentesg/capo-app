@@ -164,7 +164,7 @@ export function LandingPage({ t }: { t: ReturnType<typeof getTranslations> }) {
         <h1 className="relative max-w-4xl text-5xl font-bold tracking-tight sm:text-6xl md:text-7xl lg:text-8xl">
           {l.hero.headline1}
           <br />
-          <span className="bg-gradient-to-r from-primary via-amber-400 to-orange-500 bg-clip-text text-transparent">
+          <span className="bg-linear-to-r from-primary via-amber-400 to-orange-500 bg-clip-text text-transparent">
             {l.hero.headline2}
           </span>
         </h1>
@@ -196,7 +196,7 @@ export function LandingPage({ t }: { t: ReturnType<typeof getTranslations> }) {
 
         {/* Hero mock — Reckless Love ChordPro editor */}
         <div className="relative mt-16 w-full max-w-3xl mx-auto">
-          <div aria-hidden className="absolute inset-0 -z-10 rounded-2xl bg-gradient-to-br from-primary/20 via-violet-500/10 to-transparent scale-105" />
+          <div aria-hidden className="absolute inset-0 -z-10 rounded-2xl bg-linear-to-br from-primary/20 via-violet-500/10 to-transparent scale-105" />
           <div className="rounded-2xl border border-border/60 bg-card/90 shadow-2xl backdrop-blur overflow-hidden">
             {/* Window chrome */}
             <div className="flex items-center gap-2 border-b border-border/60 bg-muted/30 px-4 py-3">
@@ -321,7 +321,7 @@ export function LandingPage({ t }: { t: ReturnType<typeof getTranslations> }) {
                   key={feature.title}
                   className="group relative rounded-xl border border-border/60 bg-card p-6 transition duration-300 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5"
                 >
-                  <div aria-hidden className="absolute inset-0 rounded-xl bg-gradient-to-br from-primary/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                  <div aria-hidden className="absolute inset-0 rounded-xl bg-linear-to-br from-primary/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                   <div className={`relative mb-4 inline-flex items-center justify-center rounded-lg p-2.5 ${feature.bg}`}>
                     <Icon className={`h-5 w-5 ${feature.color}`} />
                   </div>
@@ -499,7 +499,7 @@ export function LandingPage({ t }: { t: ReturnType<typeof getTranslations> }) {
 
             {/* Share mock */}
             <div className="rounded-xl border border-border/60 bg-card overflow-hidden shadow-xl">
-              <div className="bg-gradient-to-br from-pink-500/10 via-violet-500/5 to-transparent p-6">
+              <div className="bg-linear-to-br from-pink-500/10 via-violet-500/5 to-transparent p-6">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-pink-500/20">
                     <ListMusic className="h-5 w-5 text-pink-500" />

@@ -6,6 +6,23 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false }
 }
 
-export default function PendingInvitationsPage() {
-  return <PendingInvitationsClient />
+import { getTranslations } from "@/lib/i18n/translations"
+import { cookies } from "next/headers"
+import { defaultLocale, isValidLocale } from "@/lib/i18n/config"
+import { createClient } from "@/lib/supabase/server"
+import { rawApi as teamsApi } from "@/features/teams"
+
+export default async function PendingInvitationsPage() {
+  const supabase = await createClient()
+  const cookieStore = await cookies()
+  const localeCookie = cookieStore.get("NEXT_LOCALE")
+  const locale =
+    localeCookie && isValidLocale(localeCookie.value) ? localeCookie.value : defaultLocale
+
+  const [t, initialInvitations] = await Promise.all([
+    getTranslations(locale),
+    teamsApi.getPendingInvitations(supabase).catch(() => [])
+  ])
+
+  return <PendingInvitationsClient t={t} initialInvitations={initialInvitations} />
 }

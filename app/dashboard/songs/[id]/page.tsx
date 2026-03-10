@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
-import { api } from "@/features/songs/api"
-import { getUserProfileDataAction } from "@/features/songs/api/actions"
+import { getSong as getSongApi } from "@/features/songs/api"
+import { getUserProfileData as getUserProfileDataApi } from "@/features/songs/api/user-preferences-api"
+import { createClient } from "@/lib/supabase/server"
 import { notFound } from "next/navigation"
 import { LyricsPageClient } from "./lyrics-page-client"
 
@@ -10,7 +11,8 @@ export async function generateMetadata({
   params: Promise<{ id: string }>
 }): Promise<Metadata> {
   const { id } = await params
-  const song = await api.getSong(id)
+  const supabase = await createClient()
+  const song = await getSongApi(supabase, id)
 
   if (!song) {
     return { title: "Song Not Found", robots: { index: false, follow: false } }
@@ -24,9 +26,17 @@ export async function generateMetadata({
 
 export default async function SongLyricsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
+  const supabase = await createClient()
+
+  // 1. Get session first (fastest)
+  const {
+    data: { session }
+  } = await supabase.auth.getSession()
+
+  // 2. Fetch song and profile data in parallel
   const [song, profileData] = await Promise.all([
-    api.getSong(id),
-    getUserProfileDataAction().catch(() => null)
+    getSongApi(supabase, id),
+    session?.user ? getUserProfileDataApi(supabase, session.user.id).catch(() => null) : Promise.resolve(null)
   ])
 
   if (!song) {

@@ -1,17 +1,39 @@
 "use client"
 
+import { } from "react"
 import Link from "next/link"
+import dynamic from "next/dynamic"
 import { Music, ListMusic, Plus, Calendar, TrendingUp, Clock, ArrowRight, Zap } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import KeyBadge from "@/components/key-badge"
-import { useTranslation } from "@/hooks/use-translation"
-import { ActivityFeed, useActivityRealtime } from "@/features/activity"
+import { useActivityRealtime } from "@/features/activity"
 import type { DashboardStats, RecentSong } from "@/features/dashboard"
 import { useDashboardStats, useRecentSongs } from "@/features/dashboard"
 import { Skeleton } from "@/components/ui/skeleton"
 import { getBpmColorClasses } from "@/lib/badge-colors"
 import { cn } from "@/lib/utils"
+import type { getTranslations } from "@/lib/i18n/translations"
+
+const ActivityFeedLazy = dynamic(
+  () => import("@/features/activity").then((mod) => mod.ActivityFeed),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="space-y-3 p-4">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="flex items-center gap-3">
+            <Skeleton className="h-8 w-8 rounded-full" />
+            <div className="flex-1 space-y-1">
+              <Skeleton className="h-4 w-3/4" />
+              <Skeleton className="h-3 w-1/2" />
+            </div>
+          </div>
+        ))}
+      </div>
+    )
+  }
+)
 
 function StatCardSkeleton() {
   return (
@@ -46,26 +68,49 @@ function RecentSongSkeleton() {
 interface DashboardClientProps {
   initialStats?: DashboardStats
   initialRecentSongs?: RecentSong[]
+  t: ReturnType<typeof getTranslations>
 }
 
 export default function DashboardClient({
   initialStats,
-  initialRecentSongs = []
+  initialRecentSongs = [],
+  t
 }: DashboardClientProps) {
-  const { t } = useTranslation()
-  const { data: stats = initialStats, isLoading: statsLoading } = useDashboardStats()
-  const { data: recentSongs = initialRecentSongs, isLoading: songsLoading } = useRecentSongs(3)
+  const { data: stats = initialStats, isLoading: statsLoading } = useDashboardStats(initialStats)
+  const { data: recentSongs = initialRecentSongs, isLoading: songsLoading } = useRecentSongs(
+    3,
+    initialRecentSongs
+  )
 
-  // Enable real-time activity updates
+  // Fix: useActivityRealtime must be at top level
+  // The hook already handles context/user availability internally
   useActivityRealtime()
 
   return (
     <div className="relative min-h-screen bg-background overflow-hidden">
       {/* Background gradient orbs — subtle, same language as landing page */}
       <div className="pointer-events-none absolute inset-0 -z-10" aria-hidden>
-        <div className="absolute -top-32 -right-32 h-[500px] w-[500px] rounded-full bg-violet-500/5 blur-[100px]" />
-        <div className="absolute top-1/2 -left-48 h-[600px] w-[600px] rounded-full bg-primary/5 blur-[120px]" />
-        <div className="absolute -bottom-32 right-1/3 h-[400px] w-[400px] rounded-full bg-blue-500/5 blur-[80px]" />
+        <div
+          className="absolute -top-32 -right-32 h-[500px] w-[500px] rounded-full"
+          style={{
+            background:
+              "radial-gradient(circle, oklch(0.62 0.2 280 / 10%) 0%, transparent 70%)"
+          }}
+        />
+        <div
+          className="absolute top-1/2 -left-48 h-[600px] w-[600px] rounded-full"
+          style={{
+            background:
+              "radial-gradient(circle, oklch(0.65 0.21 40 / 10%) 0%, transparent 70%)"
+          }}
+        />
+        <div
+          className="absolute -bottom-32 right-1/3 h-[400px] w-[400px] rounded-full"
+          style={{
+            background:
+              "radial-gradient(circle, oklch(0.58 0.18 220 / 8%) 0%, transparent 70%)"
+          }}
+        />
       </div>
       <main className="px-4 py-6 sm:px-8 sm:py-10 lg:px-12 lg:py-12">
         <div className="mx-auto max-w-7xl space-y-6 sm:space-y-8">
@@ -211,7 +256,7 @@ export default function DashboardClient({
                     <RecentSongSkeleton />
                   </>
                 ) : recentSongs && recentSongs.length > 0 ? (
-                  recentSongs.map((song) => (
+                  recentSongs.map((song: RecentSong) => (
                     <Link
                       key={song.id}
                       href={`/dashboard/songs/${song.id}`}
@@ -257,7 +302,7 @@ export default function DashboardClient({
                   {t.dashboard.recentActivityDescription}
                 </p>
               </div>
-              <ActivityFeed />
+              <ActivityFeedLazy />
             </div>
           </div>
         </div>
