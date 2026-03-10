@@ -1,19 +1,9 @@
 import type { NextConfig } from "next"
 import withBundleAnalyzer from "@next/bundle-analyzer"
-import withSerwistInit from "@serwist/next"
-
-const withSerwist = withSerwistInit({
-  swSrc: "app/sw.ts",
-  swDest: "public/sw.js",
-  cacheOnNavigation: true,
-  reloadOnOnline: true,
-  disable: process.env.NODE_ENV === "development"
-})
 
 const nextConfig: NextConfig = {
   experimental: {
-    optimizePackageImports: ["lucide-react", "radix-ui", "react-day-picker", "@hello-pangea/dnd"],
-    viewTransition: true
+    optimizePackageImports: ["lucide-react", "radix-ui", "react-day-picker", "@hello-pangea/dnd"]
   },
   async headers() {
     return [
@@ -43,4 +33,4 @@ const nextConfig: NextConfig = {
 
 export default withBundleAnalyzer({
   enabled: process.env.ANALYZE === "true"
-})(withSerwist(nextConfig))
+})(nextConfig)

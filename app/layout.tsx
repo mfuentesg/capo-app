@@ -12,7 +12,7 @@ import { QueryProvider } from "@/components/providers/query-provider"
 import { AuthStateProvider } from "@/features/auth"
 import { AppContextProvider } from "@/features/app-context"
 import { getInitialAppContextData } from "@/features/app-context/server"
-import { ViewTransitionNavigator } from "@/components/view-transition-navigator"
+import NextTopLoader from "nextjs-toploader"
 
 import "./globals.css"
 
@@ -97,7 +97,7 @@ export default async function RootLayout({
         <link rel="preload" href="/img/optimized/capo-text.webp" as="image" type="image/webp" />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <ViewTransitionNavigator />
+        <NextTopLoader color="#f97316" showSpinner={false} />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
