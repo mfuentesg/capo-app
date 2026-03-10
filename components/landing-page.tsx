@@ -1,12 +1,10 @@
-"use client"
-
 import Link from "next/link"
+import dynamic from "next/dynamic"
 import { OptimizedLogo } from "@/components/optimized-logo"
 import { ThemeToggle } from "@/components/layout"
 import { LanguageSwitcher } from "@/components/layout"
-import { useLocale } from "@/features/settings"
-import { FeedbackForm } from "@/features/feedback"
 import { cn } from "@/lib/utils"
+import type { getTranslations } from "@/lib/i18n/translations"
 import {
   Music,
   FileText,
@@ -87,9 +85,16 @@ const FEATURE_DOTS = [
   { Icon: Guitar, color: "text-amber-500", bg: "bg-amber-500/10" }
 ]
 
+const FeedbackFormLazy = dynamic(
+  () => import("@/features/feedback").then((mod) => mod.FeedbackForm),
+  {
+    ssr: false,
+    loading: () => null
+  }
+)
+
 // ── Main component ────────────────────────────────────────────────────────────
-export function LandingPage() {
-  const { t } = useLocale()
+export function LandingPage({ t }: { t: ReturnType<typeof getTranslations> }) {
   const l = t.landing
 
   const features = [
@@ -127,7 +132,7 @@ export function LandingPage() {
   return (
     <div className="min-h-svh bg-background text-foreground overflow-x-hidden">
       {/* ── Navbar ─────────────────────────────────────────────────────── */}
-      <header className="fixed top-0 inset-x-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-md">
+      <header className="fixed top-0 inset-x-0 z-50 border-b border-border/40 bg-background md:bg-background/80 md:backdrop-blur-sm">
         <nav className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
           <Link href="/" className="flex items-center">
             <OptimizedLogo
@@ -153,9 +158,10 @@ export function LandingPage() {
       {/* ── Hero ───────────────────────────────────────────────────────── */}
       <section className="relative flex min-h-svh flex-col items-center justify-center px-4 pt-24 pb-16 text-center">
         <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
-          <div className="absolute -top-40 -left-40 h-[600px] w-[600px] rounded-full bg-primary/15 blur-[120px]" />
-          <div className="absolute -top-20 right-0 h-[500px] w-[500px] rounded-full bg-violet-500/10 blur-[100px]" />
-          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 h-[400px] w-[800px] rounded-full bg-primary/8 blur-[80px]" />
+          {/* Replaced filter:blur with radial-gradient — free on WebKit, same visual */}
+          <div className="absolute -top-40 -left-40 h-[600px] w-[600px] rounded-full" style={{ background: "radial-gradient(circle, oklch(0.646 0.222 41.116 / 15%) 0%, transparent 70%)" }} />
+          <div className="absolute -top-20 right-0 h-[500px] w-[500px] rounded-full" style={{ background: "radial-gradient(circle, oklch(0.55 0.19 290 / 10%) 0%, transparent 70%)" }} />
+          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 h-[400px] w-[800px] rounded-full" style={{ background: "radial-gradient(ellipse, oklch(0.646 0.222 41.116 / 8%) 0%, transparent 70%)" }} />
         </div>
 
         <div className="relative mb-6 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">
@@ -198,7 +204,7 @@ export function LandingPage() {
 
         {/* Hero mock — Reckless Love ChordPro editor */}
         <div className="relative mt-16 w-full max-w-3xl mx-auto">
-          <div aria-hidden className="absolute inset-0 -z-10 rounded-2xl bg-gradient-to-br from-primary/20 via-violet-500/10 to-transparent blur-2xl scale-105" />
+          <div aria-hidden className="absolute inset-0 -z-10 rounded-2xl bg-gradient-to-br from-primary/20 via-violet-500/10 to-transparent scale-105" />
           <div className="rounded-2xl border border-border/60 bg-card/90 shadow-2xl backdrop-blur overflow-hidden">
             {/* Window chrome */}
             <div className="flex items-center gap-2 border-b border-border/60 bg-muted/30 px-4 py-3">
@@ -338,7 +344,7 @@ export function LandingPage() {
 
       {/* ── Spotlight: Song Library ─────────────────────────────────────── */}
       <section className="relative px-4 py-24 sm:py-32 overflow-hidden">
-        <div aria-hidden className="pointer-events-none absolute top-1/2 -translate-y-1/2 -left-20 h-[500px] w-[500px] rounded-full bg-blue-500/8 blur-[80px]" />
+        <div aria-hidden className="pointer-events-none absolute top-1/2 -translate-y-1/2 -left-20 h-[500px] w-[500px] rounded-full" style={{ background: "radial-gradient(circle, oklch(0.55 0.18 248 / 8%) 0%, transparent 70%)" }} />
         <div className="mx-auto max-w-6xl">
           <div className="grid items-center gap-12 lg:grid-cols-2">
             <div>
@@ -409,7 +415,7 @@ export function LandingPage() {
 
       {/* ── Spotlight: Teams ───────────────────────────────────────────── */}
       <section className="relative px-4 py-24 sm:py-32 overflow-hidden">
-        <div aria-hidden className="pointer-events-none absolute top-1/2 -translate-y-1/2 -right-20 h-[500px] w-[500px] rounded-full bg-green-500/8 blur-[80px]" />
+        <div aria-hidden className="pointer-events-none absolute top-1/2 -translate-y-1/2 -right-20 h-[500px] w-[500px] rounded-full" style={{ background: "radial-gradient(circle, oklch(0.52 0.15 155 / 8%) 0%, transparent 70%)" }} />
         <div className="mx-auto max-w-6xl">
           <div className="grid items-center gap-12 lg:grid-cols-2">
             {/* Teams mock */}
@@ -473,7 +479,7 @@ export function LandingPage() {
 
       {/* ── Spotlight: Sharing ─────────────────────────────────────────── */}
       <section className="relative px-4 py-24 sm:py-32 overflow-hidden">
-        <div aria-hidden className="pointer-events-none absolute top-1/2 -translate-y-1/2 left-1/4 h-[400px] w-[600px] rounded-full bg-pink-500/8 blur-[80px]" />
+        <div aria-hidden className="pointer-events-none absolute top-1/2 -translate-y-1/2 left-1/4 h-[400px] w-[600px] rounded-full" style={{ background: "radial-gradient(ellipse, oklch(0.65 0.21 0 / 8%) 0%, transparent 70%)" }} />
         <div className="mx-auto max-w-6xl">
           <div className="grid items-center gap-12 lg:grid-cols-2">
             <div>
@@ -548,7 +554,7 @@ export function LandingPage() {
             <p className="max-w-lg text-muted-foreground">{l.feedback.description}</p>
           </div>
           <div className="rounded-2xl border border-border/50 bg-card/60 p-6 shadow-xl backdrop-blur-sm sm:p-8">
-            <FeedbackForm />
+            <FeedbackFormLazy />
           </div>
         </div>
       </section>
@@ -556,7 +562,7 @@ export function LandingPage() {
       {/* ── CTA ────────────────────────────────────────────────────────── */}
       <section className="relative px-4 py-24 sm:py-32">
         <div aria-hidden className="pointer-events-none absolute inset-0 flex items-center justify-center overflow-hidden">
-          <div className="h-[600px] w-[600px] rounded-full bg-primary/12 blur-[100px]" />
+          <div className="h-[600px] w-[600px] rounded-full" style={{ background: "radial-gradient(circle, oklch(0.646 0.222 41.116 / 12%) 0%, transparent 70%)" }} />
         </div>
         <div className="relative mx-auto max-w-2xl text-center">
           <div className="mb-6 flex justify-center">

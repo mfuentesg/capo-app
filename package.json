@@ -105,5 +105,12 @@
       "@types/react": "19.2.7",
       "@types/react-dom": "19.2.3"
     }
-  }
+  },
+  "browserslist": [
+    "last 2 Chrome versions",
+    "last 2 Firefox versions",
+    "last 2 Safari versions",
+    "last 2 Edge versions",
+    "iOS >= 15"
+  ]
 }

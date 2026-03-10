@@ -1,5 +1,8 @@
 import type { Metadata } from "next"
+import { cookies } from "next/headers"
 import { LandingPage } from "@/components/landing-page"
+import { getTranslations } from "@/lib/i18n/translations"
+import { defaultLocale, isValidLocale } from "@/lib/i18n/config"
 
 const title = "Capo — Song library for musicians"
 const description =
@@ -24,6 +27,11 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://capo.mfuentesg.dev")
 }
 
-export default function Page() {
-  return <LandingPage />
+export default async function Page() {
+  const cookieStore = await cookies()
+  const localeCookie = cookieStore.get("NEXT_LOCALE")
+  const locale = localeCookie && isValidLocale(localeCookie.value) ? localeCookie.value : defaultLocale
+  const t = getTranslations(locale)
+
+  return <LandingPage t={t} />
 }

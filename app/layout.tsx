@@ -19,13 +19,15 @@ import "./globals.css"
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff2",
   variable: "--font-geist-sans",
-  weight: "100 900"
+  weight: "100 900",
+  display: "swap"
 })
 
 const geistMono = localFont({
   src: "./fonts/GeistMonoVF.woff2",
   variable: "--font-geist-mono",
-  weight: "100 900"
+  weight: "100 900",
+  display: "swap"
 })
 
 const APP_DESCRIPTION =
@@ -87,8 +89,14 @@ export default async function RootLayout({
   const initialLocale: Locale =
     localeCookie && isValidLocale(localeCookie.value) ? localeCookie.value : defaultLocale
 
-  // Get selected team ID, user ID, and user teams from the server
-  const appContextData = await getInitialAppContextData()
+  // Only fetch app context data (auth + teams DB calls) for authenticated users.
+  // Unauthenticated visitors (e.g. landing page) skip the round-trips entirely.
+  const { createClient } = await import("@/lib/supabase/server")
+  const supabase = await createClient()
+  const { data: { session } } = await supabase.auth.getSession()
+  const appContextData = session
+    ? await getInitialAppContextData()
+    : { user: null, teams: [], initialSelectedTeamId: null }
 
   return (
     <html lang="en" suppressHydrationWarning>
