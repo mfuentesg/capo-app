@@ -15,6 +15,11 @@ SECURITY DEFINER
 SET search_path = public
 AS $$
 BEGIN
+  -- Security check: Ensure the caller is deleting their own account
+  IF auth.uid() IS NULL OR auth.uid() != p_user_id THEN
+    RAISE EXCEPTION 'Not authorized to delete this account';
+  END IF;
+
   DELETE FROM auth.users WHERE id = p_user_id;
 END;
 $$;
