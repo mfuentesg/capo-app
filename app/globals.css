@@ -271,6 +271,19 @@
   }
 }
 
+/* ── Resizable panel groups — mobile full-width list fix ────────── */
+/*
+ * react-resizable-panels sets `flex: 0 0 <size>%` via inline styles on each
+ * panel element. Inline styles have the highest CSS specificity, so `!important`
+ * is required to override them. On mobile (below Tailwind's `md` breakpoint)
+ * the detail panels are hidden via `hidden md:flex`, so the list panels must
+ * fill the full width.
+ */
+[data-panel-id="songs-list-panel"],
+[data-panel-id="playlists-list-panel"] {
+  @apply max-md:!basis-full max-md:!max-w-full;
+}
+
 /* ── Sonner toast — mobile fix ─────────────────────────────────── */
 /*
  * Sonner v2's @media (max-width: 600px) block sets

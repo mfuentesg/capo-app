@@ -4,7 +4,7 @@ export default function SongsLoading() {
   return (
     <div className="h-[calc(100vh-4rem)] flex bg-background">
       {/* Left panel — list */}
-      <div className="w-[35%] min-w-0 flex flex-col border-r">
+      <div className="w-full md:w-[35%] min-w-0 flex flex-col border-r">
         <div className="border-b p-4 lg:p-6 space-y-4">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-2">
