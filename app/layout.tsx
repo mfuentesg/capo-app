@@ -1,17 +1,9 @@
 import type { Metadata } from "next"
-import { cookies } from "next/headers"
 import localFont from "next/font/local"
 import { Analytics } from "@vercel/analytics/react"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/sonner"
-import { LocaleProvider } from "@/features/settings/contexts"
-import { defaultLocale, isValidLocale } from "@/lib/i18n/config"
-import type { Locale } from "@/lib/i18n/config"
-import { QueryProvider } from "@/components/providers/query-provider"
-import { AuthStateProvider } from "@/features/auth/contexts"
-import { AppContextProvider } from "@/features/app-context"
-import { getInitialAppContextData } from "@/features/app-context/server"
 import NextTopLoader from "nextjs-toploader"
 
 import "./globals.css"
@@ -79,21 +71,11 @@ export const metadata: Metadata = {
   }
 }
 
-export default async function RootLayout({
+export default function RootLayout({
   children
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const cookieStore = await cookies()
-  const localeCookie = cookieStore.get("NEXT_LOCALE")
-  const initialLocale: Locale =
-    localeCookie && isValidLocale(localeCookie.value) ? localeCookie.value : defaultLocale
-
-  // Only fetch app context data (auth + teams DB calls) for authenticated users.
-  // Unauthenticated visitors (e.g. landing page) skip the round-trips entirely.
-  // NOTE: getInitialAppContextData handles the user check internally and returns empty context if no user.
-  const appContextData = await getInitialAppContextData()
-
   return (
     <html lang="en" suppressHydrationWarning>
       <head />
@@ -105,17 +87,7 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <QueryProvider initialUser={appContextData.user}>
-            <AuthStateProvider>
-              <AppContextProvider
-                initialSelectedTeamId={appContextData.initialSelectedTeamId}
-                initialTeams={appContextData.teams}
-                initialUser={appContextData.user}
-              >
-                <LocaleProvider initialLocale={initialLocale}>{children}</LocaleProvider>
-              </AppContextProvider>
-            </AuthStateProvider>
-          </QueryProvider>
+          {children}
           <Toaster />
         </ThemeProvider>
         {process.env.NODE_ENV === "production" && <Analytics />}
