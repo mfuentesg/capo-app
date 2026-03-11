@@ -535,6 +535,10 @@ export type Database = {
         Args: { p_user_id: string }
         Returns: undefined
       }
+      merge_user_preference: {
+        Args: { p_user_id: string; p_key: string; p_value: string }
+        Returns: undefined
+      }
       create_team_with_owner: {
         Args: {
           team_icon?: string

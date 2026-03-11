@@ -1,16 +1,19 @@
 "use server"
 
-import { isValidLocale, type Locale } from "@/lib/i18n/config"
 import { createClient } from "@/lib/supabase/server"
+import { cookies } from "next/headers"
 
-export async function setLocaleAction(locale: Locale) {
-  if (!isValidLocale(locale)) {
-    throw new Error("Invalid locale")
+type Theme = "light" | "dark" | "system"
+
+const VALID_THEMES: Theme[] = ["light", "dark", "system"]
+
+export async function setThemeAction(theme: Theme) {
+  if (!VALID_THEMES.includes(theme)) {
+    throw new Error("Invalid theme")
   }
 
-  const { cookies } = await import("next/headers")
   const cookieStore = await cookies()
-  cookieStore.set("NEXT_LOCALE", locale, {
+  cookieStore.set("NEXT_THEME", theme, {
     path: "/",
     maxAge: 31536000,
     httpOnly: true,
@@ -24,7 +27,7 @@ export async function setLocaleAction(locale: Locale) {
       data: { user }
     } = await supabase.auth.getUser()
     if (user) {
-      await supabase.rpc("merge_user_preference", { p_user_id: user.id, p_key: "locale", p_value: locale })
+      await supabase.rpc("merge_user_preference", { p_user_id: user.id, p_key: "theme", p_value: theme })
     }
   } catch {
     // cookie already set — DB write is best-effort

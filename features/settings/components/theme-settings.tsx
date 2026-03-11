@@ -1,8 +1,10 @@
 "use client"
 
+import { useTransition } from "react"
 import { useTheme } from "next-themes"
 import { useLocale } from "@/features/settings"
 import { Label } from "@/components/ui/label"
+import { setThemeAction } from "@/lib/actions/theme"
 
 const THEMES = ["light", "dark", "system"] as const
 type Theme = (typeof THEMES)[number]
@@ -16,6 +18,14 @@ const THEME_LABELS: Record<Theme, string> = {
 export function ThemeSettings() {
   const { t } = useLocale()
   const { theme, setTheme } = useTheme()
+  const [, startTransition] = useTransition()
+
+  function handleThemeChange(option: Theme) {
+    setTheme(option)
+    startTransition(async () => {
+      await setThemeAction(option)
+    })
+  }
 
   return (
     <section className="space-y-4">
@@ -38,7 +48,7 @@ export function ThemeSettings() {
               name="theme"
               value={option}
               checked={theme === option}
-              onChange={() => setTheme(option)}
+              onChange={() => handleThemeChange(option)}
               className="sr-only"
             />
             {THEME_LABELS[option]}

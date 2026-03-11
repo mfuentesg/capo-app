@@ -22,6 +22,8 @@ export interface UserSongSettings {
 
 export interface UserPreferences {
   lyricsColumns: 1 | 2
+  locale?: string
+  theme?: "light" | "dark" | "system"
 }
 
 export type GroupBy = "none" | "key" | "artist"

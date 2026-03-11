@@ -1,5 +1,7 @@
+import type React from "react"
 import type { Metadata } from "next"
 import localFont from "next/font/local"
+import { cookies } from "next/headers"
 import { Analytics } from "@vercel/analytics/react"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { ThemeProvider } from "@/components/theme-provider"
@@ -71,11 +73,21 @@ export const metadata: Metadata = {
   }
 }
 
-export default function RootLayout({
+const VALID_THEMES = ["light", "dark", "system"] as const
+type Theme = (typeof VALID_THEMES)[number]
+
+export default async function RootLayout({
   children
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const cookieStore = await cookies()
+  const themeCookie = cookieStore.get("NEXT_THEME")
+  const defaultTheme: Theme =
+    themeCookie && (VALID_THEMES as readonly string[]).includes(themeCookie.value)
+      ? (themeCookie.value as Theme)
+      : "system"
+
   return (
     <html lang="en" suppressHydrationWarning>
       <head />
@@ -83,7 +95,7 @@ export default function RootLayout({
         <NextTopLoader color="#f97316" showSpinner={false} />
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
+          defaultTheme={defaultTheme}
           enableSystem
           disableTransitionOnChange
         >

@@ -4,12 +4,21 @@ import type { UserPreferences, UserSongSettings } from "../types"
 
 type PreferencesJson = Database["public"]["Tables"]["profiles"]["Row"]["preferences"]
 
+const VALID_THEMES = ["light", "dark", "system"] as const
+type Theme = (typeof VALID_THEMES)[number]
+
+function isValidTheme(v: unknown): v is Theme {
+  return VALID_THEMES.includes(v as Theme)
+}
+
 function mapJsonToPreferences(json: PreferencesJson): UserPreferences {
   if (typeof json !== "object" || json === null || Array.isArray(json)) {
     return { lyricsColumns: 2 }
   }
   return {
-    lyricsColumns: json["lyricsColumns"] === 1 ? 1 : 2
+    lyricsColumns: json["lyricsColumns"] === 1 ? 1 : 2,
+    locale: typeof json["locale"] === "string" ? json["locale"] : undefined,
+    theme: isValidTheme(json["theme"]) ? json["theme"] : undefined
   }
 }
 
@@ -67,7 +76,9 @@ export async function upsertUserPreferences(
     .from("profiles")
     .update({
       preferences: {
-        lyricsColumns: preferences.lyricsColumns
+        lyricsColumns: preferences.lyricsColumns,
+        ...(preferences.locale !== undefined && { locale: preferences.locale }),
+        ...(preferences.theme !== undefined && { theme: preferences.theme })
       },
       updated_at: new Date().toISOString()
     })

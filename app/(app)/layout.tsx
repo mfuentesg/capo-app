@@ -11,12 +11,19 @@ import type { Locale } from "@/lib/i18n/config"
 export default async function AppLayout({
   children
 }: Readonly<{ children: React.ReactNode }>) {
-  const cookieStore = await cookies()
-  const localeCookie = cookieStore.get("NEXT_LOCALE")
-  const initialLocale: Locale =
-    localeCookie && isValidLocale(localeCookie.value) ? localeCookie.value : defaultLocale
-
   const appContextData = await getInitialAppContextData()
+
+  // DB locale takes priority; cookie is fallback for unauthenticated edge cases
+  const dbLocale = appContextData.preferences?.locale
+  let initialLocale: Locale
+  if (dbLocale && isValidLocale(dbLocale)) {
+    initialLocale = dbLocale
+  } else {
+    const cookieStore = await cookies()
+    const localeCookie = cookieStore.get("NEXT_LOCALE")
+    initialLocale =
+      localeCookie && isValidLocale(localeCookie.value) ? localeCookie.value : defaultLocale
+  }
 
   return (
     <QueryProvider initialUser={appContextData.user}>
