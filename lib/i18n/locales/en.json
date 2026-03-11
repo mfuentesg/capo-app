@@ -65,7 +65,13 @@
     "languageDescription": "Select your preferred language",
     "appearance": "Appearance",
     "theme": "Theme",
-    "themeDescription": "Choose your preferred theme"
+    "themeDescription": "Choose your preferred theme",
+    "dangerZone": "Danger Zone",
+    "dangerZoneDescription": "Permanently delete your account and all associated data. This cannot be undone.",
+    "deleteAccount": "Delete account",
+    "deleteAccountConfirm": "Are you sure? This is irreversible.",
+    "deleteAccountConfirmButton": "Yes, delete my account",
+    "deleteAccountPending": "Deleting…"
   },
   "songs": {
     "title": "Songs",

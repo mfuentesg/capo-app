@@ -531,6 +531,10 @@ export type Database = {
         Returns: undefined
       }
       cleanup_expired_shares: { Args: never; Returns: number }
+      delete_user_account: {
+        Args: { p_user_id: string }
+        Returns: undefined
+      }
       create_team_with_owner: {
         Args: {
           team_icon?: string

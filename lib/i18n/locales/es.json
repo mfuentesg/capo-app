@@ -65,7 +65,13 @@
     "languageDescription": "Selecciona tu idioma preferido",
     "appearance": "Apariencia",
     "theme": "Tema",
-    "themeDescription": "Elige tu tema preferido"
+    "themeDescription": "Elige tu tema preferido",
+    "dangerZone": "Zona de peligro",
+    "dangerZoneDescription": "Elimina permanentemente tu cuenta y todos los datos asociados. Esta acción no se puede deshacer.",
+    "deleteAccount": "Eliminar cuenta",
+    "deleteAccountConfirm": "¿Estás seguro? Esto es irreversible.",
+    "deleteAccountConfirmButton": "Sí, eliminar mi cuenta",
+    "deleteAccountPending": "Eliminando…"
   },
   "songs": {
     "title": "Canciones",

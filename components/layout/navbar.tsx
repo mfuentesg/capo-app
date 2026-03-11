@@ -3,10 +3,8 @@
 import Link from "next/link"
 import { useState } from "react"
 import { OptimizedLogo } from "@/components/optimized-logo"
-import { ThemeToggle } from "@/components/layout/theme-toggle"
 import { MobileNavDrawer } from "@/components/layout/mobile-nav-drawer"
 import { NavLinks } from "@/components/layout/nav-links"
-import { LanguageSwitcher } from "@/components/layout/language-switcher"
 import { UserProfileMenu } from "@/components/layout/user-profile-menu"
 import { useLocale } from "@/features/settings"
 import { Music, ListMusic, Users } from "lucide-react"
@@ -42,8 +40,6 @@ export function Navbar() {
         </nav>
 
         <div className="ml-auto flex items-center gap-1 sm:gap-2">
-          <ThemeToggle />
-          <LanguageSwitcher />
           <UserProfileMenu />
         </div>
       </div>
