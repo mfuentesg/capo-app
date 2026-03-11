@@ -12,8 +12,7 @@ import type { UserInfo } from "@/features/auth"
 import type { Tables } from "@/lib/supabase/database.types"
 import { SELECTED_TEAM_ID_KEY } from "./constants"
 import { createClient } from "@/lib/supabase/server"
-import { api as teamsApi } from "@/features/teams"
-import { getTeamsWithClient } from "@/features/teams"
+import { api as teamsApi, getTeamsWithClient } from "@/features/teams/api"
 import { getUser } from "@/features/auth/api"
 
 export async function setSelectedTeamId(teamId: string) {
@@ -118,7 +117,9 @@ export async function getAppContextFromCookies(userId: string): Promise<AppConte
   }
 }
 
-export async function getInitialAppContextData() {
+import { cache } from "react"
+
+export const getInitialAppContextData = cache(async () => {
   const supabase = await createClient()
 
   // Get user first (verified, secure)
@@ -159,4 +160,4 @@ export async function getInitialAppContextData() {
     teams,
     initialSelectedTeamId
   }
-}
+})

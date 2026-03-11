@@ -5,11 +5,11 @@ import { Analytics } from "@vercel/analytics/react"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/sonner"
-import { LocaleProvider } from "@/features/settings"
+import { LocaleProvider } from "@/features/settings/contexts"
 import { defaultLocale, isValidLocale } from "@/lib/i18n/config"
 import type { Locale } from "@/lib/i18n/config"
 import { QueryProvider } from "@/components/providers/query-provider"
-import { AuthStateProvider } from "@/features/auth"
+import { AuthStateProvider } from "@/features/auth/contexts"
 import { AppContextProvider } from "@/features/app-context"
 import { getInitialAppContextData } from "@/features/app-context/server"
 import NextTopLoader from "nextjs-toploader"
@@ -91,12 +91,8 @@ export default async function RootLayout({
 
   // Only fetch app context data (auth + teams DB calls) for authenticated users.
   // Unauthenticated visitors (e.g. landing page) skip the round-trips entirely.
-  const { createClient } = await import("@/lib/supabase/server")
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  const appContextData = user
-    ? await getInitialAppContextData()
-    : { user: null, teams: [], initialSelectedTeamId: null }
+  // NOTE: getInitialAppContextData handles the user check internally and returns empty context if no user.
+  const appContextData = await getInitialAppContextData()
 
   return (
     <html lang="en" suppressHydrationWarning>
