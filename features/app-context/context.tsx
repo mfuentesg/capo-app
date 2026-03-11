@@ -21,7 +21,10 @@ import {
   setSelectedTeamId as setClientSelectedTeamId,
   unsetSelectedTeamId as unsetClientSelectedTeamId
 } from "./server"
-import { api, teamsKeys } from "@/features/teams"
+// Import only data utilities directly to prevent the teams feature barrel from pulling
+// all team UI components (dialogs, cards, etc.) into the root-layout client bundle.
+import { api } from "@/features/teams/api"
+import { teamsKeys } from "@/features/teams/hooks/query-keys"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 
 interface AppContextContextType {
