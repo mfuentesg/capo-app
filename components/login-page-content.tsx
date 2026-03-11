@@ -15,10 +15,10 @@ export function LoginPageContent() {
   return (
     <div className="relative min-h-svh bg-background text-foreground">
       {/* Gradient orbs — same palette as landing / dashboard */}
-      <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-        <div className="absolute -top-48 -left-24 h-[560px] w-[560px] rounded-full bg-primary/18 blur-[130px]" />
-        <div className="absolute top-1/3 right-0 h-[440px] w-[440px] rounded-full bg-violet-500/12 blur-[110px]" />
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 h-[320px] w-[640px] rounded-full bg-primary/8 blur-[90px]" />
+      <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden transform-gpu">
+        <div className="absolute -top-48 -left-24 h-[560px] w-[560px] rounded-full bg-primary/18 blur-3xl" />
+        <div className="absolute top-1/3 right-0 h-[440px] w-[440px] rounded-full bg-violet-500/12 blur-3xl" />
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 h-[320px] w-[640px] rounded-full bg-primary/8 blur-2xl" />
       </div>
 
       {/* Top-left — back link */}
