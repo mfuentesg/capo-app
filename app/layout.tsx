@@ -96,10 +96,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        <link rel="preload" href="/img/optimized/capo.webp" as="image" type="image/webp" />
-        <link rel="preload" href="/img/optimized/capo-text.webp" as="image" type="image/webp" />
-      </head>
+      <head />
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <NextTopLoader color="#f97316" showSpinner={false} />
         <ThemeProvider
