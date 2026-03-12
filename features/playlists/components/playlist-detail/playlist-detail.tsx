@@ -221,8 +221,7 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
   const calendarPopoverIds = createOverlayIds(`playlist-detail-calendar-${playlist.id}`)
 
   const songsWithPosition = useMemo<SongWithPosition[]>(
-    () =>
-      (playlistWithSongsData?.songs ?? []).map((song, index) => ({ ...song, position: index })),
+    () => (playlistWithSongsData?.songs ?? []).map((song, index) => ({ ...song, position: index })),
     [playlistWithSongsData]
   )
 
@@ -560,9 +559,7 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
         <DrawerContent className="inset-0 h-full p-0 data-[vaul-drawer-direction=top]:max-h-full data-[vaul-drawer-direction=top]:rounded-none">
           <div className="relative flex h-full flex-col">
             <DrawerHeader className="sr-only">
-              <DrawerTitle>
-                {activeSong ? `${activeSong.title} lyrics` : "Song lyrics"}
-              </DrawerTitle>
+              <DrawerTitle>{activeSong ? `${activeSong.title} lyrics` : "Song lyrics"}</DrawerTitle>
             </DrawerHeader>
 
             <div className="pointer-events-none absolute right-4 bottom-6 z-20">
@@ -572,9 +569,7 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
                   variant="ghost"
                   size="icon"
                   className="h-8 w-8 rounded-full"
-                  onClick={() =>
-                    setActiveIndex((i) => (i !== null && i > 0 ? i - 1 : i))
-                  }
+                  onClick={() => setActiveIndex((i) => (i !== null && i > 0 ? i - 1 : i))}
                   disabled={activeIndex === null || activeIndex === 0}
                 >
                   <ChevronUp className="h-4 w-4" />

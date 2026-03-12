@@ -5,7 +5,13 @@ import dynamic from "next/dynamic"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable"
-import { Drawer, DrawerContent, DrawerTitle, DrawerDescription, DrawerScrollArea } from "@/components/ui/drawer"
+import {
+  Drawer,
+  DrawerContent,
+  DrawerTitle,
+  DrawerDescription,
+  DrawerScrollArea
+} from "@/components/ui/drawer"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
@@ -126,7 +132,9 @@ export function PlaylistsClient({ initialPlaylists = [], t }: PlaylistsClientPro
                 <h1 className="text-xl font-semibold tracking-tight lg:text-2xl">
                   {t.playlists.title}
                 </h1>
-                <Badge variant="secondary" suppressHydrationWarning>{playlists.length}</Badge>
+                <Badge variant="secondary" suppressHydrationWarning>
+                  {playlists.length}
+                </Badge>
               </div>
               <Button size="sm" className="gap-1.5 rounded-full" onClick={handleCreateClick}>
                 <Plus className="h-4 w-4" />
@@ -328,9 +336,7 @@ export function PlaylistsClient({ initialPlaylists = [], t }: PlaylistsClientPro
             className="flex flex-col p-0 overflow-hidden data-[vaul-drawer-direction=bottom]:top-0 data-[vaul-drawer-direction=bottom]:bottom-0 data-[vaul-drawer-direction=bottom]:mt-0 data-[vaul-drawer-direction=bottom]:max-h-dvh data-[vaul-drawer-direction=bottom]:rounded-none"
             id={mobileDrawerIds.contentId}
           >
-            <DrawerTitle className="sr-only">
-              {t.playlists.playlistDetails}
-            </DrawerTitle>
+            <DrawerTitle className="sr-only">{t.playlists.playlistDetails}</DrawerTitle>
             <DrawerDescription className="sr-only">
               {t.playlistDetail.editDescription}
             </DrawerDescription>

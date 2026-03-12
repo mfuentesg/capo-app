@@ -56,15 +56,11 @@ export function PlaylistNotFound() {
 
         {/* Text */}
         <div className="mb-8 max-w-sm space-y-3">
-          <h1 className="text-2xl font-semibold tracking-tight">
-            {t.playlistShare.notFoundTitle}
-          </h1>
+          <h1 className="text-2xl font-semibold tracking-tight">{t.playlistShare.notFoundTitle}</h1>
           <p className="text-sm text-muted-foreground leading-relaxed">
             {t.playlistShare.notFoundDescription}
           </p>
-          <p className="text-xs text-muted-foreground/70">
-            {t.playlistShare.notFoundSubtext}
-          </p>
+          <p className="text-xs text-muted-foreground/70">{t.playlistShare.notFoundSubtext}</p>
         </div>
 
         {/* Action */}

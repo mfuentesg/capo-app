@@ -341,7 +341,12 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
                             >
                               <Copy className="h-3 w-3" />
                             </Button>
-                            <Button size="icon" variant="ghost" className="h-7 w-7 shrink-0" asChild>
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              className="h-7 w-7 shrink-0"
+                              asChild
+                            >
                               <a
                                 href={`/shared/${playlist.shareCode}`}
                                 target="_blank"
@@ -412,7 +417,9 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
                           <div className="min-w-0 flex-1">
                             <p className="truncate text-sm font-medium">{song.title}</p>
                             {song.artist && (
-                              <p className="truncate text-xs text-muted-foreground">{song.artist}</p>
+                              <p className="truncate text-xs text-muted-foreground">
+                                {song.artist}
+                              </p>
                             )}
                           </div>
                           <div className="flex shrink-0 items-center gap-1.5">
@@ -490,9 +497,7 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
         <DrawerContent className="inset-0 h-full p-0 data-[vaul-drawer-direction=top]:max-h-full data-[vaul-drawer-direction=top]:rounded-none">
           <div className="relative flex h-full flex-col">
             <DrawerHeader className="sr-only">
-              <DrawerTitle>
-                {activeSong ? `${activeSong.title} lyrics` : "Song lyrics"}
-              </DrawerTitle>
+              <DrawerTitle>{activeSong ? `${activeSong.title} lyrics` : "Song lyrics"}</DrawerTitle>
             </DrawerHeader>
 
             {/* Navigation controls */}
