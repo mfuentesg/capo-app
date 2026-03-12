@@ -16,7 +16,7 @@ import {
   Link as LinkIcon
 } from "lucide-react"
 import { toast } from "sonner"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 import { useMutation } from "@tanstack/react-query"
 import { DragDropContext, Droppable, Draggable, type DropResult } from "@hello-pangea/dnd"
 import { useLocale } from "@/features/settings"
@@ -90,7 +90,6 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
   const [songs, setSongs] = useState<Song[]>(playlist.songs)
   const [localVisibility, setLocalVisibility] = useState(playlist.visibility)
   const [localGuestEditing, setLocalGuestEditing] = useState(playlist.allowGuestEditing ?? false)
-  const bodyOverflowRef = useRef<string>("")
 
   const songsCountLabel = songs.length === 1 ? t.playlistDetail.song : t.playlistDetail.songsPlural
 
@@ -121,11 +120,16 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
   useEffect(() => {
     if (activeIndex === null) return
 
-    bodyOverflowRef.current = document.body.style.overflow
-    document.body.style.overflow = "hidden"
+    const scrollY = window.scrollY
+    document.body.style.position = "fixed"
+    document.body.style.top = `-${scrollY}px`
+    document.body.style.width = "100%"
 
     return () => {
-      document.body.style.overflow = bodyOverflowRef.current
+      document.body.style.position = ""
+      document.body.style.top = ""
+      document.body.style.width = ""
+      window.scrollTo(0, scrollY)
     }
   }, [activeIndex])
 
@@ -236,10 +240,10 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
   const canReorder = !!user || localGuestEditing
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-background">
+    <div className="min-h-[calc(100dvh-4rem)] bg-background">
       <main className="mx-auto max-w-2xl px-4 pb-20 pt-6">
         {/* Playlist header */}
-        <div className="rounded-xl border border-border/60 bg-gradient-to-br from-pink-500/10 via-violet-500/5 to-transparent p-6 mb-6">
+        <div className="rounded-xl border border-border/60 bg-linear-to-br from-pink-500/10 via-violet-500/5 to-transparent p-6 mb-6">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0 space-y-1.5">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-pink-500/20 mb-3">
@@ -493,7 +497,7 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
 
             {/* Navigation controls */}
             <div className="pointer-events-none absolute right-4 bottom-safe-4 bottom-6 z-20">
-              <div className="pointer-events-auto flex items-center gap-1 rounded-full border bg-background/90 px-1.5 py-1 shadow-md backdrop-blur-sm">
+              <div className="pointer-events-auto flex items-center gap-1 rounded-full border bg-background px-1.5 py-1 shadow-md">
                 <Button
                   type="button"
                   variant="ghost"

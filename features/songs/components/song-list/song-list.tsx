@@ -158,7 +158,7 @@ export function SongList({
       {sortedGroupKeys.map((groupKey) => (
         <div key={groupKey} className="mb-6">
           {groupBy !== "none" && (
-            <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 py-2 mb-3">
+            <div className="sticky top-0 z-10 bg-background py-2 mb-3">
               <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 {groupKey}
               </span>

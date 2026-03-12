@@ -217,7 +217,6 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
   const [isCalendarOpen, setIsCalendarOpen] = useState(false)
   const [activeIndex, setActiveIndex] = useState<number | null>(null)
   const [isAddSongsOpen, setIsAddSongsOpen] = useState(false)
-  const bodyOverflowRef = useRef<string>("")
   const deleteDialogIds = createOverlayIds(`playlist-detail-delete-${playlist.id}`)
   const calendarPopoverIds = createOverlayIds(`playlist-detail-calendar-${playlist.id}`)
 
@@ -271,10 +270,15 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
 
   useEffect(() => {
     if (activeIndex === null) return
-    bodyOverflowRef.current = document.body.style.overflow
-    document.body.style.overflow = "hidden"
+    const scrollY = window.scrollY
+    document.body.style.position = "fixed"
+    document.body.style.top = `-${scrollY}px`
+    document.body.style.width = "100%"
     return () => {
-      document.body.style.overflow = bodyOverflowRef.current
+      document.body.style.position = ""
+      document.body.style.top = ""
+      document.body.style.width = ""
+      window.scrollTo(0, scrollY)
     }
   }, [activeIndex])
 
@@ -562,7 +566,7 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
             </DrawerHeader>
 
             <div className="pointer-events-none absolute right-4 bottom-6 z-20">
-              <div className="pointer-events-auto flex items-center gap-1 rounded-full border bg-background/90 px-1.5 py-1 shadow-md backdrop-blur-sm">
+              <div className="pointer-events-auto flex items-center gap-1 rounded-full border bg-background px-1.5 py-1 shadow-md">
                 <Button
                   type="button"
                   variant="ghost"
