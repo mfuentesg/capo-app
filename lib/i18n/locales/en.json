@@ -61,6 +61,9 @@
   },
   "settings": {
     "title": "Settings",
+    "profile": "Profile",
+    "profileDescription": "Your account information",
+    "connectedViaGoogle": "Connected via Google",
     "language": "Language",
     "languageDescription": "Select your preferred language",
     "appearance": "Appearance",

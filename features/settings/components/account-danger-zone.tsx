@@ -19,9 +19,7 @@ export function AccountDangerZone() {
   return (
     <section className="space-y-4 rounded-lg border border-destructive/50 p-6">
       <div>
-        <h2 className="text-base font-semibold text-destructive">
-          {t.settings.dangerZone}
-        </h2>
+        <h2 className="text-base font-semibold text-destructive">{t.settings.dangerZone}</h2>
         <p className="text-sm text-muted-foreground">{t.settings.dangerZoneDescription}</p>
       </div>
       {!confirming ? (
@@ -35,7 +33,12 @@ export function AccountDangerZone() {
             <Button variant="destructive" size="sm" disabled={isPending} onClick={handleDelete}>
               {isPending ? t.settings.deleteAccountPending : t.settings.deleteAccountConfirmButton}
             </Button>
-            <Button variant="ghost" size="sm" disabled={isPending} onClick={() => setConfirming(false)}>
+            <Button
+              variant="ghost"
+              size="sm"
+              disabled={isPending}
+              onClick={() => setConfirming(false)}
+            >
               {t.common.cancel}
             </Button>
           </div>

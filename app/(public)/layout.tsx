@@ -5,9 +5,7 @@ import { LocaleProvider } from "@/features/settings/contexts"
 import { defaultLocale, isValidLocale } from "@/lib/i18n/config"
 import type { Locale } from "@/lib/i18n/config"
 
-export default async function PublicLayout({
-  children
-}: Readonly<{ children: React.ReactNode }>) {
+export default async function PublicLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const cookieStore = await cookies()
   const localeCookie = cookieStore.get("NEXT_LOCALE")
   const initialLocale: Locale =
