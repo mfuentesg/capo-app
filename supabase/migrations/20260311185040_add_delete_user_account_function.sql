@@ -28,4 +28,5 @@ $$;
 -- delete their own account because the server action verifies the calling
 -- user's session before invoking this RPC).
 REVOKE ALL ON FUNCTION public.delete_user_account(uuid) FROM PUBLIC;
+
 GRANT EXECUTE ON FUNCTION public.delete_user_account(uuid) TO authenticated;
