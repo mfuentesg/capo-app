@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useTransition } from "react"
+import { useSyncExternalStore, useTransition } from "react"
 import { useTheme } from "next-themes"
 import { useLocale } from "@/features/settings"
 import { Label } from "@/components/ui/label"
@@ -15,16 +15,17 @@ const THEME_LABELS: Record<Theme, string> = {
   system: "System"
 }
 
+// next-themes reads from localStorage on the client, which may differ from the
+// SSR defaultTheme prop. useSyncExternalStore gives false on the server and true
+// on the client — React re-renders with the correct theme after hydration without
+// a className mismatch or a setState-in-effect lint violation.
+const subscribe = () => () => {}
+
 export function ThemeSettings() {
   const { t } = useLocale()
   const { theme, setTheme } = useTheme()
   const [, startTransition] = useTransition()
-  // Defer theme-dependent rendering until after hydration.
-  // next-themes reads from localStorage on the client, which may differ from the
-  // SSR defaultTheme prop → causes a className mismatch. Rendering an identical
-  // unselected state on both server and client first, then updating, prevents it.
-  const [mounted, setMounted] = useState(false)
-  useEffect(() => setMounted(true), [])
+  const mounted = useSyncExternalStore(subscribe, () => true, () => false)
 
   const activeTheme = mounted ? theme : undefined
 
