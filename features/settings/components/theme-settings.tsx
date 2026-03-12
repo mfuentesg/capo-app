@@ -1,6 +1,6 @@
 "use client"
 
-import { useTransition } from "react"
+import { useState, useEffect, useTransition } from "react"
 import { useTheme } from "next-themes"
 import { useLocale } from "@/features/settings"
 import { Label } from "@/components/ui/label"
@@ -19,6 +19,14 @@ export function ThemeSettings() {
   const { t } = useLocale()
   const { theme, setTheme } = useTheme()
   const [, startTransition] = useTransition()
+  // Defer theme-dependent rendering until after hydration.
+  // next-themes reads from localStorage on the client, which may differ from the
+  // SSR defaultTheme prop → causes a className mismatch. Rendering an identical
+  // unselected state on both server and client first, then updating, prevents it.
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
+
+  const activeTheme = mounted ? theme : undefined
 
   function handleThemeChange(option: Theme) {
     setTheme(option)
@@ -38,7 +46,7 @@ export function ThemeSettings() {
           <Label
             key={option}
             className={`flex cursor-pointer select-none items-center justify-center rounded-md border px-4 py-2 text-sm font-medium transition-colors ${
-              theme === option
+              activeTheme === option
                 ? "border-primary bg-primary text-primary-foreground"
                 : "border-border bg-background hover:bg-accent hover:text-accent-foreground"
             }`}
@@ -47,7 +55,7 @@ export function ThemeSettings() {
               type="radio"
               name="theme"
               value={option}
-              checked={theme === option}
+              checked={activeTheme === option}
               onChange={() => handleThemeChange(option)}
               className="sr-only"
             />

@@ -5,6 +5,20 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+/**
+ * Returns up to 2 uppercase initials from a display name or email.
+ * Falls back to the first character of each space-separated word.
+ */
+export function getInitials(name: string): string {
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .map((part) => part[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase()
+}
+
 const DATE_ONLY_REGEX = /^\d{4}-\d{2}-\d{2}$/
 
 /**
