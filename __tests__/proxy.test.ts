@@ -158,6 +158,34 @@ describe("Proxy", () => {
       expect(response.status).toBe(200)
     })
 
+    it("should redirect authenticated users from /login to dashboard", async () => {
+      mockSupabase.auth.getUser.mockResolvedValue({
+        data: { user: { id: "123" } },
+        error: null
+      })
+
+      const request = new NextRequest("http://localhost:3000/login")
+      const response = await proxy(request)
+
+      expect(response.status).toBe(307)
+      const location = response.headers.get("location")
+      expect(location).toBeTruthy()
+      expect(location).toContain("/dashboard")
+    })
+
+    it("should allow unauthenticated users to access /login", async () => {
+      mockSupabase.auth.getUser.mockResolvedValue({
+        data: { user: null },
+        error: null
+      })
+
+      const request = new NextRequest("http://localhost:3000/login")
+      const response = await proxy(request)
+
+      expect(response.status).toBe(200)
+      expect(response.headers.get("location")).toBeNull()
+    })
+
     it("should allow unauthenticated users to access legacy dashboard playlist share links", async () => {
       mockSupabase.auth.getUser.mockResolvedValue({
         data: { user: null },
