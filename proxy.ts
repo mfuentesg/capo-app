@@ -101,7 +101,10 @@ export async function proxy(request: NextRequest) {
 
     let response: NextResponse = NextResponse.next()
 
-    if (pathname === "/" && shouldRedirectToDashboard(user)) {
+    if (
+      (pathname === "/" || pathname === "/login") &&
+      shouldRedirectToDashboard(user)
+    ) {
       response = NextResponse.redirect(new URL(DEFAULT_REDIRECT_PATH, request.url))
     } else if (
       pathname.startsWith("/dashboard") &&
@@ -138,5 +141,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/dashboard/:path*", "/teams/accept-invitation/:path*"]
+  matcher: ["/", "/login", "/dashboard/:path*", "/teams/accept-invitation/:path*"]
 }

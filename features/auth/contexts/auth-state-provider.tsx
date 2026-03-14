@@ -5,7 +5,6 @@ import { useQueryClient } from "@tanstack/react-query"
 import { createClient } from "@/lib/supabase/client"
 import { authKeys } from "@/lib/supabase/constants"
 import type { AuthChangeEvent, Session } from "@supabase/supabase-js"
-import { useRouter } from "next/navigation"
 
 /**
  * Provider that listens to Supabase auth state changes
@@ -13,7 +12,6 @@ import { useRouter } from "next/navigation"
  */
 export function AuthStateProvider({ children }: { children: React.ReactNode }) {
   const queryClient = useQueryClient()
-  const router = useRouter()
 
   useEffect(() => {
     const supabase = createClient()
@@ -53,7 +51,7 @@ export function AuthStateProvider({ children }: { children: React.ReactNode }) {
         subscription.unsubscribe()
       }
     }
-  }, [queryClient, router])
+  }, [queryClient])
 
   return <>{children}</>
 }
