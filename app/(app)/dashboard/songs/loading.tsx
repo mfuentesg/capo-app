@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 
 export default function SongsLoading() {
   return (
-    <div className="h-[calc(100vh-4rem)] flex bg-background">
+    <div className="h-[calc(100dvh-4rem)] flex bg-background">
       {/* Left panel — list */}
       <div className="w-full md:w-[35%] min-w-0 flex flex-col border-r">
         <div className="border-b p-4 lg:p-6 space-y-4">

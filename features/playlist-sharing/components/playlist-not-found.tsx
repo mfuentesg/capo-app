@@ -24,7 +24,7 @@ export function PlaylistNotFound() {
   const { t } = useTranslation()
 
   return (
-    <div className="relative overflow-hidden min-h-[calc(100vh-4rem)]">
+    <div className="relative overflow-hidden min-h-[calc(100dvh-4rem)]">
       {/* Decorative music notes scattered in background */}
       {NOTES.map((item, i) => (
         <span
@@ -38,7 +38,7 @@ export function PlaylistNotFound() {
       ))}
 
       {/* Centered content */}
-      <div className="relative z-10 flex min-h-[calc(100vh-4rem)] flex-col items-center justify-center px-6 py-20 text-center">
+      <div className="relative z-10 flex min-h-[calc(100dvh-4rem)] flex-col items-center justify-center px-6 py-20 text-center">
         {/* Icon */}
         <div className="mb-8 flex items-center justify-center">
           <div className="relative">
@@ -56,15 +56,11 @@ export function PlaylistNotFound() {
 
         {/* Text */}
         <div className="mb-8 max-w-sm space-y-3">
-          <h1 className="text-2xl font-semibold tracking-tight">
-            {t.playlistShare.notFoundTitle}
-          </h1>
+          <h1 className="text-2xl font-semibold tracking-tight">{t.playlistShare.notFoundTitle}</h1>
           <p className="text-sm text-muted-foreground leading-relaxed">
             {t.playlistShare.notFoundDescription}
           </p>
-          <p className="text-xs text-muted-foreground/70">
-            {t.playlistShare.notFoundSubtext}
-          </p>
+          <p className="text-xs text-muted-foreground/70">{t.playlistShare.notFoundSubtext}</p>
         </div>
 
         {/* Action */}

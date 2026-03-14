@@ -116,7 +116,10 @@ export function SongList({
     return (
       <Empty>
         <EmptyHeader>
-          <EmptyMedia variant="icon" className="bg-blue-500/10 text-blue-500 ring-1 ring-blue-500/20">
+          <EmptyMedia
+            variant="icon"
+            className="bg-blue-500/10 text-blue-500 ring-1 ring-blue-500/20"
+          >
             <Music />
           </EmptyMedia>
           <EmptyTitle>{t.songs.noSongs}</EmptyTitle>

@@ -22,6 +22,7 @@ export default function LoginPage() {
         type="image/webp"
         imageSrcSet="/img/optimized/capo@2x.webp 2x, /img/optimized/capo.webp 1x"
         imageSizes="72px"
+        fetchPriority="high"
       />
       <LoginPageContent />
     </>

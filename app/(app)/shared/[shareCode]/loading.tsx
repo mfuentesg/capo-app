@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 
 export default function SharedPlaylistLoading() {
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-background">
+    <div className="min-h-[calc(100dvh-4rem)] bg-background">
       <main className="mx-auto max-w-2xl px-4 pb-20 pt-6">
         {/* Header */}
         <div className="mb-6 space-y-2">

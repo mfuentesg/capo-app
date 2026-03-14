@@ -5,11 +5,29 @@ import dynamic from "next/dynamic"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable"
-import { Drawer, DrawerContent, DrawerTitle, DrawerDescription, DrawerScrollArea } from "@/components/ui/drawer"
+import {
+  Drawer,
+  DrawerContent,
+  DrawerTitle,
+  DrawerDescription,
+  DrawerScrollArea
+} from "@/components/ui/drawer"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
-import { Plus, Search, Music, LayoutList, Music2, Music3, Settings2, X, Turtle, Rabbit, Zap } from "lucide-react"
+import {
+  Plus,
+  Search,
+  Music,
+  LayoutList,
+  Music2,
+  Music3,
+  Settings2,
+  X,
+  Turtle,
+  Rabbit,
+  Zap
+} from "lucide-react"
 import { SongList, useAllUserSongSettings } from "@/features/songs"
 import type { SongDraftFormHandle } from "@/features/song-draft"
 import { useSongs, useCreateSong, useUpdateSong, useDeleteSong } from "../hooks/use-songs"
@@ -23,10 +41,9 @@ interface SongsClientProps {
   t: ReturnType<typeof getTranslations>
 }
 
-const SongDetailLazy = dynamic(
-  () => import("@/features/songs").then((mod) => mod.SongDetail),
-  { ssr: false }
-)
+const SongDetailLazy = dynamic(() => import("@/features/songs").then((mod) => mod.SongDetail), {
+  ssr: false
+})
 
 const SongDraftFormLazy = dynamic(
   () => import("@/features/song-draft").then((mod) => mod.SongDraftForm),
@@ -150,7 +167,7 @@ export function SongsClient({ initialSongs = [], t }: SongsClientProps) {
   }
 
   return (
-    <div className="relative h-[calc(100vh-4rem)] bg-background overflow-hidden">
+    <div className="relative h-[calc(100dvh-4rem)] bg-background overflow-hidden">
       <div className="pointer-events-none absolute inset-0 -z-10" aria-hidden>
         <div className="absolute -top-32 -right-32 h-[400px] w-[400px] rounded-full bg-primary/5 blur-[100px]" />
         <div className="absolute bottom-0 -left-32 h-[500px] w-[500px] rounded-full bg-blue-500/5 blur-[100px]" />
@@ -366,7 +383,6 @@ export function SongsClient({ initialSongs = [], t }: SongsClientProps) {
                         </Button>
                       </div>
                     </div>
-
                   </div>
                 </PopoverContent>
               </Popover>

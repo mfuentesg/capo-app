@@ -423,8 +423,8 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
                     >
                       <Pencil className="h-3.5 w-3.5" />
                     </Button>
-                    )}
-                    {isPanel && (
+                  )}
+                  {isPanel && (
                     <Button
                       variant="ghost"
                       size="icon"
@@ -440,8 +440,10 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
                         <ExternalLink className="h-3.5 w-3.5" />
                       </a>
                     </Button>
-                    )}
-                    <Popover>                    <PopoverTrigger asChild>
+                  )}
+                  <Popover>
+                    {" "}
+                    <PopoverTrigger asChild>
                       <Button
                         variant="ghost"
                         size="icon"
