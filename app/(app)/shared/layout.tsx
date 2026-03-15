@@ -18,7 +18,7 @@ export default function SharedLayout({
           className="absolute bottom-0 -left-20 h-[500px] w-[500px] rounded-full"
           style={{
             background:
-              "radial-gradient(circle, oklch(0.6 0.16 280 / 10%) 0%, transparent 70%)"
+              "radial-gradient(circle, oklch(0.6 0.19 290 / 12%) 0%, transparent 70%)"
           }}
         />
       </div>
