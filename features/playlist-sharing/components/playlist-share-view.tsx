@@ -244,37 +244,45 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
       <main className="mx-auto max-w-2xl px-4 pb-20 pt-8">
         {/* Playlist header */}
         <div className="rounded-2xl border border-border/50 bg-linear-to-br from-accent-playlists/10 via-accent-playlists/5 to-transparent p-7 mb-8">
-          {/* Title first */}
-          <h1 className="text-2xl font-bold tracking-tight leading-snug mb-1.5">
+          {/* Title */}
+          <h1 className="text-2xl font-bold tracking-tight leading-snug mb-3">
             {playlist.name}
           </h1>
           {playlist.description && (
-            <p className="text-sm text-muted-foreground mb-4">{playlist.description}</p>
+            <p className="text-sm text-muted-foreground mb-3">{playlist.description}</p>
           )}
 
-          {/* Icon + badges + actions — all vertically centered */}
-          <div className="flex items-center justify-between gap-3 mt-4">
-            <div className="flex items-center gap-3 min-w-0">
+          {/* Badges */}
+          <div className="flex flex-wrap items-center gap-2 mb-5">
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-accent-playlists/30 bg-accent-playlists/10 px-3 py-1 text-xs font-medium text-accent-playlists">
+              <LinkIcon className="h-3 w-3" />
+              {t.playlistShare.sharedPlaylist}
+            </div>
+            {localVisibility === "public" && (
+              <Badge variant="secondary" className="gap-1 px-2.5 py-1 text-xs font-normal">
+                <Globe className="h-3 w-3" />
+                {t.filters.public}
+              </Badge>
+            )}
+            {localGuestEditing && (
+              <Badge variant="secondary" className="px-2.5 py-1 text-xs font-normal">
+                {t.playlistShare.guestEditing}
+              </Badge>
+            )}
+          </div>
+
+          {/* Bottom row: icon + date on left, actions on right */}
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent-playlists/15">
                 <ListMusic className="h-5 w-5 text-accent-playlists" />
               </div>
-              <div className="flex flex-wrap items-center gap-2">
-                <div className="inline-flex items-center gap-1.5 rounded-full border border-accent-playlists/30 bg-accent-playlists/10 px-3 py-1 text-xs font-medium text-accent-playlists">
-                  <LinkIcon className="h-3 w-3" />
-                  {t.playlistShare.sharedPlaylist}
-                </div>
-                {localVisibility === "public" && (
-                  <Badge variant="secondary" className="gap-1 px-2.5 py-1 text-xs font-normal">
-                    <Globe className="h-3 w-3" />
-                    {t.filters.public}
-                  </Badge>
-                )}
-                {localGuestEditing && (
-                  <Badge variant="secondary" className="px-2.5 py-1 text-xs font-normal">
-                    {t.playlistShare.guestEditing}
-                  </Badge>
-                )}
-              </div>
+              {playlist.date && (
+                <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                  <CalendarDays className="h-4 w-4" />
+                  {formatLongDate(playlist.date, locale)}
+                </span>
+              )}
             </div>
 
             <div className="flex shrink-0 items-center gap-1.5">
@@ -374,14 +382,6 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
               )}
             </div>
           </div>
-
-          {/* Date metadata */}
-          {playlist.date && (
-            <div className="flex items-center gap-1.5 text-sm text-muted-foreground mt-4">
-              <CalendarDays className="h-4 w-4" />
-              {formatLongDate(playlist.date, locale)}
-            </div>
-          )}
         </div>
 
         {/* Songs list */}
