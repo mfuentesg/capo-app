@@ -18,7 +18,9 @@ export function useAutoSave<T>(
   const isFirstMount = useRef(true)
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const saveFnRef = useRef(saveFn)
-  saveFnRef.current = saveFn
+  useEffect(() => {
+    saveFnRef.current = saveFn
+  })
 
   const clearPending = useCallback(() => {
     if (timeoutRef.current !== null) {
@@ -38,8 +40,8 @@ export function useAutoSave<T>(
     }
 
     clearPending()
-    setStatus("pending")
 
+    const pendingTimer = setTimeout(() => setStatus("pending"), 0)
     timeoutRef.current = setTimeout(async () => {
       setStatus("saving")
       try {
@@ -50,9 +52,10 @@ export function useAutoSave<T>(
       }
     }, delay)
 
-    return clearPending
-    // value must be in deps to react to changes; saveFn is intentionally via ref
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    return () => {
+      clearTimeout(pendingTimer)
+      clearPending()
+    }
   }, [value, enabled, delay, clearPending])
 
   // Cleanup on unmount

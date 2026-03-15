@@ -131,7 +131,7 @@ export function SongsClient({ initialSongs = [], t }: SongsClientProps) {
         await updateSongMutation.mutateAsync({ songId: draftSongIdRef.current, updates: song })
       }
     },
-    [user?.id, createSongMutation, updateSongMutation]
+    [user, createSongMutation, updateSongMutation]
   )
 
   const handleCreateNewSong = () => {

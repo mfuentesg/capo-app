@@ -13,21 +13,19 @@ interface SaveStatusProps {
 
 export function SaveStatus({ status, className }: SaveStatusProps) {
   const { t } = useTranslation()
-  const [visible, setVisible] = useState(false)
+  const [savedExpired, setSavedExpired] = useState(false)
 
-  // Fade out "Saved" after 2 s
+  // Hide "Saved" indicator 2 s after it appears
   useEffect(() => {
-    if (status === "saved") {
-      setVisible(true)
-      const timer = setTimeout(() => setVisible(false), 2000)
-      return () => clearTimeout(timer)
-    }
-    if (status === "pending" || status === "saving" || status === "error") {
-      setVisible(true)
+    if (status !== "saved") return
+    const timer = setTimeout(() => setSavedExpired(true), 2000)
+    return () => {
+      clearTimeout(timer)
+      setSavedExpired(false)
     }
   }, [status])
 
-  if (status === "idle" || (status === "saved" && !visible)) {
+  if (status === "idle" || (status === "saved" && savedExpired)) {
     return null
   }
 
