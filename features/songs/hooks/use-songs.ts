@@ -7,7 +7,8 @@ import {
   getSongsAction,
   createSongAction,
   updateSongAction,
-  deleteSongAction
+  deleteSongAction,
+  transferSongToTeamAction
 } from "../api/actions"
 import { songsKeys } from "./query-keys"
 import type { Song } from "../types"
@@ -172,6 +173,31 @@ export function useDeleteSong() {
     onSuccess: (_, songId) => {
       queryClient.removeQueries({ queryKey: songsKeys.detail(songId) })
       toast.success(t.toasts?.songDeleted || "Song deleted")
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: songsKeys.lists() })
+    }
+  })
+}
+
+/**
+ * Hook to transfer a personal song to a team
+ */
+export function useTransferSongToTeam() {
+  const queryClient = useQueryClient()
+  const { t } = useLocale()
+
+  return useMutation({
+    mutationFn: async ({ songId, teamId }: { songId: string; teamId: string }) => {
+      return transferSongToTeamAction(songId, teamId)
+    },
+    onSuccess: (_, { songId }) => {
+      queryClient.removeQueries({ queryKey: songsKeys.detail(songId) })
+      toast.success(t.toasts?.songTransferred || "Song transferred to team")
+    },
+    onError: (error) => {
+      console.error("Error transferring song to team:", error)
+      toast.error(t.toasts?.error || "Failed to transfer song")
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: songsKeys.lists() })

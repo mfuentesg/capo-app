@@ -9,7 +9,8 @@ import {
   getSongs as getSongsApi,
   createSong as createSongApi,
   updateSong as updateSongApi,
-  deleteSong as deleteSongApi
+  deleteSong as deleteSongApi,
+  transferSongToTeam as transferSongToTeamApi
 } from "./songsApi"
 import {
   getUserSongSettings as getUserSongSettingsApi,
@@ -47,6 +48,16 @@ export async function updateSongAction(songId: string, updates: Partial<Song>): 
 export async function deleteSongAction(songId: string): Promise<void> {
   const supabase = await createClient()
   await deleteSongApi(supabase, songId)
+  revalidatePath("/dashboard/songs")
+}
+
+export async function transferSongToTeamAction(songId: string, teamId: string): Promise<void> {
+  const supabase = await createClient()
+  const {
+    data: { user }
+  } = await supabase.auth.getUser()
+  if (!user) throw new Error("Unauthorized")
+  await transferSongToTeamApi(supabase, songId, teamId)
   revalidatePath("/dashboard/songs")
 }
 
