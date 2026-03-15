@@ -63,7 +63,7 @@
     "title": "Settings",
     "profile": "Profile",
     "profileDescription": "Your account information",
-    "connectedViaGoogle": "Connected via Google",
+    "connectedVia": "Connected via {provider}",
     "language": "Language",
     "languageDescription": "Select your preferred language",
     "appearance": "Appearance",

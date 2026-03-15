@@ -26,4 +26,5 @@ export interface UserInfo {
   avatarUrl?: string
   fullName?: string
   displayName?: string
+  provider?: string
 }
