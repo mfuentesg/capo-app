@@ -193,3 +193,27 @@ export async function deleteSong(supabase: SupabaseClient, songId: string): Prom
 
   if (error) throw error
 }
+
+/**
+ * Transfer a personal song to a team
+ *
+ * Clears user_id and sets team_id. The .is("team_id", null) guard ensures
+ * only personal songs (not already-transferred ones) are affected.
+ *
+ * @param songId - Song UUID
+ * @param teamId - Target team UUID
+ * @returns Promise<void>
+ */
+export async function transferSongToTeam(
+  supabase: SupabaseClient,
+  songId: string,
+  teamId: string
+): Promise<void> {
+  const { error } = await supabase
+    .from("songs")
+    .update({ team_id: teamId, user_id: null })
+    .eq("id", songId)
+    .is("team_id", null)
+
+  if (error) throw error
+}
