@@ -55,7 +55,7 @@ export function SharedNavbar() {
           {!!user ? (
             <UserProfileMenu />
           ) : (
-            <Button size="sm" variant="outline" onClick={() => signIn()} disabled={isSigningIn}>
+            <Button size="sm" onClick={() => signIn()} disabled={isSigningIn}>
               {t.auth.login}
             </Button>
           )}
