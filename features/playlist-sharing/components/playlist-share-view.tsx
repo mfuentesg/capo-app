@@ -241,49 +241,14 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
 
   return (
     <div className="min-h-[calc(100dvh-4rem)] bg-background">
-      <main className="mx-auto max-w-2xl px-4 pb-20 pt-6">
+      <main className="mx-auto max-w-2xl px-4 pb-20 pt-8">
         {/* Playlist header */}
-        <div className="rounded-xl border border-border/60 bg-linear-to-br from-accent-playlists/10 via-accent-playlists/5 to-transparent p-6 mb-6">
-          <div className="flex items-start justify-between gap-2">
-            <div className="min-w-0 space-y-1.5">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent-playlists/15 mb-3">
-                <ListMusic className="h-5 w-5 text-accent-playlists" />
-              </div>
-              <div className="inline-flex items-center gap-1.5 rounded-full border border-accent-playlists/30 bg-accent-playlists/10 px-3 py-1 text-xs font-medium text-accent-playlists mb-1">
-                <LinkIcon className="h-3 w-3" />
-                {t.playlistShare.sharedPlaylist}
-              </div>
-              <div className="flex flex-wrap items-center gap-1.5">
-                {localVisibility === "public" && (
-                  <Badge variant="secondary" className="h-5 gap-1 px-1.5 text-xs font-normal">
-                    <Globe className="h-3 w-3" />
-                    {t.filters.public}
-                  </Badge>
-                )}
-                {localGuestEditing && (
-                  <Badge variant="secondary" className="h-5 px-1.5 text-xs font-normal">
-                    {t.playlistShare.guestEditing}
-                  </Badge>
-                )}
-              </div>
-              <h1 className="text-2xl font-semibold tracking-tight">{playlist.name}</h1>
-              {playlist.description && (
-                <p className="text-sm text-muted-foreground">{playlist.description}</p>
-              )}
-              <div className="flex flex-wrap items-center gap-3 pt-0.5 text-xs text-muted-foreground">
-                <span className="flex items-center gap-1">
-                  <ListMusic className="h-3.5 w-3.5" />
-                  {songs.length} {songsCountLabel}
-                </span>
-                {playlist.date && (
-                  <span className="flex items-center gap-1">
-                    <CalendarDays className="h-3.5 w-3.5" />
-                    {formatLongDate(playlist.date, locale)}
-                  </span>
-                )}
-              </div>
+        <div className="rounded-2xl border border-border/50 bg-linear-to-br from-accent-playlists/10 via-accent-playlists/5 to-transparent p-7 mb-8">
+          {/* Top row: icon + actions */}
+          <div className="flex items-start justify-between gap-4 mb-6">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent-playlists/15">
+              <ListMusic className="h-6 w-6 text-accent-playlists" />
             </div>
-
             <div className="flex shrink-0 items-center gap-1.5">
               {playlist.shareCode && (
                 <Button
@@ -381,12 +346,51 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
               )}
             </div>
           </div>
+
+          {/* Badges */}
+          <div className="flex flex-wrap items-center gap-2 mb-4">
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-accent-playlists/30 bg-accent-playlists/10 px-3 py-1 text-xs font-medium text-accent-playlists">
+              <LinkIcon className="h-3 w-3" />
+              {t.playlistShare.sharedPlaylist}
+            </div>
+            {localVisibility === "public" && (
+              <Badge variant="secondary" className="gap-1 px-2.5 py-1 text-xs font-normal">
+                <Globe className="h-3 w-3" />
+                {t.filters.public}
+              </Badge>
+            )}
+            {localGuestEditing && (
+              <Badge variant="secondary" className="px-2.5 py-1 text-xs font-normal">
+                {t.playlistShare.guestEditing}
+              </Badge>
+            )}
+          </div>
+
+          {/* Title & description */}
+          <h1 className="text-3xl font-bold tracking-tight mb-2">{playlist.name}</h1>
+          {playlist.description && (
+            <p className="text-sm text-muted-foreground mb-4">{playlist.description}</p>
+          )}
+
+          {/* Metadata */}
+          <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+            <span className="flex items-center gap-1.5">
+              <ListMusic className="h-4 w-4" />
+              {songs.length} {songsCountLabel}
+            </span>
+            {playlist.date && (
+              <span className="flex items-center gap-1.5">
+                <CalendarDays className="h-4 w-4" />
+                {formatLongDate(playlist.date, locale)}
+              </span>
+            )}
+          </div>
         </div>
 
         {/* Songs list */}
         {songs.length > 0 && (
-          <div className="flex items-center justify-between mb-2 px-1">
-            <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          <div className="flex items-center justify-between mb-3 px-1">
+            <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
               {songs.length} {songsCountLabel}
             </span>
           </div>
@@ -414,7 +418,7 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
                           ref={provided.innerRef}
                           {...provided.draggableProps}
                           {...provided.dragHandleProps}
-                          className={`group flex w-full items-center gap-3 px-4 py-3 text-left transition-colors cursor-grab active:cursor-grabbing ${snapshot.isDragging ? "bg-card opacity-90 shadow-md" : "hover:bg-muted/50"}`}
+                          className={`group flex w-full items-center gap-3 px-4 py-4 text-left transition-colors cursor-grab active:cursor-grabbing ${snapshot.isDragging ? "bg-card opacity-90 shadow-md" : "hover:bg-muted/50"}`}
                           onClick={() => setActiveIndex(index)}
                         >
                           <GripVertical className="h-4 w-4 shrink-0 text-muted-foreground" />
@@ -460,7 +464,7 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
               <button
                 key={song.id}
                 type="button"
-                className="group flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-muted/50 first:rounded-t-xl last:rounded-b-xl active:bg-muted"
+                className="group flex w-full items-center gap-3 px-4 py-4 text-left transition-colors hover:bg-muted/50 first:rounded-t-xl last:rounded-b-xl active:bg-muted"
                 onClick={() => setActiveIndex(index)}
                 aria-label={`${song.title} ${song.artist}`}
               >
