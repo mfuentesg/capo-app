@@ -1,5 +1,6 @@
 "use client"
 
+import { memo } from "react"
 import { Calendar, Music3, Lock, Globe, Users } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip"
@@ -14,7 +15,11 @@ interface PlaylistItemProps {
   onSelect: (playlist: Playlist) => void
 }
 
-export function PlaylistItem({ playlist, isSelected, onSelect }: PlaylistItemProps) {
+export const PlaylistItem = memo(function PlaylistItem({
+  playlist,
+  isSelected,
+  onSelect
+}: PlaylistItemProps) {
   const { t } = useTranslation()
   const privateTooltipIds = createOverlayIds(`playlist-private-tooltip-${playlist.id}`)
   const publicTooltipIds = createOverlayIds(`playlist-public-tooltip-${playlist.id}`)
@@ -94,4 +99,4 @@ export function PlaylistItem({ playlist, isSelected, onSelect }: PlaylistItemPro
       </div>
     </div>
   )
-}
+})

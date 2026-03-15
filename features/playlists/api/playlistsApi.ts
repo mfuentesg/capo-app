@@ -113,6 +113,40 @@ export async function getPlaylists(
 }
 
 /**
+ * Fetch playlists from all accessible buckets (personal + all teams) in a single query.
+ * Falls back to a simple personal query when the user has no teams.
+ *
+ * @param supabase - Supabase client instance
+ * @param userId - Current user ID
+ * @param teamIds - Array of team IDs the user belongs to
+ * @returns Promise<Playlist[]> - Array of playlists
+ */
+export async function getPlaylistsAllBuckets(
+  supabase: SupabaseClient<Database>,
+  userId: string,
+  teamIds: string[]
+): Promise<Playlist[]> {
+  if (teamIds.length === 0) {
+    const context: AppContext = { type: "personal", userId }
+    return getPlaylists(supabase, context)
+  }
+
+  const orFilter = [
+    `user_id.eq.${userId}`,
+    ...teamIds.map((id) => `team_id.eq.${id}`)
+  ].join(",")
+
+  const { data, error } = await supabase
+    .from("playlists")
+    .select(`*, playlist_songs (song_id, position)`)
+    .or(orFilter)
+    .order("created_at", { ascending: false })
+
+  if (error) throw error
+  return (data || []).map(transformPlaylistRow)
+}
+
+/**
  * Fetch playlist with songs (nested query)
  *
  * @param supabase - Supabase client instance

@@ -8,7 +8,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js"
 import type { Tables, TablesInsert, TablesUpdate } from "@/lib/supabase/database.types"
 import type { AppContext } from "@/features/app-context"
-import type { Song as FrontendSong } from "@/features/songs/types"
+import type { Song as FrontendSong, SongOwnership } from "@/features/songs/types"
 import { applyContextFilter } from "@/lib/supabase/apply-context-filter"
 
 // Only the columns fetched by SONG_COLUMNS — a subset of the full row type
@@ -16,6 +16,10 @@ type SongRow = Pick<
   Tables<"songs">,
   "id" | "title" | "artist" | "key" | "bpm" | "lyrics" | "notes" | "transpose" | "capo" | "status"
 >
+
+// Extended row type including ownership columns
+type SongRowWithOwnership = SongRow &
+  Pick<Tables<"songs">, "user_id" | "team_id">
 
 /**
  * Maps database song to frontend song type
@@ -83,12 +87,39 @@ function mapFrontendUpdatesToDB(updates: Partial<FrontendSong>): TablesUpdate<"s
 }
 
 /**
+ * Maps a song row with ownership columns to a frontend song with ownership info resolved
+ */
+function mapDBSongWithOwnershipToFrontend(
+  dbSong: SongRowWithOwnership,
+  teams: Pick<Tables<"teams">, "id" | "name" | "icon">[]
+): FrontendSong {
+  let ownership: SongOwnership
+  if (dbSong.team_id) {
+    const team = teams.find((t) => t.id === dbSong.team_id)
+    ownership = {
+      type: "team",
+      teamId: dbSong.team_id,
+      teamName: team?.name ?? dbSong.team_id,
+      teamIcon: team?.icon ?? null
+    }
+  } else {
+    ownership = { type: "personal" }
+  }
+  return {
+    ...mapDBSongToFrontend(dbSong),
+    ownership
+  }
+}
+
+/**
  * Fetch songs based on context (personal or team)
  *
  * @param context - App context (personal or team)
  * @returns Promise<FrontendSong[]> - Array of songs
  */
 const SONG_COLUMNS = "id, title, artist, key, bpm, lyrics, notes, transpose, capo, status"
+const SONG_COLUMNS_WITH_OWNERSHIP =
+  "id, title, artist, key, bpm, lyrics, notes, transpose, capo, status, user_id, team_id"
 
 export async function getSongs(
   supabase: SupabaseClient,
@@ -101,6 +132,44 @@ export async function getSongs(
 
   if (error) throw error
   return (data || []).map(mapDBSongToFrontend)
+}
+
+/**
+ * Fetch songs from all accessible buckets (personal + all teams) in a single query.
+ * Falls back to a simple personal query when the user has no teams.
+ *
+ * @param userId - Current user ID
+ * @param teamIds - Array of team IDs the user belongs to
+ * @param teams - Team metadata used to resolve ownership display info
+ * @returns Promise<FrontendSong[]> - Array of songs with ownership info
+ */
+export async function getSongsAllBuckets(
+  supabase: SupabaseClient,
+  userId: string,
+  teamIds: string[],
+  teams: Pick<Tables<"teams">, "id" | "name" | "icon">[]
+): Promise<FrontendSong[]> {
+  if (teamIds.length === 0) {
+    // No teams — fall back to personal-only query
+    const context: AppContext = { type: "personal", userId }
+    return getSongs(supabase, context)
+  }
+
+  const orFilter = [
+    `user_id.eq.${userId}`,
+    ...teamIds.map((id) => `team_id.eq.${id}`)
+  ].join(",")
+
+  const { data, error } = await supabase
+    .from("songs")
+    .select(SONG_COLUMNS_WITH_OWNERSHIP)
+    .or(orFilter)
+    .order("created_at", { ascending: false })
+
+  if (error) throw error
+  return (data || []).map((row) =>
+    mapDBSongWithOwnershipToFrontend(row as SongRowWithOwnership, teams)
+  )
 }
 
 /**

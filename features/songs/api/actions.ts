@@ -7,6 +7,7 @@ import type { UserProfileData } from "./user-preferences-api"
 import type { AppContext } from "@/features/app-context"
 import {
   getSongs as getSongsApi,
+  getSongsAllBuckets as getSongsAllBucketsApi,
   createSong as createSongApi,
   updateSong as updateSongApi,
   deleteSong as deleteSongApi,
@@ -25,6 +26,15 @@ import {
 export async function getSongsAction(context: AppContext): Promise<Song[]> {
   const supabase = await createClient()
   return getSongsApi(supabase, context)
+}
+
+export async function getSongsAllBucketsAction(
+  userId: string,
+  teamIds: string[],
+  teams: { id: string; name: string; icon: string | null }[]
+): Promise<Song[]> {
+  const supabase = await createClient()
+  return getSongsAllBucketsApi(supabase, userId, teamIds, teams)
 }
 
 export async function createSongAction(

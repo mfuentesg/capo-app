@@ -630,6 +630,8 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
         onClose={() => setIsAddSongsOpen(false)}
         playlistId={playlist.id}
         existingSongIds={songsWithPosition.map((s) => s.id)}
+        playlistUserId={playlist.userId}
+        playlistTeamId={playlist.teamId}
       />
     </div>
   )

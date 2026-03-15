@@ -21,7 +21,7 @@ import { useMutation } from "@tanstack/react-query"
 import { DragDropContext, Droppable, Draggable, type DropResult } from "@hello-pangea/dnd"
 import { useLocale } from "@/features/settings"
 import { useUser } from "@/features/auth"
-import { useAppContext } from "@/features/app-context"
+import { useTeams } from "@/features/teams"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Switch } from "@/components/ui/switch"
@@ -83,7 +83,7 @@ interface PlaylistShareViewProps {
 export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
   const { t, locale } = useLocale()
   const { data: user } = useUser()
-  const { teams } = useAppContext()
+  const { data: teams = [] } = useTeams()
   // Pre-populate individual song settings caches so the lyrics drawer has warm data on open.
   useAllUserSongSettings()
   const [activeIndex, setActiveIndex] = useState<number | null>(null)
