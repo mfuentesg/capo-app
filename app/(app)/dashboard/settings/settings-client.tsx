@@ -1,10 +1,12 @@
 "use client"
 
-import { ProfileSettings } from "@/features/settings/components/profile-settings"
-import { ThemeSettings } from "@/features/settings/components/theme-settings"
-import { LanguageSettings } from "@/features/settings/components/language-settings"
-import { AccountDangerZone } from "@/features/settings/components/account-danger-zone"
-import { useLocale } from "@/features/settings"
+import {
+  ProfileSettings,
+  ThemeSettings,
+  LanguageSettings,
+  AccountDangerZone,
+  useLocale
+} from "@/features/settings"
 import { Separator } from "@/components/ui/separator"
 
 export function SettingsClient() {
