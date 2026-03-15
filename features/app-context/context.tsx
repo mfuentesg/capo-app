@@ -216,6 +216,8 @@ export function AppContextProvider({
 
   // setViewFilter also syncs the creation context (AppContext) unless filter is "all",
   // so that new songs/playlists land in the currently viewed bucket by default.
+  // NOTE: Uses setContextState directly (not setContext) to avoid the server cookie sync
+  // and router.refresh() — view filter changes are React Query-only and non-persistent.
   const setViewFilter = useCallback(
     (filter: ViewFilter) => {
       setViewFilterState(filter)
@@ -224,10 +226,10 @@ export function AppContextProvider({
           filter.type === "personal"
             ? { type: "personal", userId: user.id }
             : { type: "team", teamId: filter.teamId, userId: user.id }
-        setContext(newContext)
+        setContextState(newContext)
       }
     },
-    [user, setContext]
+    [user]
   )
 
   return (

@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useCallback } from "react"
+import { useMemo } from "react"
 import { Music } from "lucide-react"
 import { SongItem } from "@/features/songs"
 import { Empty, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription } from "@/components/ui/empty"
@@ -104,13 +104,6 @@ export function SongList({
     return Object.keys(groupedSongs).sort((a, b) => a.localeCompare(b))
   }, [groupedSongs])
 
-  const handleSelectSong = useCallback(
-    (song: Song) => {
-      onSelectSong(song)
-    },
-    [onSelectSong]
-  )
-
   const hasAnySongs =
     Object.keys(groupedSongs).length > 0 &&
     Object.values(groupedSongs).some((group) => group.length > 0)
@@ -192,7 +185,7 @@ export function SongList({
                 isInCart={isSongInDraft(song.id)}
                 isDisabled={isCreatingNewSong}
                 bucketColor={showBucketColors ? getBucketColor(song.ownership, teams) : undefined}
-                onSelect={handleSelectSong}
+                onSelect={onSelectSong}
                 onToggleCart={toggleSongInDraft}
               />
             ))}
