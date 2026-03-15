@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useMemo, useCallback, useRef } from "react"
+import { useQueryClient } from "@tanstack/react-query"
 import dynamic from "next/dynamic"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -30,6 +31,7 @@ import {
 } from "lucide-react"
 import { SongList, useAllUserSongSettings } from "@/features/songs"
 import { useSongs, useCreateSong, useUpdateSong, useDeleteSong } from "../hooks/use-songs"
+import { songsKeys } from "../hooks/query-keys"
 import { useUser } from "@/features/auth"
 import { useAppContext, type AppContext } from "@/features/app-context"
 import type { Song, GroupBy, BPMRange, SongFilterStatus } from "../types"
@@ -58,9 +60,27 @@ export function SongsClient({ initialSongs = [], t }: SongsClientProps) {
   const [creationBucket, setCreationBucket] = useState<AppContext | null>(null)
   const updateSongMutation = useUpdateSong()
   const deleteSongMutation = useDeleteSong()
+  const queryClient = useQueryClient()
+
   // Pre-populate individual song settings caches so SongDetail has warm data on open.
   // Run this only after initial mount to keep first render lighter.
-  useAllUserSongSettings()
+  const { data: allSettings } = useAllUserSongSettings()
+
+  // For songs with no saved settings, useAllUserSongSettings only populates songs that *have*
+  // settings. Songs without any settings remain uncached and trigger a network request when
+  // their detail opens. Pre-populate those entries with null so every song click is instant.
+  useEffect(() => {
+    if (!allSettings) return
+    const songIdsWithSettings = new Set(allSettings.map((s) => s.songId))
+    for (const song of songs) {
+      if (
+        !songIdsWithSettings.has(song.id) &&
+        queryClient.getQueryData(songsKeys.userSettings(song.id)) === undefined
+      ) {
+        queryClient.setQueryData(songsKeys.userSettings(song.id), null)
+      }
+    }
+  }, [songs, allSettings, queryClient])
 
   const [isMobile, setIsMobile] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
