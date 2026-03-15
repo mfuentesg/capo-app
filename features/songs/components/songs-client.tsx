@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useMemo, useRef } from "react"
+import { useState, useEffect, useMemo, useCallback, useRef } from "react"
 import dynamic from "next/dynamic"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -29,7 +29,6 @@ import {
   Zap
 } from "lucide-react"
 import { SongList, useAllUserSongSettings } from "@/features/songs"
-import type { SongDraftFormHandle } from "@/features/song-draft"
 import { useSongs, useCreateSong, useUpdateSong, useDeleteSong } from "../hooks/use-songs"
 import { useUser } from "@/features/auth"
 import type { Song, GroupBy, BPMRange, SongFilterStatus } from "../types"
@@ -69,7 +68,10 @@ export function SongsClient({ initialSongs = [], t }: SongsClientProps) {
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false)
   const [isCreatingNewSong, setIsCreatingNewSong] = useState(false)
   const [previewSong, setPreviewSong] = useState<Song | null>(null)
-  const songDraftFormRef = useRef<SongDraftFormHandle>(null)
+  const [draftSongId, setDraftSongId] = useState<string | null>(null)
+  // Ref tracks draft ID immediately to prevent race conditions when auto-save fires twice
+  // before the first mutateAsync resolves and React re-renders with new state
+  const draftSongIdRef = useRef<string | null>(null)
   const filterPopoverIds = createOverlayIds("songs-filter-popover")
   const resizeHandleIds = createOverlayIds("songs-layout-resize")
   const mobileDrawerIds = createOverlayIds("songs-mobile-drawer")
@@ -109,7 +111,26 @@ export function SongsClient({ initialSongs = [], t }: SongsClientProps) {
     setIsMobileDrawerOpen(false)
     setIsCreatingNewSong(false)
     setPreviewSong(null)
+    setDraftSongId(null)
+    draftSongIdRef.current = null
   }
+
+  const handleAutoSaveSong = useCallback(
+    async (song: Song) => {
+      if (!user?.id) return
+      if (draftSongIdRef.current === null) {
+        const created = await createSongMutation.mutateAsync({
+          song: { ...song, isDraft: true },
+          userId: user.id
+        })
+        draftSongIdRef.current = created.id
+        setDraftSongId(created.id)
+      } else {
+        await updateSongMutation.mutateAsync({ songId: draftSongIdRef.current, updates: song })
+      }
+    },
+    [user?.id, createSongMutation, updateSongMutation]
+  )
 
   const handleCreateNewSong = () => {
     const previewId = crypto.randomUUID()
@@ -138,10 +159,21 @@ export function SongsClient({ initialSongs = [], t }: SongsClientProps) {
       return // User not authenticated
     }
     try {
-      const createdSong = await createSongMutation.mutateAsync({ song, userId: user.id })
+      let savedSong: Song
+      if (draftSongIdRef.current !== null) {
+        // Finalise existing draft
+        savedSong = await updateSongMutation.mutateAsync({
+          songId: draftSongIdRef.current,
+          updates: { ...song, isDraft: false }
+        })
+        draftSongIdRef.current = null
+        setDraftSongId(null)
+      } else {
+        savedSong = await createSongMutation.mutateAsync({ song, userId: user.id })
+      }
       setIsCreatingNewSong(false)
       setPreviewSong(null)
-      setSelectedSong(createdSong)
+      setSelectedSong(savedSong)
       // Keep drawer open on mobile to show the new song detail
       setIsMobileDrawerOpen(true)
     } catch {
@@ -423,14 +455,16 @@ export function SongsClient({ initialSongs = [], t }: SongsClientProps) {
         >
           {isCreatingNewSong ? (
             <SongDraftFormLazy
-              ref={songDraftFormRef}
               song={previewSong || undefined}
               onClose={() => {
                 setIsCreatingNewSong(false)
                 setPreviewSong(null)
                 setSelectedSong(null)
+                setDraftSongId(null)
+                draftSongIdRef.current = null
               }}
               onSave={handleSaveSong}
+              onAutoSave={handleAutoSaveSong}
               onChange={handleUpdatePreview}
               autoFocus
             />
@@ -459,11 +493,7 @@ export function SongsClient({ initialSongs = [], t }: SongsClientProps) {
         <Drawer
           open={isMobileDrawerOpen}
           onOpenChange={(open) => {
-            if (!open && isCreatingNewSong) {
-              songDraftFormRef.current?.requestClose()
-            } else if (!open) {
-              handleCloseSongDetail()
-            }
+            if (!open) handleCloseSongDetail()
           }}
         >
           <DrawerContent
@@ -479,10 +509,10 @@ export function SongsClient({ initialSongs = [], t }: SongsClientProps) {
             <DrawerScrollArea>
               {isCreatingNewSong ? (
                 <SongDraftFormLazy
-                  ref={songDraftFormRef}
                   song={previewSong || undefined}
                   onClose={handleCloseSongDetail}
                   onSave={handleSaveSong}
+                  onAutoSave={handleAutoSaveSong}
                   onChange={handleUpdatePreview}
                 />
               ) : selectedSong ? (

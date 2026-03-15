@@ -33,7 +33,10 @@
     "copyToClipboardFailed": "Failed to copy to clipboard",
     "previous": "Previous",
     "next": "Next",
-    "comingSoon": "Soon"
+    "comingSoon": "Soon",
+    "saving": "Saving…",
+    "saved": "Saved",
+    "saveFailed": "Save failed"
   },
   "metadata": {
     "title": "Capo",

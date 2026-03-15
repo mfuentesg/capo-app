@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useEffect, useMemo, forwardRef } from "react"
+import { useState, useRef, useEffect, useMemo } from "react"
 import {
   X,
   Calendar as CalendarIcon,
@@ -45,7 +45,7 @@ import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/u
 import { cn, formatLongDate, formatDateISO, parseDateValue } from "@/lib/utils"
 import { useTranslation } from "@/hooks/use-translation"
 import { useLocale } from "@/features/settings"
-import { LyricsView, type LyricsViewHandle } from "@/features/lyrics-editor"
+import { LyricsView } from "@/features/lyrics-editor"
 import {
   useUpdateSong,
   useUserSongSettings,
@@ -70,36 +70,33 @@ interface ActiveSongLyricsProps {
   isSaving: boolean
 }
 
-const ActiveSongLyrics = forwardRef<LyricsViewHandle, ActiveSongLyricsProps>(
-  function ActiveSongLyrics({ song, onClose, onSaveLyrics, isSaving }, ref) {
-    const { data: userSettings } = useUserSongSettings(song)
-    const effectiveSettings = useEffectiveSongSettings(song)
-    const { mutate: upsertSettings } = useUpsertUserSongSettings(song)
-    const { data: preferences } = useUserPreferences()
-    const settingsKey = userSettings === undefined ? "loading" : "ready"
+function ActiveSongLyrics({ song, onClose, onSaveLyrics, isSaving }: ActiveSongLyricsProps) {
+  const { data: userSettings } = useUserSongSettings(song)
+  const effectiveSettings = useEffectiveSongSettings(song)
+  const { mutate: upsertSettings } = useUpsertUserSongSettings(song)
+  const { data: preferences } = useUserPreferences()
+  const settingsKey = userSettings === undefined ? "loading" : "ready"
 
-    return (
-      <LyricsView
-        ref={ref}
-        key={settingsKey}
-        mode="panel"
-        song={{
-          ...song,
-          lyrics: song.lyrics ?? "",
-          fontSize: song.fontSize ?? 1,
-          transpose: song.transpose ?? 0,
-          capo: song.capo ?? 0
-        }}
-        onClose={onClose}
-        onSaveLyrics={onSaveLyrics}
-        isSaving={isSaving}
-        initialSettings={effectiveSettings}
-        onSettingsChange={upsertSettings}
-        initialLyricsColumns={preferences?.lyricsColumns ?? 2}
-      />
-    )
-  }
-)
+  return (
+    <LyricsView
+      key={settingsKey}
+      mode="panel"
+      song={{
+        ...song,
+        lyrics: song.lyrics ?? "",
+        fontSize: song.fontSize ?? 1,
+        transpose: song.transpose ?? 0,
+        capo: song.capo ?? 0
+      }}
+      onClose={onClose}
+      onSaveLyrics={onSaveLyrics}
+      isSaving={isSaving}
+      initialSettings={effectiveSettings}
+      onSettingsChange={upsertSettings}
+      initialLyricsColumns={preferences?.lyricsColumns ?? 2}
+    />
+  )
+}
 
 interface PlaylistDetailProps {
   playlist: Playlist
@@ -233,7 +230,6 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
     [playlist, songsWithPosition]
   )
 
-  const lyricsViewRef = useRef<LyricsViewHandle>(null)
   const { mutate: updateSong, isPending: isSavingLyrics } = useUpdateSong()
 
   const removeSongMutation = useMutation({
@@ -552,7 +548,7 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
       <Drawer
         open={activeIndex !== null}
         onOpenChange={(open) => {
-          if (!open) lyricsViewRef.current?.requestClose()
+          if (!open) setActiveIndex(null)
         }}
         direction="top"
       >
@@ -596,7 +592,6 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
               {activeSong && (
                 <ActiveSongLyrics
                   key={activeSong.id}
-                  ref={lyricsViewRef}
                   song={activeSong}
                   onClose={() => setActiveIndex(null)}
                   onSaveLyrics={(lyrics) => {
