@@ -244,17 +244,45 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
       <main className="mx-auto max-w-2xl px-4 pb-20 pt-8">
         {/* Playlist header */}
         <div className="rounded-2xl border border-border/50 bg-linear-to-br from-accent-playlists/10 via-accent-playlists/5 to-transparent p-7 mb-8">
-          {/* Top row: icon + actions */}
-          <div className="flex items-start justify-between gap-4 mb-6">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent-playlists/15">
-              <ListMusic className="h-6 w-6 text-accent-playlists" />
+          {/* Title first */}
+          <h1 className="text-2xl font-bold tracking-tight leading-snug mb-1.5">
+            {playlist.name}
+          </h1>
+          {playlist.description && (
+            <p className="text-sm text-muted-foreground mb-4">{playlist.description}</p>
+          )}
+
+          {/* Icon + badges + actions — all vertically centered */}
+          <div className="flex items-center justify-between gap-3 mt-4">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent-playlists/15">
+                <ListMusic className="h-5 w-5 text-accent-playlists" />
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="inline-flex items-center gap-1.5 rounded-full border border-accent-playlists/30 bg-accent-playlists/10 px-3 py-1 text-xs font-medium text-accent-playlists">
+                  <LinkIcon className="h-3 w-3" />
+                  {t.playlistShare.sharedPlaylist}
+                </div>
+                {localVisibility === "public" && (
+                  <Badge variant="secondary" className="gap-1 px-2.5 py-1 text-xs font-normal">
+                    <Globe className="h-3 w-3" />
+                    {t.filters.public}
+                  </Badge>
+                )}
+                {localGuestEditing && (
+                  <Badge variant="secondary" className="px-2.5 py-1 text-xs font-normal">
+                    {t.playlistShare.guestEditing}
+                  </Badge>
+                )}
+              </div>
             </div>
+
             <div className="flex shrink-0 items-center gap-1.5">
               {playlist.shareCode && (
                 <Button
                   variant="outline"
                   size="sm"
-                  className="gap-1.5 border-accent-playlists/40 text-accent-playlists hover:bg-accent-playlists/10 hover:text-accent-playlists"
+                  className="gap-1.5 border-accent-playlists/40 text-accent-playlists hover:bg-accent-playlists/10 hover:text-accent-playlists dark:text-white dark:border-white/20 dark:hover:bg-white/10 dark:hover:text-white"
                   onClick={copyShareUrl}
                   aria-label={t.playlistShare.share}
                 >
@@ -347,36 +375,9 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
             </div>
           </div>
 
-          {/* Badges */}
-          <div className="flex flex-wrap items-center gap-2 mb-3">
-            <div className="inline-flex items-center gap-1.5 rounded-full border border-accent-playlists/30 bg-accent-playlists/10 px-3 py-1 text-xs font-medium text-accent-playlists">
-              <LinkIcon className="h-3 w-3" />
-              {t.playlistShare.sharedPlaylist}
-            </div>
-            {localVisibility === "public" && (
-              <Badge variant="secondary" className="gap-1 px-2.5 py-1 text-xs font-normal">
-                <Globe className="h-3 w-3" />
-                {t.filters.public}
-              </Badge>
-            )}
-            {localGuestEditing && (
-              <Badge variant="secondary" className="px-2.5 py-1 text-xs font-normal">
-                {t.playlistShare.guestEditing}
-              </Badge>
-            )}
-          </div>
-
-          {/* Title & description */}
-          <h1 className="text-2xl font-bold tracking-tight leading-snug mb-1.5">
-            {playlist.name}
-          </h1>
-          {playlist.description && (
-            <p className="text-sm text-muted-foreground mb-3">{playlist.description}</p>
-          )}
-
-          {/* Metadata */}
+          {/* Date metadata */}
           {playlist.date && (
-            <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+            <div className="flex items-center gap-1.5 text-sm text-muted-foreground mt-4">
               <CalendarDays className="h-4 w-4" />
               {formatLongDate(playlist.date, locale)}
             </div>
