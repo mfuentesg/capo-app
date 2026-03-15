@@ -1,3 +1,7 @@
+export type SongOwnership =
+  | { type: "personal" }
+  | { type: "team"; teamId: string; teamName: string; teamIcon?: string | null }
+
 export interface Song {
   id: string
   title: string
@@ -11,6 +15,7 @@ export interface Song {
   transpose?: number
   capo?: number
   isDraft?: boolean
+  ownership?: SongOwnership
 }
 
 export interface UserSongSettings {
@@ -26,7 +31,7 @@ export interface UserPreferences {
   theme?: "light" | "dark" | "system"
 }
 
-export type GroupBy = "none" | "key" | "artist"
+export type GroupBy = "none" | "key" | "artist" | "bucket"
 
 export interface SongDetailProps {
   song: Song

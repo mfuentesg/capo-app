@@ -5,6 +5,7 @@ import { useUser } from "@/features/auth"
 import { api } from "../api"
 import {
   getSongsAction,
+  getSongsAllBucketsAction,
   createSongAction,
   updateSongAction,
   deleteSongAction,
@@ -14,7 +15,7 @@ import { songsKeys } from "./query-keys"
 import type { Song } from "../types"
 import { toast } from "sonner"
 import { useLocale } from "@/features/settings"
-import { useAppContext } from "@/features/app-context"
+import { useAppContext, type AppContext } from "@/features/app-context"
 
 type SongQuerySnapshot = Array<[readonly unknown[], Song[] | undefined]>
 
@@ -34,25 +35,59 @@ function restoreSongQueries(
 }
 
 /**
- * Hook to fetch songs for the current context (personal or team)
- * Uses AppContext to determine if fetching personal or team songs
+ * Internal hook for fetching songs from all accessible buckets
  */
-export function useSongs() {
-  const { context } = useAppContext()
+function useAllSongs() {
+  const { context, teams } = useAppContext()
   const { data: user } = useUser()
 
   return useQuery({
-    queryKey: context ? songsKeys.list(context) : songsKeys.lists(),
+    queryKey: user?.id ? songsKeys.listAll(user.id) : songsKeys.lists(),
     queryFn: async () => {
-      if (!context) {
-        return []
-      }
-      return getSongsAction(context)
+      if (!user?.id) return []
+      const teamIds = teams.map((t) => t.id)
+      const teamsMeta = teams.map((t) => ({ id: t.id, name: t.name, icon: t.icon ?? null }))
+      return getSongsAllBucketsAction(user.id, teamIds, teamsMeta)
     },
     enabled: !!context && !!user?.id,
     staleTime: 30 * 1000,
     placeholderData: (previousData) => previousData
   })
+}
+
+/**
+ * Hook to fetch songs, routing between all-buckets and per-context queries
+ * based on the current viewFilter.
+ */
+export function useSongs() {
+  const { viewFilter } = useAppContext()
+  const { data: user } = useUser()
+
+  const allSongs = useAllSongs()
+
+  // Derive the effective context from viewFilter when not "all"
+  const filteredContext: AppContext | null =
+    viewFilter.type === "personal" && user?.id
+      ? { type: "personal", userId: user.id }
+      : viewFilter.type === "team" && user?.id
+        ? { type: "team", teamId: viewFilter.teamId, userId: user.id }
+        : null
+
+  const perContextSongs = useQuery({
+    queryKey: filteredContext ? songsKeys.list(filteredContext) : songsKeys.lists(),
+    queryFn: async () => {
+      if (!filteredContext) return []
+      return getSongsAction(filteredContext)
+    },
+    enabled: viewFilter.type !== "all" && !!filteredContext && !!user?.id,
+    staleTime: 30 * 1000,
+    placeholderData: (previousData) => previousData
+  })
+
+  if (viewFilter.type === "all") {
+    return allSongs
+  }
+  return perContextSongs
 }
 
 /**
@@ -86,8 +121,16 @@ export function useCreateSong() {
   const { context } = useAppContext()
 
   return useMutation({
-    mutationFn: async ({ song, userId }: { song: Partial<Song>; userId: string }) => {
-      return createSongAction(song, userId, context ?? undefined)
+    mutationFn: async ({
+      song,
+      userId,
+      context: contextOverride
+    }: {
+      song: Partial<Song>
+      userId: string
+      context?: AppContext
+    }) => {
+      return createSongAction(song, userId, contextOverride ?? context ?? undefined)
     },
     onSuccess: (newSong) => {
       const song = newSong

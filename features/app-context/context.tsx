@@ -11,7 +11,7 @@ import {
   useMemo,
   type ReactNode
 } from "react"
-import type { AppContext } from "./types"
+import type { AppContext, ViewFilter } from "./types"
 import { SELECTED_TEAM_ID_KEY } from "./constants"
 import { useUser } from "@/features/auth"
 import type { UserInfo } from "@/features/auth"
@@ -35,6 +35,8 @@ interface AppContextContextType {
   switchToPersonal: () => void
   switchToTeam: (teamId: string) => void
   refreshTeams: () => Promise<void>
+  viewFilter: ViewFilter
+  setViewFilter: (filter: ViewFilter) => void
 }
 
 const AppContextContext = createContext<AppContextContextType | undefined>(undefined)
@@ -81,6 +83,8 @@ export function AppContextProvider({
     initialData: initialTeams.length > 0 ? initialTeams : undefined,
     staleTime: 5 * 60 * 1000
   })
+
+  const [viewFilter, setViewFilterState] = useState<ViewFilter>({ type: "all" })
 
   const [, startTransition] = useTransition()
   const [storedTeamId, setStoredTeamId] = useState<string | null>(null)
@@ -210,6 +214,22 @@ export function AppContextProvider({
     [user, setContext]
   )
 
+  // setViewFilter also syncs the creation context (AppContext) unless filter is "all",
+  // so that new songs/playlists land in the currently viewed bucket by default.
+  const setViewFilter = useCallback(
+    (filter: ViewFilter) => {
+      setViewFilterState(filter)
+      if (filter.type !== "all" && user?.id) {
+        const newContext: AppContext =
+          filter.type === "personal"
+            ? { type: "personal", userId: user.id }
+            : { type: "team", teamId: filter.teamId, userId: user.id }
+        setContext(newContext)
+      }
+    },
+    [user, setContext]
+  )
+
   return (
     <AppContextContext.Provider
       value={useMemo(
@@ -220,9 +240,21 @@ export function AppContextProvider({
           setContext,
           switchToPersonal,
           switchToTeam,
-          refreshTeams
+          refreshTeams,
+          viewFilter,
+          setViewFilter
         }),
-        [context, teams, isLoadingTeams, setContext, switchToPersonal, switchToTeam, refreshTeams]
+        [
+          context,
+          teams,
+          isLoadingTeams,
+          setContext,
+          switchToPersonal,
+          switchToTeam,
+          refreshTeams,
+          viewFilter,
+          setViewFilter
+        ]
       )}
     >
       {children}

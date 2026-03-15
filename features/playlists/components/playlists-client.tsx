@@ -20,6 +20,7 @@ import { PlaylistList } from "./playlist-list"
 import type { Playlist } from "../types"
 import { usePlaylists, useCreatePlaylist, useUpdatePlaylist, useDeletePlaylist } from "../hooks"
 import { useUser } from "@/features/auth"
+import { useAppContext, type AppContext } from "@/features/app-context"
 import { getTranslations } from "@/lib/i18n/translations"
 import { createOverlayIds } from "@/lib/ui/stable-overlay-ids"
 
@@ -41,7 +42,9 @@ const PlaylistCreateFormLazy = dynamic(
 export function PlaylistsClient({ initialPlaylists = [], t }: PlaylistsClientProps) {
   const { data: playlists = initialPlaylists, isLoading } = usePlaylists(initialPlaylists)
   const { data: user } = useUser()
+  const { context } = useAppContext()
   const createPlaylistMutation = useCreatePlaylist()
+  const [creationBucket, setCreationBucket] = useState<AppContext | null>(null)
   const updatePlaylistMutation = useUpdatePlaylist()
   const deletePlaylistMutation = useDeletePlaylist()
   const [isMobile, setIsMobile] = useState(false)
@@ -98,11 +101,16 @@ export function PlaylistsClient({ initialPlaylists = [], t }: PlaylistsClientPro
     setSelectedPlaylistId(null)
     setIsCreating(true)
     setIsMobileDrawerOpen(true)
+    setCreationBucket(context)
   }
 
-  const handleCreateSubmit = async (playlist: Playlist) => {
+  const handleCreateSubmit = async (playlist: Playlist, bucket?: AppContext) => {
     if (!user?.id) return
-    const created = await createPlaylistMutation.mutateAsync({ playlist, userId: user.id })
+    const created = await createPlaylistMutation.mutateAsync({
+      playlist,
+      userId: user.id,
+      context: bucket ?? creationBucket ?? undefined
+    })
     setIsCreating(false)
     setSelectedPlaylistId(created.id)
   }
@@ -302,6 +310,8 @@ export function PlaylistsClient({ initialPlaylists = [], t }: PlaylistsClientPro
             <PlaylistCreateFormLazy
               onSubmit={handleCreateSubmit}
               onCancel={handleCreateCancel}
+              selectedBucket={creationBucket}
+              onBucketChange={setCreationBucket}
               autoFocus
             />
           ) : selectedPlaylist ? (
@@ -345,6 +355,8 @@ export function PlaylistsClient({ initialPlaylists = [], t }: PlaylistsClientPro
                 <PlaylistCreateFormLazy
                   onSubmit={handleCreateSubmit}
                   onCancel={handleCreateCancel}
+                  selectedBucket={creationBucket}
+                  onBucketChange={setCreationBucket}
                 />
               ) : selectedPlaylist ? (
                 <PlaylistDetailLazy

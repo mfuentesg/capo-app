@@ -6,7 +6,6 @@ import { getTeamsWithClient } from "@/features/teams"
 import { SongsClient, rawApi as songsApi } from "@/features/songs"
 import { getTranslations } from "@/lib/i18n/translations"
 import { defaultLocale, isValidLocale } from "@/lib/i18n/config"
-import { SELECTED_TEAM_ID_KEY } from "@/features/app-context/constants"
 
 export const metadata: Metadata = {
   title: "Songs",
@@ -27,7 +26,6 @@ export default async function SongsPage() {
   }
 
   const userId = authUser.id
-  const selectedTeamIdCookie = cookieStore.get(SELECTED_TEAM_ID_KEY)?.value
   const localeCookie = cookieStore.get("NEXT_LOCALE")
   const locale =
     localeCookie && isValidLocale(localeCookie.value) ? localeCookie.value : defaultLocale
@@ -38,18 +36,10 @@ export default async function SongsPage() {
     getTranslations(locale)
   ])
 
-  // Determine context
-  const initialSelectedTeamId =
-    selectedTeamIdCookie && teams.some((team) => team.id === selectedTeamIdCookie)
-      ? selectedTeamIdCookie
-      : null
-
-  const context = initialSelectedTeamId
-    ? { type: "team" as const, teamId: initialSelectedTeamId, userId }
-    : { type: "personal" as const, userId }
-
-  // 3. Fetch songs
-  const initialSongs = await songsApi.getSongs(supabase, context).catch(() => [])
+  // 3. Fetch songs from all buckets (matches client default viewFilter: "all")
+  const teamIds = teams.map((t) => t.id)
+  const teamsMeta = teams.map((t) => ({ id: t.id, name: t.name, icon: t.icon ?? null }))
+  const initialSongs = await songsApi.getSongsAllBuckets(supabase, userId, teamIds, teamsMeta).catch(() => [])
 
   return <SongsClient initialSongs={initialSongs} t={t} />
 }

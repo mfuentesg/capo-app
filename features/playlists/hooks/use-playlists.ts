@@ -3,6 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import {
   getPlaylistsAction,
+  getPlaylistsAllBucketsAction,
   getPlaylistWithSongsAction,
   createPlaylistAction,
   updatePlaylistAction,
@@ -14,7 +15,8 @@ import { playlistsKeys } from "./query-keys"
 import type { Playlist } from "../types"
 import { toast } from "sonner"
 import { useLocale } from "@/features/settings"
-import { useAppContext } from "@/features/app-context"
+import { useAppContext, type AppContext } from "@/features/app-context"
+import { useUser } from "@/features/auth"
 import { useRouter } from "next/navigation"
 
 type PlaylistQuerySnapshot = Array<[readonly unknown[], Playlist[] | undefined]>
@@ -35,24 +37,59 @@ function restorePlaylistQueries(
 }
 
 /**
- * Hook to fetch playlists for the current context (personal or team)
+ * Internal hook for fetching playlists from all accessible buckets
  */
-export function usePlaylists(initialData?: Playlist[]) {
-  const { context } = useAppContext()
+function useAllPlaylists(initialData?: Playlist[]) {
+  const { context, teams } = useAppContext()
+  const { data: user } = useUser()
 
   return useQuery({
-    queryKey: context ? playlistsKeys.list(context) : playlistsKeys.lists(),
+    queryKey: user?.id ? playlistsKeys.listAll(user.id) : playlistsKeys.lists(),
     queryFn: async () => {
-      if (!context) {
-        return []
-      }
-      return getPlaylistsAction(context)
+      if (!user?.id) return []
+      const teamIds = teams.map((t) => t.id)
+      return getPlaylistsAllBucketsAction(user.id, teamIds)
     },
-    enabled: !!context,
+    enabled: !!context && !!user?.id,
     staleTime: 30 * 1000,
     placeholderData: (previousData) => previousData,
     initialData
   })
+}
+
+/**
+ * Hook to fetch playlists, routing between all-buckets and per-context queries
+ * based on the current viewFilter.
+ */
+export function usePlaylists(initialData?: Playlist[]) {
+  const { viewFilter } = useAppContext()
+  const { data: user } = useUser()
+
+  const allPlaylists = useAllPlaylists(initialData)
+
+  const filteredContext: AppContext | null =
+    viewFilter.type === "personal" && user?.id
+      ? { type: "personal", userId: user.id }
+      : viewFilter.type === "team" && user?.id
+        ? { type: "team", teamId: viewFilter.teamId, userId: user.id }
+        : null
+
+  const perContextPlaylists = useQuery({
+    queryKey: filteredContext ? playlistsKeys.list(filteredContext) : playlistsKeys.lists(),
+    queryFn: async () => {
+      if (!filteredContext) return []
+      return getPlaylistsAction(filteredContext)
+    },
+    enabled: viewFilter.type !== "all" && !!filteredContext,
+    staleTime: 30 * 1000,
+    placeholderData: (previousData) => previousData,
+    initialData: viewFilter.type !== "all" ? initialData : undefined
+  })
+
+  if (viewFilter.type === "all") {
+    return allPlaylists
+  }
+  return perContextPlaylists
 }
 
 /**
@@ -65,8 +102,16 @@ export function useCreatePlaylist() {
   const router = useRouter()
 
   return useMutation({
-    mutationFn: async ({ playlist, userId }: { playlist: Playlist; userId: string }) => {
-      return createPlaylistAction(playlist, userId, context ?? undefined)
+    mutationFn: async ({
+      playlist,
+      userId,
+      context: contextOverride
+    }: {
+      playlist: Playlist
+      userId: string
+      context?: AppContext
+    }) => {
+      return createPlaylistAction(playlist, userId, contextOverride ?? context ?? undefined)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: playlistsKeys.lists() })

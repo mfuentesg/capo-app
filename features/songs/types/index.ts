@@ -1,5 +1,6 @@
 export type {
   Song,
+  SongOwnership,
   UserSongSettings,
   UserPreferences,
   GroupBy,

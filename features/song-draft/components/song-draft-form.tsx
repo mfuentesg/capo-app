@@ -20,6 +20,8 @@ import {
   FormMessage
 } from "@/components/ui/form"
 import type { Song } from "@/types"
+import type { AppContext } from "@/features/app-context"
+import { BucketSelector, useAppContext } from "@/features/app-context"
 import { useTranslation } from "@/hooks/use-translation"
 
 type SongFormValues = {
@@ -36,6 +38,9 @@ interface SongDraftFormProps {
   onAutoSave?: (song: Song) => Promise<void>
   onChange?: (updates: Partial<Song>) => void
   autoFocus?: boolean
+  selectedBucket?: AppContext | null
+  onBucketChange?: (ctx: AppContext) => void
+  isBucketLocked?: boolean
 }
 
 export function SongDraftForm({
@@ -44,9 +49,14 @@ export function SongDraftForm({
   onSave,
   onAutoSave,
   onChange,
-  autoFocus = false
+  autoFocus = false,
+  selectedBucket,
+  onBucketChange,
+  isBucketLocked = false
 }: SongDraftFormProps) {
   const { t } = useTranslation()
+  const { teams, context } = useAppContext()
+  const userId = context?.userId ?? ""
 
   const songFormSchema = z.object({
     title: z
@@ -237,6 +247,17 @@ export function SongDraftForm({
                   )}
                 />
               </div>
+
+              {onBucketChange !== undefined && (
+                <BucketSelector
+                  value={selectedBucket ?? context}
+                  onChange={onBucketChange}
+                  userId={userId}
+                  teams={teams}
+                  disabled={isBucketLocked}
+                  label={t.songs.bucket}
+                />
+              )}
 
               <Alert>
                 <Info />
