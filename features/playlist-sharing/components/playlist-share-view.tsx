@@ -289,7 +289,7 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="gap-1.5"
+                  className="gap-1.5 border-accent-playlists/40 text-accent-playlists hover:bg-accent-playlists/10 hover:text-accent-playlists"
                   onClick={copyShareUrl}
                   aria-label={t.playlistShare.share}
                 >
@@ -384,6 +384,13 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
         </div>
 
         {/* Songs list */}
+        {songs.length > 0 && (
+          <div className="flex items-center justify-between mb-2 px-1">
+            <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              {songs.length} {songsCountLabel}
+            </span>
+          </div>
+        )}
         {songs.length === 0 ? (
           <div className="flex flex-col items-center gap-3 py-16 text-center">
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-accent-playlists/10">
