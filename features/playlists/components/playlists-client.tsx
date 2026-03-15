@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect, useMemo, useCallback } from "react"
 import dynamic from "next/dynamic"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -85,11 +85,11 @@ export function PlaylistsClient({ initialPlaylists = [], t }: PlaylistsClientPro
     setFilterVisibility("all")
   }
 
-  const handleSelectPlaylist = (playlist: Playlist) => {
+  const handleSelectPlaylist = useCallback((playlist: Playlist) => {
     setIsCreating(false)
     setSelectedPlaylistId(playlist.id)
     setIsMobileDrawerOpen(true)
-  }
+  }, [])
 
   const handleClosePlaylistDetail = () => {
     setSelectedPlaylistId(null)

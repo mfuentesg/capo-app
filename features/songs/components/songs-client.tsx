@@ -107,13 +107,14 @@ export function SongsClient({ initialSongs = [], t }: SongsClientProps) {
     setIsMobileDrawerOpen(false)
   }
 
-  const handleSelectSong = (song: Song) => {
-    // Prevent selection when creating a new song
-    if (isCreatingNewSong) return
-
-    setSelectedSong(song)
-    setIsMobileDrawerOpen(true)
-  }
+  const handleSelectSong = useCallback(
+    (song: Song) => {
+      if (isCreatingNewSong) return
+      setSelectedSong(song)
+      setIsMobileDrawerOpen(true)
+    },
+    [isCreatingNewSong]
+  )
 
   const handleCloseSongDetail = () => {
     setSelectedSong(null)
