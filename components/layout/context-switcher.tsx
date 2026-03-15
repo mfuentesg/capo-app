@@ -6,7 +6,7 @@ import { DropdownMenuItem, DropdownMenuLabel } from "@/components/ui/dropdown-me
 import { Building2, Check, CircleUserRound, Layers, Plus } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useUser } from "@/features/auth"
-import { useAppContext } from "@/features/app-context"
+import { useViewFilter } from "@/features/app-context"
 import { useLocale } from "@/features/settings"
 import type { Tables } from "@/lib/supabase/database.types"
 import { TeamIcon } from "@/components/ui/icon-picker"
@@ -18,7 +18,7 @@ interface ContextSwitcherProps {
 export function ContextSwitcher({ teams }: ContextSwitcherProps) {
   const { t } = useLocale()
   const { data: user } = useUser()
-  const { viewFilter, setViewFilter } = useAppContext()
+  const { viewFilter, setViewFilter } = useViewFilter()
 
   const hasTeams = teams && teams.length > 0
 

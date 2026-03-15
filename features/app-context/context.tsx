@@ -12,6 +12,7 @@ import {
   type ReactNode
 } from "react"
 import type { AppContext, ViewFilter } from "./types"
+import { ViewFilterContext } from "./view-filter-context"
 import { SELECTED_TEAM_ID_KEY } from "./constants"
 import { useUser } from "@/features/auth"
 import type { UserInfo } from "@/features/auth"
@@ -35,8 +36,6 @@ interface AppContextContextType {
   switchToPersonal: () => void
   switchToTeam: (teamId: string) => void
   refreshTeams: () => Promise<void>
-  viewFilter: ViewFilter
-  setViewFilter: (filter: ViewFilter) => void
 }
 
 const AppContextContext = createContext<AppContextContextType | undefined>(undefined)
@@ -232,6 +231,11 @@ export function AppContextProvider({
     [user]
   )
 
+  const viewFilterValue = useMemo(
+    () => ({ viewFilter, setViewFilter }),
+    [viewFilter, setViewFilter]
+  )
+
   return (
     <AppContextContext.Provider
       value={useMemo(
@@ -242,24 +246,12 @@ export function AppContextProvider({
           setContext,
           switchToPersonal,
           switchToTeam,
-          refreshTeams,
-          viewFilter,
-          setViewFilter
+          refreshTeams
         }),
-        [
-          context,
-          teams,
-          isLoadingTeams,
-          setContext,
-          switchToPersonal,
-          switchToTeam,
-          refreshTeams,
-          viewFilter,
-          setViewFilter
-        ]
+        [context, teams, isLoadingTeams, setContext, switchToPersonal, switchToTeam, refreshTeams]
       )}
     >
-      {children}
+      <ViewFilterContext.Provider value={viewFilterValue}>{children}</ViewFilterContext.Provider>
     </AppContextContext.Provider>
   )
 }

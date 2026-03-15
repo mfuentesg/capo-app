@@ -15,7 +15,7 @@ import { songsKeys } from "./query-keys"
 import type { Song } from "../types"
 import { toast } from "sonner"
 import { useLocale } from "@/features/settings"
-import { useAppContext, type AppContext } from "@/features/app-context"
+import { useAppContext, useViewFilter, type AppContext } from "@/features/app-context"
 
 type SongQuerySnapshot = Array<[readonly unknown[], Song[] | undefined]>
 
@@ -60,7 +60,7 @@ function useAllSongs() {
  * based on the current viewFilter.
  */
 export function useSongs() {
-  const { viewFilter } = useAppContext()
+  const { viewFilter } = useViewFilter()
   const { data: user } = useUser()
 
   const allSongs = useAllSongs()

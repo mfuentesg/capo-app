@@ -8,7 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import type { Song, SongListProps } from "@/features/songs/types"
 import { usePlaylistDraft } from "@/features/playlist-draft"
 import { useTranslation } from "@/hooks/use-translation"
-import { useAppContext } from "@/features/app-context"
+import { useAppContext, useViewFilter } from "@/features/app-context"
 import { getBucketColor } from "@/features/songs/utils"
 
 export function SongSkeleton() {
@@ -43,7 +43,8 @@ export function SongList({
 }: SongListProps & { isLoading?: boolean }) {
   const { toggleSongInDraft, isSongInDraft } = usePlaylistDraft()
   const { t } = useTranslation()
-  const { teams, viewFilter } = useAppContext()
+  const { teams } = useAppContext()
+  const { viewFilter } = useViewFilter()
   const showBucketColors = viewFilter.type === "all"
 
   const filteredSongs = useMemo(() => {

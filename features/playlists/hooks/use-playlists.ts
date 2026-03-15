@@ -15,7 +15,7 @@ import { playlistsKeys } from "./query-keys"
 import type { Playlist } from "../types"
 import { toast } from "sonner"
 import { useLocale } from "@/features/settings"
-import { useAppContext, type AppContext } from "@/features/app-context"
+import { useAppContext, useViewFilter, type AppContext } from "@/features/app-context"
 import { useUser } from "@/features/auth"
 import { useRouter } from "next/navigation"
 
@@ -62,7 +62,7 @@ function useAllPlaylists(initialData?: Playlist[]) {
  * based on the current viewFilter.
  */
 export function usePlaylists(initialData?: Playlist[]) {
-  const { viewFilter } = useAppContext()
+  const { viewFilter } = useViewFilter()
   const { data: user } = useUser()
 
   const allPlaylists = useAllPlaylists(initialData)
