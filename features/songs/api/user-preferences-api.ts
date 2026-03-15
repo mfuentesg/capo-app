@@ -42,6 +42,24 @@ export interface UserProfileData {
 }
 
 /**
+ * Fetches only the user preferences column from profiles.
+ * Use this when song settings are not needed (e.g. AppContext init).
+ */
+export async function getUserPreferences(
+  supabase: SupabaseClient<Database>,
+  userId: string
+): Promise<UserPreferences> {
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("preferences")
+    .eq("id", userId)
+    .single()
+
+  if (error) throw error
+  return mapJsonToPreferences(data.preferences)
+}
+
+/**
  * Fetches user preferences and all song settings in a single query
  * using PostgREST nested selects (profiles → user_song_settings via FK).
  */
