@@ -68,7 +68,6 @@ export function SongsClient({ initialSongs = [], t }: SongsClientProps) {
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false)
   const [isCreatingNewSong, setIsCreatingNewSong] = useState(false)
   const [previewSong, setPreviewSong] = useState<Song | null>(null)
-  const [draftSongId, setDraftSongId] = useState<string | null>(null)
   // Ref tracks draft ID immediately to prevent race conditions when auto-save fires twice
   // before the first mutateAsync resolves and React re-renders with new state
   const draftSongIdRef = useRef<string | null>(null)
@@ -111,7 +110,6 @@ export function SongsClient({ initialSongs = [], t }: SongsClientProps) {
     setIsMobileDrawerOpen(false)
     setIsCreatingNewSong(false)
     setPreviewSong(null)
-    setDraftSongId(null)
     draftSongIdRef.current = null
   }
 
@@ -124,7 +122,6 @@ export function SongsClient({ initialSongs = [], t }: SongsClientProps) {
           userId: user.id
         })
         draftSongIdRef.current = created.id
-        setDraftSongId(created.id)
       } else {
         await updateSongMutation.mutateAsync({ songId: draftSongIdRef.current, updates: song })
       }
@@ -167,7 +164,6 @@ export function SongsClient({ initialSongs = [], t }: SongsClientProps) {
           updates: { ...song, isDraft: false }
         })
         draftSongIdRef.current = null
-        setDraftSongId(null)
       } else {
         savedSong = await createSongMutation.mutateAsync({ song, userId: user.id })
       }
@@ -460,7 +456,6 @@ export function SongsClient({ initialSongs = [], t }: SongsClientProps) {
                 setIsCreatingNewSong(false)
                 setPreviewSong(null)
                 setSelectedSong(null)
-                setDraftSongId(null)
                 draftSongIdRef.current = null
               }}
               onSave={handleSaveSong}
