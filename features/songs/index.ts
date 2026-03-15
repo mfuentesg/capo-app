@@ -18,6 +18,7 @@ export { api, rawApi } from "./api"
 
 export type {
   Song,
+  SongOwnership,
   UserSongSettings,
   UserPreferences,
   GroupBy,

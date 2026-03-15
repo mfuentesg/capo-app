@@ -13,6 +13,7 @@ export const playlistsKeys = {
   all: ["playlists"] as const,
   lists: () => [...playlistsKeys.all, "list"] as const,
   list: (context: AppContext) => [...playlistsKeys.lists(), context] as const,
+  listAll: (userId: string) => [...playlistsKeys.lists(), "all", userId] as const,
   details: () => [...playlistsKeys.all, "detail"] as const,
   detail: (id: string) => [...playlistsKeys.details(), id] as const,
   public: () => [...playlistsKeys.all, "public"] as const,

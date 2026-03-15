@@ -31,6 +31,7 @@ import {
 import { SongList, useAllUserSongSettings } from "@/features/songs"
 import { useSongs, useCreateSong, useUpdateSong, useDeleteSong } from "../hooks/use-songs"
 import { useUser } from "@/features/auth"
+import { useAppContext, type AppContext } from "@/features/app-context"
 import type { Song, GroupBy, BPMRange, SongFilterStatus } from "../types"
 import { getTranslations } from "@/lib/i18n/translations"
 import { createOverlayIds } from "@/lib/ui/stable-overlay-ids"
@@ -51,8 +52,10 @@ const SongDraftFormLazy = dynamic(
 
 export function SongsClient({ initialSongs = [], t }: SongsClientProps) {
   const { data: user } = useUser()
+  const { context } = useAppContext()
   const { data: songs = initialSongs, isLoading } = useSongs()
   const createSongMutation = useCreateSong()
+  const [creationBucket, setCreationBucket] = useState<AppContext | null>(null)
   const updateSongMutation = useUpdateSong()
   const deleteSongMutation = useDeleteSong()
   // Pre-populate individual song settings caches so SongDetail has warm data on open.
@@ -71,6 +74,8 @@ export function SongsClient({ initialSongs = [], t }: SongsClientProps) {
   // Ref tracks draft ID immediately to prevent race conditions when auto-save fires twice
   // before the first mutateAsync resolves and React re-renders with new state
   const draftSongIdRef = useRef<string | null>(null)
+  // State mirrors the ref for render-safe access (isBucketLocked)
+  const [isDraftCommitted, setIsDraftCommitted] = useState(false)
   const filterPopoverIds = createOverlayIds("songs-filter-popover")
   const resizeHandleIds = createOverlayIds("songs-layout-resize")
   const mobileDrawerIds = createOverlayIds("songs-mobile-drawer")
@@ -116,6 +121,7 @@ export function SongsClient({ initialSongs = [], t }: SongsClientProps) {
     setIsCreatingNewSong(false)
     setPreviewSong(null)
     draftSongIdRef.current = null
+    setIsDraftCommitted(false)
   }
 
   const handleAutoSaveSong = useCallback(
@@ -124,14 +130,16 @@ export function SongsClient({ initialSongs = [], t }: SongsClientProps) {
       if (draftSongIdRef.current === null) {
         const created = await createSongMutation.mutateAsync({
           song: { ...song, isDraft: true },
-          userId: user.id
+          userId: user.id,
+          context: creationBucket ?? undefined
         })
         draftSongIdRef.current = created.id
+        setIsDraftCommitted(true)
       } else {
         await updateSongMutation.mutateAsync({ songId: draftSongIdRef.current, updates: song })
       }
     },
-    [user, createSongMutation, updateSongMutation]
+    [user, createSongMutation, updateSongMutation, creationBucket]
   )
 
   const handleCreateNewSong = () => {
@@ -147,6 +155,7 @@ export function SongsClient({ initialSongs = [], t }: SongsClientProps) {
     setSelectedSong(newPreview)
     setIsCreatingNewSong(true)
     setIsMobileDrawerOpen(true)
+    setCreationBucket(context)
   }
 
   const handleUpdatePreview = (updates: Partial<Song>) => {
@@ -169,8 +178,13 @@ export function SongsClient({ initialSongs = [], t }: SongsClientProps) {
           updates: { ...song, isDraft: false }
         })
         draftSongIdRef.current = null
+        setIsDraftCommitted(false)
       } else {
-        savedSong = await createSongMutation.mutateAsync({ song, userId: user.id })
+        savedSong = await createSongMutation.mutateAsync({
+          song,
+          userId: user.id,
+          context: creationBucket ?? undefined
+        })
       }
       setIsCreatingNewSong(false)
       setPreviewSong(null)
@@ -466,6 +480,9 @@ export function SongsClient({ initialSongs = [], t }: SongsClientProps) {
               onSave={handleSaveSong}
               onAutoSave={handleAutoSaveSong}
               onChange={handleUpdatePreview}
+              selectedBucket={creationBucket}
+              onBucketChange={setCreationBucket}
+              isBucketLocked={isDraftCommitted}
               autoFocus
             />
           ) : selectedSong ? (
@@ -515,6 +532,9 @@ export function SongsClient({ initialSongs = [], t }: SongsClientProps) {
                   onSave={handleSaveSong}
                   onAutoSave={handleAutoSaveSong}
                   onChange={handleUpdatePreview}
+                  selectedBucket={creationBucket}
+                  onBucketChange={setCreationBucket}
+                  isBucketLocked={isDraftCommitted}
                 />
               ) : selectedSong ? (
                 <SongDetailLazy
