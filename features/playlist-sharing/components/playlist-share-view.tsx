@@ -4,7 +4,6 @@ import {
   Globe,
   Share2,
   Clock3,
-  ListMusic,
   CalendarDays,
   ChevronUp,
   ChevronDown,
@@ -271,12 +270,9 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
             )}
           </div>
 
-          {/* Bottom row: icon + date on left, actions on right */}
+          {/* Bottom row: date on left, actions on right */}
           <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent-playlists/15">
-                <ListMusic className="h-5 w-5 text-accent-playlists" />
-              </div>
+            <div>
               {playlist.date && (
                 <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
                   <CalendarDays className="h-4 w-4" />
