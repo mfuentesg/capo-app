@@ -348,7 +348,7 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
           </div>
 
           {/* Badges */}
-          <div className="flex flex-wrap items-center gap-2 mb-4">
+          <div className="flex flex-wrap items-center gap-2 mb-3">
             <div className="inline-flex items-center gap-1.5 rounded-full border border-accent-playlists/30 bg-accent-playlists/10 px-3 py-1 text-xs font-medium text-accent-playlists">
               <LinkIcon className="h-3 w-3" />
               {t.playlistShare.sharedPlaylist}
@@ -367,29 +367,25 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
           </div>
 
           {/* Title & description */}
-          <h1 className="text-3xl font-bold tracking-tight mb-2">{playlist.name}</h1>
+          <h1 className="text-2xl font-bold tracking-tight leading-snug mb-1.5">
+            {playlist.name}
+          </h1>
           {playlist.description && (
-            <p className="text-sm text-muted-foreground mb-4">{playlist.description}</p>
+            <p className="text-sm text-muted-foreground mb-3">{playlist.description}</p>
           )}
 
           {/* Metadata */}
-          <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-            <span className="flex items-center gap-1.5">
-              <ListMusic className="h-4 w-4" />
-              {songs.length} {songsCountLabel}
-            </span>
-            {playlist.date && (
-              <span className="flex items-center gap-1.5">
-                <CalendarDays className="h-4 w-4" />
-                {formatLongDate(playlist.date, locale)}
-              </span>
-            )}
-          </div>
+          {playlist.date && (
+            <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+              <CalendarDays className="h-4 w-4" />
+              {formatLongDate(playlist.date, locale)}
+            </div>
+          )}
         </div>
 
         {/* Songs list */}
         {songs.length > 0 && (
-          <div className="flex items-center justify-between mb-3 px-1">
+          <div className="flex items-center gap-2 mb-3 px-1">
             <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
               {songs.length} {songsCountLabel}
             </span>
@@ -426,25 +422,25 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
                             {index + 1}
                           </span>
                           <div className="min-w-0 flex-1">
-                            <p className="truncate text-sm font-medium">{song.title}</p>
+                            <p className="truncate text-base font-medium">{song.title}</p>
                             {song.artist && (
-                              <p className="truncate text-xs text-muted-foreground">
+                              <p className="truncate text-sm text-muted-foreground">
                                 {song.artist}
                               </p>
                             )}
                           </div>
                           <div className="flex shrink-0 items-center gap-1.5">
                             {song.key && (
-                              <Badge variant="outline" className="h-5 px-1.5 text-xs font-normal">
+                              <Badge variant="outline" className="h-6 min-w-[24px] px-2 text-xs font-medium">
                                 {song.key}
                               </Badge>
                             )}
                             {song.bpm > 0 && (
                               <Badge
                                 variant="outline"
-                                className="hidden h-5 items-center gap-0.5 px-1.5 text-xs font-normal sm:flex"
+                                className="hidden h-6 items-center gap-0.5 px-2 text-xs font-normal sm:flex"
                               >
-                                <Clock3 className="h-2.5 w-2.5" />
+                                <Clock3 className="h-3 w-3" />
                                 {song.bpm}
                               </Badge>
                             )}
@@ -472,23 +468,23 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
                   {index + 1}
                 </span>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium">{song.title}</p>
+                  <p className="truncate text-base font-medium">{song.title}</p>
                   {song.artist && (
-                    <p className="truncate text-xs text-muted-foreground">{song.artist}</p>
+                    <p className="truncate text-sm text-muted-foreground">{song.artist}</p>
                   )}
                 </div>
                 <div className="flex shrink-0 items-center gap-1.5">
                   {song.key && (
-                    <Badge variant="outline" className="h-5 px-1.5 text-xs font-normal">
+                    <Badge variant="outline" className="h-6 min-w-[24px] px-2 text-xs font-medium">
                       {song.key}
                     </Badge>
                   )}
                   {song.bpm > 0 && (
                     <Badge
                       variant="outline"
-                      className="hidden h-5 items-center gap-0.5 px-1.5 text-xs font-normal sm:flex"
+                      className="hidden h-6 items-center gap-0.5 px-2 text-xs font-normal sm:flex"
                     >
-                      <Clock3 className="h-2.5 w-2.5" />
+                      <Clock3 className="h-3 w-3" />
                       {song.bpm}
                     </Badge>
                   )}
