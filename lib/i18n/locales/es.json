@@ -33,7 +33,10 @@
     "copyToClipboardFailed": "Error al copiar al portapapeles",
     "previous": "Anterior",
     "next": "Siguiente",
-    "comingSoon": "Pronto"
+    "comingSoon": "Pronto",
+    "saving": "Guardando…",
+    "saved": "Guardado",
+    "saveFailed": "Error al guardar"
   },
   "metadata": {
     "title": "Capo",

@@ -27,19 +27,10 @@ import { useLyricsSettings } from "@/features/lyrics-editor"
 import { RenderedSong } from "./rendered-song"
 import { LazySongEditor, preloadSongEditor } from "./song-editor"
 import { useTranslation } from "@/hooks/use-translation"
-import { useUnsavedChangesGuard } from "@/hooks/use-unsaved-changes-guard"
+import { useAutoSave } from "@/hooks/use-auto-save"
+import { SaveStatus } from "@/components/ui/save-status"
 import { createOverlayIds } from "@/lib/ui/stable-overlay-ids"
 import { cn } from "@/lib/utils"
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle
-} from "@/components/ui/alert-dialog"
 
 export interface LyricsViewHandle {
   requestClose: () => void
@@ -79,7 +70,6 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
   const [hasInitializedEditor, setHasInitializedEditor] = useState(false)
   const [editedLyrics, setEditedLyrics] = useState(song.lyrics || "")
   const [savedLyrics, setSavedLyrics] = useState(song.lyrics || "")
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
   const [lyricsColumns, setLyricsColumnsState] = useState<1 | 2>(initialLyricsColumns)
   const { mutate: upsertPreferences } = useUpsertUserPreferences()
 
@@ -91,24 +81,27 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
     [upsertPreferences]
   )
 
-  const handleDiscard = useCallback(() => {
-    setIsEditing(false)
-    setIsPreviewing(false)
-    setEditedLyrics(savedLyrics)
-    setHasUnsavedChanges(false)
+  const handleClose = useCallback(() => {
     if (onClose) {
       onClose()
     } else {
       router.back()
     }
-  }, [savedLyrics, onClose, router])
+  }, [onClose, router])
 
-  const { showPrompt, triggerClose, confirmDiscard, keepEditing } = useUnsavedChangesGuard(
-    hasUnsavedChanges,
-    { onDiscard: handleDiscard }
+  // Auto-save lyrics while editing
+  const { status: saveStatus } = useAutoSave(
+    editedLyrics,
+    async (lyrics) => {
+      if (onSaveLyrics) {
+        onSaveLyrics(lyrics)
+        setSavedLyrics(lyrics)
+      }
+    },
+    { enabled: isEditing && editedLyrics !== savedLyrics }
   )
 
-  useImperativeHandle(ref, () => ({ requestClose: triggerClose }), [triggerClose])
+  useImperativeHandle(ref, () => ({ requestClose: handleClose }), [handleClose])
 
   const settingsPopoverIds = createOverlayIds(`lyrics-settings-${song.id}`)
   const isPanel = mode === "panel"
@@ -134,26 +127,21 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
   }
 
   const handleCancel = useCallback(() => {
-    if (hasUnsavedChanges) {
-      triggerClose()
-    } else {
-      setIsEditing(false)
-      setIsPreviewing(false)
-    }
-  }, [hasUnsavedChanges, triggerClose])
+    setIsEditing(false)
+    setIsPreviewing(false)
+    setEditedLyrics(savedLyrics)
+  }, [savedLyrics])
 
   const handleSave = () => {
     onSaveLyrics?.(editedLyrics)
     setSavedLyrics(editedLyrics)
     setIsEditing(false)
     setIsPreviewing(false)
-    setHasUnsavedChanges(false)
   }
 
   const handleLyricsChange = (value: string) => {
     if (!canEdit) return
     setEditedLyrics(value)
-    setHasUnsavedChanges(value !== savedLyrics)
   }
 
   const togglePreview = () => {
@@ -162,14 +150,8 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
   }
 
   const handleBack = useCallback(() => {
-    if (hasUnsavedChanges) {
-      triggerClose()
-    } else if (onClose) {
-      onClose()
-    } else {
-      router.back()
-    }
-  }, [hasUnsavedChanges, triggerClose, onClose, router])
+    handleClose()
+  }, [handleClose])
 
   // Reset scroll to top when song changes
   useEffect(() => {
@@ -322,21 +304,6 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
 
   return (
     <div ref={containerRef} className={cn("bg-background", isPanel ? "h-full" : "min-h-screen")}>
-      <AlertDialog open={showPrompt} onOpenChange={(open) => !open && keepEditing()}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t.common.unsavedChanges}</AlertDialogTitle>
-            <AlertDialogDescription>{t.common.discardChangesMessage}</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={keepEditing}>{t.common.keepEditing}</AlertDialogCancel>
-            <AlertDialogAction variant="destructive" onClick={confirmDiscard}>
-              {t.common.discard}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
       {/* Header */}
       <div className="sticky top-0 z-10 border-b bg-background">
         <div className={cn("px-4 py-2", !isPanel && "container mx-auto")}>
@@ -375,9 +342,7 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
             <div className="flex items-center gap-0.5 shrink-0">
               {canEdit && isEditing ? (
                 <>
-                  {hasUnsavedChanges && (
-                    <span className="mr-1 h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
-                  )}
+                  <SaveStatus status={saveStatus} className="mr-1" />
                   <Button
                     variant="ghost"
                     size="icon"
@@ -405,7 +370,7 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
                     size="icon"
                     className="h-8 w-8"
                     onClick={handleSave}
-                    disabled={!hasUnsavedChanges || isSaving}
+                    disabled={isSaving}
                     aria-label={t.common.save}
                   >
                     <Save className="h-3.5 w-3.5" />
