@@ -243,13 +243,13 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
     <div className="min-h-[calc(100dvh-4rem)] bg-background">
       <main className="mx-auto max-w-2xl px-4 pb-20 pt-6">
         {/* Playlist header */}
-        <div className="rounded-xl border border-border/60 bg-linear-to-br from-pink-500/10 via-violet-500/5 to-transparent p-6 mb-6">
+        <div className="rounded-xl border border-border/60 bg-linear-to-br from-accent-playlists/10 via-accent-playlists/5 to-transparent p-6 mb-6">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0 space-y-1.5">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-pink-500/20 mb-3">
-                <ListMusic className="h-5 w-5 text-pink-500" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent-playlists/15 mb-3">
+                <ListMusic className="h-5 w-5 text-accent-playlists" />
               </div>
-              <div className="inline-flex items-center gap-1.5 rounded-full border border-pink-500/30 bg-pink-500/10 px-3 py-1 text-xs font-medium text-pink-500 mb-1">
+              <div className="inline-flex items-center gap-1.5 rounded-full border border-accent-playlists/30 bg-accent-playlists/10 px-3 py-1 text-xs font-medium text-accent-playlists mb-1">
                 <LinkIcon className="h-3 w-3" />
                 {t.playlistShare.sharedPlaylist}
               </div>
@@ -289,7 +289,7 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="gap-1.5"
+                  className="gap-1.5 border-accent-playlists/40 text-accent-playlists hover:bg-accent-playlists/10 hover:text-accent-playlists"
                   onClick={copyShareUrl}
                   aria-label={t.playlistShare.share}
                 >
@@ -384,10 +384,17 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
         </div>
 
         {/* Songs list */}
+        {songs.length > 0 && (
+          <div className="flex items-center justify-between mb-2 px-1">
+            <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              {songs.length} {songsCountLabel}
+            </span>
+          </div>
+        )}
         {songs.length === 0 ? (
           <div className="flex flex-col items-center gap-3 py-16 text-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
-              <Music2 className="h-6 w-6 text-muted-foreground" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-accent-playlists/10">
+              <Music2 className="h-6 w-6 text-accent-playlists" />
             </div>
             <p className="text-sm text-muted-foreground">{t.playlistDetail.noSongsInPlaylist}</p>
           </div>
@@ -407,7 +414,7 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
                           ref={provided.innerRef}
                           {...provided.draggableProps}
                           {...provided.dragHandleProps}
-                          className={`flex w-full items-center gap-3 px-4 py-3 text-left transition-colors cursor-grab active:cursor-grabbing ${snapshot.isDragging ? "bg-card opacity-90 shadow-md" : "hover:bg-muted/50"}`}
+                          className={`group flex w-full items-center gap-3 px-4 py-3 text-left transition-colors cursor-grab active:cursor-grabbing ${snapshot.isDragging ? "bg-card opacity-90 shadow-md" : "hover:bg-muted/50"}`}
                           onClick={() => setActiveIndex(index)}
                         >
                           <GripVertical className="h-4 w-4 shrink-0 text-muted-foreground" />
@@ -453,11 +460,11 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
               <button
                 key={song.id}
                 type="button"
-                className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-muted/50 first:rounded-t-xl last:rounded-b-xl active:bg-muted"
+                className="group flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-muted/50 first:rounded-t-xl last:rounded-b-xl active:bg-muted"
                 onClick={() => setActiveIndex(index)}
                 aria-label={`${song.title} ${song.artist}`}
               >
-                <span className="w-5 shrink-0 text-center text-xs tabular-nums text-muted-foreground">
+                <span className="w-5 shrink-0 text-center text-xs tabular-nums text-muted-foreground transition-colors group-hover:text-accent-playlists">
                   {index + 1}
                 </span>
                 <div className="min-w-0 flex-1">
