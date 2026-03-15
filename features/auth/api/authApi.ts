@@ -26,7 +26,8 @@ export async function getUser(supabase: SupabaseClient<Database>): Promise<UserI
       email: user?.email,
       avatarUrl: (user?.user_metadata?.avatar_url as string | undefined) || undefined,
       fullName: (user?.user_metadata?.full_name as string | undefined) || undefined,
-      displayName: (user?.user_metadata?.name as string | undefined) || undefined
+      displayName: (user?.user_metadata?.name as string | undefined) || undefined,
+      provider: (user?.app_metadata?.provider as string | undefined) || undefined
     }
   } catch (error) {
     // Handle any auth-related errors gracefully

@@ -1,8 +1,19 @@
 import { revalidatePath } from "next/cache"
 import { createClient } from "@/lib/supabase/server"
-import { createSong as createSongApi, deleteSong as deleteSongApi, updateSong as updateSongApi } from "../songsApi"
+import {
+  createSong as createSongApi,
+  deleteSong as deleteSongApi,
+  updateSong as updateSongApi,
+  transferSongToTeam as transferSongToTeamApi
+} from "../songsApi"
 import { getAllUserSongSettings } from "../user-song-settings-api"
-import { createSongAction, deleteSongAction, getAllUserSongSettingsAction, updateSongAction } from "../actions"
+import {
+  createSongAction,
+  deleteSongAction,
+  getAllUserSongSettingsAction,
+  transferSongToTeamAction,
+  updateSongAction
+} from "../actions"
 
 jest.mock("next/cache", () => ({
   revalidatePath: jest.fn()
@@ -15,7 +26,8 @@ jest.mock("@/lib/supabase/server", () => ({
 jest.mock("../songsApi", () => ({
   createSong: jest.fn(),
   updateSong: jest.fn(),
-  deleteSong: jest.fn()
+  deleteSong: jest.fn(),
+  transferSongToTeam: jest.fn()
 }))
 
 jest.mock("../user-song-settings-api", () => ({
@@ -74,6 +86,34 @@ describe("song actions", () => {
     await deleteSongAction("song-4")
 
     expect(deleteSongApi).toHaveBeenCalledWith(mockSupabase, "song-4")
+    expect(revalidatePath).toHaveBeenCalledWith("/dashboard/songs")
+  })
+})
+
+describe("transferSongToTeamAction", () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
+
+  it("throws Unauthorized when no user is authenticated", async () => {
+    ;(createClient as jest.Mock).mockResolvedValue({
+      auth: { getUser: jest.fn().mockResolvedValue({ data: { user: null } }) }
+    })
+
+    await expect(transferSongToTeamAction("song-1", "team-1")).rejects.toThrow("Unauthorized")
+    expect(transferSongToTeamApi).not.toHaveBeenCalled()
+  })
+
+  it("transfers song to team and revalidates songs page", async () => {
+    const mockSupabase = {
+      auth: { getUser: jest.fn().mockResolvedValue({ data: { user: { id: "user-1" } } }) }
+    }
+    ;(createClient as jest.Mock).mockResolvedValue(mockSupabase)
+    ;(transferSongToTeamApi as jest.Mock).mockResolvedValue(undefined)
+
+    await transferSongToTeamAction("song-1", "team-1")
+
+    expect(transferSongToTeamApi).toHaveBeenCalledWith(mockSupabase, "song-1", "team-1")
     expect(revalidatePath).toHaveBeenCalledWith("/dashboard/songs")
   })
 })

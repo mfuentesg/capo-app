@@ -11,7 +11,8 @@ import {
   Guitar,
   Minus,
   Plus,
-  ExternalLink
+  ExternalLink,
+  ArrowRightFromLine
 } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -36,9 +37,12 @@ import {
   useUpsertUserSongSettings
 } from "@/features/songs/hooks/use-user-song-settings"
 import { usePlaylistDraft } from "@/features/playlist-draft"
+import { useTeams } from "@/features/teams"
+import { useAppContext } from "@/features/app-context"
 import { transposeKey, calculateCapoKey } from "@/lib/music-theory"
 import { useTranslation } from "@/hooks/use-translation"
 import { createOverlayIds } from "@/lib/ui/stable-overlay-ids"
+import { TransferToTeamDialog } from "../transfer-to-team-dialog"
 
 interface EditableFieldProps {
   value: string
@@ -120,9 +124,10 @@ interface SongDetailProps {
   onClose: () => void
   onUpdate: (songId: string, updates: Partial<Song>) => void
   onDelete: (songId: string) => void
+  onTransferSuccess: () => void
 }
 
-export function SongDetail({ song, onClose, onUpdate, onDelete }: SongDetailProps) {
+export function SongDetail({ song, onClose, onUpdate, onDelete, onTransferSuccess }: SongDetailProps) {
   const { t } = useTranslation()
   const { isSongInDraft, toggleSongInDraft } = usePlaylistDraft()
   const isInCart = isSongInDraft(song.id)
@@ -130,6 +135,10 @@ export function SongDetail({ song, onClose, onUpdate, onDelete }: SongDetailProp
   const { mutate: upsertSettings } = useUpsertUserSongSettings(song)
   const deleteDialogIds = createOverlayIds(`song-detail-delete-${song.id}`)
   const [bpmDraftBySongId, setBpmDraftBySongId] = useState<Record<string, string>>({})
+  const [isTransferDialogOpen, setIsTransferDialogOpen] = useState(false)
+  const { context } = useAppContext()
+  const { data: teams = [] } = useTeams()
+  const canTransfer = context?.type === "personal" && teams.length > 0
   const bpmDraft = bpmDraftBySongId[song.id]
   const bpmInputValue = bpmDraft ?? String(song.bpm ?? 0)
 
@@ -384,7 +393,26 @@ export function SongDetail({ song, onClose, onUpdate, onDelete }: SongDetailProp
                 </>
               )}
             </Button>
+            {canTransfer && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-2"
+                onClick={() => setIsTransferDialogOpen(true)}
+              >
+                <ArrowRightFromLine className="h-3.5 w-3.5" />
+                {t.songs.transferToTeam}
+              </Button>
+            )}
           </div>
+          {canTransfer && (
+            <TransferToTeamDialog
+              song={song}
+              open={isTransferDialogOpen}
+              onOpenChange={setIsTransferDialogOpen}
+              onSuccess={onTransferSuccess}
+            />
+          )}
 
           {/* Danger Zone */}
           <div className="rounded-lg border border-destructive/50 bg-card p-4">

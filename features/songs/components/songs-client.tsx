@@ -97,6 +97,11 @@ export function SongsClient({ initialSongs = [], t }: SongsClientProps) {
     setIsMobileDrawerOpen(false)
   }
 
+  const handleTransferSuccess = () => {
+    setSelectedSong(null)
+    setIsMobileDrawerOpen(false)
+  }
+
   const handleSelectSong = (song: Song) => {
     // Prevent selection when creating a new song
     if (isCreatingNewSong) return
@@ -469,6 +474,7 @@ export function SongsClient({ initialSongs = [], t }: SongsClientProps) {
               onClose={handleCloseSongDetail}
               onUpdate={updateSong}
               onDelete={handleDeleteSong}
+              onTransferSuccess={handleTransferSuccess}
             />
           ) : (
             <div className="flex flex-1 flex-col items-center justify-center bg-muted/30 p-8 text-center">
@@ -516,6 +522,7 @@ export function SongsClient({ initialSongs = [], t }: SongsClientProps) {
                   onClose={handleCloseSongDetail}
                   onUpdate={updateSong}
                   onDelete={handleDeleteSong}
+                  onTransferSuccess={handleTransferSuccess}
                 />
               ) : null}
             </DrawerScrollArea>
