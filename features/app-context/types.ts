@@ -17,3 +17,12 @@ export type AppContext =
       teamId: string
       userId: string // Current user ID for permissions
     }
+
+/**
+ * View filter type - determines what data is shown in lists.
+ * Separate from AppContext (creation bucket) to decouple display from creation.
+ */
+export type ViewFilter =
+  | { type: "all" }
+  | { type: "personal" }
+  | { type: "team"; teamId: string }

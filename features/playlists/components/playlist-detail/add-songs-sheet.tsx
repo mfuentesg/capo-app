@@ -30,13 +30,17 @@ interface AddSongsSheetProps {
   onClose: () => void
   playlistId: string
   existingSongIds: string[]
+  playlistUserId?: string | null
+  playlistTeamId?: string | null
 }
 
 export function AddSongsSheet({
   open,
   onClose,
   playlistId,
-  existingSongIds
+  existingSongIds,
+  playlistUserId,
+  playlistTeamId
 }: AddSongsSheetProps) {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
@@ -47,7 +51,18 @@ export function AddSongsSheet({
   const [filterBpm, setFilterBpm] = useState<BPMRange>("all")
 
   const existingSet = new Set(existingSongIds)
-  const addableSongs = allSongs.filter((s) => !existingSet.has(s.id))
+  // Filter songs to only those matching the playlist's bucket to prevent cross-bucket adds
+  const bucketSongs = allSongs.filter((s) => {
+    if (!s.ownership) return true // no ownership info, include all (single-context query)
+    if (playlistTeamId) {
+      return s.ownership.type === "team" && s.ownership.teamId === playlistTeamId
+    }
+    if (playlistUserId) {
+      return s.ownership.type === "personal"
+    }
+    return true
+  })
+  const addableSongs = bucketSongs.filter((s) => !existingSet.has(s.id))
 
   const availableKeys = useMemo(() => {
     const keys = Array.from(new Set(addableSongs.map((s) => s.key).filter(Boolean))).sort()

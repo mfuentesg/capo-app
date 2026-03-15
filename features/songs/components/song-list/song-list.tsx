@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useCallback } from "react"
+import { useMemo } from "react"
 import { Music } from "lucide-react"
 import { SongItem } from "@/features/songs"
 import { Empty, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription } from "@/components/ui/empty"
@@ -8,6 +8,8 @@ import { Skeleton } from "@/components/ui/skeleton"
 import type { Song, SongListProps } from "@/features/songs/types"
 import { usePlaylistDraft } from "@/features/playlist-draft"
 import { useTranslation } from "@/hooks/use-translation"
+import { useAppContext, useViewFilter } from "@/features/app-context"
+import { getBucketColor } from "@/features/songs/utils"
 
 export function SongSkeleton() {
   return (
@@ -41,6 +43,9 @@ export function SongList({
 }: SongListProps & { isLoading?: boolean }) {
   const { toggleSongInDraft, isSongInDraft } = usePlaylistDraft()
   const { t } = useTranslation()
+  const { teams } = useAppContext()
+  const { viewFilter } = useViewFilter()
+  const showBucketColors = viewFilter.type === "all"
 
   const filteredSongs = useMemo(() => {
     const normalizedQuery = searchQuery.trim().toLowerCase()
@@ -76,7 +81,16 @@ export function SongList({
 
     return filteredSongs.reduce(
       (groups, song) => {
-        const groupKey = groupBy === "key" ? song.key : song.artist
+        let groupKey: string
+        if (groupBy === "key") {
+          groupKey = song.key
+        } else if (groupBy === "artist") {
+          groupKey = song.artist
+        } else {
+          // "bucket"
+          groupKey =
+            song.ownership?.type === "team" ? song.ownership.teamName : t.nav?.personal ?? "Personal"
+        }
         if (!groups[groupKey]) {
           groups[groupKey] = []
         }
@@ -85,18 +99,11 @@ export function SongList({
       },
       {} as Record<string, Song[]>
     )
-  }, [filteredSongs, groupBy])
+  }, [filteredSongs, groupBy, t.nav?.personal])
 
   const sortedGroupKeys = useMemo(() => {
     return Object.keys(groupedSongs).sort((a, b) => a.localeCompare(b))
   }, [groupedSongs])
-
-  const handleSelectSong = useCallback(
-    (song: Song) => {
-      onSelectSong(song)
-    },
-    [onSelectSong]
-  )
 
   const hasAnySongs =
     Object.keys(groupedSongs).length > 0 &&
@@ -178,7 +185,8 @@ export function SongList({
                 isSelected={!isCreatingNewSong && selectedSong?.id === song.id}
                 isInCart={isSongInDraft(song.id)}
                 isDisabled={isCreatingNewSong}
-                onSelect={handleSelectSong}
+                bucketColor={showBucketColors ? getBucketColor(song.ownership, teams) : undefined}
+                onSelect={onSelectSong}
                 onToggleCart={toggleSongInDraft}
               />
             ))}

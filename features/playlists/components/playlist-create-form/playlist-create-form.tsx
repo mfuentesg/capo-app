@@ -13,16 +13,28 @@ import { useTranslation } from "@/hooks/use-translation"
 import { useLocale } from "@/features/settings"
 import type { Playlist } from "@/features/playlists/types"
 import { createOverlayIds } from "@/lib/ui/stable-overlay-ids"
+import type { AppContext } from "@/features/app-context"
+import { BucketSelector, useAppContext } from "@/features/app-context"
 
 interface PlaylistCreateFormProps {
-  onSubmit: (playlist: Playlist) => Promise<void>
+  onSubmit: (playlist: Playlist, bucket?: AppContext) => Promise<void>
   onCancel: () => void
   autoFocus?: boolean
+  selectedBucket?: AppContext | null
+  onBucketChange?: (ctx: AppContext) => void
 }
 
-export function PlaylistCreateForm({ onSubmit, onCancel, autoFocus = false }: PlaylistCreateFormProps) {
+export function PlaylistCreateForm({
+  onSubmit,
+  onCancel,
+  autoFocus = false,
+  selectedBucket,
+  onBucketChange
+}: PlaylistCreateFormProps) {
   const { t } = useTranslation()
   const { locale } = useLocale()
+  const { teams, context } = useAppContext()
+  const userId = context?.userId ?? ""
   const [name, setName] = useState("")
   const [description, setDescription] = useState("")
   const [date, setDate] = useState<Date | undefined>(undefined)
@@ -67,7 +79,7 @@ export function PlaylistCreateForm({ onSubmit, onCancel, autoFocus = false }: Pl
         updatedAt: new Date().toISOString(),
         visibility: "private"
       }
-      await onSubmit(playlist)
+      await onSubmit(playlist, selectedBucket ?? context ?? undefined)
     } finally {
       setIsSubmitting(false)
     }
@@ -92,6 +104,16 @@ export function PlaylistCreateForm({ onSubmit, onCancel, autoFocus = false }: Pl
 
       <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 lg:p-6">
         <div className="space-y-4 max-w-md">
+          {onBucketChange !== undefined && (
+            <BucketSelector
+              value={selectedBucket ?? context}
+              onChange={onBucketChange}
+              userId={userId}
+              teams={teams}
+              label={t.playlists.bucket}
+            />
+          )}
+
           <div className="space-y-2">
             <Label htmlFor="playlist-name">{t.playlists.playlistName}</Label>
             <div className="flex gap-2">

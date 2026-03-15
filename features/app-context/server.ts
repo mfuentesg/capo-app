@@ -118,7 +118,7 @@ export async function getAppContextFromCookies(userId: string): Promise<AppConte
 }
 
 import { cache } from "react"
-import { getUserProfileData } from "@/features/songs/api/user-preferences-api"
+import { getUserPreferences } from "@/features/songs/api/user-preferences-api"
 
 export const getInitialAppContextData = cache(async () => {
   const supabase = await createClient()
@@ -140,11 +140,11 @@ export const getInitialAppContextData = cache(async () => {
   const userId = authUser.id
 
   // Fetch user profile, teams, preferences, and selected team ID in parallel
-  const [userProfile, teams, selectedTeamId, profileData] = await Promise.all([
+  const [userProfile, teams, selectedTeamId, preferences] = await Promise.all([
     getUser(supabase),
     getTeamsWithClient(supabase, userId),
     getSelectedTeamId(),
-    getUserProfileData(supabase, userId).catch(() => null)
+    getUserPreferences(supabase, userId).catch(() => null)
   ])
 
   if (!userProfile) {
@@ -163,6 +163,6 @@ export const getInitialAppContextData = cache(async () => {
     user: userProfile,
     teams,
     initialSelectedTeamId,
-    preferences: profileData?.preferences ?? null
+    preferences
   }
 })

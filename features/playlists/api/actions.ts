@@ -6,6 +6,7 @@ import type { Playlist } from "../types"
 import type { AppContext } from "@/features/app-context"
 import {
   getPlaylists as getPlaylistsApi,
+  getPlaylistsAllBuckets as getPlaylistsAllBucketsApi,
   getPlaylistWithSongs as getPlaylistWithSongsApi,
   createPlaylist as createPlaylistApi,
   updatePlaylist as updatePlaylistApi,
@@ -19,6 +20,14 @@ import {
 export async function getPlaylistsAction(context: AppContext): Promise<Playlist[]> {
   const supabase = await createClient()
   return getPlaylistsApi(supabase, context)
+}
+
+export async function getPlaylistsAllBucketsAction(
+  userId: string,
+  teamIds: string[]
+): Promise<Playlist[]> {
+  const supabase = await createClient()
+  return getPlaylistsAllBucketsApi(supabase, userId, teamIds)
 }
 
 export async function getPlaylistWithSongsAction(playlistId: string) {

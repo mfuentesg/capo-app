@@ -12,6 +12,7 @@ interface SongItemProps {
   isInCart: boolean
   isDisabled?: boolean
   isPreview?: boolean
+  bucketColor?: string
   onSelect: (song: Song) => void
   onToggleCart: (song: Song) => void
 }
@@ -22,12 +23,25 @@ export const SongItem = memo(function SongItem({
   isInCart,
   isDisabled = false,
   isPreview = false,
+  bucketColor,
   onSelect,
   onToggleCart
 }: SongItemProps) {
+  const ownershipLabel =
+    song.ownership?.type === "personal"
+      ? "Me"
+      : song.ownership?.type === "team"
+        ? song.ownership.teamName.slice(0, 8)
+        : null
+
   return (
     <div
       onClick={() => !isDisabled && onSelect(song)}
+      style={
+        bucketColor
+          ? { borderLeftColor: bucketColor, borderLeftWidth: "3px", borderLeftStyle: "solid" }
+          : undefined
+      }
       className={cn(
         "group flex items-center gap-3 rounded-lg border p-3 transition-colors",
         isPreview
@@ -65,7 +79,20 @@ export const SongItem = memo(function SongItem({
         <div className="flex items-center justify-between gap-3">
           <div className="min-w-0 flex-1">
             <h4 className="truncate text-sm font-semibold leading-tight">{song.title}</h4>
-            <p className="truncate text-xs text-muted-foreground">{song.artist}</p>
+            <div className="flex items-center gap-1.5">
+              <p className="truncate text-xs text-muted-foreground">{song.artist}</p>
+              {ownershipLabel && bucketColor && (
+                <span
+                  className="shrink-0 inline-flex items-center rounded px-1 py-0.5 text-[10px] font-medium"
+                  style={{
+                    color: bucketColor,
+                    background: `color-mix(in oklch, ${bucketColor} 12%, transparent)`
+                  }}
+                >
+                  {ownershipLabel}
+                </span>
+              )}
+            </div>
           </div>
         </div>
 

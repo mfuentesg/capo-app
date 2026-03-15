@@ -1,1 +1,1 @@
-// Songs feature utilities (none yet, placeholder for future)
+export { getBucketColor } from "./bucket-colors"
