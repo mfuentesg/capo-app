@@ -63,7 +63,7 @@
     "title": "Configuración",
     "profile": "Perfil",
     "profileDescription": "Información de tu cuenta",
-    "connectedViaGoogle": "Conectado con Google",
+    "connectedVia": "Conectado con {provider}",
     "language": "Idioma",
     "languageDescription": "Selecciona tu idioma preferido",
     "appearance": "Apariencia",

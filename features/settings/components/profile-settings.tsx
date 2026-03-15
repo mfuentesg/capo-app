@@ -7,12 +7,18 @@ import { useUser } from "@/features/auth"
 import { useLocale } from "@/features/settings"
 import { getInitials } from "@/lib/utils"
 
+function formatProviderName(provider?: string): string {
+  if (!provider) return "Email"
+  return provider.charAt(0).toUpperCase() + provider.slice(1)
+}
+
 export function ProfileSettings() {
   const { t } = useLocale()
   const { data: user } = useUser()
 
   const displayName = user?.displayName || user?.fullName || user?.email || "—"
   const initials = getInitials(displayName)
+  const providerName = formatProviderName(user?.provider)
 
   return (
     <section className="space-y-4">
@@ -33,7 +39,7 @@ export function ProfileSettings() {
             <p className="truncate text-sm text-muted-foreground">{user.email}</p>
           )}
           <Badge variant="secondary" className="text-xs">
-            {t.settings.connectedViaGoogle}
+            {t.settings.connectedVia.replace("{provider}", providerName)}
           </Badge>
         </div>
       </div>
