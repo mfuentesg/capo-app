@@ -8,6 +8,7 @@ import type { Playlist } from "@/features/playlists/types"
 import { useTranslation } from "@/hooks/use-translation"
 import { formatDate } from "@/lib/utils"
 import { createOverlayIds } from "@/lib/ui/stable-overlay-ids"
+import { TeamIcon } from "@/components/ui/icon-picker"
 
 interface PlaylistItemProps {
   playlist: Playlist
@@ -15,6 +16,7 @@ interface PlaylistItemProps {
   onSelect: (playlist: Playlist) => void
   ownershipLabel?: string
   bucketColor?: string
+  teamIcon?: string | null
 }
 
 export const PlaylistItem = memo(function PlaylistItem({
@@ -22,7 +24,8 @@ export const PlaylistItem = memo(function PlaylistItem({
   isSelected,
   onSelect,
   ownershipLabel,
-  bucketColor
+  bucketColor,
+  teamIcon
 }: PlaylistItemProps) {
   const { t } = useTranslation()
   const privateTooltipIds = createOverlayIds(`playlist-private-tooltip-${playlist.id}`)
@@ -31,7 +34,7 @@ export const PlaylistItem = memo(function PlaylistItem({
   return (
     <div
       onClick={() => onSelect(playlist)}
-      className={`flex w-full items-center gap-3 rounded-lg p-3 cursor-pointer transition-colors border ${
+      className={`relative flex w-full items-center gap-3 rounded-lg p-3 cursor-pointer transition-colors border ${
         isSelected
           ? "bg-primary/10 border-primary"
           : "bg-linear-to-br from-accent-playlists/5 via-accent-playlists/3 to-transparent border-border/60 hover:bg-muted/50 hover:border-border"
@@ -117,6 +120,16 @@ export const PlaylistItem = memo(function PlaylistItem({
           )}
         </div>
       </div>
+
+      {bucketColor && teamIcon && (
+        <span
+          className="absolute top-1.5 right-1.5 flex size-4 items-center justify-center rounded-full text-[9px]"
+          style={{ background: `color-mix(in oklch, ${bucketColor} 25%, transparent)` }}
+          aria-hidden
+        >
+          <TeamIcon icon={teamIcon} className="size-2.5" />
+        </span>
+      )}
     </div>
   )
 })

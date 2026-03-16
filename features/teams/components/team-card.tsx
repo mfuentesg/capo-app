@@ -18,7 +18,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Users as UsersIcon, Wrench, LogOut, ArrowLeftRight, Trash2 } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useLeaveTeam, useDeleteTeam, useUpdateTeam } from "@/features/teams"
-import { useAppContext } from "@/features/app-context"
+import { useAppContext, useViewFilter } from "@/features/app-context"
 import { useUser } from "@/features/auth"
 import { useTranslation } from "@/hooks/use-translation"
 import type { TeamWithMemberCount } from "@/features/teams"
@@ -33,6 +33,7 @@ interface TeamCardProps {
 
 export function TeamCard({ team, memberCount = 1, initialSelectedTeamId = null }: TeamCardProps) {
   const { context, switchToTeam, switchToPersonal } = useAppContext()
+  const { setViewFilter } = useViewFilter()
   const { data: user } = useUser()
   const { t } = useTranslation()
   const router = useRouter()
@@ -118,6 +119,7 @@ export function TeamCard({ team, memberCount = 1, initialSelectedTeamId = null }
                 size="icon"
                 onClick={() => {
                   switchToTeam(team.id)
+                  setViewFilter({ type: "team", teamId: team.id })
                 }}
                 className="ml-2 shrink-0"
                 aria-label={`${t.teams.switchToTeam}: ${team.name}`}

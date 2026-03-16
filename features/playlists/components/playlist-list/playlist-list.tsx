@@ -104,6 +104,8 @@ export function PlaylistList({
         let ownershipLabel: string | undefined
         let bucketColor: string | undefined
 
+        let teamIcon: string | null = null
+
         if (showBucketColors && playlist.teamId) {
           const team = teams.find((t) => t.id === playlist.teamId)
           if (team) {
@@ -115,6 +117,7 @@ export function PlaylistList({
             }
             ownershipLabel = team.name
             bucketColor = getBucketColor(ownership, teams)
+            teamIcon = team.icon ?? null
           }
         }
 
@@ -125,6 +128,7 @@ export function PlaylistList({
             isSelected={selectedPlaylistId === playlist.id}
             ownershipLabel={ownershipLabel}
             bucketColor={bucketColor}
+            teamIcon={teamIcon}
             onSelect={onSelectPlaylist}
           />
         )

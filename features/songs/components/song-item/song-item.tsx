@@ -4,6 +4,7 @@ import { Check, Music2, Turtle, Rabbit, Zap, Plus } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import { getKeyColorClasses, getBpmColorClasses } from "@/lib/badge-colors"
+import { TeamIcon } from "@/components/ui/icon-picker"
 import type { Song } from "@/features/songs/types"
 
 interface SongItemProps {
@@ -34,11 +35,13 @@ export const SongItem = memo(function SongItem({
         ? song.ownership.teamName.slice(0, 8)
         : null
 
+  const teamIcon = song.ownership?.type === "team" ? (song.ownership.teamIcon ?? null) : null
+
   return (
     <div
       onClick={() => !isDisabled && onSelect(song)}
       className={cn(
-        "group flex items-center gap-3 rounded-lg border p-3 transition-colors",
+        "relative group flex items-center gap-3 rounded-lg border p-3 transition-colors",
         isPreview
           ? "bg-muted"
           : isSelected && !isDisabled
@@ -114,6 +117,16 @@ export const SongItem = memo(function SongItem({
           </Badge>
         </div>
       </div>
+
+      {bucketColor && teamIcon && (
+        <span
+          className="absolute top-1.5 right-1.5 flex size-4 items-center justify-center rounded-full text-[9px]"
+          style={{ background: `color-mix(in oklch, ${bucketColor} 25%, transparent)` }}
+          aria-hidden
+        >
+          <TeamIcon icon={teamIcon} className="size-2.5" />
+        </span>
+      )}
     </div>
   )
 })
