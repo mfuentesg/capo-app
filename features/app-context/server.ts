@@ -14,9 +14,11 @@ import { SELECTED_TEAM_ID_KEY, VIEW_FILTER_KEY } from "./constants"
 import { createClient } from "@/lib/supabase/server"
 import { api as teamsApi, getTeamsWithClient } from "@/features/teams/api"
 import { getUser } from "@/features/auth/api"
+import { cookies } from "next/headers"
+import { cache } from "react"
+import { getUserPreferences } from "@/features/songs/api/user-preferences-api"
 
 export async function setSelectedTeamId(teamId: string) {
-  const { cookies } = await import("next/headers")
   const cookieStore = await cookies()
   cookieStore.set(SELECTED_TEAM_ID_KEY, teamId, {
     path: "/",
@@ -28,19 +30,16 @@ export async function setSelectedTeamId(teamId: string) {
 }
 
 export async function unsetSelectedTeamId() {
-  const { cookies } = await import("next/headers")
   const cookieStore = await cookies()
   cookieStore.delete(SELECTED_TEAM_ID_KEY)
 }
 
 export async function getSelectedTeamId(): Promise<string | null> {
-  const { cookies } = await import("next/headers")
   const cookieStore = await cookies()
   return cookieStore.get(SELECTED_TEAM_ID_KEY)?.value ?? null
 }
 
 async function getViewFilterCookie(): Promise<"all" | "personal" | "team" | null> {
-  const { cookies } = await import("next/headers")
   const cookieStore = await cookies()
   const value = cookieStore.get(VIEW_FILTER_KEY)?.value
   if (value === "all" || value === "personal" || value === "team") return value
@@ -48,7 +47,6 @@ async function getViewFilterCookie(): Promise<"all" | "personal" | "team" | null
 }
 
 export async function setViewFilterCookie(type: "all" | "personal" | "team") {
-  const { cookies } = await import("next/headers")
   const cookieStore = await cookies()
   if (type === "all") {
     cookieStore.delete(VIEW_FILTER_KEY)
@@ -141,9 +139,6 @@ export async function getAppContextFromCookies(userId: string): Promise<AppConte
   }
 }
 
-import { cache } from "react"
-import { getUserPreferences } from "@/features/songs/api/user-preferences-api"
-
 export const getInitialAppContextData = cache(async () => {
   const supabase = await createClient()
 
@@ -194,7 +189,6 @@ export const getInitialAppContextData = cache(async () => {
       initialViewFilter = { type: "team", teamId: initialSelectedTeamId }
     } else {
       // Stale team ID — reset cookie
-      const { cookies } = await import("next/headers")
       const cookieStore = await cookies()
       cookieStore.delete(VIEW_FILTER_KEY)
       initialViewFilter = { type: "all" }

@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server"
 import { getUser } from "@/features/auth/api"
 import { getTeamsWithClient } from "@/features/teams/api"
 import { getUserPreferences } from "@/features/songs/api/user-preferences-api"
+import { cookies } from "next/headers"
 
 // Declare at module scope so they're accessible in all tests
 const mockSet = jest.fn()
@@ -11,11 +12,7 @@ const mockDelete = jest.fn()
 const mockGet = jest.fn()
 
 jest.mock("next/headers", () => ({
-  cookies: jest.fn().mockResolvedValue({
-    set: mockSet,
-    delete: mockDelete,
-    get: mockGet
-  })
+  cookies: jest.fn()
 }))
 
 jest.mock("@/lib/supabase/server", () => ({
@@ -37,6 +34,7 @@ jest.mock("@/features/songs/api/user-preferences-api", () => ({
 
 beforeEach(() => {
   jest.clearAllMocks()
+  ;(cookies as jest.Mock).mockResolvedValue({ set: mockSet, delete: mockDelete, get: mockGet })
 })
 
 describe("setViewFilterCookie", () => {
