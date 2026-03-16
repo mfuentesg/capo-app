@@ -25,7 +25,7 @@ export function NavLinks({ items, variant = "horizontal", onItemClick }: NavLink
   return (
     <>
       {items.map((item) => {
-        const isActive = pathname === item.href
+        const isActive = pathname === item.href || pathname.startsWith(item.href + "/")
         const Icon = item.icon
 
         return (
