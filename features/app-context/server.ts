@@ -10,7 +10,7 @@
 import type { AppContext } from "./types"
 import type { UserInfo } from "@/features/auth"
 import type { Tables } from "@/lib/supabase/database.types"
-import { SELECTED_TEAM_ID_KEY } from "./constants"
+import { SELECTED_TEAM_ID_KEY, VIEW_FILTER_KEY } from "./constants"
 import { createClient } from "@/lib/supabase/server"
 import { api as teamsApi, getTeamsWithClient } from "@/features/teams/api"
 import { getUser } from "@/features/auth/api"
@@ -37,6 +37,30 @@ export async function getSelectedTeamId(): Promise<string | null> {
   const { cookies } = await import("next/headers")
   const cookieStore = await cookies()
   return cookieStore.get(SELECTED_TEAM_ID_KEY)?.value ?? null
+}
+
+async function getViewFilterCookie(): Promise<"all" | "personal" | "team" | null> {
+  const { cookies } = await import("next/headers")
+  const cookieStore = await cookies()
+  const value = cookieStore.get(VIEW_FILTER_KEY)?.value
+  if (value === "all" || value === "personal" || value === "team") return value
+  return null
+}
+
+export async function setViewFilterCookie(type: "all" | "personal" | "team") {
+  const { cookies } = await import("next/headers")
+  const cookieStore = await cookies()
+  if (type === "all") {
+    cookieStore.delete(VIEW_FILTER_KEY)
+  } else {
+    cookieStore.set(VIEW_FILTER_KEY, type, {
+      path: "/",
+      maxAge: 31536000,
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production"
+    })
+  }
 }
 
 export async function getAppContext(): Promise<AppContext | null> {
