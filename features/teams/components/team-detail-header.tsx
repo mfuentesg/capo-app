@@ -153,7 +153,7 @@ export function TeamDetailHeader({
   }
 
   return (
-    <div className="space-y-0">
+    <div>
       {/* Back button */}
       <Button
         variant="ghost"
