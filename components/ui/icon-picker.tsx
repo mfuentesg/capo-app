@@ -246,11 +246,11 @@ export function IconPicker({
       <PopoverContent
         id={ids.contentId}
         aria-labelledby={ids.triggerId}
-        className="w-140 p-0"
+        className="w-[min(35rem,calc(100vw-1rem))] p-0"
         align="start"
       >
-        <div className="h-120 p-4 overflow-y-auto">
-          <div className="grid grid-cols-8 gap-3">
+        <div className="h-72 sm:h-120 p-4 overflow-y-auto">
+          <div className="grid grid-cols-6 sm:grid-cols-8 gap-2 sm:gap-3">
             {Object.entries(TEAM_ICONS).map(([name, Icon]) => (
               <Button
                 key={name}

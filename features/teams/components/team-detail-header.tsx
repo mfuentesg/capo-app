@@ -160,66 +160,87 @@ export function TeamDetailHeader({
         size="icon"
         asChild
         aria-label={t.invitations.backToTeams}
-        className="mb-2"
+        className="mb-4"
       >
         <Link href="/dashboard/teams">
           <ArrowLeft className="h-4 w-4" />
         </Link>
       </Button>
 
-      {/* Hero banner + floating icon */}
-      <div className="relative">
-        <div className="h-16 rounded-t-xl bg-gradient-to-br from-primary/15 to-primary/5 border-b border-primary/20" />
-        <div className="absolute bottom-[-18px] left-4 h-11 w-11 rounded-xl border-2 border-border bg-background shadow-sm flex items-center justify-center">
-          {isOwner ? (
-            <IconPicker
-              value={editingIcon}
-              onChange={handleIconChange}
-              iconClassName="h-6 w-6"
-              idBase={`team-detail-${team.id}-icon-picker`}
-            />
-          ) : (
-            <Avatar className="h-11 w-11 rounded-xl">
-              {team.avatar_url && <AvatarImage src={team.avatar_url} alt={team.name} />}
-              <AvatarFallback className="rounded-xl bg-primary/10">
-                <TeamIcon icon={editingIcon} className="h-6 w-6" />
-              </AvatarFallback>
-            </Avatar>
+      {/* Header: icon + info side by side */}
+      <div className="flex items-start gap-4">
+        {/* Team icon */}
+        <div className="relative shrink-0">
+          <div className="h-14 w-14 rounded-xl border-2 border-border bg-muted flex items-center justify-center overflow-hidden">
+            {isOwner ? (
+              <IconPicker
+                value={editingIcon}
+                onChange={handleIconChange}
+                iconClassName="h-7 w-7"
+                triggerClassName="h-14 w-14 rounded-xl bg-transparent border-0 hover:bg-foreground/5 p-0"
+                idBase={`team-detail-${team.id}-icon-picker`}
+              />
+            ) : (
+              <Avatar className="h-14 w-14 rounded-xl">
+                {team.avatar_url && <AvatarImage src={team.avatar_url} alt={team.name} />}
+                <AvatarFallback className="rounded-xl bg-transparent">
+                  <TeamIcon icon={editingIcon} className="h-7 w-7" />
+                </AvatarFallback>
+              </Avatar>
+            )}
+          </div>
+          {/* Edit indicator for owners */}
+          {isOwner && (
+            <div className="absolute -bottom-1.5 -right-1.5 h-5 w-5 rounded-full bg-background border border-border flex items-center justify-center pointer-events-none">
+              <Pencil className="h-2.5 w-2.5 text-muted-foreground" />
+            </div>
           )}
         </div>
-      </div>
 
-      {/* Info block — mt-7 clears the 18px icon overflow */}
-      <div className="mt-7 flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          {isOwner && onUpdate ? (
-            <EditableField
-              value={team.name}
-              onSave={(value) => onUpdate({ name: value })}
-              className="max-w-full text-xl font-bold tracking-tight"
-            />
-          ) : (
-            <h1 className="truncate text-xl font-bold tracking-tight">{team.name}</h1>
-          )}
+        {/* Info */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between gap-2">
+            <div className="flex-1 min-w-0">
+              {isOwner && onUpdate ? (
+                <EditableField
+                  value={team.name}
+                  onSave={(value) => onUpdate({ name: value })}
+                  className="max-w-full text-xl font-bold tracking-tight"
+                />
+              ) : (
+                <h1 className="truncate text-xl font-bold tracking-tight">{team.name}</h1>
+              )}
+            </div>
+            {/* Active/Switch badge — desktop only (mobile has context switcher in nav) */}
+            <div className="shrink-0 hidden sm:block">
+              {isCurrentTeam ? (
+                <Badge variant="default" className="gap-1.5">
+                  <Check className="h-3 w-3" />
+                  {t.teams.active}
+                </Badge>
+              ) : (
+                <Button size="sm" onClick={handleSwitchToTeam}>
+                  {t.teams.switchToTeam}
+                </Button>
+              )}
+            </div>
+          </div>
+
           <p className="text-xs text-muted-foreground mt-0.5">
             {t.teams.created} {formatDate(team.created_at)}
           </p>
+
           <div className="flex flex-wrap items-center gap-2 mt-2">
             {currentUserRole && <RoleBadge role={currentUserRole} />}
             {team.is_public && <Badge variant="secondary">{t.filters.public}</Badge>}
+            {/* Active badge — mobile only */}
+            {isCurrentTeam && (
+              <Badge variant="default" className="gap-1.5 sm:hidden">
+                <Check className="h-3 w-3" />
+                {t.teams.active}
+              </Badge>
+            )}
           </div>
-        </div>
-        <div className="shrink-0">
-          {isCurrentTeam ? (
-            <Badge variant="default" className="gap-1.5">
-              <Check className="h-3 w-3" />
-              {t.teams.active}
-            </Badge>
-          ) : (
-            <Button size="sm" onClick={handleSwitchToTeam}>
-              {t.teams.switchToTeam}
-            </Button>
-          )}
         </div>
       </div>
 

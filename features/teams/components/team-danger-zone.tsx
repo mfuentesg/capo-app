@@ -74,7 +74,7 @@ function OwnerDangerActions({
 
   if (!hasOtherMembers) {
     return (
-      <Item variant="outline" size="sm">
+      <Item variant="muted" size="sm">
         <ItemContent>
           <ItemTitle>{t.teams.deleteTeam}</ItemTitle>
           <ItemDescription>{t.teams.deleteTeamDescription}</ItemDescription>
@@ -117,7 +117,7 @@ function OwnerDangerActions({
 
   return (
     <>
-      <Item variant="outline" size="sm">
+      <Item variant="muted" size="sm">
         <ItemContent>
           <ItemTitle>{t.teams.leaveTeam}</ItemTitle>
           <ItemDescription>{t.teams.leaveAsOwner}</ItemDescription>
@@ -177,7 +177,7 @@ function OwnerDangerActions({
           </AlertDialog>
         </ItemActions>
       </Item>
-      <Item variant="outline" size="sm">
+      <Item variant="muted" size="sm">
         <ItemContent>
           <ItemTitle>{t.teams.transferOwnership}</ItemTitle>
           <ItemDescription>{t.teams.transferOwnershipStayDescription}</ItemDescription>
@@ -237,7 +237,7 @@ function OwnerDangerActions({
           </AlertDialog>
         </ItemActions>
       </Item>
-      <Item variant="outline" size="sm">
+      <Item variant="muted" size="sm">
         <ItemContent>
           <ItemTitle>{t.teams.deleteTeam}</ItemTitle>
           <ItemDescription>{t.teams.deleteTeamDescription}</ItemDescription>
@@ -290,7 +290,7 @@ function MemberLeaveAction({ teamName, onLeave, isLeaving }: MemberLeaveActionPr
   const leaveDialogIds = createOverlayIds(`team-danger-member-leave-${teamName}`)
 
   return (
-    <Item variant="outline" size="sm">
+    <Item variant="muted" size="sm">
       <ItemContent>
         <ItemTitle>{t.teams.leaveTeam}</ItemTitle>
         <ItemDescription>{t.teams.leaveTeamWarning}</ItemDescription>
