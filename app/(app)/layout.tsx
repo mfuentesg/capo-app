@@ -32,6 +32,7 @@ export default async function AppLayout({
           initialSelectedTeamId={appContextData.initialSelectedTeamId}
           initialTeams={appContextData.teams}
           initialUser={appContextData.user}
+          initialViewFilter={appContextData.initialViewFilter}
         >
           <LocaleProvider initialLocale={initialLocale}>{children}</LocaleProvider>
         </AppContextProvider>
