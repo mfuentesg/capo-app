@@ -6,6 +6,7 @@ import {
   createTeam as createTeamApi,
   deleteTeam as deleteTeamApi,
   deleteTeamInvitation as deleteTeamInvitationApi,
+  getPendingInvitations as getPendingInvitationsApi,
   inviteTeamMember as inviteTeamMemberApi,
   leaveTeam as leaveTeamApi,
   removeTeamMember as removeTeamMemberApi,
@@ -18,6 +19,7 @@ import {
   createTeamAction,
   deleteTeamAction,
   deleteTeamInvitationAction,
+  getPendingInvitationsAction,
   inviteTeamMemberAction,
   leaveTeamAction,
   removeTeamMemberAction,
@@ -43,7 +45,8 @@ jest.mock("../teamsApi", () => ({
   inviteTeamMember: jest.fn(),
   removeTeamMember: jest.fn(),
   changeTeamMemberRole: jest.fn(),
-  deleteTeamInvitation: jest.fn()
+  deleteTeamInvitation: jest.fn(),
+  getPendingInvitations: jest.fn()
 }))
 
 describe("team actions", () => {
@@ -223,5 +226,20 @@ describe("team actions", () => {
       errorMessage: "Invitation already accepted"
     })
     expect(revalidatePath).not.toHaveBeenCalled()
+  })
+})
+
+
+describe("getPendingInvitationsAction", () => {
+  it("fetches pending invitations using the supabase client", async () => {
+    const mockSupabase = { id: "supabase-client" }
+    ;(createClient as jest.Mock).mockResolvedValue(mockSupabase)
+    const invitations = [{ id: "inv-1", teamName: "Band" }]
+    ;(getPendingInvitationsApi as jest.Mock).mockResolvedValue(invitations)
+
+    const result = await getPendingInvitationsAction()
+
+    expect(getPendingInvitationsApi).toHaveBeenCalledWith(mockSupabase)
+    expect(result).toEqual(invitations)
   })
 })
