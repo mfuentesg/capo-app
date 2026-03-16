@@ -38,4 +38,17 @@ function AvatarFallback({
   )
 }
 
-export { Avatar, AvatarImage, AvatarFallback }
+function AvatarGroup({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="avatar-group"
+      className={cn(
+        "flex items-center [&>[data-slot=avatar]:not(:first-child)]:-ml-1.5 [&>[data-slot=avatar]]:ring-2 [&>[data-slot=avatar]]:ring-background",
+        className
+      )}
+      {...props}
+    />
+  )
+}
+
+export { Avatar, AvatarImage, AvatarFallback, AvatarGroup }

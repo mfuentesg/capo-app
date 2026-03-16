@@ -3,6 +3,15 @@ import { LocaleProvider } from "@/features/settings"
 import { PlaylistList } from "../playlist-list"
 import type { Playlist } from "@/features/playlists/types"
 
+jest.mock("@/features/app-context", () => ({
+  useAppContext: () => ({ teams: [] }),
+  useViewFilter: () => ({ viewFilter: { type: "all" } })
+}))
+
+jest.mock("@/features/songs", () => ({
+  getBucketColor: () => "var(--accent-songs)"
+}))
+
 const playlists: Playlist[] = [
   {
     id: "playlist-1",

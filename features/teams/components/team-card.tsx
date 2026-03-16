@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/dialog"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Users as UsersIcon, Wrench, LogOut, ArrowLeftRight, Trash2 } from "lucide-react"
+import { Users as UsersIcon, Wrench, LogOut, Trash2 } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useLeaveTeam, useDeleteTeam, useUpdateTeam } from "@/features/teams"
 import { useAppContext } from "@/features/app-context"
@@ -28,11 +28,10 @@ import { RoleBadge } from "./role-badge"
 interface TeamCardProps {
   team: TeamWithMemberCount
   memberCount?: number
-  initialSelectedTeamId?: string | null
 }
 
-export function TeamCard({ team, memberCount = 1, initialSelectedTeamId = null }: TeamCardProps) {
-  const { context, switchToTeam, switchToPersonal } = useAppContext()
+export function TeamCard({ team, memberCount = 1 }: TeamCardProps) {
+  const { context, switchToPersonal } = useAppContext()
   const { data: user } = useUser()
   const { t } = useTranslation()
   const router = useRouter()
@@ -49,10 +48,6 @@ export function TeamCard({ team, memberCount = 1, initialSelectedTeamId = null }
   const leaveTeamMutation = useLeaveTeam({ onSuccess: onTeamActionSuccess })
   const deleteTeamMutation = useDeleteTeam({ onSuccess: onTeamActionSuccess })
   const updateTeamMutation = useUpdateTeam()
-
-  const isCurrentTeam = context
-    ? context.type === "team" && context.teamId === team.id
-    : initialSelectedTeamId === team.id
 
   const isOwner = user?.id === team.created_by
   const isOnlyMember = memberCount <= 1
@@ -79,9 +74,7 @@ export function TeamCard({ team, memberCount = 1, initialSelectedTeamId = null }
 
   return (
     <>
-      <Card
-        className={`hover:shadow-md transition-shadow ${isCurrentTeam ? "border-primary border-2" : ""}`}
-      >
+      <Card className="hover:shadow-md transition-shadow">
         <CardHeader>
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -108,24 +101,6 @@ export function TeamCard({ team, memberCount = 1, initialSelectedTeamId = null }
                 </Link>
               </div>
             </div>
-            {isCurrentTeam ? (
-              <Badge variant="default" className="ml-2 shrink-0">
-                Active
-              </Badge>
-            ) : (
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => {
-                  switchToTeam(team.id)
-                }}
-                className="ml-2 shrink-0"
-                aria-label={`${t.teams.switchToTeam}: ${team.name}`}
-                title={`${t.teams.switchToTeam}: ${team.name}`}
-              >
-                <ArrowLeftRight className="h-4 w-4" />
-              </Button>
-            )}
           </div>
         </CardHeader>
         <CardContent>

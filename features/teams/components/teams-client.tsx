@@ -15,16 +15,11 @@ import { useTeams } from "../hooks/use-teams"
 import { getTranslations } from "@/lib/i18n/translations"
 
 interface TeamsClientProps {
-  initialSelectedTeamId?: string | null
   initialTeams?: TeamWithMemberCount[]
   t: ReturnType<typeof getTranslations>
 }
 
-export function TeamsClient({
-  initialSelectedTeamId = null,
-  initialTeams = [],
-  t
-}: TeamsClientProps) {
+export function TeamsClient({ initialTeams = [], t }: TeamsClientProps) {
   const { data: user } = useUser()
   const { switchToTeam } = useAppContext()
   const router = useRouter()
@@ -72,12 +67,7 @@ export function TeamsClient({
         {filteredTeams.length > 0 ? (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {filteredTeams.map((team) => (
-              <TeamCard
-                key={team.id}
-                team={team}
-                memberCount={team.member_count}
-                initialSelectedTeamId={initialSelectedTeamId}
-              />
+              <TeamCard key={team.id} team={team} memberCount={team.member_count} />
             ))}
           </div>
         ) : (

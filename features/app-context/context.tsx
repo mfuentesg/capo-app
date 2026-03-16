@@ -20,7 +20,8 @@ import { useRouter } from "next/navigation"
 import type { Tables } from "@/lib/supabase/database.types"
 import {
   setSelectedTeamId as setClientSelectedTeamId,
-  unsetSelectedTeamId as unsetClientSelectedTeamId
+  unsetSelectedTeamId as unsetClientSelectedTeamId,
+  setViewFilterCookie
 } from "./server"
 // Import only data utilities directly to prevent the teams feature barrel from pulling
 // all team UI components (dialogs, cards, etc.) into the root-layout client bundle.
@@ -45,6 +46,7 @@ interface AppContextProviderProps {
   initialSelectedTeamId?: string | null
   initialTeams?: Tables<"teams">[]
   initialUser?: UserInfo | null
+  initialViewFilter?: ViewFilter
 }
 
 /**
@@ -55,7 +57,8 @@ export function AppContextProvider({
   children,
   initialSelectedTeamId = null,
   initialTeams = [],
-  initialUser = null
+  initialUser = null,
+  initialViewFilter = { type: "all" }
 }: AppContextProviderProps) {
   const { data: user } = useUser(initialUser)
   const router = useRouter()
@@ -83,7 +86,7 @@ export function AppContextProvider({
     staleTime: 5 * 60 * 1000
   })
 
-  const [viewFilter, setViewFilterState] = useState<ViewFilter>({ type: "all" })
+  const [viewFilter, setViewFilterState] = useState<ViewFilter>(initialViewFilter)
 
   const [, startTransition] = useTransition()
   const [storedTeamId, setStoredTeamId] = useState<string | null>(null)
@@ -215,11 +218,14 @@ export function AppContextProvider({
 
   // setViewFilter also syncs the creation context (AppContext) unless filter is "all",
   // so that new songs/playlists land in the currently viewed bucket by default.
-  // NOTE: Uses setContextState directly (not setContext) to avoid the server cookie sync
-  // and router.refresh() — view filter changes are React Query-only and non-persistent.
+  // NOTE: Uses setContextState directly (not setContext) to avoid router.refresh() —
+  // view filter changes are React Query-only. The cookie is persisted so the server
+  // can restore the filter on next load.
   const setViewFilter = useCallback(
     (filter: ViewFilter) => {
       setViewFilterState(filter)
+
+      // Sync AppContext (creation bucket) — same as before, no router.refresh()
       if (filter.type !== "all" && user?.id) {
         const newContext: AppContext =
           filter.type === "personal"
@@ -227,6 +233,15 @@ export function AppContextProvider({
             : { type: "team", teamId: filter.teamId, userId: user.id }
         setContextState(newContext)
       }
+
+      // Persist ViewFilter cookie + keep capo_selected_team_id in sync
+      void setViewFilterCookie(filter.type)
+      if (filter.type === "team") {
+        void setClientSelectedTeamId(filter.teamId)
+      } else if (filter.type === "personal") {
+        void unsetClientSelectedTeamId()
+      }
+      // filter.type === "all": leave capo_selected_team_id untouched
     },
     [user]
   )

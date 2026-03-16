@@ -9,3 +9,8 @@
  * Cookie/localStorage key for the selected team ID
  */
 export const SELECTED_TEAM_ID_KEY = "capo_selected_team_id"
+
+/**
+ * Cookie/localStorage key for the view filter (All/Personal/Team)
+ */
+export const VIEW_FILTER_KEY = "capo_view_filter"

@@ -16,7 +16,6 @@ export function ProfileMenuActions() {
 
   return (
     <>
-      <DropdownMenuSeparator />
       <div className="p-1">
         <DropdownMenuItem asChild className="flex items-center gap-2">
           <Link href="/dashboard/settings">

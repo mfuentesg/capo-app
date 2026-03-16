@@ -7,6 +7,9 @@ import { Empty, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription } from "@/
 import { Skeleton } from "@/components/ui/skeleton"
 import type { Playlist } from "@/features/playlists/types"
 import { useTranslation } from "@/hooks/use-translation"
+import { useAppContext, useViewFilter } from "@/features/app-context"
+import { getBucketColor } from "@/features/songs"
+import type { SongOwnership } from "@/features/songs"
 
 interface PlaylistListProps {
   playlists: Playlist[]
@@ -45,6 +48,9 @@ export function PlaylistList({
   onSelectPlaylist
 }: PlaylistListProps) {
   const { t } = useTranslation()
+  const { teams } = useAppContext()
+  const { viewFilter } = useViewFilter()
+  const showBucketColors = viewFilter.type === "all"
 
   const filteredPlaylists = useMemo(() => {
     let filtered = playlists.filter((playlist) =>
@@ -94,14 +100,39 @@ export function PlaylistList({
 
   return (
     <div className="p-2 space-y-2">
-      {filteredPlaylists.map((playlist) => (
-        <PlaylistItem
-          key={playlist.id}
-          playlist={playlist}
-          isSelected={selectedPlaylistId === playlist.id}
-          onSelect={onSelectPlaylist}
-        />
-      ))}
+      {filteredPlaylists.map((playlist) => {
+        let ownershipLabel: string | undefined
+        let bucketColor: string | undefined
+
+        let teamIcon: string | null = null
+
+        if (showBucketColors && playlist.teamId) {
+          const team = teams.find((t) => t.id === playlist.teamId)
+          if (team) {
+            const ownership: SongOwnership = {
+              type: "team",
+              teamId: team.id,
+              teamName: team.name,
+              teamIcon: team.icon ?? null
+            }
+            ownershipLabel = team.name
+            bucketColor = getBucketColor(ownership, teams)
+            teamIcon = team.icon ?? null
+          }
+        }
+
+        return (
+          <PlaylistItem
+            key={playlist.id}
+            playlist={playlist}
+            isSelected={selectedPlaylistId === playlist.id}
+            ownershipLabel={ownershipLabel}
+            bucketColor={bucketColor}
+            teamIcon={teamIcon}
+            onSelect={onSelectPlaylist}
+          />
+        )
+      })}
     </div>
   )
 }

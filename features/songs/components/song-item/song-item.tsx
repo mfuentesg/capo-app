@@ -4,6 +4,7 @@ import { Check, Music2, Turtle, Rabbit, Zap, Plus } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import { getKeyColorClasses, getBpmColorClasses } from "@/lib/badge-colors"
+import { TeamIcon } from "@/components/ui/icon-picker"
 import type { Song } from "@/features/songs/types"
 
 interface SongItemProps {
@@ -34,16 +35,13 @@ export const SongItem = memo(function SongItem({
         ? song.ownership.teamName.slice(0, 8)
         : null
 
+  const teamIcon = song.ownership?.type === "team" ? (song.ownership.teamIcon ?? null) : null
+
   return (
     <div
       onClick={() => !isDisabled && onSelect(song)}
-      style={
-        bucketColor
-          ? { borderLeftColor: bucketColor, borderLeftWidth: "3px", borderLeftStyle: "solid" }
-          : undefined
-      }
       className={cn(
-        "group flex items-center gap-3 rounded-lg border p-3 transition-colors",
+        "relative group flex items-center gap-3 rounded-lg border p-3 transition-colors",
         isPreview
           ? "bg-muted"
           : isSelected && !isDisabled
@@ -83,12 +81,17 @@ export const SongItem = memo(function SongItem({
               <p className="truncate text-xs text-muted-foreground">{song.artist}</p>
               {ownershipLabel && bucketColor && (
                 <span
-                  className="shrink-0 inline-flex items-center rounded px-1 py-0.5 text-[10px] font-medium"
+                  className="shrink-0 inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-medium"
                   style={{
                     color: bucketColor,
-                    background: `color-mix(in oklch, ${bucketColor} 12%, transparent)`
+                    background: `color-mix(in oklch, ${bucketColor} 15%, transparent)`
                   }}
                 >
+                  <span
+                    data-testid="ownership-dot"
+                    className="h-1.5 w-1.5 rounded-sm shrink-0"
+                    style={{ background: bucketColor }}
+                  />
                   {ownershipLabel}
                 </span>
               )}
@@ -114,6 +117,16 @@ export const SongItem = memo(function SongItem({
           </Badge>
         </div>
       </div>
+
+      {bucketColor && teamIcon && (
+        <span
+          className="absolute top-1.5 right-1.5 flex size-4 items-center justify-center rounded-full text-[9px]"
+          style={{ background: `color-mix(in oklch, ${bucketColor} 25%, transparent)` }}
+          aria-hidden
+        >
+          <TeamIcon icon={teamIcon} className="size-2.5" />
+        </span>
+      )}
     </div>
   )
 })
