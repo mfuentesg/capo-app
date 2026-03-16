@@ -16,6 +16,7 @@ export interface Song {
   capo?: number
   isDraft?: boolean
   ownership?: SongOwnership
+  userSettings?: UserSongSettings | null
 }
 
 export interface UserSongSettings {

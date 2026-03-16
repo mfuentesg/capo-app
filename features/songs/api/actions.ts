@@ -25,7 +25,12 @@ import {
 
 export async function getSongsAction(context: AppContext): Promise<Song[]> {
   const supabase = await createClient()
-  return getSongsApi(supabase, context)
+  const [songs, settings] = await Promise.all([
+    getSongsApi(supabase, context),
+    getAllUserSongSettingsApi(supabase, context.userId)
+  ])
+  const settingsBySongId = new Map(settings.map((s) => [s.songId, s]))
+  return songs.map((song) => ({ ...song, userSettings: settingsBySongId.get(song.id) ?? null }))
 }
 
 export async function getSongsAllBucketsAction(
@@ -34,7 +39,12 @@ export async function getSongsAllBucketsAction(
   teams: { id: string; name: string; icon: string | null }[]
 ): Promise<Song[]> {
   const supabase = await createClient()
-  return getSongsAllBucketsApi(supabase, userId, teamIds, teams)
+  const [songs, settings] = await Promise.all([
+    getSongsAllBucketsApi(supabase, userId, teamIds, teams),
+    getAllUserSongSettingsApi(supabase, userId)
+  ])
+  const settingsBySongId = new Map(settings.map((s) => [s.songId, s]))
+  return songs.map((song) => ({ ...song, userSettings: settingsBySongId.get(song.id) ?? null }))
 }
 
 export async function createSongAction(

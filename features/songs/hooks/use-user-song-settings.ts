@@ -14,10 +14,16 @@ import type { Song, UserSongSettings } from "../types"
  * Returns null when no personal settings have been saved yet.
  */
 export function useUserSongSettings(song: Song, initialData?: UserSongSettings | null) {
+  // Prefer explicit initialData, fall back to embedded song.userSettings
+  const effectiveInitialData = initialData !== undefined ? initialData : song.userSettings
+  const hasInitialData = effectiveInitialData !== undefined
+
   return useQuery({
     queryKey: songsKeys.userSettings(song.id),
     queryFn: () => getUserSongSettingsAction(song.id),
-    initialData: initialData === undefined ? undefined : initialData,
+    initialData: hasInitialData ? effectiveInitialData : undefined,
+    // Mark embedded data as fresh so React Query doesn't immediately refetch on mount
+    initialDataUpdatedAt: hasInitialData ? Date.now() : undefined,
     staleTime: 60_000
   })
 }
