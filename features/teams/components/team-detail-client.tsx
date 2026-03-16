@@ -112,6 +112,10 @@ export function TeamDetailClient({
   const resolvedMembers = members ?? initialMembers
   const resolvedInvitations = invitations ?? initialInvitations
   const currentUserRole = resolvedMembers.find((member) => member.user_id === user?.id)?.role
+  const memberCount = resolvedMembers.length
+  const pendingInviteCount = resolvedInvitations.filter(
+    (inv) => inv.expires_at >= new Date().toISOString()
+  ).length
 
   const handleUpdate = (updates: TablesUpdate<"teams">) => {
     updateTeamMutation.mutate({ teamId: team.id, updates })
@@ -139,7 +143,14 @@ export function TeamDetailClient({
   return (
     <div className="min-h-screen bg-background p-4 sm:p-6 lg:p-8">
       <div className="mx-auto max-w-4xl space-y-6">
-        <TeamDetailHeader team={team} onUpdate={handleUpdate} isOwner={isOwner} />
+        <TeamDetailHeader
+          team={team}
+          onUpdate={handleUpdate}
+          isOwner={isOwner}
+          memberCount={memberCount}
+          pendingInviteCount={pendingInviteCount}
+          currentUserRole={currentUserRole}
+        />
         <TeamMembersSection
           members={resolvedMembers}
           invitations={resolvedInvitations}
@@ -148,21 +159,23 @@ export function TeamDetailClient({
           currentUserRole={currentUserRole}
         />
         {user && (
-          <TeamDangerZone
-            teamName={team.name}
-            members={resolvedMembers}
-            currentUserId={user.id}
-            isOwner={isOwner}
-            onLeave={handleLeave}
-            onDelete={handleDelete}
-            onTransferOwnership={handleTransferOwnership}
-            onTransferAndLeave={handleTransferAndLeave}
-            isDeleting={deleteTeamMutation.isPending}
-            isTransferring={
-              transferOwnershipMutation.isPending || transferAndLeaveMutation.isPending
-            }
-            isLeaving={leaveTeamMutation.isPending}
-          />
+          <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-1">
+            <TeamDangerZone
+              teamName={team.name}
+              members={resolvedMembers}
+              currentUserId={user.id}
+              isOwner={isOwner}
+              onLeave={handleLeave}
+              onDelete={handleDelete}
+              onTransferOwnership={handleTransferOwnership}
+              onTransferAndLeave={handleTransferAndLeave}
+              isDeleting={deleteTeamMutation.isPending}
+              isTransferring={
+                transferOwnershipMutation.isPending || transferAndLeaveMutation.isPending
+              }
+              isLeaving={leaveTeamMutation.isPending}
+            />
+          </div>
         )}
       </div>
     </div>
