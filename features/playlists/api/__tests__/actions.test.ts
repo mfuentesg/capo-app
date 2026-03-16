@@ -1,7 +1,11 @@
 import { revalidatePath } from "next/cache"
 import { createClient } from "@/lib/supabase/server"
 import {
+  getPlaylists as getPlaylistsApi,
+  getPlaylistsAllBuckets as getPlaylistsAllBucketsApi,
+  getPlaylistWithSongs as getPlaylistWithSongsApi,
   addSongToPlaylist as addSongToPlaylistApi,
+  addSongsToPlaylist as addSongsToPlaylistApi,
   createPlaylist as createPlaylistApi,
   deletePlaylist as deletePlaylistApi,
   removeSongFromPlaylist as removeSongFromPlaylistApi,
@@ -9,7 +13,11 @@ import {
   updatePlaylist as updatePlaylistApi
 } from "../playlistsApi"
 import {
+  getPlaylistsAction,
+  getPlaylistsAllBucketsAction,
+  getPlaylistWithSongsAction,
   addSongToPlaylistAction,
+  addSongsToPlaylistAction,
   createPlaylistAction,
   deletePlaylistAction,
   removeSongFromPlaylistAction,
@@ -26,10 +34,14 @@ jest.mock("@/lib/supabase/server", () => ({
 }))
 
 jest.mock("../playlistsApi", () => ({
+  getPlaylists: jest.fn(),
+  getPlaylistsAllBuckets: jest.fn(),
+  getPlaylistWithSongs: jest.fn(),
   createPlaylist: jest.fn(),
   updatePlaylist: jest.fn(),
   deletePlaylist: jest.fn(),
   addSongToPlaylist: jest.fn(),
+  addSongsToPlaylist: jest.fn(),
   removeSongFromPlaylist: jest.fn(),
   reorderPlaylistSongs: jest.fn()
 }))
@@ -134,5 +146,79 @@ describe("playlist actions", () => {
     await reorderPlaylistSongsAction("playlist-1", updates, "SHARE123")
 
     expect(revalidatePath).toHaveBeenCalledWith("/shared/SHARE123")
+  })
+})
+
+describe("getPlaylistsAction", () => {
+  const mockSupabase = { id: "supabase-client" }
+  const context = { type: "personal" as const, userId: "user-1" }
+
+  beforeEach(() => {
+    jest.clearAllMocks()
+    ;(createClient as jest.Mock).mockResolvedValue(mockSupabase)
+  })
+
+  it("fetches playlists for the given context", async () => {
+    const playlists = [{ id: "p-1", name: "Setlist" }]
+    ;(getPlaylistsApi as jest.Mock).mockResolvedValue(playlists)
+
+    const result = await getPlaylistsAction(context)
+
+    expect(getPlaylistsApi).toHaveBeenCalledWith(mockSupabase, context)
+    expect(result).toEqual(playlists)
+  })
+})
+
+describe("getPlaylistsAllBucketsAction", () => {
+  const mockSupabase = { id: "supabase-client" }
+
+  beforeEach(() => {
+    jest.clearAllMocks()
+    ;(createClient as jest.Mock).mockResolvedValue(mockSupabase)
+  })
+
+  it("fetches playlists across all buckets for a user", async () => {
+    const playlists = [{ id: "p-2", name: "All Songs" }]
+    ;(getPlaylistsAllBucketsApi as jest.Mock).mockResolvedValue(playlists)
+
+    const result = await getPlaylistsAllBucketsAction("user-1", ["team-1"])
+
+    expect(getPlaylistsAllBucketsApi).toHaveBeenCalledWith(mockSupabase, "user-1", ["team-1"])
+    expect(result).toEqual(playlists)
+  })
+})
+
+describe("getPlaylistWithSongsAction", () => {
+  const mockSupabase = { id: "supabase-client" }
+
+  beforeEach(() => {
+    jest.clearAllMocks()
+    ;(createClient as jest.Mock).mockResolvedValue(mockSupabase)
+  })
+
+  it("fetches a single playlist with its songs", async () => {
+    const playlist = { id: "p-1", name: "Setlist", songs: [] }
+    ;(getPlaylistWithSongsApi as jest.Mock).mockResolvedValue(playlist)
+
+    const result = await getPlaylistWithSongsAction("p-1")
+
+    expect(getPlaylistWithSongsApi).toHaveBeenCalledWith(mockSupabase, "p-1")
+    expect(result).toEqual(playlist)
+  })
+})
+
+describe("addSongsToPlaylistAction", () => {
+  const mockSupabase = { id: "supabase-client" }
+
+  beforeEach(() => {
+    jest.clearAllMocks()
+    ;(createClient as jest.Mock).mockResolvedValue(mockSupabase)
+  })
+
+  it("adds multiple songs to a playlist and revalidates playlists route", async () => {
+    await addSongsToPlaylistAction("p-1", ["song-1", "song-2"])
+
+    expect(addSongsToPlaylistApi).toHaveBeenCalledWith(mockSupabase, "p-1", ["song-1", "song-2"])
+    expect(revalidatePath).toHaveBeenCalledWith("/dashboard/playlists")
   })
 })

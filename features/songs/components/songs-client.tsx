@@ -28,7 +28,7 @@ import {
   Rabbit,
   Zap
 } from "lucide-react"
-import { SongList, useAllUserSongSettings } from "@/features/songs"
+import { SongList } from "@/features/songs"
 import { useSongs, useCreateSong, useUpdateSong, useDeleteSong } from "../hooks/use-songs"
 import { useUser } from "@/features/auth"
 import { useAppContext, type AppContext } from "@/features/app-context"
@@ -58,9 +58,6 @@ export function SongsClient({ initialSongs = [], t }: SongsClientProps) {
   const [creationBucket, setCreationBucket] = useState<AppContext | null>(null)
   const updateSongMutation = useUpdateSong()
   const deleteSongMutation = useDeleteSong()
-  // Pre-populate individual song settings caches so SongDetail has warm data on open.
-  // Run this only after initial mount to keep first render lighter.
-  useAllUserSongSettings()
 
   const [isMobile, setIsMobile] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
