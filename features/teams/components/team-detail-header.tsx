@@ -14,11 +14,15 @@ import { useAppContext } from "@/features/app-context"
 import { useTranslation } from "@/hooks/use-translation"
 import type { Tables, TablesUpdate } from "@/lib/supabase/database.types"
 import { TeamIcon, IconPicker } from "@/components/ui/icon-picker"
+import { RoleBadge } from "./role-badge"
 
 interface TeamDetailHeaderProps {
   team: Tables<"teams">
   onUpdate?: (updates: TablesUpdate<"teams">) => void
   isOwner?: boolean
+  memberCount?: number
+  pendingInviteCount?: number
+  currentUserRole?: Tables<"team_members">["role"]
 }
 
 function EditableField({
@@ -120,7 +124,14 @@ function EditableField({
   )
 }
 
-export function TeamDetailHeader({ team, onUpdate, isOwner }: TeamDetailHeaderProps) {
+export function TeamDetailHeader({
+  team,
+  onUpdate,
+  isOwner,
+  memberCount = 0,
+  pendingInviteCount = 0,
+  currentUserRole
+}: TeamDetailHeaderProps) {
   const router = useRouter()
   const { context, switchToTeam } = useAppContext()
   const { t } = useTranslation()
@@ -142,20 +153,24 @@ export function TeamDetailHeader({ team, onUpdate, isOwner }: TeamDetailHeaderPr
   }
 
   return (
-    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+    <div className="space-y-0">
+      {/* Back button */}
       <Button
         variant="ghost"
         size="icon"
         asChild
         aria-label={t.invitations.backToTeams}
-        className="shrink-0"
+        className="mb-2"
       >
         <Link href="/dashboard/teams">
           <ArrowLeft className="h-4 w-4" />
         </Link>
       </Button>
-      <div className="flex min-w-0 flex-1 flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
-        <div className="flex min-w-0 items-center gap-3 sm:gap-4">
+
+      {/* Hero banner + floating icon */}
+      <div className="relative">
+        <div className="h-16 rounded-t-xl bg-gradient-to-br from-primary/15 to-primary/5 border-b border-primary/20" />
+        <div className="absolute bottom-[-18px] left-4 h-11 w-11 rounded-xl border-2 border-border bg-background shadow-sm flex items-center justify-center">
           {isOwner ? (
             <IconPicker
               value={editingIcon}
@@ -164,40 +179,63 @@ export function TeamDetailHeader({ team, onUpdate, isOwner }: TeamDetailHeaderPr
               idBase={`team-detail-${team.id}-icon-picker`}
             />
           ) : (
-            <Avatar className="h-12 w-12 border border-border shrink-0">
+            <Avatar className="h-11 w-11 rounded-xl">
               {team.avatar_url && <AvatarImage src={team.avatar_url} alt={team.name} />}
-              <AvatarFallback className="bg-primary/10">
+              <AvatarFallback className="rounded-xl bg-primary/10">
                 <TeamIcon icon={editingIcon} className="h-6 w-6" />
               </AvatarFallback>
             </Avatar>
           )}
-          <div className="min-w-0 flex-1 space-y-1">
-            {isOwner && onUpdate ? (
-              <EditableField
-                value={team.name}
-                onSave={(value) => onUpdate({ name: value })}
-                className="max-w-full text-lg font-bold tracking-tight sm:text-xl"
-              />
-            ) : (
-              <h1 className="truncate text-lg font-bold tracking-tight sm:text-xl">{team.name}</h1>
-            )}
-            <p className="text-xs text-muted-foreground">
-              {t.teams.created} {formatDate(team.created_at)}
-            </p>
+        </div>
+      </div>
+
+      {/* Info block — mt-7 clears the 18px icon overflow */}
+      <div className="mt-7 flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          {isOwner && onUpdate ? (
+            <EditableField
+              value={team.name}
+              onSave={(value) => onUpdate({ name: value })}
+              className="max-w-full text-xl font-bold tracking-tight"
+            />
+          ) : (
+            <h1 className="truncate text-xl font-bold tracking-tight">{team.name}</h1>
+          )}
+          <p className="text-xs text-muted-foreground mt-0.5">
+            {t.teams.created} {formatDate(team.created_at)}
+          </p>
+          <div className="flex flex-wrap items-center gap-2 mt-2">
+            {currentUserRole && <RoleBadge role={currentUserRole} />}
+            {team.is_public && <Badge variant="secondary">{t.filters.public}</Badge>}
           </div>
         </div>
-        <div className="flex flex-wrap items-center gap-2 sm:ml-auto sm:shrink-0">
-          {team.is_public && <Badge variant="secondary">{t.filters.public}</Badge>}
+        <div className="shrink-0">
           {isCurrentTeam ? (
             <Badge variant="default" className="gap-1.5">
               <Check className="h-3 w-3" />
               {t.teams.active}
             </Badge>
           ) : (
-            <Button size="sm" onClick={handleSwitchToTeam} className="w-full sm:w-auto">
+            <Button size="sm" onClick={handleSwitchToTeam}>
               {t.teams.switchToTeam}
             </Button>
           )}
+        </div>
+      </div>
+
+      {/* Stats strip */}
+      <div className="mt-4 grid grid-cols-2 gap-3">
+        <div className="bg-card border border-border rounded-lg p-3 flex flex-col gap-0.5">
+          <span className="text-lg font-bold text-primary">{memberCount}</span>
+          <span className="text-xs text-muted-foreground uppercase tracking-wide">
+            {t.teams.members}
+          </span>
+        </div>
+        <div className="bg-card border border-border rounded-lg p-3 flex flex-col gap-0.5">
+          <span className="text-lg font-bold text-primary">{pendingInviteCount}</span>
+          <span className="text-xs text-muted-foreground uppercase tracking-wide">
+            {t.teams.pendingInvitations}
+          </span>
         </div>
       </div>
     </div>
