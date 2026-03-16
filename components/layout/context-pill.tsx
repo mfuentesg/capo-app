@@ -32,7 +32,7 @@ function PillTrigger({
     const team = teams.find((t) => t.id === viewFilter.teamId)
     return (
       <>
-        <Avatar className="h-5 w-5 shrink-0">
+        <Avatar className="size-5 shrink-0">
           {team?.avatar_url && <AvatarImage src={team.avatar_url} alt={team.name} />}
           <AvatarFallback className="rounded text-[9px] bg-primary/20">
             <TeamIcon icon={team?.icon ?? null} className="h-3 w-3" />
@@ -48,7 +48,7 @@ function PillTrigger({
   if (viewFilter.type === "personal") {
     return (
       <>
-        <Avatar className="h-5 w-5 shrink-0">
+        <Avatar className="size-5 shrink-0">
           {userAvatarUrl && <AvatarImage src={userAvatarUrl} alt={userName} />}
           <AvatarFallback className="bg-primary/10">
             <CircleUserRound className="h-3 w-3 text-muted-foreground" />
@@ -64,15 +64,15 @@ function PillTrigger({
     <>
       {teams.length > 0 ? (
         <AvatarGroup className="shrink-0">
-          <Avatar className="h-5 w-5">
+          <Avatar className="size-5 bg-background">
             {userAvatarUrl && <AvatarImage src={userAvatarUrl} alt={userName} />}
-            <AvatarFallback className="bg-primary/10">
+            <AvatarFallback className="bg-muted">
               <CircleUserRound className="h-3 w-3 text-muted-foreground" />
             </AvatarFallback>
           </Avatar>
-          <Avatar className="h-5 w-5">
+          <Avatar className="size-5 bg-background">
             {teams[0].avatar_url && <AvatarImage src={teams[0].avatar_url} alt={teams[0].name} />}
-            <AvatarFallback className="bg-primary/20 text-[9px]">
+            <AvatarFallback className="bg-muted text-[9px]">
               <TeamIcon icon={teams[0].icon} className="h-3 w-3" />
             </AvatarFallback>
           </Avatar>
