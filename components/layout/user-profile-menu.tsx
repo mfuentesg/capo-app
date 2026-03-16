@@ -1,7 +1,5 @@
 "use client"
 
-import * as React from "react"
-
 import { Button } from "@/components/ui/button"
 import { useTranslation } from "@/hooks/use-translation"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -12,23 +10,14 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { CircleUserRound } from "lucide-react"
 import { useUser } from "@/features/auth"
-import { useAppContext } from "@/features/app-context"
 import { UserProfileHeader } from "@/components/layout/user-profile-header"
-import { ContextSwitcher } from "@/components/layout/context-switcher"
 import { ProfileMenuActions } from "@/components/layout/profile-menu-actions"
-import { TeamIcon } from "@/components/ui/icon-picker"
 import { createOverlayIds } from "@/lib/ui/stable-overlay-ids"
 
 export function UserProfileMenu() {
   const { t } = useTranslation()
   const { data: user } = useUser()
-  const { context, teams } = useAppContext()
   const menuIds = createOverlayIds("user-profile-menu")
-
-  const currentTeam = React.useMemo(() => {
-    if (context?.type !== "team" || !teams) return null
-    return teams.find((t) => t.id === context.teamId) || null
-  }, [context, teams])
 
   return (
     <DropdownMenu>
@@ -41,21 +30,10 @@ export function UserProfileMenu() {
           aria-label={t.common.userMenu}
         >
           <Avatar className="h-9 w-9 ring-2 ring-background transition-shadow">
-            {context?.type === "team" && currentTeam ? (
-              <>
-                <AvatarImage src={currentTeam.avatar_url || undefined} alt={currentTeam.name} />
-                <AvatarFallback className="bg-primary/10">
-                  <TeamIcon icon={currentTeam.icon} className="h-5 w-5" />
-                </AvatarFallback>
-              </>
-            ) : (
-              <>
-                <AvatarImage src={user?.avatarUrl} alt={user?.displayName || "You"} />
-                <AvatarFallback className="bg-primary/10">
-                  <CircleUserRound className="h-5 w-5 text-muted-foreground" />
-                </AvatarFallback>
-              </>
-            )}
+            <AvatarImage src={user?.avatarUrl} alt={user?.displayName || "You"} />
+            <AvatarFallback className="bg-primary/10">
+              <CircleUserRound className="h-5 w-5 text-muted-foreground" />
+            </AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
@@ -66,7 +44,6 @@ export function UserProfileMenu() {
         aria-labelledby={menuIds.triggerId}
       >
         <UserProfileHeader />
-        <ContextSwitcher teams={teams} />
         <ProfileMenuActions />
       </DropdownMenuContent>
     </DropdownMenu>
