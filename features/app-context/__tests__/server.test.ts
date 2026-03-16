@@ -1,4 +1,5 @@
 import { setViewFilterCookie, getInitialAppContextData } from "../server"
+import { VIEW_FILTER_KEY, SELECTED_TEAM_ID_KEY } from "../constants"
 import { createClient } from "@/lib/supabase/server"
 import { getUser } from "@/features/auth/api"
 import { getTeamsWithClient } from "@/features/teams/api"
@@ -43,7 +44,7 @@ describe("setViewFilterCookie", () => {
     await setViewFilterCookie("team")
 
     expect(mockSet).toHaveBeenCalledWith(
-      "capo_view_filter",
+      VIEW_FILTER_KEY,
       "team",
       expect.objectContaining({ path: "/", maxAge: 31536000 })
     )
@@ -52,7 +53,7 @@ describe("setViewFilterCookie", () => {
   it("deletes the cookie when type is 'all'", async () => {
     await setViewFilterCookie("all")
 
-    expect(mockDelete).toHaveBeenCalledWith("capo_view_filter")
+    expect(mockDelete).toHaveBeenCalledWith(VIEW_FILTER_KEY)
   })
 })
 
@@ -81,7 +82,7 @@ describe("getInitialAppContextData", () => {
   it("returns initialViewFilter: all when view filter cookie is 'all'", async () => {
     mockGetUser.mockResolvedValue({ data: { user: null } })
     mockGet.mockImplementation((key: string) => {
-      if (key === "capo_view_filter") return { value: "all" }
+      if (key === VIEW_FILTER_KEY) return { value: "all" }
       return undefined
     })
 
@@ -96,7 +97,7 @@ describe("getInitialAppContextData", () => {
     ;(getUser as jest.Mock).mockResolvedValue({ id: "user-1", email: "test@example.com" })
     ;(getTeamsWithClient as jest.Mock).mockResolvedValue([])
     mockGet.mockImplementation((key: string) => {
-      if (key === "capo_view_filter") return { value: "personal" }
+      if (key === VIEW_FILTER_KEY) return { value: "personal" }
       return undefined
     })
 
@@ -111,8 +112,8 @@ describe("getInitialAppContextData", () => {
     ;(getUser as jest.Mock).mockResolvedValue({ id: "user-1", email: "test@example.com" })
     ;(getTeamsWithClient as jest.Mock).mockResolvedValue([{ id: "team-42" }])
     mockGet.mockImplementation((key: string) => {
-      if (key === "capo_view_filter") return { value: "team" }
-      if (key === "capo_selected_team_id") return { value: "team-42" }
+      if (key === VIEW_FILTER_KEY) return { value: "team" }
+      if (key === SELECTED_TEAM_ID_KEY) return { value: "team-42" }
       return undefined
     })
 
@@ -127,13 +128,13 @@ describe("getInitialAppContextData", () => {
     ;(getUser as jest.Mock).mockResolvedValue({ id: "user-1", email: "test@example.com" })
     ;(getTeamsWithClient as jest.Mock).mockResolvedValue([])
     mockGet.mockImplementation((key: string) => {
-      if (key === "capo_view_filter") return { value: "team" }
+      if (key === VIEW_FILTER_KEY) return { value: "team" }
       return undefined
     })
 
     const result = await getInitialAppContextData()
 
     expect(result.initialViewFilter).toEqual({ type: "all" })
-    expect(mockDelete).toHaveBeenCalledWith("capo_view_filter")
+    expect(mockDelete).toHaveBeenCalledWith(VIEW_FILTER_KEY)
   })
 })

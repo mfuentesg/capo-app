@@ -17,12 +17,14 @@ function PillTrigger({
   viewFilter,
   teams,
   userName,
-  userAvatarUrl
+  userAvatarUrl,
+  viewAllLabel
 }: {
   viewFilter: ViewFilter
   teams: Tables<"teams">[]
   userName: string
   userAvatarUrl?: string | null
+  viewAllLabel: string
 }) {
   if (viewFilter.type === "team") {
     const team = teams.find((t) => t.id === viewFilter.teamId)
@@ -35,7 +37,7 @@ function PillTrigger({
           </AvatarFallback>
         </Avatar>
         <span className="max-w-[80px] truncate text-xs font-medium sm:max-w-[120px]">
-          {team?.name ?? "Team"}
+          {team?.name}
         </span>
       </>
     )
@@ -75,7 +77,7 @@ function PillTrigger({
         )}
         {teams.length === 0 && <Layers className="h-3.5 w-3.5 text-muted-foreground" />}
       </div>
-      <span className="text-xs font-medium">All</span>
+      <span className="text-xs font-medium">{viewAllLabel}</span>
     </>
   )
 }
@@ -106,6 +108,7 @@ export function ContextPill() {
             teams={teams}
             userName={userName}
             userAvatarUrl={user?.avatarUrl}
+            viewAllLabel={t.nav.viewAll}
           />
           <ChevronDown className="h-3 w-3 shrink-0 text-muted-foreground" />
         </Button>
