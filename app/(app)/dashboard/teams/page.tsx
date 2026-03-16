@@ -1,5 +1,4 @@
 import type { Metadata } from "next"
-import { getSelectedTeamId } from "@/features/app-context/server"
 import { TeamsClient, rawApi as teamsApi } from "@/features/teams"
 import { createClient } from "@/lib/supabase/server"
 import { getTranslations } from "@/lib/i18n/translations"
@@ -27,17 +26,10 @@ export default async function TeamsPage() {
     redirect("/")
   }
 
-  const [initialTeams, initialSelectedTeamId, t] = await Promise.all([
+  const [initialTeams, t] = await Promise.all([
     teamsApi.getTeams(supabase).catch(() => []),
-    getSelectedTeamId(),
     getTranslations(locale)
   ])
 
-  return (
-    <TeamsClient
-      initialTeams={initialTeams}
-      initialSelectedTeamId={initialSelectedTeamId}
-      t={t}
-    />
-  )
+  return <TeamsClient initialTeams={initialTeams} t={t} />
 }
