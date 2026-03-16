@@ -9,6 +9,7 @@ interface NavItem {
   title: string
   href: string
   icon: React.ComponentType<{ className?: string }>
+  hideTitle?: boolean
 }
 
 interface NavLinksProps {
@@ -35,7 +36,7 @@ export function NavLinks({ items, variant = "horizontal", onItemClick }: NavLink
               className={cn(baseClasses, isActive && "font-medium")}
             >
               <Icon className={variant === "horizontal" ? "h-4 w-4" : "h-5 w-5"} />
-              {item.title}
+              {!item.hideTitle && item.title}
             </Button>
           </Link>
         )
