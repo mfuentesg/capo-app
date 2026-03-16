@@ -22,8 +22,9 @@ export function useUserSongSettings(song: Song, initialData?: UserSongSettings |
     queryKey: songsKeys.userSettings(song.id),
     queryFn: () => getUserSongSettingsAction(song.id),
     initialData: hasInitialData ? effectiveInitialData : undefined,
-    // Mark embedded data as fresh so React Query doesn't immediately refetch on mount
-    initialDataUpdatedAt: hasInitialData ? Date.now() : undefined,
+    // Mark embedded data as fresh so React Query doesn't immediately refetch on mount.
+    // Pass as a function so Date.now() is evaluated lazily (not during render).
+    initialDataUpdatedAt: hasInitialData ? () => Date.now() : undefined,
     staleTime: 60_000
   })
 }
