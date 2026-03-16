@@ -206,7 +206,7 @@ export function ContextPill() {
         {/* Footer */}
         <div className="mt-1 border-t pt-1">
           <Button asChild variant="ghost" size="sm" className="w-full justify-start gap-2 text-xs">
-            <Link href="/dashboard/teams">{t.nav.manageTeams}</Link>
+            <Link href="/dashboard/teams" onClick={() => setOpen(false)}>{t.nav.manageTeams}</Link>
           </Button>
         </div>
       </PopoverContent>
