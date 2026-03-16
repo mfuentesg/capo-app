@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarGroup, AvatarImage } from "@/components/ui/avatar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Button } from "@/components/ui/button"
 import { Check, ChevronDown, CircleUserRound, Layers } from "lucide-react"
@@ -62,23 +62,24 @@ function PillTrigger({
   // "all"
   return (
     <>
-      <div className="relative flex shrink-0">
-        <Avatar className="h-5 w-5">
-          {userAvatarUrl && <AvatarImage src={userAvatarUrl} alt={userName} />}
-          <AvatarFallback className="bg-primary/10">
-            <CircleUserRound className="h-3 w-3 text-muted-foreground" />
-          </AvatarFallback>
-        </Avatar>
-        {teams.length > 0 && (
-          <Avatar className="h-5 w-5 -ml-1.5 ring-2 ring-background">
+      {teams.length > 0 ? (
+        <AvatarGroup className="shrink-0">
+          <Avatar className="h-5 w-5">
+            {userAvatarUrl && <AvatarImage src={userAvatarUrl} alt={userName} />}
+            <AvatarFallback className="bg-primary/10">
+              <CircleUserRound className="h-3 w-3 text-muted-foreground" />
+            </AvatarFallback>
+          </Avatar>
+          <Avatar className="h-5 w-5">
             {teams[0].avatar_url && <AvatarImage src={teams[0].avatar_url} alt={teams[0].name} />}
             <AvatarFallback className="bg-primary/20 text-[9px]">
               <TeamIcon icon={teams[0].icon} className="h-3 w-3" />
             </AvatarFallback>
           </Avatar>
-        )}
-        {teams.length === 0 && <Layers className="h-3.5 w-3.5 text-muted-foreground" />}
-      </div>
+        </AvatarGroup>
+      ) : (
+        <Layers className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+      )}
       <span className="text-xs font-medium">{viewAllLabel}</span>
     </>
   )
