@@ -206,7 +206,7 @@ export function TeamMembersSection({
                   size="sm"
                   className={cn(
                     "hover:bg-muted/50",
-                    isCurrentUser && "border-primary/40 bg-primary/5"
+                    isCurrentUser && "border-primary/40 bg-primary/5 rounded-md"
                   )}
                 >
                   <ItemMedia>

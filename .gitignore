@@ -50,3 +50,5 @@ next-env.d.ts
 /public/swe-worker-*.js
 /public/swe-worker-*.js.map
 .worktrees/
+.superpowers/
+docs/superpowers/
