@@ -13,12 +13,16 @@ interface PlaylistItemProps {
   playlist: Playlist
   isSelected: boolean
   onSelect: (playlist: Playlist) => void
+  ownershipLabel?: string
+  bucketColor?: string
 }
 
 export const PlaylistItem = memo(function PlaylistItem({
   playlist,
   isSelected,
-  onSelect
+  onSelect,
+  ownershipLabel,
+  bucketColor
 }: PlaylistItemProps) {
   const { t } = useTranslation()
   const privateTooltipIds = createOverlayIds(`playlist-private-tooltip-${playlist.id}`)
@@ -94,6 +98,22 @@ export const PlaylistItem = memo(function PlaylistItem({
               <Music3 className="h-3 w-3 text-muted-foreground" />
               <p className="text-xs text-muted-foreground">{playlist.songs.length}</p>
             </div>
+          )}
+          {ownershipLabel && bucketColor && (
+            <span
+              className="shrink-0 inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-medium"
+              style={{
+                color: bucketColor,
+                background: `color-mix(in oklch, ${bucketColor} 15%, transparent)`
+              }}
+            >
+              <span
+                data-testid="ownership-dot"
+                className="h-1.5 w-1.5 rounded-sm shrink-0"
+                style={{ background: bucketColor }}
+              />
+              {ownershipLabel}
+            </span>
           )}
         </div>
       </div>

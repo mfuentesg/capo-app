@@ -16,6 +16,8 @@ export { songsKeys } from "./hooks/query-keys"
 
 export { api, rawApi } from "./api"
 
+export { getBucketColor } from "./utils"
+
 export type {
   Song,
   SongOwnership,
