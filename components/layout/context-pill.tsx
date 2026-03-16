@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Button } from "@/components/ui/button"
@@ -9,6 +10,7 @@ import { useUser } from "@/features/auth"
 import { useAppContext, useViewFilter } from "@/features/app-context"
 import { useLocale } from "@/features/settings"
 import { TeamIcon } from "@/components/ui/icon-picker"
+import { createOverlayIds } from "@/lib/ui/stable-overlay-ids"
 import Link from "next/link"
 import type { Tables } from "@/lib/supabase/database.types"
 import type { ViewFilter } from "@/features/app-context"
@@ -82,19 +84,27 @@ function PillTrigger({
   )
 }
 
+const pillIds = createOverlayIds("context-pill")
+
 export function ContextPill() {
   const { t } = useLocale()
   const { data: user } = useUser()
   const { teams } = useAppContext()
   const { viewFilter, setViewFilter } = useViewFilter()
+  const [open, setOpen] = useState(false)
 
   const hasTeams = teams.length > 0
   const userName = user?.displayName || user?.email || "You"
   const isFiltered = viewFilter.type !== "all"
 
+  function handleSelect(filter: ViewFilter) {
+    setViewFilter(filter)
+    setOpen(false)
+  }
+
   return (
-    <Popover>
-      <PopoverTrigger asChild>
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild aria-controls={pillIds.contentId}>
         <Button
           variant="ghost"
           size="sm"
@@ -113,7 +123,7 @@ export function ContextPill() {
           <ChevronDown className="h-3 w-3 shrink-0 text-muted-foreground" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent align="end" className="w-64 p-2">
+      <PopoverContent id={pillIds.contentId} align="end" className="w-64 p-2">
         <p className="px-2 py-1 text-xs font-semibold text-muted-foreground">
           {t.nav.filterContext}
         </p>
@@ -121,7 +131,7 @@ export function ContextPill() {
         {/* All */}
         {hasTeams && (
           <button
-            onClick={() => setViewFilter({ type: "all" })}
+            onClick={() => handleSelect({ type: "all" })}
             className={cn(
               "flex w-full items-center gap-3 rounded-md px-2 py-2 text-left transition-colors hover:bg-accent",
               viewFilter.type === "all" && "bg-accent"
@@ -142,7 +152,7 @@ export function ContextPill() {
 
         {/* Personal */}
         <button
-          onClick={() => setViewFilter({ type: "personal" })}
+          onClick={() => handleSelect({ type: "personal" })}
           className={cn(
             "flex w-full items-center gap-3 rounded-md px-2 py-2 text-left transition-colors hover:bg-accent",
             viewFilter.type === "personal" && "bg-accent"
@@ -169,7 +179,7 @@ export function ContextPill() {
         {teams.map((team) => (
           <button
             key={team.id}
-            onClick={() => setViewFilter({ type: "team", teamId: team.id })}
+            onClick={() => handleSelect({ type: "team", teamId: team.id })}
             className={cn(
               "flex w-full items-center gap-3 rounded-md px-2 py-2 text-left transition-colors hover:bg-accent",
               viewFilter.type === "team" && viewFilter.teamId === team.id && "bg-accent"
