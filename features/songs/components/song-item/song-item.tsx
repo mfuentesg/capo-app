@@ -37,11 +37,6 @@ export const SongItem = memo(function SongItem({
   return (
     <div
       onClick={() => !isDisabled && onSelect(song)}
-      style={
-        bucketColor
-          ? { borderLeftColor: bucketColor, borderLeftWidth: "3px", borderLeftStyle: "solid" }
-          : undefined
-      }
       className={cn(
         "group flex items-center gap-3 rounded-lg border p-3 transition-colors",
         isPreview
@@ -83,12 +78,17 @@ export const SongItem = memo(function SongItem({
               <p className="truncate text-xs text-muted-foreground">{song.artist}</p>
               {ownershipLabel && bucketColor && (
                 <span
-                  className="shrink-0 inline-flex items-center rounded px-1 py-0.5 text-[10px] font-medium"
+                  className="shrink-0 inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-medium"
                   style={{
                     color: bucketColor,
-                    background: `color-mix(in oklch, ${bucketColor} 12%, transparent)`
+                    background: `color-mix(in oklch, ${bucketColor} 15%, transparent)`
                   }}
                 >
+                  <span
+                    data-testid="ownership-dot"
+                    className="h-1.5 w-1.5 rounded-sm shrink-0"
+                    style={{ background: bucketColor }}
+                  />
                   {ownershipLabel}
                 </span>
               )}
