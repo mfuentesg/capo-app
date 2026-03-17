@@ -117,14 +117,14 @@ export function SongsClient({ initialSongs = [], t }: SongsClientProps) {
     [isCreatingNewSong]
   )
 
-  const handleCloseSongDetail = () => {
+  const handleCloseSongDetail = useCallback(() => {
     setSelectedSong(null)
     setIsMobileDrawerOpen(false)
     setIsCreatingNewSong(false)
     setPreviewSong(null)
     draftSongIdRef.current = null
     setIsDraftCommitted(false)
-  }
+  }, [])
 
   const handleAutoSaveSong = useCallback(
     async (song: Song) => {
@@ -515,6 +515,7 @@ export function SongsClient({ initialSongs = [], t }: SongsClientProps) {
           onOpenChange={(open) => {
             if (!open) handleCloseSongDetail()
           }}
+          noBodyStyles
         >
           <DrawerContent
             className="flex flex-col p-0 overflow-hidden data-[vaul-drawer-direction=bottom]:top-0 data-[vaul-drawer-direction=bottom]:bottom-0 data-[vaul-drawer-direction=bottom]:mt-0 data-[vaul-drawer-direction=bottom]:max-h-dvh data-[vaul-drawer-direction=bottom]:rounded-none"

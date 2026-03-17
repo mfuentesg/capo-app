@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo } from "react"
+import { memo, useMemo } from "react"
 import { Music } from "lucide-react"
 import { SongItem } from "@/features/songs"
 import { Empty, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription } from "@/components/ui/empty"
@@ -29,7 +29,7 @@ export function SongSkeleton() {
   )
 }
 
-export function SongList({
+export const SongList = memo(function SongList({
   songs,
   previewSong,
   selectedSong,
@@ -195,4 +195,4 @@ export function SongList({
       ))}
     </div>
   )
-}
+})

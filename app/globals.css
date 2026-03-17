@@ -310,3 +310,15 @@
     width: auto !important;
   }
 }
+
+/* ── Vaul drawer — reduced animation duration ───────────────────── */
+/*
+ * Vaul injects `[data-vaul-drawer] { transition: transform .5s; animation-duration: .5s }`.
+ * 500 ms is too long on mobile: if the user taps a new song while the close animation
+ * is still running, the open animation restarts from off-screen for a ~1 s perceived delay.
+ * 250 ms halves the worst-case stacking window while still feeling smooth.
+ */
+[data-vaul-drawer] {
+  transition-duration: 250ms !important;
+  animation-duration: 250ms !important;
+}
