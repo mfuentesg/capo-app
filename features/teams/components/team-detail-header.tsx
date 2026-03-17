@@ -2,13 +2,11 @@
 
 import { useState, useRef, useEffect } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ArrowLeft, Pencil, Check } from "lucide-react"
-import { toast } from "sonner"
 import { cn, formatDate } from "@/lib/utils"
 import { useAppContext } from "@/features/app-context"
 import { useTranslation } from "@/hooks/use-translation"
@@ -20,8 +18,6 @@ interface TeamDetailHeaderProps {
   team: Tables<"teams">
   onUpdate?: (updates: TablesUpdate<"teams">) => void
   isOwner?: boolean
-  memberCount?: number
-  pendingInviteCount?: number
   currentUserRole?: Tables<"team_members">["role"]
 }
 
@@ -128,12 +124,9 @@ export function TeamDetailHeader({
   team,
   onUpdate,
   isOwner,
-  memberCount = 0,
-  pendingInviteCount = 0,
   currentUserRole
 }: TeamDetailHeaderProps) {
-  const router = useRouter()
-  const { context, switchToTeam } = useAppContext()
+  const { context } = useAppContext()
   const { t } = useTranslation()
   const [editingIcon, setEditingIcon] = useState(team.icon || "")
   const isCurrentTeam = context?.type === "team" && context.teamId === team.id
@@ -145,25 +138,18 @@ export function TeamDetailHeader({
     }
   }
 
-  const handleSwitchToTeam = () => {
-    if (isCurrentTeam) return
-    switchToTeam(team.id)
-    toast.success(t.toasts.teamSwitched.replace("{name}", team.name))
-    router.push("/dashboard")
-  }
-
   return (
     <div>
       {/* Back button */}
       <Button
         variant="ghost"
-        size="icon"
         asChild
         aria-label={t.invitations.backToTeams}
-        className="mb-4"
+        className="mb-4 gap-1.5"
       >
         <Link href="/dashboard/teams">
           <ArrowLeft className="h-4 w-4" />
+          {t.invitations.backToTeams}
         </Link>
       </Button>
 
@@ -211,19 +197,13 @@ export function TeamDetailHeader({
                 <h1 className="truncate text-xl font-bold tracking-tight">{team.name}</h1>
               )}
             </div>
-            {/* Active/Switch badge — desktop only (mobile has context switcher in nav) */}
-            <div className="shrink-0 hidden sm:block">
-              {isCurrentTeam ? (
-                <Badge variant="default" className="gap-1.5">
-                  <Check className="h-3 w-3" />
-                  {t.teams.active}
-                </Badge>
-              ) : (
-                <Button size="sm" onClick={handleSwitchToTeam}>
-                  {t.teams.switchToTeam}
-                </Button>
-              )}
-            </div>
+            {/* Active badge — desktop only */}
+            {isCurrentTeam && (
+              <Badge variant="default" className="shrink-0 gap-1.5 hidden sm:flex">
+                <Check className="h-3 w-3" />
+                {t.teams.active}
+              </Badge>
+            )}
           </div>
 
           <p className="text-xs text-muted-foreground mt-0.5">
@@ -244,21 +224,6 @@ export function TeamDetailHeader({
         </div>
       </div>
 
-      {/* Stats strip */}
-      <div className="mt-4 grid grid-cols-2 gap-3">
-        <div className="bg-card border border-border rounded-lg p-3 flex flex-col gap-0.5">
-          <span className="text-lg font-bold text-primary">{memberCount}</span>
-          <span className="text-xs text-muted-foreground uppercase tracking-wide">
-            {t.teams.members}
-          </span>
-        </div>
-        <div className="bg-card border border-border rounded-lg p-3 flex flex-col gap-0.5">
-          <span className="text-lg font-bold text-primary">{pendingInviteCount}</span>
-          <span className="text-xs text-muted-foreground uppercase tracking-wide">
-            {t.teams.pendingInvitations}
-          </span>
-        </div>
-      </div>
     </div>
   )
 }

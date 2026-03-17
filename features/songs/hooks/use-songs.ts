@@ -183,9 +183,6 @@ export function useUpdateSong() {
       )
       queryClient.setQueryData(songsKeys.detail(updatedSong.id), updatedSong)
       toast.success(t.toasts?.songUpdated || "Song updated")
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: songsKeys.lists() })
     }
   })
 }
@@ -216,9 +213,6 @@ export function useDeleteSong() {
     onSuccess: (_, songId) => {
       queryClient.removeQueries({ queryKey: songsKeys.detail(songId) })
       toast.success(t.toasts?.songDeleted || "Song deleted")
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: songsKeys.lists() })
     }
   })
 }
@@ -234,16 +228,22 @@ export function useTransferSongToTeam() {
     mutationFn: async ({ songId, teamId }: { songId: string; teamId: string }) => {
       return transferSongToTeamAction(songId, teamId)
     },
+    onMutate: async ({ songId }) => {
+      await queryClient.cancelQueries({ queryKey: songsKeys.lists() })
+      const snapshots = snapshotSongQueries(queryClient)
+      queryClient.setQueriesData<Song[]>({ queryKey: songsKeys.lists() }, (old) =>
+        old?.filter((s) => s.id !== songId)
+      )
+      return { snapshots }
+    },
     onSuccess: (_, { songId }) => {
       queryClient.removeQueries({ queryKey: songsKeys.detail(songId) })
       toast.success(t.toasts?.songTransferred || "Song transferred to team")
     },
-    onError: (error) => {
+    onError: (error, _vars, rollbackContext) => {
+      restoreSongQueries(queryClient, rollbackContext?.snapshots)
       console.error("Error transferring song to team:", error)
       toast.error(t.toasts?.error || "Failed to transfer song")
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: songsKeys.lists() })
     }
   })
 }

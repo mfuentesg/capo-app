@@ -117,8 +117,8 @@ describe("team actions", () => {
       "member@example.com",
       "member"
     )
-    expect(revalidatePath).toHaveBeenCalledWith("/dashboard/teams/team-1")
-    expect(revalidatePath).toHaveBeenCalledTimes(2)
+    expect(revalidatePath).not.toHaveBeenCalledWith("/dashboard/teams/team-1")
+    expect(revalidatePath).toHaveBeenCalledTimes(0)
   })
 
   it("removes members, changes role, and deletes invitations", async () => {

@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache"
 import { createClient } from "@/lib/supabase/server"
-import type { TablesUpdate, TablesInsert } from "@/lib/supabase/database.types"
+import type { Tables, TablesUpdate, TablesInsert } from "@/lib/supabase/database.types"
 import {
   createTeam as createTeamApi,
   updateTeam as updateTeamApi,
@@ -59,10 +59,9 @@ export async function inviteTeamMemberAction(
   teamId: string,
   email: string,
   role: "member" | "admin" | "owner" | "viewer" = "member"
-): Promise<void> {
+): Promise<Tables<"team_invitations">> {
   const supabase = await createClient()
-  await inviteTeamMemberApi(supabase, teamId, email, role)
-  revalidatePath(`/dashboard/teams/${teamId}`)
+  return inviteTeamMemberApi(supabase, teamId, email, role)
 }
 
 export async function removeTeamMemberAction(teamId: string, userId: string): Promise<void> {

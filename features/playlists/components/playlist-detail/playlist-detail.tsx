@@ -257,9 +257,6 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
         queryClient.setQueryData(playlistsKeys.detail(playlist.id), context.previousData)
       }
       toast.error(t.toasts?.error || "Something went wrong")
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: playlistsKeys.detail(playlist.id) })
     }
   })
 

@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/dialog"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Users as UsersIcon, Wrench, LogOut, Trash2 } from "lucide-react"
+import { Users as UsersIcon, LogOut, Trash2 } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useLeaveTeam, useDeleteTeam, useUpdateTeam } from "@/features/teams"
 import { useAppContext } from "@/features/app-context"
@@ -61,6 +61,7 @@ export function TeamCard({ team, memberCount = 1 }: TeamCardProps) {
   const deleteTeamMutation = useDeleteTeam({ onSuccess: onTeamActionSuccess })
   const updateTeamMutation = useUpdateTeam()
 
+  const isCurrentTeam = context?.type === "team" && context.teamId === team.id
   const isOwner = user?.id === team.created_by
   const isOnlyMember = memberCount <= 1
   const roleClasses = getRoleAccentClasses(team.role)
@@ -84,13 +85,18 @@ export function TeamCard({ team, memberCount = 1 }: TeamCardProps) {
 
   return (
     <>
-      <Card className="hover:shadow-md transition-shadow overflow-hidden">
+      <Card
+        className={cn(
+          "hover:shadow-md transition-shadow overflow-hidden",
+          isCurrentTeam ? "border-2 border-primary" : ""
+        )}
+      >
         {/* Role-colored accent bar — h-1 (4px), rounded top corners only */}
         <div className={cn("h-1 rounded-t-lg bg-gradient-to-r", roleClasses.bar)} />
 
         <CardHeader className="pb-2">
-          {/* Row 1: icon + name */}
-          <div className="flex items-start gap-2">
+          {/* Row 1: icon + name + Active badge */}
+          <div className="flex items-start justify-between gap-2">
             <div className="flex items-center gap-3 flex-1 min-w-0">
               {isOwner ? (
                 <div
@@ -122,6 +128,11 @@ export function TeamCard({ team, memberCount = 1 }: TeamCardProps) {
                 </Link>
               </div>
             </div>
+            {isCurrentTeam && (
+              <Badge variant="default" className="shrink-0">
+                Active
+              </Badge>
+            )}
           </div>
 
           {/* Row 2: role badge + public badge */}
@@ -145,19 +156,6 @@ export function TeamCard({ team, memberCount = 1 }: TeamCardProps) {
               </span>
             </div>
             <div className="flex items-center gap-1">
-              <Button
-                variant="ghost"
-                size="sm"
-                asChild
-                title={`${t.teams.manageTeam}: ${team.name}`}
-              >
-                <Link
-                  href={`/dashboard/teams/${team.id}`}
-                  aria-label={`${t.teams.manageTeam}: ${team.name}`}
-                >
-                  <Wrench className="h-4 w-4" />
-                </Link>
-              </Button>
               <Button
                 variant="ghost"
                 size="sm"

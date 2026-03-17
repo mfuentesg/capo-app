@@ -61,7 +61,7 @@ describe("useInviteTeamMember", () => {
     <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
   )
 
-  it("should add a new invitation to the cache optimistically", async () => {
+  it("should add a new invitation to the cache optimistically then replace with server data", async () => {
     const teamId = "team-1"
     const existingInvitation: Tables<"team_invitations"> = {
       id: "inv-1",
@@ -74,11 +74,22 @@ describe("useInviteTeamMember", () => {
       accepted_at: null,
       token: "token-1"
     }
+    const serverInvitation: Tables<"team_invitations"> = {
+      id: "inv-2",
+      email: "new@example.com",
+      role: "admin",
+      team_id: teamId,
+      invited_by: "user-1",
+      created_at: new Date().toISOString(),
+      expires_at: new Date().toISOString(),
+      accepted_at: null,
+      token: "token-2"
+    }
 
     // Pre-populate cache
     queryClient.setQueryData(teamsKeys.invitations(teamId), [existingInvitation])
 
-    mockInviteAction.mockResolvedValue(undefined)
+    mockInviteAction.mockResolvedValue(serverInvitation)
 
     const { result } = renderHook(() => useInviteTeamMember(), { wrapper })
 
@@ -98,16 +109,29 @@ describe("useInviteTeamMember", () => {
     expect(cachedInvitations).toContainEqual(existingInvitation)
     expect(cachedInvitations).toContainEqual(
       expect.objectContaining({
+        id: "inv-2",
         email: "new@example.com",
         role: "admin"
       })
     )
+    // No temp entry should remain
+    expect(cachedInvitations?.some((inv) => inv.id.startsWith("temp-"))).toBe(false)
   })
 
-  it("should NOT wipe out existing invitations if cache is empty but we want to be safe", async () => {
-    // This test checks the behavior when cache is undefined
+  it("should place server invitation in cache when no prior invitations exist", async () => {
     const teamId = "team-1"
-    mockInviteAction.mockResolvedValue(undefined)
+    const serverInvitation: Tables<"team_invitations"> = {
+      id: "inv-new",
+      email: "new@example.com",
+      role: "admin",
+      team_id: teamId,
+      invited_by: "user-1",
+      created_at: new Date().toISOString(),
+      expires_at: new Date().toISOString(),
+      accepted_at: null,
+      token: "token-new"
+    }
+    mockInviteAction.mockResolvedValue(serverInvitation)
 
     const { result } = renderHook(() => useInviteTeamMember(), { wrapper })
 
@@ -125,6 +149,7 @@ describe("useInviteTeamMember", () => {
 
     expect(cachedInvitations).toHaveLength(1)
     expect(cachedInvitations![0].email).toBe("new@example.com")
+    expect(cachedInvitations![0].id).toBe("inv-new")
   })
 
   it("should rollback to previous invitations if mutation fails", async () => {

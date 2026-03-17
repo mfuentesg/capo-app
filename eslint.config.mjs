@@ -19,7 +19,8 @@ const eslintConfig = [
       "coverage",
       "supabase/functions/**",
       "public/sw.js",
-      "public/swe-worker-*.js"
+      "public/swe-worker-*.js",
+      ".worktrees/**"
     ]
   },
   ...nextVitals,
