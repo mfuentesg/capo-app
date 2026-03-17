@@ -2,13 +2,11 @@
 
 import { useState, useRef, useEffect } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ArrowLeft, Pencil, Check } from "lucide-react"
-import { toast } from "sonner"
 import { cn, formatDate } from "@/lib/utils"
 import { useAppContext } from "@/features/app-context"
 import { useTranslation } from "@/hooks/use-translation"
@@ -128,8 +126,7 @@ export function TeamDetailHeader({
   isOwner,
   currentUserRole
 }: TeamDetailHeaderProps) {
-  const router = useRouter()
-  const { context, switchToTeam } = useAppContext()
+  const { context } = useAppContext()
   const { t } = useTranslation()
   const [editingIcon, setEditingIcon] = useState(team.icon || "")
   const isCurrentTeam = context?.type === "team" && context.teamId === team.id
@@ -139,13 +136,6 @@ export function TeamDetailHeader({
     if (onUpdate) {
       onUpdate({ icon: newIcon })
     }
-  }
-
-  const handleSwitchToTeam = () => {
-    if (isCurrentTeam) return
-    switchToTeam(team.id)
-    toast.success(t.toasts.teamSwitched.replace("{name}", team.name))
-    router.push("/dashboard")
   }
 
   return (
@@ -207,19 +197,13 @@ export function TeamDetailHeader({
                 <h1 className="truncate text-xl font-bold tracking-tight">{team.name}</h1>
               )}
             </div>
-            {/* Active/Switch badge — desktop only (mobile has context switcher in nav) */}
-            <div className="shrink-0 hidden sm:block">
-              {isCurrentTeam ? (
-                <Badge variant="default" className="gap-1.5">
-                  <Check className="h-3 w-3" />
-                  {t.teams.active}
-                </Badge>
-              ) : (
-                <Button size="sm" onClick={handleSwitchToTeam}>
-                  {t.teams.switchToTeam}
-                </Button>
-              )}
-            </div>
+            {/* Active badge — desktop only */}
+            {isCurrentTeam && (
+              <Badge variant="default" className="shrink-0 gap-1.5 hidden sm:flex">
+                <Check className="h-3 w-3" />
+                {t.teams.active}
+              </Badge>
+            )}
           </div>
 
           <p className="text-xs text-muted-foreground mt-0.5">
