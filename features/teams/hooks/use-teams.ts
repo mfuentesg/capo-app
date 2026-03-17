@@ -23,6 +23,12 @@ import { toast } from "sonner"
 import type { Tables, TablesUpdate } from "@/lib/supabase/database.types"
 import type { PendingInvitation } from "../types"
 
+type MemberWithUser = Tables<"team_members"> & {
+  user_full_name: string | null
+  user_email: string | null
+  user_avatar_url: string | null
+}
+
 /**
  * Hook to fetch teams the current user belongs to
  */
@@ -188,12 +194,6 @@ export function useTransferOwnership() {
       await queryClient.cancelQueries({ queryKey: teamsKeys.members(teamId) })
       await queryClient.cancelQueries({ queryKey: teamsKeys.detail(teamId), exact: true })
 
-      type MemberWithUser = Tables<"team_members"> & {
-        user_full_name: string | null
-        user_email: string | null
-        user_avatar_url: string | null
-      }
-
       const previousMembers = queryClient.getQueryData<MemberWithUser[]>(teamsKeys.members(teamId))
       const previousTeam = queryClient.getQueryData<Tables<"teams">>(teamsKeys.detail(teamId))
 
@@ -215,7 +215,13 @@ export function useTransferOwnership() {
     onSuccess: async () => {
       toast.success(t.toasts?.ownershipTransferred || "Ownership transferred successfully")
     },
-    onSettled: () => undefined,
+    onSettled: () => {
+      // The teams list embeds the current user's role; invalidate so the role chip
+      // on the teams list page updates after the current user is demoted to admin.
+      // The list is not actively observed while the user is on the detail page,
+      // so this invalidation won't race with the Supabase session cookie refresh.
+      return queryClient.invalidateQueries({ queryKey: teamsKeys.list() })
+    },
     onError: (error, { teamId }, context) => {
       if (context?.previousMembers !== undefined) {
         queryClient.setQueryData(teamsKeys.members(teamId), context.previousMembers)
@@ -246,12 +252,6 @@ export function useTransferOwnershipAndStay() {
       await queryClient.cancelQueries({ queryKey: teamsKeys.members(teamId) })
       await queryClient.cancelQueries({ queryKey: teamsKeys.detail(teamId), exact: true })
 
-      type MemberWithUser = Tables<"team_members"> & {
-        user_full_name: string | null
-        user_email: string | null
-        user_avatar_url: string | null
-      }
-
       const previousMembers = queryClient.getQueryData<MemberWithUser[]>(teamsKeys.members(teamId))
       const previousTeam = queryClient.getQueryData<Tables<"teams">>(teamsKeys.detail(teamId))
 
@@ -273,7 +273,12 @@ export function useTransferOwnershipAndStay() {
     onSuccess: async () => {
       toast.success(t.toasts?.ownershipTransferred || "Ownership transferred successfully")
     },
-    onSettled: () => undefined,
+    onSettled: () => {
+      // The teams list embeds the current user's role; invalidate so the role chip
+      // updates after the current user is demoted to admin. Safe — the list page
+      // is not the active page when this mutation fires from the detail page.
+      return queryClient.invalidateQueries({ queryKey: teamsKeys.list() })
+    },
     onError: (error, { teamId }, context) => {
       if (context?.previousMembers !== undefined) {
         queryClient.setQueryData(teamsKeys.members(teamId), context.previousMembers)
@@ -415,7 +420,6 @@ export function useRemoveTeamMember() {
     },
     onMutate: async ({ teamId, userId }) => {
       await queryClient.cancelQueries({ queryKey: teamsKeys.members(teamId) })
-
       const previousMembers = queryClient.getQueryData<MemberWithUser[]>(
         teamsKeys.members(teamId)
       )
@@ -433,7 +437,10 @@ export function useRemoveTeamMember() {
     onSuccess: async () => {
       toast.success(t.toasts?.memberRemoved || "Member removed successfully")
     },
-    onSettled: () => undefined,
+    onSettled: () => {
+      // Invalidate the teams list so member_count stays accurate.
+      return queryClient.invalidateQueries({ queryKey: teamsKeys.list() })
+    },
     onError: (error, { teamId }, context) => {
       if (context?.previousMembers !== undefined) {
         queryClient.setQueryData(teamsKeys.members(teamId), context.previousMembers)
@@ -466,13 +473,6 @@ export function useChangeTeamMemberRole() {
     },
     onMutate: async ({ teamId, userId, newRole }) => {
       await queryClient.cancelQueries({ queryKey: teamsKeys.members(teamId) })
-
-      type MemberWithUser = Tables<"team_members"> & {
-        user_full_name: string | null
-        user_email: string | null
-        user_avatar_url: string | null
-      }
-
       const previousMembers = queryClient.getQueryData<MemberWithUser[]>(
         teamsKeys.members(teamId)
       )

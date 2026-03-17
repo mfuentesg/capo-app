@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/dialog"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Users as UsersIcon, LogOut, ArrowLeftRight, Trash2 } from "lucide-react"
+import { Users as UsersIcon, LogOut, Trash2 } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useLeaveTeam, useDeleteTeam, useUpdateTeam } from "@/features/teams"
 import { useAppContext } from "@/features/app-context"
@@ -43,7 +43,7 @@ interface TeamCardProps {
 }
 
 export function TeamCard({ team, memberCount = 1 }: TeamCardProps) {
-  const { context, switchToTeam, switchToPersonal } = useAppContext()
+  const { context, switchToPersonal } = useAppContext()
   const { data: user } = useUser()
   const { t } = useTranslation()
   const router = useRouter()
@@ -156,17 +156,6 @@ export function TeamCard({ team, memberCount = 1 }: TeamCardProps) {
               </span>
             </div>
             <div className="flex items-center gap-1">
-              {!isCurrentTeam && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => switchToTeam(team.id)}
-                  aria-label={`${t.teams.switchToTeam}: ${team.name}`}
-                >
-                  <ArrowLeftRight className="h-3.5 w-3.5 mr-1" />
-                  {t.teams.switchToTeam}
-                </Button>
-              )}
               <Button
                 variant="ghost"
                 size="sm"
