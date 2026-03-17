@@ -86,23 +86,27 @@ export function SongsClient({ initialSongs = [], t }: SongsClientProps) {
     return () => mq.removeEventListener("change", update)
   }, [])
 
-  const updateSong = (songId: string, updates: Partial<Song>) => {
-    if (selectedSong?.id === songId) {
-      setSelectedSong((prev) => (prev ? { ...prev, ...updates } : null))
-    }
-    updateSongMutation.mutate({ songId, updates })
-  }
+  const updateSong = useCallback(
+    (songId: string, updates: Partial<Song>) => {
+      setSelectedSong((prev) => (prev?.id === songId ? { ...prev, ...updates } : prev))
+      updateSongMutation.mutate({ songId, updates })
+    },
+    [updateSongMutation]
+  )
 
-  const handleDeleteSong = (songId: string) => {
-    deleteSongMutation.mutate(songId)
+  const handleDeleteSong = useCallback(
+    (songId: string) => {
+      deleteSongMutation.mutate(songId)
+      setSelectedSong(null)
+      setIsMobileDrawerOpen(false)
+    },
+    [deleteSongMutation]
+  )
+
+  const handleTransferSuccess = useCallback(() => {
     setSelectedSong(null)
     setIsMobileDrawerOpen(false)
-  }
-
-  const handleTransferSuccess = () => {
-    setSelectedSong(null)
-    setIsMobileDrawerOpen(false)
-  }
+  }, [])
 
   const handleSelectSong = useCallback(
     (song: Song) => {
