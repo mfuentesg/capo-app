@@ -32,7 +32,7 @@ export const SongItem = memo(function SongItem({
     song.ownership?.type === "personal"
       ? "Me"
       : song.ownership?.type === "team"
-        ? song.ownership.teamName.slice(0, 8)
+        ? song.ownership.teamName.split(" ")[0]
         : null
 
   const teamIcon = song.ownership?.type === "team" ? (song.ownership.teamIcon ?? null) : null

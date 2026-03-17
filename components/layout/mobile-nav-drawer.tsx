@@ -33,7 +33,7 @@ export function MobileNavDrawer({ isOpen, onOpenChange }: MobileNavDrawerProps) 
   const { data: user } = useUser()
 
   const navItems = [
-    { title: t.nav.dashboard, href: "/dashboard", icon: LayoutDashboard },
+    { title: t.nav.dashboard, href: "/dashboard", icon: LayoutDashboard, exact: true },
     { title: t.nav.songs, href: "/dashboard/songs", icon: Music },
     { title: t.nav.playlists, href: "/dashboard/playlists", icon: ListMusic },
     { title: t.nav.teams, href: "/dashboard/teams", icon: Users }

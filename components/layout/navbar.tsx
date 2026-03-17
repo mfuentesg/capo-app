@@ -15,7 +15,7 @@ export function Navbar() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
 
   const navItems = [
-    { title: t.nav.dashboard, href: "/dashboard", icon: LayoutDashboard, hideTitle: true },
+    { title: t.nav.dashboard, href: "/dashboard", icon: LayoutDashboard, hideTitle: true, exact: true },
     { title: t.nav.songs, href: "/dashboard/songs", icon: Music },
     { title: t.nav.playlists, href: "/dashboard/playlists", icon: ListMusic },
     { title: t.nav.teams, href: "/dashboard/teams", icon: Users }

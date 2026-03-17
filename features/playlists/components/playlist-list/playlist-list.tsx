@@ -115,7 +115,7 @@ export function PlaylistList({
               teamName: team.name,
               teamIcon: team.icon ?? null
             }
-            ownershipLabel = team.name
+            ownershipLabel = team.name.split(" ")[0]
             bucketColor = getBucketColor(ownership, teams)
             teamIcon = team.icon ?? null
           }
