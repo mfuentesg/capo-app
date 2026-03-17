@@ -20,8 +20,6 @@ interface TeamDetailHeaderProps {
   team: Tables<"teams">
   onUpdate?: (updates: TablesUpdate<"teams">) => void
   isOwner?: boolean
-  memberCount?: number
-  pendingInviteCount?: number
   currentUserRole?: Tables<"team_members">["role"]
 }
 
@@ -128,8 +126,6 @@ export function TeamDetailHeader({
   team,
   onUpdate,
   isOwner,
-  memberCount = 0,
-  pendingInviteCount = 0,
   currentUserRole
 }: TeamDetailHeaderProps) {
   const router = useRouter()
@@ -157,13 +153,13 @@ export function TeamDetailHeader({
       {/* Back button */}
       <Button
         variant="ghost"
-        size="icon"
         asChild
         aria-label={t.invitations.backToTeams}
-        className="mb-4"
+        className="mb-4 gap-1.5"
       >
         <Link href="/dashboard/teams">
           <ArrowLeft className="h-4 w-4" />
+          {t.invitations.backToTeams}
         </Link>
       </Button>
 
@@ -244,21 +240,6 @@ export function TeamDetailHeader({
         </div>
       </div>
 
-      {/* Stats strip */}
-      <div className="mt-4 grid grid-cols-2 gap-3">
-        <div className="bg-card border border-border rounded-lg p-3 flex flex-col gap-0.5">
-          <span className="text-lg font-bold text-primary">{memberCount}</span>
-          <span className="text-xs text-muted-foreground uppercase tracking-wide">
-            {t.teams.members}
-          </span>
-        </div>
-        <div className="bg-card border border-border rounded-lg p-3 flex flex-col gap-0.5">
-          <span className="text-lg font-bold text-primary">{pendingInviteCount}</span>
-          <span className="text-xs text-muted-foreground uppercase tracking-wide">
-            {t.teams.pendingInvitations}
-          </span>
-        </div>
-      </div>
     </div>
   )
 }

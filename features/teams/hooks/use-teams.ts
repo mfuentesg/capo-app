@@ -308,15 +308,23 @@ export function useInviteTeamMember() {
 
       return { previousInvitations }
     },
-    onSuccess: async () => {
+    onSuccess: (invitation, { teamId }) => {
+      // Replace the optimistic invitation with the real one returned by the server.
+      // Avoids a refetch that can race with Supabase session cookie updates after
+      // a server action and transiently return empty data.
+      queryClient.setQueryData<Tables<"team_invitations">[]>(
+        teamsKeys.invitations(teamId),
+        (old) => {
+          const withoutOptimistic = (old ?? []).filter((inv) => !inv.id.startsWith("temp-"))
+          return [...withoutOptimistic, invitation]
+        }
+      )
       toast.success(t.toasts?.invitationSent || "Invitation sent successfully")
     },
     onSettled: (_, __, { teamId }) => {
-      return Promise.all([
-        queryClient.invalidateQueries({ queryKey: teamsKeys.invitations(teamId) }),
-        queryClient.invalidateQueries({ queryKey: teamsKeys.members(teamId) }),
-        queryClient.invalidateQueries({ queryKey: teamsKeys.list() })
-      ])
+      // Only invalidate the teams list (member counts). The invitations list is
+      // already up-to-date from the onSuccess setQueryData above.
+      return queryClient.invalidateQueries({ queryKey: teamsKeys.list() })
     },
     onError: (error, { teamId }, context) => {
       if (context?.previousInvitations !== undefined) {
@@ -366,9 +374,7 @@ export function useRemoveTeamMember() {
     onSuccess: async () => {
       toast.success(t.toasts?.memberRemoved || "Member removed successfully")
     },
-    onSettled: (_, __, { teamId }) => {
-      return queryClient.invalidateQueries({ queryKey: teamsKeys.members(teamId) })
-    },
+    onSettled: () => undefined,
     onError: (error, { teamId }, context) => {
       if (context?.previousMembers !== undefined) {
         queryClient.setQueryData(teamsKeys.members(teamId), context.previousMembers)
@@ -399,13 +405,34 @@ export function useChangeTeamMemberRole() {
     }) => {
       return changeTeamMemberRoleAction(teamId, userId, newRole)
     },
+    onMutate: async ({ teamId, userId, newRole }) => {
+      await queryClient.cancelQueries({ queryKey: teamsKeys.members(teamId) })
+
+      type MemberWithUser = Tables<"team_members"> & {
+        user_full_name: string | null
+        user_email: string | null
+        user_avatar_url: string | null
+      }
+
+      const previousMembers = queryClient.getQueryData<MemberWithUser[]>(
+        teamsKeys.members(teamId)
+      )
+
+      queryClient.setQueryData<MemberWithUser[]>(teamsKeys.members(teamId), (old) => {
+        if (!old) return []
+        return old.map((m) => (m.user_id === userId ? { ...m, role: newRole } : m))
+      })
+
+      return { previousMembers }
+    },
     onSuccess: async () => {
       toast.success(t.toasts?.roleChanged || "Member role updated")
     },
-    onSettled: (_, __, { teamId }) => {
-      return queryClient.invalidateQueries({ queryKey: teamsKeys.members(teamId) })
-    },
-    onError: (error) => {
+    onSettled: () => undefined,
+    onError: (error, { teamId }, context) => {
+      if (context?.previousMembers !== undefined) {
+        queryClient.setQueryData(teamsKeys.members(teamId), context.previousMembers)
+      }
       console.error("Error changing member role:", error)
       const message = error instanceof Error ? error.message : "Failed to change role"
       if (message.includes("Cannot demote team owner")) {
@@ -458,12 +485,10 @@ export function useCancelTeamInvitation() {
     onSuccess: async () => {
       toast.success(t.toasts?.invitationCanceled || "Invitation canceled")
     },
-    onSettled: (_, __, { teamId }) => {
-      return Promise.all([
-        queryClient.invalidateQueries({ queryKey: teamsKeys.invitations(teamId) }),
-        // Also invalidate pending invitations for the current user just in case
-        queryClient.invalidateQueries({ queryKey: teamsKeys.pendingInvitations() })
-      ])
+    onSettled: () => {
+      // Invalidate pending invitations for the recipient's view (different page).
+      // The team invitations list is already up-to-date from the onMutate optimistic removal.
+      return queryClient.invalidateQueries({ queryKey: teamsKeys.pendingInvitations() })
     },
     onError: (error, { teamId }, context) => {
       if (context?.previousInvitations !== undefined) {
@@ -498,14 +523,50 @@ export function useResendTeamInvitation() {
       await deleteTeamInvitationAction(invitationId)
       return inviteTeamMemberAction(teamId, email, role)
     },
-    onSuccess: async () => {
+    onMutate: async ({ invitationId, teamId, email, role }) => {
+      await queryClient.cancelQueries({ queryKey: teamsKeys.invitations(teamId) })
+
+      const previousInvitations = queryClient.getQueryData<Tables<"team_invitations">[]>(
+        teamsKeys.invitations(teamId)
+      )
+
+      const optimisticInvitation: Tables<"team_invitations"> = {
+        id: `temp-${Date.now()}`,
+        email,
+        role,
+        team_id: teamId,
+        invited_by: "",
+        created_at: new Date().toISOString(),
+        expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+        accepted_at: null,
+        token: `temp-token-${Date.now()}`
+      }
+
+      queryClient.setQueryData<Tables<"team_invitations">[]>(
+        teamsKeys.invitations(teamId),
+        (old) => {
+          const withoutOld = (old ?? []).filter((inv) => inv.id !== invitationId)
+          return [...withoutOld, optimisticInvitation]
+        }
+      )
+
+      return { previousInvitations }
+    },
+    onSuccess: (invitation, { teamId }) => {
+      queryClient.setQueryData<Tables<"team_invitations">[]>(
+        teamsKeys.invitations(teamId),
+        (old) => {
+          const withoutOptimistic = (old ?? []).filter((inv) => !inv.id.startsWith("temp-"))
+          return [...withoutOptimistic, invitation]
+        }
+      )
       toast.success(t.toasts?.invitationResent || "Invitation resent successfully")
     },
-    onSettled: (_, __, { teamId }) => {
-      return queryClient.invalidateQueries({ queryKey: teamsKeys.invitations(teamId) })
-    },
-    onError: (error, { teamId }) => {
-      queryClient.invalidateQueries({ queryKey: teamsKeys.invitations(teamId) })
+    onSettled: () => undefined,
+    onError: (error, { teamId }, context) => {
+      if (context?.previousInvitations !== undefined) {
+        queryClient.setQueryData(teamsKeys.invitations(teamId), context.previousInvitations)
+      }
       console.error("Error resending invitation:", error)
       const message = error instanceof Error ? error.message : "Failed to resend invitation"
       toast.error(message)
