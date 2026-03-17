@@ -106,11 +106,11 @@ export function useUpdateTeam() {
       console.error("Error updating team:", error)
       toast.error(t.toasts?.teamUpdatedFailed || "Failed to update team")
     },
-    onSettled: (_, __, { teamId }) => {
-      return Promise.all([
-        queryClient.invalidateQueries({ queryKey: teamsKeys.list() }),
-        queryClient.invalidateQueries({ queryKey: teamsKeys.detail(teamId), exact: true })
-      ])
+    onSettled: () => {
+      // Only invalidate the teams list — the detail is already up-to-date from
+      // the optimistic update in onMutate. Refetching the detail here would race
+      // with the Supabase session cookie refresh that follows a server action.
+      return queryClient.invalidateQueries({ queryKey: teamsKeys.list() })
     }
   })
 }
@@ -178,21 +178,51 @@ export function useLeaveTeam(options?: { onSuccess?: (teamId: string) => void })
 export function useTransferOwnership() {
   const queryClient = useQueryClient()
   const { t } = useLocale()
+  const { data: user } = useUser()
 
   return useMutation({
     mutationFn: async ({ teamId, newOwnerId }: { teamId: string; newOwnerId: string }) => {
       return transferTeamOwnershipAction(teamId, newOwnerId)
     },
+    onMutate: async ({ teamId, newOwnerId }) => {
+      await queryClient.cancelQueries({ queryKey: teamsKeys.members(teamId) })
+      await queryClient.cancelQueries({ queryKey: teamsKeys.detail(teamId), exact: true })
+
+      type MemberWithUser = Tables<"team_members"> & {
+        user_full_name: string | null
+        user_email: string | null
+        user_avatar_url: string | null
+      }
+
+      const previousMembers = queryClient.getQueryData<MemberWithUser[]>(teamsKeys.members(teamId))
+      const previousTeam = queryClient.getQueryData<Tables<"teams">>(teamsKeys.detail(teamId))
+
+      queryClient.setQueryData<MemberWithUser[]>(teamsKeys.members(teamId), (old) => {
+        if (!old) return []
+        return old.map((m) => {
+          if (m.user_id === newOwnerId) return { ...m, role: "owner" as const }
+          if (m.user_id === user?.id) return { ...m, role: "admin" as const }
+          return m
+        })
+      })
+
+      if (previousTeam) {
+        queryClient.setQueryData(teamsKeys.detail(teamId), { ...previousTeam, created_by: newOwnerId })
+      }
+
+      return { previousMembers, previousTeam }
+    },
     onSuccess: async () => {
       toast.success(t.toasts?.ownershipTransferred || "Ownership transferred successfully")
     },
-    onSettled: (_, __, { teamId }) => {
-      return Promise.all([
-        queryClient.invalidateQueries({ queryKey: teamsKeys.detail(teamId) }),
-        queryClient.invalidateQueries({ queryKey: teamsKeys.members(teamId) })
-      ])
-    },
-    onError: (error) => {
+    onSettled: () => undefined,
+    onError: (error, { teamId }, context) => {
+      if (context?.previousMembers !== undefined) {
+        queryClient.setQueryData(teamsKeys.members(teamId), context.previousMembers)
+      }
+      if (context?.previousTeam !== undefined) {
+        queryClient.setQueryData(teamsKeys.detail(teamId), context.previousTeam)
+      }
       console.error("Error transferring ownership:", error)
       toast.error(t.toasts?.ownershipTransferFailed || "Failed to transfer ownership")
     }
@@ -205,23 +235,52 @@ export function useTransferOwnership() {
 export function useTransferOwnershipAndStay() {
   const queryClient = useQueryClient()
   const { t } = useLocale()
+  const { data: user } = useUser()
 
   return useMutation({
     mutationFn: async ({ teamId, newOwnerId }: { teamId: string; newOwnerId: string }) => {
       // transfer_team_ownership already demotes the current owner to admin.
       await transferTeamOwnershipAction(teamId, newOwnerId)
     },
+    onMutate: async ({ teamId, newOwnerId }) => {
+      await queryClient.cancelQueries({ queryKey: teamsKeys.members(teamId) })
+      await queryClient.cancelQueries({ queryKey: teamsKeys.detail(teamId), exact: true })
+
+      type MemberWithUser = Tables<"team_members"> & {
+        user_full_name: string | null
+        user_email: string | null
+        user_avatar_url: string | null
+      }
+
+      const previousMembers = queryClient.getQueryData<MemberWithUser[]>(teamsKeys.members(teamId))
+      const previousTeam = queryClient.getQueryData<Tables<"teams">>(teamsKeys.detail(teamId))
+
+      queryClient.setQueryData<MemberWithUser[]>(teamsKeys.members(teamId), (old) => {
+        if (!old) return []
+        return old.map((m) => {
+          if (m.user_id === newOwnerId) return { ...m, role: "owner" as const }
+          if (m.user_id === user?.id) return { ...m, role: "admin" as const }
+          return m
+        })
+      })
+
+      if (previousTeam) {
+        queryClient.setQueryData(teamsKeys.detail(teamId), { ...previousTeam, created_by: newOwnerId })
+      }
+
+      return { previousMembers, previousTeam }
+    },
     onSuccess: async () => {
       toast.success(t.toasts?.ownershipTransferred || "Ownership transferred successfully")
     },
-    onSettled: (_, __, { teamId }) => {
-      return Promise.all([
-        queryClient.invalidateQueries({ queryKey: teamsKeys.list() }),
-        queryClient.invalidateQueries({ queryKey: teamsKeys.detail(teamId) }),
-        queryClient.invalidateQueries({ queryKey: teamsKeys.members(teamId) })
-      ])
-    },
-    onError: (error) => {
+    onSettled: () => undefined,
+    onError: (error, { teamId }, context) => {
+      if (context?.previousMembers !== undefined) {
+        queryClient.setQueryData(teamsKeys.members(teamId), context.previousMembers)
+      }
+      if (context?.previousTeam !== undefined) {
+        queryClient.setQueryData(teamsKeys.detail(teamId), context.previousTeam)
+      }
       console.error("Error transferring ownership:", error)
       toast.error(t.toasts?.ownershipTransferFailed || "Failed to transfer ownership")
     }
@@ -321,7 +380,7 @@ export function useInviteTeamMember() {
       )
       toast.success(t.toasts?.invitationSent || "Invitation sent successfully")
     },
-    onSettled: (_, __, { teamId }) => {
+    onSettled: () => {
       // Only invalidate the teams list (member counts). The invitations list is
       // already up-to-date from the onSuccess setQueryData above.
       return queryClient.invalidateQueries({ queryKey: teamsKeys.list() })

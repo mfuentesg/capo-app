@@ -71,9 +71,6 @@ export function PlaylistsProvider({ children }: { children: ReactNode }) {
     },
     onSuccess: () => {
       toast.success(t.toasts?.playlistUpdated || "Playlist updated")
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["playlists", context] })
     }
   })
 
@@ -96,9 +93,6 @@ export function PlaylistsProvider({ children }: { children: ReactNode }) {
     },
     onSuccess: () => {
       toast.success(t.toasts?.playlistDeleted || "Playlist deleted")
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["playlists", context] })
     }
   })
 

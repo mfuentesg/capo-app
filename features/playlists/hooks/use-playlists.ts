@@ -163,9 +163,6 @@ export function useUpdatePlaylist() {
         old?.map((p) => (p.id === updatedPlaylist.id ? updatedPlaylist : p))
       )
       toast.success(t.toasts?.playlistUpdated || "Playlist updated")
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: playlistsKeys.lists() })
     }
   })
 }
@@ -195,9 +192,6 @@ export function useDeletePlaylist() {
     },
     onSuccess: () => {
       toast.success(t.toasts?.playlistDeleted || "Playlist deleted")
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: playlistsKeys.lists() })
     }
   })
 }
@@ -301,10 +295,6 @@ export function useReorderPlaylistSongs() {
       if (rollbackContext?.detailSnapshot !== undefined) {
         queryClient.setQueryData(rollbackContext.detailKey, rollbackContext.detailSnapshot)
       }
-    },
-    onSettled: (_data, _error, { playlistId }) => {
-      queryClient.invalidateQueries({ queryKey: playlistsKeys.lists() })
-      queryClient.invalidateQueries({ queryKey: playlistsKeys.detail(playlistId) })
     }
   })
 }
