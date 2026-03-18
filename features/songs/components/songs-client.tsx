@@ -1,17 +1,17 @@
 "use client"
 
-import { useState, useEffect, useMemo, useCallback, useRef } from "react"
+import { useState, useEffect, useMemo, useCallback, useRef, startTransition } from "react"
 import dynamic from "next/dynamic"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Skeleton } from "@/components/ui/skeleton"
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable"
 import {
-  Drawer,
-  DrawerContent,
-  DrawerTitle,
-  DrawerDescription,
-  DrawerScrollArea
-} from "@/components/ui/drawer"
+  Sheet,
+  SheetContent,
+  SheetTitle,
+  SheetDescription
+} from "@/components/ui/sheet"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
@@ -41,13 +41,91 @@ interface SongsClientProps {
   t: ReturnType<typeof getTranslations>
 }
 
+function SongDetailSkeleton() {
+  return (
+    <div className="flex flex-1 flex-col bg-muted/30">
+      <div className="shrink-0 flex items-center justify-between border-b bg-background p-4 lg:p-6">
+        <div className="flex flex-col gap-2 min-w-0">
+          <Skeleton className="h-5 w-40" />
+          <Skeleton className="h-4 w-28" />
+        </div>
+        <div className="flex items-center gap-1 shrink-0">
+          <Skeleton className="h-8 w-24 rounded-md" />
+          <Skeleton className="h-8 w-8 rounded-md" />
+        </div>
+      </div>
+      <div className="flex-1 p-4 lg:p-6 space-y-6">
+        <div className="flex gap-3">
+          <Skeleton className="h-9 w-24 rounded-full" />
+          <Skeleton className="h-9 w-28 rounded-full" />
+        </div>
+        <div className="space-y-3">
+          <Skeleton className="h-4 w-24" />
+          <div className="flex items-center gap-3">
+            <Skeleton className="h-8 w-10 rounded-md" />
+            <Skeleton className="h-10 w-20 rounded-lg" />
+            <Skeleton className="h-8 w-10 rounded-md" />
+          </div>
+        </div>
+        <div className="space-y-3">
+          <Skeleton className="h-4 w-16" />
+          <div className="flex items-center gap-3">
+            <Skeleton className="h-8 w-10 rounded-md" />
+            <Skeleton className="h-10 w-28 rounded-lg" />
+            <Skeleton className="h-8 w-10 rounded-md" />
+          </div>
+        </div>
+        <div className="flex gap-2 pt-4 border-t">
+          <Skeleton className="h-8 w-36 rounded-md" />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function SongDraftFormSkeleton() {
+  return (
+    <div className="flex flex-1 flex-col">
+      <div className="shrink-0 flex items-center justify-between border-b bg-background p-4 lg:p-6">
+        <Skeleton className="h-5 w-32" />
+        <Skeleton className="h-8 w-8 rounded-md" />
+      </div>
+      <div className="flex-1 p-4 lg:p-6 space-y-4">
+        <div className="space-y-2">
+          <Skeleton className="h-4 w-16" />
+          <Skeleton className="h-9 w-full rounded-md" />
+        </div>
+        <div className="space-y-2">
+          <Skeleton className="h-4 w-16" />
+          <Skeleton className="h-9 w-full rounded-md" />
+        </div>
+        <div className="flex gap-3">
+          <div className="flex-1 space-y-2">
+            <Skeleton className="h-4 w-8" />
+            <Skeleton className="h-9 w-full rounded-md" />
+          </div>
+          <div className="flex-1 space-y-2">
+            <Skeleton className="h-4 w-8" />
+            <Skeleton className="h-9 w-full rounded-md" />
+          </div>
+        </div>
+        <div className="flex gap-2 pt-2">
+          <Skeleton className="h-9 w-24 rounded-md" />
+          <Skeleton className="h-9 w-20 rounded-md" />
+        </div>
+      </div>
+    </div>
+  )
+}
+
 const SongDetailLazy = dynamic(() => import("@/features/songs").then((mod) => mod.SongDetail), {
-  ssr: false
+  ssr: false,
+  loading: () => <SongDetailSkeleton />
 })
 
 const SongDraftFormLazy = dynamic(
   () => import("@/features/song-draft").then((mod) => mod.SongDraftForm),
-  { ssr: false }
+  { ssr: false, loading: () => <SongDraftFormSkeleton /> }
 )
 
 export function SongsClient({ initialSongs = [], t }: SongsClientProps) {
@@ -77,7 +155,7 @@ export function SongsClient({ initialSongs = [], t }: SongsClientProps) {
   const resizeHandleIds = createOverlayIds("songs-layout-resize")
   const mobileDrawerIds = createOverlayIds("songs-mobile-drawer")
 
-  // Track viewport to render Drawer only after mount and on mobile
+  // Track viewport to render Sheet only after mount and on mobile
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 767px)")
     const update = () => setIsMobile(mq.matches)
@@ -85,6 +163,15 @@ export function SongsClient({ initialSongs = [], t }: SongsClientProps) {
     mq.addEventListener("change", update)
     return () => mq.removeEventListener("change", update)
   }, [])
+
+  // Preload lazy chunks as soon as mobile is detected so they are ready
+  // before the first tap — prevents chunk-load during the open animation
+  useEffect(() => {
+    if (isMobile) {
+      void import("@/features/songs")
+      void import("@/features/song-draft")
+    }
+  }, [isMobile])
 
   const updateSong = useCallback(
     (songId: string, updates: Partial<Song>) => {
@@ -111,8 +198,10 @@ export function SongsClient({ initialSongs = [], t }: SongsClientProps) {
   const handleSelectSong = useCallback(
     (song: Song) => {
       if (isCreatingNewSong) return
-      setSelectedSong(song)
-      setIsMobileDrawerOpen(true)
+      startTransition(() => {
+        setSelectedSong(song)
+        setIsMobileDrawerOpen(true)
+      })
     },
     [isCreatingNewSong]
   )
@@ -510,24 +599,25 @@ export function SongsClient({ initialSongs = [], t }: SongsClientProps) {
       </ResizablePanelGroup>
 
       {isMobile && (
-        <Drawer
+        <Sheet
           open={isMobileDrawerOpen}
           onOpenChange={(open) => {
             if (!open) handleCloseSongDetail()
           }}
-          noBodyStyles
         >
-          <DrawerContent
-            className="flex flex-col p-0 overflow-hidden data-[vaul-drawer-direction=bottom]:top-0 data-[vaul-drawer-direction=bottom]:bottom-0 data-[vaul-drawer-direction=bottom]:mt-0 data-[vaul-drawer-direction=bottom]:max-h-dvh data-[vaul-drawer-direction=bottom]:rounded-none"
+          <SheetContent
+            side="bottom"
+            hideClose
+            className="h-dvh flex flex-col gap-0 p-0 overflow-hidden rounded-none will-change-transform"
             id={mobileDrawerIds.contentId}
           >
-            <DrawerTitle className="sr-only">
+            <SheetTitle className="sr-only">
               {isCreatingNewSong ? t.songs.createSong : t.songs.songDetails}
-            </DrawerTitle>
-            <DrawerDescription className="sr-only">
+            </SheetTitle>
+            <SheetDescription className="sr-only">
               {isCreatingNewSong ? t.songs.enterSongDetails : t.songs.selectSongDescription}
-            </DrawerDescription>
-            <DrawerScrollArea>
+            </SheetDescription>
+            <div className="flex-1 overflow-y-auto">
               {isCreatingNewSong ? (
                 <SongDraftFormLazy
                   song={previewSong || undefined}
@@ -548,9 +638,9 @@ export function SongsClient({ initialSongs = [], t }: SongsClientProps) {
                   onTransferSuccess={handleTransferSuccess}
                 />
               ) : null}
-            </DrawerScrollArea>
-          </DrawerContent>
-        </Drawer>
+            </div>
+          </SheetContent>
+        </Sheet>
       )}
     </div>
   )
