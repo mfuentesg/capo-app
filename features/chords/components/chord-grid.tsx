@@ -2,8 +2,8 @@
 
 import * as React from "react"
 import { ChordCard } from "./chord-card"
-import { ChordDetailSheet } from "./chord-detail-sheet"
-import type { ChordEntry } from "../utils/chord-db-helpers"
+import { ChordDiagram } from "@/features/lyrics-editor"
+import { keyLabel, type ChordEntry } from "../utils/chord-db-helpers"
 import { useLocale } from "@/features/settings"
 
 interface ChordGridProps {
@@ -12,6 +12,11 @@ interface ChordGridProps {
 
 export function ChordGrid({ chords }: ChordGridProps) {
   const [selected, setSelected] = React.useState<ChordEntry | null>(null)
+  const selectedName = selected
+    ? selected.suffix === "major"
+      ? keyLabel(selected.key)
+      : `${keyLabel(selected.key)}${selected.suffix}`
+    : null
   const { t } = useLocale()
 
   if (chords.length === 0) {
@@ -30,7 +35,7 @@ export function ChordGrid({ chords }: ChordGridProps) {
         ))}
       </div>
 
-      <ChordDetailSheet chord={selected} onClose={() => setSelected(null)} />
+      <ChordDiagram chordName={selectedName} onClose={() => setSelected(null)} />
     </>
   )
 }

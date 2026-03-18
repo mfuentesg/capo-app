@@ -39,7 +39,7 @@ export function ChordAnalyzer() {
     <div className="space-y-6">
       {/* Header row */}
       <div className="flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">{t.chords.analyzer.instructions}</p>
+        <p className="text-sm text-muted-foreground">{t.chords.analyzer.instructionsDiagram}</p>
         <Button variant="outline" size="sm" onClick={reset} className="gap-2 shrink-0">
           <RotateCcw className="h-3.5 w-3.5" />
           {t.chords.analyzer.reset}

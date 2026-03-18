@@ -463,6 +463,7 @@
     },
     "analyzer": {
       "instructions": "Select the fret pressed on each string, then see the matching chords below.",
+      "instructionsDiagram": "Tap a fret on each string to build your chord shape.",
       "reset": "Reset",
       "notes": "Notes",
       "matches": "Matching chords",

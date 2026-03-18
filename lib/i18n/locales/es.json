@@ -463,6 +463,7 @@
     },
     "analyzer": {
       "instructions": "Selecciona el traste presionado en cada cuerda y ve los acordes correspondientes.",
+      "instructionsDiagram": "Toca un traste en cada cuerda para construir tu acorde.",
       "reset": "Reiniciar",
       "notes": "Notas",
       "matches": "Acordes encontrados",
