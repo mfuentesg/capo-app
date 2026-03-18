@@ -16,15 +16,13 @@ export const metadata: Metadata = {
     description,
     siteName: "Capo",
     locale: "en_US",
-    type: "website",
-    url: "https://capo.mfuentesg.dev"
+    type: "website"
   },
   twitter: {
     card: "summary_large_image",
     title,
     description
-  },
-  metadataBase: new URL("https://capo.mfuentesg.dev")
+  }
 }
 
 export default async function Page() {
