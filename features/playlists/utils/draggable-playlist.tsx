@@ -1,6 +1,6 @@
 "use client"
 
-import { memo, useRef, useState } from "react"
+import { memo, useRef, useState, startTransition } from "react"
 import { GripVerticalIcon, Trash2 } from "lucide-react"
 import {
   DndContext,
@@ -105,13 +105,13 @@ const SortableSong = memo(
 
         {/* Song row — slides left on swipe */}
         <div
-          className={`relative ${isAnimating ? "transition-transform duration-200 ease-out" : ""}`}
+          className={`relative touch-manipulation ${isAnimating ? "transition-transform duration-200 ease-out" : ""}`}
           style={{ transform: `translateX(${swipeOffset}px)` }}
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
           onTransitionEnd={() => setIsAnimating(false)}
-          onClick={() => onSongClick?.(index)}
+          onClick={() => startTransition(() => onSongClick?.(index))}
         >
           <PlaylistSongItem song={song} index={index} showDragHandle />
           <div

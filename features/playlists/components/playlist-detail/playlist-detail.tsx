@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useEffect, useMemo } from "react"
+import { useState, useRef, useEffect, useMemo, startTransition, useCallback } from "react"
 import {
   X,
   Calendar as CalendarIcon,
@@ -41,7 +41,7 @@ import {
 } from "@/components/ui/empty"
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
 import { Switch } from "@/components/ui/switch"
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer"
+import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet"
 import { cn, formatLongDate, formatDateISO, parseDateValue } from "@/lib/utils"
 import { useTranslation } from "@/hooks/use-translation"
 import { useLocale } from "@/features/settings"
@@ -277,6 +277,10 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
   const activeSong = activeIndex !== null ? songsWithPosition[activeIndex] : null
   const totalSongs = songsWithPosition.length
 
+  const handleOpenLyrics = useCallback((index: number) => {
+    startTransition(() => setActiveIndex(index))
+  }, [])
+
   const handleSongReorder = async (sourceIndex: number, destinationIndex: number) => {
     reorderMutation.mutate({
       playlistId: playlist.id,
@@ -489,7 +493,7 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
               playlist={playlistWithSongs}
               songs={songsWithPosition}
               onPlaylistSort={handleSongReorder}
-              onSongClick={setActiveIndex}
+              onSongClick={handleOpenLyrics}
               onRemoveSong={(songId) => removeSongMutation.mutate(songId)}
             />
           )}
@@ -541,19 +545,23 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
         </div>
       </div>
 
-      {/* Lyrics Drawer */}
-      <Drawer
+      {/* Lyrics Sheet */}
+      <Sheet
         open={activeIndex !== null}
         onOpenChange={(open) => {
           if (!open) setActiveIndex(null)
         }}
-        direction="top"
       >
-        <DrawerContent className="inset-0 h-full p-0 data-[vaul-drawer-direction=top]:max-h-full data-[vaul-drawer-direction=top]:rounded-none">
+        <SheetContent
+          side="top"
+          hideClose
+          forceMount
+          className="h-dvh flex flex-col gap-0 p-0 overflow-hidden rounded-none will-change-transform"
+        >
+          <SheetTitle className="sr-only">
+            {activeSong ? `${activeSong.title} lyrics` : "Song lyrics"}
+          </SheetTitle>
           <div className="relative flex h-full flex-col">
-            <DrawerHeader className="sr-only">
-              <DrawerTitle>{activeSong ? `${activeSong.title} lyrics` : "Song lyrics"}</DrawerTitle>
-            </DrawerHeader>
 
             <div className="pointer-events-none absolute right-4 bottom-6 z-20">
               <div className="pointer-events-auto flex items-center gap-1 rounded-full border bg-background px-1.5 py-1 shadow-md">
@@ -618,8 +626,8 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
               )}
             </div>
           </div>
-        </DrawerContent>
-      </Drawer>
+        </SheetContent>
+      </Sheet>
 
       {/* Add Songs Sheet */}
       <AddSongsSheet

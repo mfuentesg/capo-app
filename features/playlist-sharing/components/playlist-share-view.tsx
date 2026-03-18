@@ -15,7 +15,7 @@ import {
   Link as LinkIcon
 } from "lucide-react"
 import { toast } from "sonner"
-import { useEffect, useState } from "react"
+import { useEffect, useState, startTransition } from "react"
 import { useMutation } from "@tanstack/react-query"
 import { DragDropContext, Droppable, Draggable, type DropResult } from "@hello-pangea/dnd"
 import { useLocale } from "@/features/settings"
@@ -25,7 +25,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Switch } from "@/components/ui/switch"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer"
+import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet"
 import { LyricsView } from "@/features/lyrics-editor"
 import { api, reorderPlaylistSongsAction, updatePlaylistAction } from "@/features/playlists"
 import type { PlaylistWithSongs, Playlist } from "@/features/playlists/types"
@@ -199,14 +199,14 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
   const isTeamMember = !!(user && playlist.teamId && teams.some((t) => t.id === playlist.teamId))
   const canEditSongs = !!(isOwner || isTeamMember)
 
-  const handleCloseDrawer = () => setActiveIndex(null)
+  const handleCloseDrawer = () => startTransition(() => setActiveIndex(null))
   const handlePrevSong = () => {
     if (activeIndex === null || activeIndex === 0) return
-    setActiveIndex(activeIndex - 1)
+    startTransition(() => setActiveIndex(activeIndex - 1))
   }
   const handleNextSong = () => {
     if (activeIndex === null || activeIndex >= totalSongs - 1) return
-    setActiveIndex(activeIndex + 1)
+    startTransition(() => setActiveIndex(activeIndex + 1))
   }
 
   const copyShareUrl = async () => {
@@ -411,8 +411,8 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
                           ref={provided.innerRef}
                           {...provided.draggableProps}
                           {...provided.dragHandleProps}
-                          className={`group flex w-full items-center gap-3 px-4 py-4 text-left transition-colors cursor-grab active:cursor-grabbing ${snapshot.isDragging ? "bg-card opacity-90 shadow-md" : "hover:bg-muted/50"}`}
-                          onClick={() => setActiveIndex(index)}
+                          className={`group flex w-full items-center gap-3 px-4 py-4 text-left transition-colors touch-manipulation cursor-grab active:cursor-grabbing ${snapshot.isDragging ? "bg-card opacity-90 shadow-md" : "hover:bg-muted/50"}`}
+                          onClick={() => startTransition(() => setActiveIndex(index))}
                         >
                           <GripVertical className="h-4 w-4 shrink-0 text-muted-foreground" />
                           <span className="w-5 shrink-0 text-center text-xs tabular-nums text-muted-foreground">
@@ -458,7 +458,7 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
                 key={song.id}
                 type="button"
                 className="group flex w-full items-center gap-3 px-4 py-4 text-left transition-colors hover:bg-muted/50 first:rounded-t-xl last:rounded-b-xl active:bg-muted"
-                onClick={() => setActiveIndex(index)}
+                onClick={() => startTransition(() => setActiveIndex(index))}
                 aria-label={`${song.title} ${song.artist}`}
               >
                 <span className="w-5 shrink-0 text-center text-xs tabular-nums text-muted-foreground transition-colors group-hover:text-accent-playlists">
@@ -492,17 +492,21 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
         )}
       </main>
 
-      {/* Lyrics drawer */}
-      <Drawer
+      {/* Lyrics Sheet */}
+      <Sheet
         open={activeIndex !== null}
         onOpenChange={(open) => !open && handleCloseDrawer()}
-        direction="top"
       >
-        <DrawerContent className="inset-0 h-full p-0 data-[vaul-drawer-direction=top]:max-h-full data-[vaul-drawer-direction=top]:rounded-none">
+        <SheetContent
+          side="top"
+          hideClose
+          forceMount
+          className="h-dvh flex flex-col gap-0 p-0 overflow-hidden rounded-none will-change-transform"
+        >
+          <SheetTitle className="sr-only">
+            {activeSong ? `${activeSong.title} lyrics` : "Song lyrics"}
+          </SheetTitle>
           <div className="relative flex h-full flex-col">
-            <DrawerHeader className="sr-only">
-              <DrawerTitle>{activeSong ? `${activeSong.title} lyrics` : "Song lyrics"}</DrawerTitle>
-            </DrawerHeader>
 
             {/* Navigation controls */}
             <div className="pointer-events-none absolute right-4 bottom-safe-4 bottom-6 z-20">
@@ -547,8 +551,8 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
               )}
             </div>
           </div>
-        </DrawerContent>
-      </Drawer>
+        </SheetContent>
+      </Sheet>
     </div>
   )
 }

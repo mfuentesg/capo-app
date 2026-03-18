@@ -41,7 +41,7 @@ export const SongItem = memo(function SongItem({
     <div
       onClick={() => !isDisabled && onSelect(song)}
       className={cn(
-        "relative group flex items-center gap-3 rounded-lg border p-3 transition-colors",
+        "relative group flex items-center gap-3 rounded-lg border p-3 transition-colors touch-manipulation",
         isPreview
           ? "bg-muted"
           : isSelected && !isDisabled

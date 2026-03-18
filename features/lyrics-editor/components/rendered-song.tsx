@@ -1,10 +1,14 @@
 "use client"
 
 import { type ReactNode, useMemo, useState } from "react"
+import dynamic from "next/dynamic"
 import { ChordProParser } from "chordsheetjs"
 import { ChevronDown, Music2, Repeat2 } from "lucide-react"
 import { useLocale } from "@/features/settings"
-import { ChordDiagram } from "./chord-diagram"
+
+const ChordDiagram = dynamic(() => import("./chord-diagram").then((m) => m.ChordDiagram), {
+  ssr: false
+})
 
 interface RenderedSongProps {
   lyrics?: string

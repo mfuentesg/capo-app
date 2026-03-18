@@ -52,3 +52,5 @@ next-env.d.ts
 .worktrees/
 .superpowers/
 docs/superpowers/
+.perf-session.json
+perf-trace-*.json
