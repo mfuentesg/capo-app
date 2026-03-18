@@ -34,7 +34,7 @@ export const PlaylistItem = memo(function PlaylistItem({
   return (
     <div
       onClick={() => onSelect(playlist)}
-      className={`relative flex w-full items-center gap-3 rounded-lg p-3 cursor-pointer transition-colors border ${
+      className={`relative flex w-full items-center gap-3 rounded-lg p-3 cursor-pointer transition-colors border touch-manipulation ${
         isSelected
           ? "bg-primary/10 border-primary"
           : "bg-linear-to-br from-accent-playlists/5 via-accent-playlists/3 to-transparent border-border/60 hover:bg-muted/50 hover:border-border"

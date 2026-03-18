@@ -1,17 +1,12 @@
 "use client"
 
-import { useState, useEffect, useMemo, useCallback } from "react"
+import { useState, useEffect, useMemo, useCallback, startTransition } from "react"
 import dynamic from "next/dynamic"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable"
-import {
-  Drawer,
-  DrawerContent,
-  DrawerTitle,
-  DrawerDescription,
-  DrawerScrollArea
-} from "@/components/ui/drawer"
+import { Sheet, SheetContent, SheetTitle, SheetDescription } from "@/components/ui/sheet"
+import { Skeleton } from "@/components/ui/skeleton"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
@@ -29,14 +24,65 @@ interface PlaylistsClientProps {
   t: ReturnType<typeof getTranslations>
 }
 
+function PlaylistDetailSkeleton() {
+  return (
+    <div className="flex flex-col h-full p-4 gap-4">
+      <div className="flex items-center justify-between">
+        <Skeleton className="h-7 w-48" />
+        <Skeleton className="h-8 w-8 rounded-md" />
+      </div>
+      <div className="flex gap-2">
+        <Skeleton className="h-6 w-24 rounded-full" />
+        <Skeleton className="h-6 w-20 rounded-full" />
+      </div>
+      <Skeleton className="h-px w-full" />
+      <div className="flex flex-col gap-3">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <div key={i} className="flex items-center gap-3 p-3 rounded-lg border">
+            <Skeleton className="h-9 w-9 rounded-md shrink-0" />
+            <div className="flex-1 min-w-0 space-y-1.5">
+              <Skeleton className="h-4 w-3/4" />
+              <Skeleton className="h-3 w-1/2" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function PlaylistCreateFormSkeleton() {
+  return (
+    <div className="flex flex-col h-full p-4 gap-4">
+      <div className="flex items-center justify-between">
+        <Skeleton className="h-7 w-40" />
+        <Skeleton className="h-8 w-8 rounded-md" />
+      </div>
+      <div className="space-y-3">
+        <Skeleton className="h-4 w-16" />
+        <Skeleton className="h-10 w-full rounded-md" />
+      </div>
+      <div className="space-y-3">
+        <Skeleton className="h-4 w-24" />
+        <Skeleton className="h-20 w-full rounded-md" />
+      </div>
+      <Skeleton className="h-10 w-full rounded-md" />
+      <div className="flex gap-2 mt-auto">
+        <Skeleton className="h-10 flex-1 rounded-md" />
+        <Skeleton className="h-10 flex-1 rounded-md" />
+      </div>
+    </div>
+  )
+}
+
 const PlaylistDetailLazy = dynamic(
   () => import("./playlist-detail").then((mod) => mod.PlaylistDetail),
-  { ssr: false }
+  { ssr: false, loading: () => <PlaylistDetailSkeleton /> }
 )
 
 const PlaylistCreateFormLazy = dynamic(
   () => import("./playlist-create-form").then((mod) => mod.PlaylistCreateForm),
-  { ssr: false }
+  { ssr: false, loading: () => <PlaylistCreateFormSkeleton /> }
 )
 
 export function PlaylistsClient({ initialPlaylists = [], t }: PlaylistsClientProps) {
@@ -62,7 +108,7 @@ export function PlaylistsClient({ initialPlaylists = [], t }: PlaylistsClientPro
     ? (playlists.find((p) => p.id === selectedPlaylistId) ?? null)
     : null
 
-  // Track viewport to render Drawer only after mount and on mobile
+  // Track viewport to render Sheet only after mount and on mobile
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 767px)")
     const update = () => setIsMobile(mq.matches)
@@ -70,6 +116,14 @@ export function PlaylistsClient({ initialPlaylists = [], t }: PlaylistsClientPro
     mq.addEventListener("change", update)
     return () => mq.removeEventListener("change", update)
   }, [])
+
+  // Preload lazy chunks on mobile so first tap is instant
+  useEffect(() => {
+    if (isMobile) {
+      void import("./playlist-detail")
+      void import("./playlist-create-form")
+    }
+  }, [isMobile])
 
   // Calculate active filter count
   const activeFilterCount = useMemo(() => {
@@ -86,9 +140,11 @@ export function PlaylistsClient({ initialPlaylists = [], t }: PlaylistsClientPro
   }
 
   const handleSelectPlaylist = useCallback((playlist: Playlist) => {
-    setIsCreating(false)
-    setSelectedPlaylistId(playlist.id)
-    setIsMobileDrawerOpen(true)
+    startTransition(() => {
+      setIsCreating(false)
+      setSelectedPlaylistId(playlist.id)
+      setIsMobileDrawerOpen(true)
+    })
   }, [])
 
   const handleClosePlaylistDetail = () => {
@@ -98,10 +154,12 @@ export function PlaylistsClient({ initialPlaylists = [], t }: PlaylistsClientPro
   }
 
   const handleCreateClick = () => {
-    setSelectedPlaylistId(null)
-    setIsCreating(true)
-    setIsMobileDrawerOpen(true)
-    setCreationBucket(context)
+    startTransition(() => {
+      setSelectedPlaylistId(null)
+      setIsCreating(true)
+      setIsMobileDrawerOpen(true)
+      setCreationBucket(context)
+    })
   }
 
   const handleCreateSubmit = async (playlist: Playlist, bucket?: AppContext) => {
@@ -341,16 +399,24 @@ export function PlaylistsClient({ initialPlaylists = [], t }: PlaylistsClientPro
       </ResizablePanelGroup>
 
       {isMobile && (
-        <Drawer open={isMobileDrawerOpen} onOpenChange={setIsMobileDrawerOpen}>
-          <DrawerContent
-            className="flex flex-col p-0 overflow-hidden data-[vaul-drawer-direction=bottom]:top-0 data-[vaul-drawer-direction=bottom]:bottom-0 data-[vaul-drawer-direction=bottom]:mt-0 data-[vaul-drawer-direction=bottom]:max-h-dvh data-[vaul-drawer-direction=bottom]:rounded-none"
+        <Sheet
+          open={isMobileDrawerOpen}
+          onOpenChange={(open) => {
+            if (!open) handleClosePlaylistDetail()
+          }}
+        >
+          <SheetContent
+            side="bottom"
+            hideClose
+            forceMount
+            className="h-dvh flex flex-col gap-0 p-0 overflow-hidden rounded-none will-change-transform"
             id={mobileDrawerIds.contentId}
           >
-            <DrawerTitle className="sr-only">{t.playlists.playlistDetails}</DrawerTitle>
-            <DrawerDescription className="sr-only">
+            <SheetTitle className="sr-only">{t.playlists.playlistDetails}</SheetTitle>
+            <SheetDescription className="sr-only">
               {t.playlistDetail.editDescription}
-            </DrawerDescription>
-            <DrawerScrollArea>
+            </SheetDescription>
+            <div className="flex-1 overflow-y-auto">
               {isCreating ? (
                 <PlaylistCreateFormLazy
                   onSubmit={handleCreateSubmit}
@@ -371,9 +437,9 @@ export function PlaylistsClient({ initialPlaylists = [], t }: PlaylistsClientPro
                   }}
                 />
               ) : null}
-            </DrawerScrollArea>
-          </DrawerContent>
-        </Drawer>
+            </div>
+          </SheetContent>
+        </Sheet>
       )}
     </div>
   )
