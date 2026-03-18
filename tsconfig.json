@@ -30,5 +30,5 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules", "supabase/functions/user-team-invite/index.ts"]
+  "exclude": ["node_modules", "supabase/functions/user-team-invite/index.ts", "scripts/perf-trace.ts"]
 }

@@ -608,6 +608,7 @@ export function SongsClient({ initialSongs = [], t }: SongsClientProps) {
           <SheetContent
             side="bottom"
             hideClose
+            forceMount
             className="h-dvh flex flex-col gap-0 p-0 overflow-hidden rounded-none will-change-transform"
             id={mobileDrawerIds.contentId}
           >
