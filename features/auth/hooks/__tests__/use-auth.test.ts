@@ -6,7 +6,7 @@ import React from "react"
 import { renderHook, waitFor } from "@testing-library/react"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { useSession, useSignInWithGoogle, useSignOut } from "@/features/auth"
-import { authKeys, DEFAULT_REDIRECT_PATH, AUTH_CALLBACK_PATH } from "@/lib/supabase/constants"
+import { authKeys, AUTH_CALLBACK_PATH } from "@/lib/supabase/constants"
 import { LocaleProvider } from "@/features/settings"
 import { signOutAction } from "@/features/auth/api/actions"
 
@@ -195,7 +195,7 @@ describe("Auth Hooks", () => {
       })
 
       const callArgs = mockSupabase.auth.signInWithOAuth.mock.calls[0][0]
-      expect(callArgs.options.redirectTo).toContain(encodeURIComponent(DEFAULT_REDIRECT_PATH))
+      expect(callArgs.options.redirectTo).not.toContain("?next=")
     })
 
     it("should handle sign in error", async () => {
