@@ -20,7 +20,8 @@ const eslintConfig = [
       "supabase/functions/**",
       "public/sw.js",
       "public/swe-worker-*.js",
-      ".worktrees/**"
+      ".worktrees/**",
+      "scripts/**"
     ]
   },
   ...nextVitals,
