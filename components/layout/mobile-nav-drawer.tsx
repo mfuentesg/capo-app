@@ -9,7 +9,7 @@ import {
   DrawerTrigger
 } from "@/components/ui/drawer"
 import { OptimizedLogo } from "@/components/optimized-logo"
-import { Menu, Check, CircleUserRound, Layers, LayoutDashboard, Music, ListMusic, Users } from "lucide-react"
+import { Menu, Check, CircleUserRound, Layers, LayoutDashboard, Music, ListMusic, Users, Guitar } from "lucide-react"
 import { NavLinks } from "@/components/layout/nav-links"
 import { useLocale } from "@/features/settings"
 import { createOverlayIds } from "@/lib/ui/stable-overlay-ids"
@@ -36,6 +36,7 @@ export function MobileNavDrawer({ isOpen, onOpenChange }: MobileNavDrawerProps) 
     { title: t.nav.dashboard, href: "/dashboard", icon: LayoutDashboard, exact: true },
     { title: t.nav.songs, href: "/dashboard/songs", icon: Music },
     { title: t.nav.playlists, href: "/dashboard/playlists", icon: ListMusic },
+    { title: t.nav.chords, href: "/dashboard/chords", icon: Guitar },
     { title: t.nav.teams, href: "/dashboard/teams", icon: Users }
   ]
 

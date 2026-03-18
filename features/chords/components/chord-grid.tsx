@@ -1,0 +1,36 @@
+"use client"
+
+import * as React from "react"
+import { ChordCard } from "./chord-card"
+import { ChordDetailSheet } from "./chord-detail-sheet"
+import type { ChordEntry } from "../utils/chord-db-helpers"
+import { useLocale } from "@/features/settings"
+
+interface ChordGridProps {
+  chords: ChordEntry[]
+}
+
+export function ChordGrid({ chords }: ChordGridProps) {
+  const [selected, setSelected] = React.useState<ChordEntry | null>(null)
+  const { t } = useLocale()
+
+  if (chords.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
+        <p className="text-sm">{t.common.tryDifferentSearch}</p>
+      </div>
+    )
+  }
+
+  return (
+    <>
+      <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8">
+        {chords.map((chord) => (
+          <ChordCard key={`${chord.key}-${chord.suffix}`} chord={chord} onClick={() => setSelected(chord)} />
+        ))}
+      </div>
+
+      <ChordDetailSheet chord={selected} onClose={() => setSelected(null)} />
+    </>
+  )
+}

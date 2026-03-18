@@ -63,7 +63,8 @@
     "goToTeamDashboard": "Go to team dashboard",
     "profile": "Profile",
     "account": "Account",
-    "invitations": "Invitations"
+    "invitations": "Invitations",
+    "chords": "Chords"
   },
   "settings": {
     "title": "Settings",
@@ -455,7 +456,33 @@
     "noDiagram": "No diagram available for this chord.",
     "positionOf": "Position {current} of {total}",
     "variation": "Variation {count}",
-    "notFound": "not found"
+    "notFound": "not found",
+    "glossary": {
+      "searchPlaceholder": "Search chords…",
+      "chordsFound": "{count} chords"
+    },
+    "analyzer": {
+      "instructions": "Select the fret pressed on each string, then see the matching chords below.",
+      "reset": "Reset",
+      "notes": "Notes",
+      "matches": "Matching chords",
+      "noMatch": "No matching chords found. Try a different combination.",
+      "exact": "Exact",
+      "missingNotes": "{count} note(s) missing",
+      "emptyState": "Select finger positions above to identify a chord.",
+      "fretPosition": "Fret position:",
+      "lowerFret": "Lower fret position",
+      "higherFret": "Higher fret position",
+      "mutedLegend": "= muted",
+      "openLegend": "= open",
+      "fretLegend": "numbers = fret"
+    },
+    "page": {
+      "title": "Chord Reference",
+      "subtitle": "Browse all chords or identify a chord by its finger positions.",
+      "glossaryTab": "Glossary",
+      "analyzerTab": "Analyzer"
+    }
   },
   "songSections": {
     "chorus": "Chorus",

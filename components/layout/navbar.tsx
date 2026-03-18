@@ -8,7 +8,7 @@ import { NavLinks } from "@/components/layout/nav-links"
 import { ContextPill } from "@/components/layout/context-pill"
 import { UserProfileMenu } from "@/components/layout/user-profile-menu"
 import { useLocale } from "@/features/settings"
-import { Music, ListMusic, Users, LayoutDashboard } from "lucide-react"
+import { Music, ListMusic, Users, LayoutDashboard, Guitar } from "lucide-react"
 
 export function Navbar() {
   const { t } = useLocale()
@@ -18,6 +18,7 @@ export function Navbar() {
     { title: t.nav.dashboard, href: "/dashboard", icon: LayoutDashboard, hideTitle: true, exact: true },
     { title: t.nav.songs, href: "/dashboard/songs", icon: Music },
     { title: t.nav.playlists, href: "/dashboard/playlists", icon: ListMusic },
+    { title: t.nav.chords, href: "/dashboard/chords", icon: Guitar },
     { title: t.nav.teams, href: "/dashboard/teams", icon: Users }
   ]
 

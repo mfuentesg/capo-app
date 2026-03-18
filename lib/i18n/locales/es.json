@@ -63,7 +63,8 @@
     "goToTeamDashboard": "Ir al panel del equipo",
     "profile": "Perfil",
     "account": "Cuenta",
-    "invitations": "Invitaciones"
+    "invitations": "Invitaciones",
+    "chords": "Acordes"
   },
   "settings": {
     "title": "Configuración",
@@ -455,7 +456,33 @@
     "noDiagram": "No hay diagrama disponible para este acorde.",
     "positionOf": "Posición {current} de {total}",
     "variation": "Variación {count}",
-    "notFound": "no encontrado"
+    "notFound": "no encontrado",
+    "glossary": {
+      "searchPlaceholder": "Buscar acordes…",
+      "chordsFound": "{count} acordes"
+    },
+    "analyzer": {
+      "instructions": "Selecciona el traste presionado en cada cuerda y ve los acordes correspondientes.",
+      "reset": "Reiniciar",
+      "notes": "Notas",
+      "matches": "Acordes encontrados",
+      "noMatch": "No se encontraron acordes. Prueba una combinación diferente.",
+      "exact": "Exacto",
+      "missingNotes": "{count} nota(s) faltante(s)",
+      "emptyState": "Selecciona posiciones de dedos para identificar un acorde.",
+      "fretPosition": "Posición del traste:",
+      "lowerFret": "Bajar posición",
+      "higherFret": "Subir posición",
+      "mutedLegend": "= silenciado",
+      "openLegend": "= abierta",
+      "fretLegend": "números = traste"
+    },
+    "page": {
+      "title": "Referencia de Acordes",
+      "subtitle": "Explora todos los acordes o identifica uno según sus posiciones de dedos.",
+      "glossaryTab": "Glosario",
+      "analyzerTab": "Analizador"
+    }
   },
   "songSections": {
     "chorus": "Coro",
