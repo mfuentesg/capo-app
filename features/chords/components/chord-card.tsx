@@ -1,9 +1,7 @@
 "use client"
 
-import * as React from "react"
-// @ts-expect-error - no types for this library
-import Chord from "@tombatossals/react-chords/lib/Chord"
-import { guitarDb, keyLabel, type ChordEntry } from "../utils/chord-db-helpers"
+import { ChordPositionDiagram, type ChordPosition } from "@/components/chord-position-diagram"
+import { keyLabel, type ChordEntry } from "../utils/chord-db-helpers"
 import { cn } from "@/lib/utils"
 
 interface ChordCardProps {
@@ -12,7 +10,7 @@ interface ChordCardProps {
 }
 
 export function ChordCard({ chord, onClick }: ChordCardProps) {
-  const position = chord.positions[0]
+  const position = chord.positions[0] as ChordPosition | undefined
   if (!position) return null
 
   const displayName = chord.suffix === "major" ? keyLabel(chord.key) : chord.name
@@ -28,16 +26,7 @@ export function ChordCard({ chord, onClick }: ChordCardProps) {
       )}
     >
       <div className="w-full overflow-hidden rounded-lg bg-white dark:bg-zinc-950 p-2">
-        <div className="scale-[0.9] origin-top">
-          <Chord
-            chord={position}
-            instrument={{
-              ...guitarDb.main,
-              tunings: guitarDb.tunings
-            }}
-            lite
-          />
-        </div>
+        <ChordPositionDiagram position={position} />
       </div>
       <span className="text-sm font-semibold leading-none text-foreground">{displayName}</span>
     </button>

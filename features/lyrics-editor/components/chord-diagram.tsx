@@ -2,8 +2,6 @@
 
 import * as React from "react"
 import { Chord as ChordJS } from "chordsheetjs"
-// @ts-expect-error - no types for this library
-import Chord from "@tombatossals/react-chords/lib/Chord"
 import guitarDataRaw from "@tombatossals/chords-db/lib/guitar.json"
 import {
   Dialog,
@@ -18,6 +16,7 @@ import { useLocale } from "@/features/settings"
 // @ts-expect-error - no types for this library
 import { findGuitarChord as findGuitarChordRaw } from "chord-fingering"
 import { cn } from "@/lib/utils"
+import { ChordPositionDiagram, FingerLegend } from "@/components/chord-position-diagram"
 
 interface ChordPosition {
   frets: number[]
@@ -341,19 +340,12 @@ export function ChordDiagram({ chordName, onClose }: ChordDiagramProps) {
             </div>
           </DialogHeader>
 
-          <div className="flex flex-col items-center relative group py-8 sm:py-0">
-            <div className="relative w-full aspect-square max-w-[280px] bg-white dark:bg-zinc-950 rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-[0_20px_50px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-border/50 flex items-center justify-center overflow-hidden transition-transform duration-500 group-hover:scale-[1.02]">
-              <div className="w-full h-full scale-[1.2] sm:scale-[1.3] transition-transform duration-500 group-hover:scale-[1.25] sm:group-hover:scale-[1.35]">
-                <Chord
-                  chord={currentChord}
-                  instrument={{
-                    ...guitarData.main,
-                    tunings: guitarData.tunings,
-                  }}
-                  lite={false}
-                />
-              </div>
+          <div className="flex flex-col items-center relative group py-8 sm:py-0 gap-5">
+            <div className="relative w-full max-w-[260px] bg-white dark:bg-zinc-950 rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-[0_20px_50px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-border/50 overflow-hidden transition-transform duration-500 group-hover:scale-[1.02]">
+              <ChordPositionDiagram position={currentChord} />
             </div>
+
+            <FingerLegend />
 
             {totalPositions > 1 && (
               <div className="flex gap-1.5 mt-10 sm:mt-8 mb-2">

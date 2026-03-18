@@ -476,7 +476,9 @@
       "higherFret": "Subir posición",
       "mutedLegend": "= silenciado",
       "openLegend": "= abierta",
-      "fretLegend": "números = traste"
+      "fretLegend": "números = traste",
+      "stretchWarning": "Separación amplia — esta forma puede ser difícil de tocar.",
+      "fretboardLabel": "Entrada de diapasón de guitarra"
     },
     "page": {
       "title": "Referencia de Acordes",

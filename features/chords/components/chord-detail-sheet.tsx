@@ -1,10 +1,13 @@
 "use client"
 
 import * as React from "react"
-// @ts-expect-error - no types for this library
-import Chord from "@tombatossals/react-chords/lib/Chord"
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
-import { guitarDb, keyLabel, type ChordEntry } from "../utils/chord-db-helpers"
+import {
+  ChordPositionDiagram,
+  FingerLegend,
+  type ChordPosition,
+} from "@/components/chord-position-diagram"
+import { keyLabel, type ChordEntry } from "../utils/chord-db-helpers"
 import { cn } from "@/lib/utils"
 import { useLocale } from "@/features/settings"
 
@@ -25,7 +28,7 @@ export function ChordDetailSheet({ chord, onClose }: ChordDetailSheetProps) {
 
   const displayName = chord.suffix === "major" ? keyLabel(chord.key) : chord.name
   const total = chord.positions.length
-  const current = chord.positions[positionIndex]
+  const current = chord.positions[positionIndex] as ChordPosition
 
   return (
     <Sheet open={!!chord} onOpenChange={(open) => !open && onClose()}>
@@ -41,16 +44,12 @@ export function ChordDetailSheet({ chord, onClose }: ChordDetailSheetProps) {
           )}
         </SheetHeader>
 
-        <div className="flex flex-col items-center gap-6">
+        <div className="flex flex-col items-center gap-5">
           <div className="w-full max-w-[240px] rounded-2xl bg-white dark:bg-zinc-950 border border-border/50 p-6 shadow-md">
-            {current && (
-              <Chord
-                chord={current}
-                instrument={{ ...guitarDb.main, tunings: guitarDb.tunings }}
-                lite={false}
-              />
-            )}
+            {current && <ChordPositionDiagram position={current} />}
           </div>
+
+          <FingerLegend />
 
           {total > 1 && (
             <div className="flex gap-2">

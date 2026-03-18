@@ -476,7 +476,9 @@
       "higherFret": "Higher fret position",
       "mutedLegend": "= muted",
       "openLegend": "= open",
-      "fretLegend": "numbers = fret"
+      "fretLegend": "numbers = fret",
+      "stretchWarning": "Wide span — this shape may be difficult to play.",
+      "fretboardLabel": "Guitar fretboard input"
     },
     "page": {
       "title": "Chord Reference",

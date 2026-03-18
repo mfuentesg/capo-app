@@ -1,21 +1,19 @@
 "use client"
 
 import * as React from "react"
-// @ts-expect-error - no types for this library
-import Chord from "@tombatossals/react-chords/lib/Chord"
 import { Button } from "@/components/ui/button"
+import { ChordPositionDiagram, type ChordPosition } from "@/components/chord-position-diagram"
 import { useChordAnalyzer } from "../hooks/use-chord-analyzer"
 import { FretboardInput } from "./fretboard-input"
-import { guitarDb, getAllChords } from "../utils/chord-db-helpers"
+import { getAllChords } from "../utils/chord-db-helpers"
 import { useLocale } from "@/features/settings"
 import { RotateCcw } from "lucide-react"
 import { cn } from "@/lib/utils"
 
-/** Attempt to find a DB position for the identified chord name (for diagram preview) */
-function findDbPosition(chordName: string) {
+function findDbPosition(chordName: string): ChordPosition | null {
   const all = getAllChords()
   const match = all.find((c) => c.name === chordName || (chordName === c.key && c.suffix === "major"))
-  return match?.positions[0] ?? null
+  return (match?.positions[0] as ChordPosition | undefined) ?? null
 }
 
 export function ChordAnalyzer() {
@@ -30,7 +28,7 @@ export function ChordAnalyzer() {
     incrementBaseFret,
     decrementBaseFret,
     MIN_BASE_FRET,
-    MAX_BASE_FRET
+    MAX_BASE_FRET,
   } = useChordAnalyzer()
 
   const hasInput = frets.some((f) => f >= 0)
@@ -108,13 +106,7 @@ export function ChordAnalyzer() {
 
                     {dbPosition && (
                       <div className="w-full overflow-hidden rounded-lg bg-white dark:bg-zinc-950 p-1">
-                        <div className="scale-[0.85] origin-top">
-                          <Chord
-                            chord={dbPosition}
-                            instrument={{ ...guitarDb.main, tunings: guitarDb.tunings }}
-                            lite
-                          />
-                        </div>
+                        <ChordPositionDiagram position={dbPosition} />
                       </div>
                     )}
 
@@ -142,35 +134,26 @@ export function ChordAnalyzer() {
             strokeLinecap="round"
             strokeLinejoin="round"
           >
-            {/* Headstock */}
             <rect x="36" y="5" width="28" height="20" rx="5" strokeWidth="1.5" />
-            {/* Tuning pegs — 3 per side */}
             <circle cx="32" cy="10" r="2.5" fill="currentColor" stroke="none" />
             <circle cx="32" cy="17" r="2.5" fill="currentColor" stroke="none" />
             <circle cx="32" cy="24" r="2.5" fill="currentColor" stroke="none" />
             <circle cx="68" cy="10" r="2.5" fill="currentColor" stroke="none" />
             <circle cx="68" cy="17" r="2.5" fill="currentColor" stroke="none" />
             <circle cx="68" cy="24" r="2.5" fill="currentColor" stroke="none" />
-            {/* Nut */}
             <rect x="37" y="25" width="26" height="2" rx="1" fill="currentColor" stroke="none" />
-            {/* Neck */}
             <path d="M39,27 L41,88 L59,88 L61,27 Z" strokeWidth="1.5" />
-            {/* Fret lines */}
             <line x1="39.4" y1="39" x2="60.6" y2="39" strokeWidth="1" opacity="0.6" />
             <line x1="39.7" y1="50" x2="60.3" y2="50" strokeWidth="1" opacity="0.6" />
             <line x1="40.0" y1="60" x2="60.0" y2="60" strokeWidth="1" opacity="0.6" />
             <line x1="40.3" y1="70" x2="59.7" y2="70" strokeWidth="1" opacity="0.6" />
             <line x1="40.6" y1="79" x2="59.4" y2="79" strokeWidth="1" opacity="0.6" />
-            {/* Body — classic figure-8 outline */}
             <path
               d="M41,88 C36,92 24,102 24,113 C24,124 33,129 33,136 C33,143 20,153 20,162 C20,178 34,192 50,192 C66,192 80,178 80,162 C80,153 67,143 67,136 C67,129 76,124 76,113 C76,102 64,92 59,88 Z"
               strokeWidth="1.5"
             />
-            {/* Sound hole */}
             <circle cx="50" cy="132" r="11" strokeWidth="1.5" />
-            {/* Bridge */}
             <rect x="39" y="162" width="22" height="4" rx="1.5" fill="currentColor" stroke="none" opacity="0.5" />
-            {/* 6 Strings — from nut to bridge */}
             <line x1="42.5" y1="27" x2="41.0" y2="164" strokeWidth="0.8" opacity="0.7" />
             <line x1="45.0" y1="27" x2="43.5" y2="164" strokeWidth="0.8" opacity="0.7" />
             <line x1="47.5" y1="27" x2="46.5" y2="164" strokeWidth="0.8" opacity="0.7" />
