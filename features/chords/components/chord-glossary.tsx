@@ -8,7 +8,7 @@ import { getAvailableKeys, keyLabel } from "../utils/chord-db-helpers"
 import { useLocale } from "@/features/settings"
 import { X } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { ChordOrientationControls } from "./chord-orientation-controls"
+import { ChordOrientationControls } from "@/components/chord-orientation-controls"
 
 const AVAILABLE_KEYS = getAvailableKeys()
 

@@ -3,7 +3,7 @@
 import { ChordPositionDiagram, type ChordPosition } from "@/components/chord-position-diagram"
 import { type ChordEntry } from "../utils/chord-db-helpers"
 import { cn } from "@/lib/utils"
-import { useChordOrientation } from "../hooks/use-chord-orientation"
+import { useChordOrientation } from "@/hooks/use-chord-orientation"
 
 interface ChordCardProps {
   chord: ChordEntry

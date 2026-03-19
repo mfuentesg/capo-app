@@ -9,7 +9,7 @@ import { getAllChords } from "../utils/chord-db-helpers"
 import { useLocale } from "@/features/settings"
 import { RotateCcw } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { useChordOrientation } from "../hooks/use-chord-orientation"
+import { useChordOrientation } from "@/hooks/use-chord-orientation"
 
 function findDbPosition(chordName: string): ChordPosition | null {
   const all = getAllChords()

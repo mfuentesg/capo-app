@@ -2,7 +2,7 @@
 
 import { FlipHorizontal2, FlipVertical2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { useChordOrientation } from "../hooks/use-chord-orientation"
+import { useChordOrientation } from "@/hooks/use-chord-orientation"
 import { useLocale } from "@/features/settings"
 import { cn } from "@/lib/utils"
 

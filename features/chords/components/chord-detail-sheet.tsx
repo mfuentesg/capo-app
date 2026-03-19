@@ -9,8 +9,8 @@ import {
 import { type ChordEntry } from "../utils/chord-db-helpers"
 import { cn } from "@/lib/utils"
 import { useLocale } from "@/features/settings"
-import { useChordOrientation } from "../hooks/use-chord-orientation"
-import { ChordOrientationControls } from "./chord-orientation-controls"
+import { useChordOrientation } from "@/hooks/use-chord-orientation"
+import { ChordOrientationControls } from "@/components/chord-orientation-controls"
 
 interface ChordDetailSheetProps {
   chord: ChordEntry | null

@@ -13,8 +13,8 @@ import {
 import { ChevronLeft, ChevronRight, Info } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useLocale } from "@/features/settings"
-import { useChordOrientation } from "@/features/chords"
-import { ChordOrientationControls } from "@/features/chords"
+import { useChordOrientation } from "@/hooks/use-chord-orientation"
+import { ChordOrientationControls } from "@/components/chord-orientation-controls"
 // @ts-expect-error - no types for this library
 import { findGuitarChord as findGuitarChordRaw } from "chord-fingering"
 import { cn } from "@/lib/utils"
