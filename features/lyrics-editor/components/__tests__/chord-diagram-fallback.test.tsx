@@ -33,15 +33,14 @@ jest.mock("@/features/settings", () => ({
   })
 }))
 
-// We don't mock chord-fingering here to test the real integration
-// But we might need to mock @tombatossals/react-chords/lib/Chord
-jest.mock("@tombatossals/react-chords/lib/Chord", () => ({
-  __esModule: true,
-  default: (props: { chord: { frets: number[], baseFret: number } }) => (
+// Mock the shared chord diagram component — receives position prop
+jest.mock("@/components/chord-position-diagram", () => ({
+  ChordPositionDiagram: (props: { position: { frets: number[]; baseFret: number } }) => (
     <div data-testid="chord-svg">
-      Chord SVG: {props.chord.frets.join(",")} (base: {props.chord.baseFret})
+      Chord SVG: {props.position.frets.join(",")} (base: {props.position.baseFret})
     </div>
   ),
+  FingerLegend: () => null,
 }))
 
 describe("ChordDiagram Fallback", () => {

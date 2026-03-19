@@ -14,10 +14,10 @@ jest.mock("@/components/ui/dialog", () => ({
   DialogDescription: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }))
 
-// Mock the Chord component
-jest.mock("@tombatossals/react-chords/lib/Chord", () => ({
-  __esModule: true,
-  default: () => <div data-testid="chord-svg">Chord SVG</div>,
+// Mock the shared chord diagram component
+jest.mock("@/components/chord-position-diagram", () => ({
+  ChordPositionDiagram: () => <div data-testid="chord-svg">Chord SVG</div>,
+  FingerLegend: () => null,
 }))
 
 // Mock useLocale hook
