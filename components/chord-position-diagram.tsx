@@ -6,17 +6,18 @@
  */
 
 // ── SVG layout ────────────────────────────────────────────────────────────────
-const S  = 32   // string spacing
-const F  = 30   // fret spacing
-const PL = 20   // pad-left  (baseFret label)
-const PT = 26   // pad-top   (X / O symbols)
-const PR = 14   // pad-right (must be ≥ dot radius to avoid clipping)
-const PB = 8    // pad-bottom
+const S  = 40   // string spacing
+const F  = 36   // fret spacing
+const PL = 26   // pad-left  (baseFret label)
+const PT = 30   // pad-top   (X / O symbols)
+const PR = 16   // pad-right (must be ≥ dot radius to avoid clipping)
+const PB = 12   // pad-bottom
 const NF = 4    // frets shown
 const NS = 6    // strings
+const DOT_R = 12 // dot radius
 
-export const DIAGRAM_W = PL + (NS - 1) * S + PR  // 188
-export const DIAGRAM_H = PT + NF * F + PB          // 154
+export const DIAGRAM_W = PL + (NS - 1) * S + PR  // 242
+export const DIAGRAM_H = PT + NF * F + PB          // 186
 
 /** x of string si (0 = low E, 5 = high e) */
 const sx = (si: number) => PL + si * S
@@ -101,9 +102,9 @@ export function ChordPositionDiagram({ position }: ChordPositionDiagramProps) {
       {/* BaseFret label */}
       {!isNut && (
         <text
-          x={PL - 7} y={dotY(1) + 3}
-          textAnchor="middle" fontSize="8"
-          fill="currentColor" opacity="0.5"
+          x={PL - 10} y={dotY(1) + 4}
+          textAnchor="middle" fontSize="11" fontWeight="600"
+          fill="currentColor" opacity="0.7"
         >
           {baseFret}
         </text>
@@ -131,9 +132,9 @@ export function ChordPositionDiagram({ position }: ChordPositionDiagramProps) {
       {barreData.map((b) => (
         <rect
           key={b.barreFret}
-          x={sx(b.minSi) - 7} y={dotY(b.barreFret) - 8}
-          width={sx(b.maxSi) - sx(b.minSi) + 14} height={16}
-          rx={8}
+          x={sx(b.minSi) - 9} y={dotY(b.barreFret) - 10}
+          width={sx(b.maxSi) - sx(b.minSi) + 18} height={20}
+          rx={10}
           fill="currentColor" opacity="0.85"
         />
       ))}
@@ -145,11 +146,11 @@ export function ChordPositionDiagram({ position }: ChordPositionDiagramProps) {
         const fingerNum = fingers[si]
         return (
           <g key={si}>
-            <circle cx={sx(si)} cy={dotY(fret)} r={10} fill="currentColor" opacity="0.85" />
+            <circle cx={sx(si)} cy={dotY(fret)} r={DOT_R} fill="currentColor" opacity="0.85" />
             {fingerNum > 0 && (
               <text
-                x={sx(si)} y={dotY(fret) + 3.5}
-                textAnchor="middle" fontSize="9" fontWeight="bold"
+                x={sx(si)} y={dotY(fret) + 4}
+                textAnchor="middle" fontSize="10" fontWeight="bold"
                 style={{ fill: "hsl(var(--background))" }}
               >
                 {fingerNum}
@@ -162,20 +163,20 @@ export function ChordPositionDiagram({ position }: ChordPositionDiagramProps) {
       {/* X / O above the nut */}
       {frets.map((fret, si) => {
         const x = sx(si)
-        const y = PT - 13
+        const y = PT - 15
         if (fret === -1) {
           return (
             <g key={si}>
-              <line x1={x - 5} y1={y - 5} x2={x + 5} y2={y + 5}
+              <line x1={x - 6} y1={y - 6} x2={x + 6} y2={y + 6}
                 stroke="currentColor" strokeWidth="1.5" opacity="0.65" strokeLinecap="round" />
-              <line x1={x + 5} y1={y - 5} x2={x - 5} y2={y + 5}
+              <line x1={x + 6} y1={y - 6} x2={x - 6} y2={y + 6}
                 stroke="currentColor" strokeWidth="1.5" opacity="0.65" strokeLinecap="round" />
             </g>
           )
         }
         if (fret === 0) {
           return (
-            <circle key={si} cx={x} cy={y} r={6}
+            <circle key={si} cx={x} cy={y} r={7}
               fill="none" stroke="currentColor" strokeWidth="1.5" opacity="0.6" />
           )
         }

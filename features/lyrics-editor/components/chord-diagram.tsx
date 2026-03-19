@@ -242,6 +242,7 @@ function parseChord(
 
 export function ChordDiagram({ chordName, onClose }: ChordDiagramProps) {
   const [positionIndex, setPositionIndex] = React.useState(0)
+  const touchStartX = React.useRef(0)
   const { t } = useLocale()
 
   React.useEffect(() => {
@@ -320,6 +321,17 @@ export function ChordDiagram({ chordName, onClose }: ChordDiagramProps) {
     setPositionIndex((prev) => (prev < totalPositions - 1 ? prev + 1 : 0))
   }
 
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX
+  }
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const dx = e.changedTouches[0].clientX - touchStartX.current
+    if (Math.abs(dx) > 40) {
+      if (dx > 0) handlePrev()
+      else handleNext()
+    }
+  }
+
   return (
     <Dialog open={!!chordName} onOpenChange={(open) => !open && onClose()}>
       <DialogContent 
@@ -340,8 +352,12 @@ export function ChordDiagram({ chordName, onClose }: ChordDiagramProps) {
             </div>
           </DialogHeader>
 
-          <div className="flex flex-col items-center relative group py-8 sm:py-0 gap-5">
-            <div className="relative w-full max-w-[260px] bg-white dark:bg-zinc-950 rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-[0_20px_50px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-border/50 overflow-hidden transition-transform duration-500 group-hover:scale-[1.02]">
+          <div
+            className="flex flex-col items-center relative group py-8 sm:py-0 gap-5"
+            onTouchStart={totalPositions > 1 ? handleTouchStart : undefined}
+            onTouchEnd={totalPositions > 1 ? handleTouchEnd : undefined}
+          >
+            <div className="relative w-full bg-white dark:bg-zinc-950 rounded-2xl sm:rounded-3xl px-4 py-5 sm:p-8 shadow-[0_20px_50px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-border/50 overflow-hidden transition-transform duration-500 group-hover:scale-[1.02]">
               <ChordPositionDiagram position={currentChord} />
             </div>
 

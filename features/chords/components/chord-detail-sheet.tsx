@@ -18,6 +18,7 @@ interface ChordDetailSheetProps {
 export function ChordDetailSheet({ chord, onClose }: ChordDetailSheetProps) {
   const [positionIndex, setPositionIndex] = React.useState(0)
   const { t } = useLocale()
+  const touchStartX = React.useRef(0)
 
   React.useEffect(() => {
     setPositionIndex(0)
@@ -28,6 +29,20 @@ export function ChordDetailSheet({ chord, onClose }: ChordDetailSheetProps) {
   const displayName = chord.suffix === "major" ? keyLabel(chord.key) : chord.name
   const total = chord.positions.length
   const current = chord.positions[positionIndex] as ChordPosition
+
+  const goPrev = () => setPositionIndex((i) => (i > 0 ? i - 1 : total - 1))
+  const goNext = () => setPositionIndex((i) => (i < total - 1 ? i + 1 : 0))
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX
+  }
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const dx = e.changedTouches[0].clientX - touchStartX.current
+    if (Math.abs(dx) > 40) {
+      if (dx > 0) goPrev()
+      else goNext()
+    }
+  }
 
   return (
     <Sheet open={!!chord} onOpenChange={(open) => !open && onClose()}>
@@ -43,8 +58,12 @@ export function ChordDetailSheet({ chord, onClose }: ChordDetailSheetProps) {
           )}
         </SheetHeader>
 
-        <div className="flex flex-col items-center gap-5">
-          <div className="w-full max-w-[240px] rounded-2xl bg-white dark:bg-zinc-950 border border-border/50 p-6 shadow-md">
+        <div
+          className="flex flex-col items-center gap-4"
+          onTouchStart={total > 1 ? handleTouchStart : undefined}
+          onTouchEnd={total > 1 ? handleTouchEnd : undefined}
+        >
+          <div className="w-full rounded-2xl bg-white dark:bg-zinc-950 border border-border/50 px-4 py-5 shadow-md">
             {current && <ChordPositionDiagram position={current} />}
           </div>
 
