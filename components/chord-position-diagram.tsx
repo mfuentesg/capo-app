@@ -8,7 +8,7 @@
 // ── SVG layout ────────────────────────────────────────────────────────────────
 const S  = 40   // string spacing
 const F  = 36   // fret spacing
-const PL = 26   // pad-left  (baseFret label)
+const PL = 36   // pad-left  (baseFret label)
 const PT = 30   // pad-top   (X / O symbols)
 const PR = 16   // pad-right (must be ≥ dot radius to avoid clipping)
 const PB = 12   // pad-bottom
@@ -131,8 +131,8 @@ export function ChordPositionDiagram({ position }: ChordPositionDiagramProps) {
       {/* BaseFret label — rendered after barres so it's always on top */}
       {!isNut && (
         <text
-          x={PL - 12} y={dotY(1) + 5}
-          textAnchor="middle" fontSize="12" fontWeight="700"
+          x={PL - 20} y={dotY(1) + 5}
+          textAnchor="middle" fontSize="14" fontWeight="700"
           fill="currentColor"
           strokeWidth="3" paintOrder="stroke"
           className="stroke-white dark:stroke-zinc-950"
