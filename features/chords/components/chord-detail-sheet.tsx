@@ -17,6 +17,8 @@ interface ChordDetailSheetProps {
 
 export function ChordDetailSheet({ chord, onClose }: ChordDetailSheetProps) {
   const [positionIndex, setPositionIndex] = React.useState(0)
+  const [animKey, setAnimKey] = React.useState(0)
+  const [slideDir, setSlideDir] = React.useState<"left" | "right">("left")
   const { t } = useLocale()
   const touchStartX = React.useRef(0)
 
@@ -30,8 +32,14 @@ export function ChordDetailSheet({ chord, onClose }: ChordDetailSheetProps) {
   const total = chord.positions.length
   const current = chord.positions[positionIndex] as ChordPosition
 
-  const goPrev = () => setPositionIndex((i) => (i > 0 ? i - 1 : total - 1))
-  const goNext = () => setPositionIndex((i) => (i < total - 1 ? i + 1 : 0))
+  const navigate = (dir: "left" | "right", next: number) => {
+    setSlideDir(dir)
+    setAnimKey((k) => k + 1)
+    setPositionIndex(next)
+  }
+
+  const goPrev = () => navigate("right", positionIndex > 0 ? positionIndex - 1 : total - 1)
+  const goNext = () => navigate("left", positionIndex < total - 1 ? positionIndex + 1 : 0)
 
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX
@@ -47,6 +55,11 @@ export function ChordDetailSheet({ chord, onClose }: ChordDetailSheetProps) {
   return (
     <Sheet open={!!chord} onOpenChange={(open) => !open && onClose()}>
       <SheetContent side="bottom" className="h-auto max-h-[90dvh] rounded-t-2xl pb-safe">
+        <style>{`
+          @keyframes slideFromRight { from { transform: translateX(48px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+          @keyframes slideFromLeft  { from { transform: translateX(-48px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        `}</style>
+
         <SheetHeader className="mb-4">
           <SheetTitle className="text-3xl font-black tracking-tight">{displayName}</SheetTitle>
           {total > 1 && (
@@ -59,11 +72,19 @@ export function ChordDetailSheet({ chord, onClose }: ChordDetailSheetProps) {
         </SheetHeader>
 
         <div
-          className="flex flex-col items-center gap-4"
+          className="flex flex-col items-center gap-4 overflow-hidden"
           onTouchStart={total > 1 ? handleTouchStart : undefined}
           onTouchEnd={total > 1 ? handleTouchEnd : undefined}
         >
-          <div className="w-full rounded-2xl bg-white dark:bg-zinc-950 border border-border/50 px-4 py-5 shadow-md">
+          <div
+            key={animKey}
+            className="w-full rounded-2xl bg-white dark:bg-zinc-950 border border-border/50 px-4 py-5 shadow-md"
+            style={{
+              animation: animKey > 0
+                ? `${slideDir === "left" ? "slideFromRight" : "slideFromLeft"} 0.25s ease-out`
+                : undefined,
+            }}
+          >
             {current && <ChordPositionDiagram position={current} />}
           </div>
 
@@ -73,7 +94,7 @@ export function ChordDetailSheet({ chord, onClose }: ChordDetailSheetProps) {
                 <button
                   key={i}
                   type="button"
-                  onClick={() => setPositionIndex(i)}
+                  onClick={() => navigate(i > positionIndex ? "left" : "right", i)}
                   aria-label={`Variation ${i + 1}`}
                   className={cn(
                     "h-1.5 rounded-full transition-[width,background-color] duration-200",

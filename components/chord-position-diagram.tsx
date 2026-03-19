@@ -99,17 +99,6 @@ export function ChordPositionDiagram({ position }: ChordPositionDiagramProps) {
         rx="1" fill="currentColor" opacity={isNut ? 0.75 : 0.25}
       />
 
-      {/* BaseFret label */}
-      {!isNut && (
-        <text
-          x={PL - 10} y={dotY(1) + 4}
-          textAnchor="middle" fontSize="11" fontWeight="600"
-          fill="currentColor" opacity="0.7"
-        >
-          {baseFret}
-        </text>
-      )}
-
       {/* Fret lines */}
       {Array.from({ length: NF }, (_, fi) => (
         <line
@@ -139,6 +128,24 @@ export function ChordPositionDiagram({ position }: ChordPositionDiagramProps) {
         />
       ))}
 
+      {/* BaseFret label — rendered after barres so it's always on top */}
+      {!isNut && (
+        <>
+          <rect
+            x={PL - 22} y={dotY(1) - 10}
+            width={20} height={20} rx={4}
+            fill="hsl(var(--background))"
+          />
+          <text
+            x={PL - 12} y={dotY(1) + 5}
+            textAnchor="middle" fontSize="12" fontWeight="700"
+            fill="currentColor" opacity="0.85"
+          >
+            {baseFret}
+          </text>
+        </>
+      )}
+
       {/* Individual dots (skip barre-covered positions) */}
       {frets.map((fret, si) => {
         if (fret <= 0) return null
@@ -150,7 +157,8 @@ export function ChordPositionDiagram({ position }: ChordPositionDiagramProps) {
             {fingerNum > 0 && (
               <text
                 x={sx(si)} y={dotY(fret) + 4}
-                textAnchor="middle" fontSize="10" fontWeight="bold"
+                textAnchor="middle" fontSize="11" fontWeight="bold"
+                fill="white"
                 style={{ fill: "hsl(var(--background))" }}
               >
                 {fingerNum}

@@ -242,6 +242,8 @@ function parseChord(
 
 export function ChordDiagram({ chordName, onClose }: ChordDiagramProps) {
   const [positionIndex, setPositionIndex] = React.useState(0)
+  const [animKey, setAnimKey] = React.useState(0)
+  const [slideDir, setSlideDir] = React.useState<"left" | "right">("left")
   const touchStartX = React.useRef(0)
   const { t } = useLocale()
 
@@ -313,13 +315,17 @@ export function ChordDiagram({ chordName, onClose }: ChordDiagramProps) {
 
   const currentChord = positions[positionIndex]
 
-  const handlePrev = () => {
-    setPositionIndex((prev) => (prev > 0 ? prev - 1 : totalPositions - 1))
+  const navigate = (dir: "left" | "right", next: number) => {
+    setSlideDir(dir)
+    setAnimKey((k) => k + 1)
+    setPositionIndex(next)
   }
 
-  const handleNext = () => {
-    setPositionIndex((prev) => (prev < totalPositions - 1 ? prev + 1 : 0))
-  }
+  const handlePrev = () =>
+    navigate("right", positionIndex > 0 ? positionIndex - 1 : totalPositions - 1)
+
+  const handleNext = () =>
+    navigate("left", positionIndex < totalPositions - 1 ? positionIndex + 1 : 0)
 
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX
@@ -334,7 +340,11 @@ export function ChordDiagram({ chordName, onClose }: ChordDiagramProps) {
 
   return (
     <Dialog open={!!chordName} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent 
+      <style>{`
+        @keyframes slideFromRight { from { transform: translateX(48px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes slideFromLeft  { from { transform: translateX(-48px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+      `}</style>
+      <DialogContent
         fancy
         className="w-full h-full max-w-none sm:h-auto sm:max-w-[450px] flex flex-col justify-center bg-background sm:bg-transparent"
       >
@@ -357,7 +367,15 @@ export function ChordDiagram({ chordName, onClose }: ChordDiagramProps) {
             onTouchStart={totalPositions > 1 ? handleTouchStart : undefined}
             onTouchEnd={totalPositions > 1 ? handleTouchEnd : undefined}
           >
-            <div className="relative w-full bg-white dark:bg-zinc-950 rounded-2xl sm:rounded-3xl px-4 py-5 sm:p-8 shadow-[0_20px_50px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-border/50 overflow-hidden transition-transform duration-500 group-hover:scale-[1.02]">
+            <div
+              key={animKey}
+              className="relative w-full bg-white dark:bg-zinc-950 rounded-2xl sm:rounded-3xl px-4 py-5 sm:p-8 shadow-[0_20px_50px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-border/50 overflow-hidden transition-transform duration-500 group-hover:scale-[1.02]"
+              style={{
+                animation: animKey > 0
+                  ? `${slideDir === "left" ? "slideFromRight" : "slideFromLeft"} 0.25s ease-out`
+                  : undefined,
+              }}
+            >
               <ChordPositionDiagram position={currentChord} />
             </div>
 
@@ -371,7 +389,7 @@ export function ChordDiagram({ chordName, onClose }: ChordDiagramProps) {
                       "h-1.5 rounded-full transition-transform duration-300",
                       i === positionIndex ? "w-6 bg-primary" : "w-1.5 bg-muted-foreground/30 hover:bg-muted-foreground/50 cursor-pointer"
                     )}
-                    onClick={() => setPositionIndex(i)}
+                    onClick={() => navigate(i > positionIndex ? "left" : "right", i)}
                     aria-label={`Go to variation ${i + 1}`}
                   />
                 ))}
