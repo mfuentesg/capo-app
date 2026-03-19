@@ -45,7 +45,7 @@ export function getAllChords(): ChordEntry[] {
     (variations as ChordVariation[]).map((v) => ({
       key,
       suffix: v.suffix,
-      name: v.suffix === "major" ? key : `${key}${v.suffix}`,
+      name: v.suffix === "major" ? keyLabel(key) : `${keyLabel(key)}${v.suffix}`,
       positions: v.positions
     }))
   )
@@ -55,10 +55,12 @@ export function getAllChords(): ChordEntry[] {
 export function searchChords(query: string): ChordEntry[] {
   const q = query.trim().toLowerCase()
   if (!q) return getAllChords()
+  // Normalize "#" → "sharp" so "C#" matches the DB key "Csharp"
+  const qNorm = q.replace(/#/g, "sharp")
   return getAllChords().filter(
     (c) =>
       c.name.toLowerCase().includes(q) ||
-      c.key.toLowerCase() === q ||
+      c.key.toLowerCase() === qNorm ||
       c.suffix.toLowerCase().includes(q)
   )
 }

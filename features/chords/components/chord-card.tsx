@@ -1,7 +1,7 @@
 "use client"
 
 import { ChordPositionDiagram, type ChordPosition } from "@/components/chord-position-diagram"
-import { keyLabel, type ChordEntry } from "../utils/chord-db-helpers"
+import { type ChordEntry } from "../utils/chord-db-helpers"
 import { cn } from "@/lib/utils"
 
 interface ChordCardProps {
@@ -13,7 +13,7 @@ export function ChordCard({ chord, onClick }: ChordCardProps) {
   const position = chord.positions[0] as ChordPosition | undefined
   if (!position) return null
 
-  const displayName = chord.suffix === "major" ? keyLabel(chord.key) : chord.name
+  const displayName = chord.name
 
   return (
     <button

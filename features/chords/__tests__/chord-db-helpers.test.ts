@@ -44,6 +44,14 @@ describe("chord-db-helpers", () => {
       expect(aMinor).toBeDefined()
       expect(aMinor?.name).toBe("Aminor")
     })
+
+    it("uses keyLabel in names so C# chords display as 'C#' not 'Csharp'", () => {
+      const chords = getAllChords()
+      const csharpMajor = chords.find((c) => c.key === "Csharp" && c.suffix === "major")
+      expect(csharpMajor?.name).toBe("C#")
+      const csharpMinor = chords.find((c) => c.key === "Csharp" && c.suffix === "minor")
+      expect(csharpMinor?.name).toBe("C#minor")
+    })
   })
 
   describe("searchChords", () => {
@@ -73,6 +81,20 @@ describe("chord-db-helpers", () => {
     it("returns empty array for unknown query", () => {
       const results = searchChords("xyzunknownchord999")
       expect(results).toEqual([])
+    })
+
+    it("finds C# chords when searching 'C#'", () => {
+      const results = searchChords("C#")
+      expect(results.length).toBeGreaterThan(0)
+      // C# root chords must be included
+      expect(results.some((c) => c.key === "Csharp")).toBe(true)
+    })
+
+    it("finds F# chords when searching 'F#'", () => {
+      const results = searchChords("F#")
+      expect(results.length).toBeGreaterThan(0)
+      // F# root chords must be included
+      expect(results.some((c) => c.key === "Fsharp")).toBe(true)
     })
   })
 
