@@ -46,8 +46,11 @@ jest.mock("@/features/settings", () => ({
 }))
 
 // Mock chord orientation hook and controls
-jest.mock("@/features/chords", () => ({
-  useChordOrientation: () => ({ flipVertical: false, mirror: false }),
+jest.mock("@/hooks/use-chord-orientation", () => ({
+  useChordOrientation: () => ({ flipVertical: false, mirror: false, toggleFlipVertical: jest.fn(), toggleMirror: jest.fn() }),
+}))
+
+jest.mock("@/components/chord-orientation-controls", () => ({
   ChordOrientationControls: () => null,
 }))
 
