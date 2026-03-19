@@ -16,7 +16,7 @@ import { useLocale } from "@/features/settings"
 // @ts-expect-error - no types for this library
 import { findGuitarChord as findGuitarChordRaw } from "chord-fingering"
 import { cn } from "@/lib/utils"
-import { ChordPositionDiagram, FingerLegend } from "@/components/chord-position-diagram"
+import { ChordPositionDiagram } from "@/components/chord-position-diagram"
 
 interface ChordPosition {
   frets: number[]
@@ -344,8 +344,6 @@ export function ChordDiagram({ chordName, onClose }: ChordDiagramProps) {
             <div className="relative w-full max-w-[260px] bg-white dark:bg-zinc-950 rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-[0_20px_50px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-border/50 overflow-hidden transition-transform duration-500 group-hover:scale-[1.02]">
               <ChordPositionDiagram position={currentChord} />
             </div>
-
-            <FingerLegend />
 
             {totalPositions > 1 && (
               <div className="flex gap-1.5 mt-10 sm:mt-8 mb-2">

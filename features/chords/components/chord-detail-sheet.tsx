@@ -4,7 +4,6 @@ import * as React from "react"
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import {
   ChordPositionDiagram,
-  FingerLegend,
   type ChordPosition,
 } from "@/components/chord-position-diagram"
 import { keyLabel, type ChordEntry } from "../utils/chord-db-helpers"
@@ -48,8 +47,6 @@ export function ChordDetailSheet({ chord, onClose }: ChordDetailSheetProps) {
           <div className="w-full max-w-[240px] rounded-2xl bg-white dark:bg-zinc-950 border border-border/50 p-6 shadow-md">
             {current && <ChordPositionDiagram position={current} />}
           </div>
-
-          <FingerLegend />
 
           {total > 1 && (
             <div className="flex gap-2">
