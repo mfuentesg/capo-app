@@ -134,7 +134,7 @@ export function ChordPositionDiagram({ position }: ChordPositionDiagramProps) {
           <rect
             x={PL - 22} y={dotY(1) - 10}
             width={20} height={20} rx={4}
-            fill="hsl(var(--background))"
+            className="fill-white dark:fill-zinc-950"
           />
           <text
             x={PL - 12} y={dotY(1) + 5}
@@ -158,8 +158,7 @@ export function ChordPositionDiagram({ position }: ChordPositionDiagramProps) {
               <text
                 x={sx(si)} y={dotY(fret) + 4}
                 textAnchor="middle" fontSize="11" fontWeight="bold"
-                fill="white"
-                style={{ fill: "hsl(var(--background))" }}
+                className="fill-white dark:fill-zinc-950"
               >
                 {fingerNum}
               </text>
