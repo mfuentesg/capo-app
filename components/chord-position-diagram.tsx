@@ -19,8 +19,8 @@ const DOT_R = 12 // dot radius
 export const DIAGRAM_W = PL + (NS - 1) * S + PR  // 242
 export const DIAGRAM_H = PT + NF * F + PB          // 186
 
-/** x of string si (0 = low E, 5 = high e) */
-const sx = (si: number) => PL + si * S
+/** x of string si (0 = low E, 5 = high e) — high e is leftmost, low E rightmost */
+const sx = (si: number) => PL + (NS - 1 - si) * S
 /** y of fret divider fi (0 = nut, 1..NF = fret lines) */
 const fy = (fi: number) => PT + fi * F
 /** y midpoint of relative fret fi (1-indexed) — where the dot sits */
@@ -121,8 +121,8 @@ export function ChordPositionDiagram({ position }: ChordPositionDiagramProps) {
       {barreData.map((b) => (
         <rect
           key={b.barreFret}
-          x={sx(b.minSi) - 9} y={dotY(b.barreFret) - 10}
-          width={sx(b.maxSi) - sx(b.minSi) + 18} height={20}
+          x={sx(b.maxSi) - 9} y={dotY(b.barreFret) - 10}
+          width={sx(b.minSi) - sx(b.maxSi) + 18} height={20}
           rx={10}
           fill="currentColor" opacity="0.85"
         />
