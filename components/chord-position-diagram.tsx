@@ -130,20 +130,15 @@ export function ChordPositionDiagram({ position }: ChordPositionDiagramProps) {
 
       {/* BaseFret label — rendered after barres so it's always on top */}
       {!isNut && (
-        <>
-          <rect
-            x={PL - 22} y={dotY(1) - 10}
-            width={20} height={20} rx={4}
-            className="fill-white dark:fill-zinc-950"
-          />
-          <text
-            x={PL - 12} y={dotY(1) + 5}
-            textAnchor="middle" fontSize="12" fontWeight="700"
-            fill="currentColor" opacity="0.85"
-          >
-            {baseFret}
-          </text>
-        </>
+        <text
+          x={PL - 12} y={dotY(1) + 5}
+          textAnchor="middle" fontSize="12" fontWeight="700"
+          fill="currentColor"
+          strokeWidth="3" paintOrder="stroke"
+          className="stroke-white dark:stroke-zinc-950"
+        >
+          {baseFret}
+        </text>
       )}
 
       {/* Individual dots (skip barre-covered positions) */}
