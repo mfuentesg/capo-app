@@ -1,6 +1,5 @@
 "use client"
 
-import { FINGER_COLORS } from "@/components/chord-position-diagram"
 import { useLocale } from "@/features/settings"
 import type { FretValue } from "../hooks/use-chord-analyzer"
 
@@ -10,36 +9,19 @@ const FRET_COUNT = 7
 // ── SVG layout ────────────────────────────────────────────────────────────────
 const PAD_L = 52
 const PAD_R = 12
-const PAD_T = 20
+const PAD_T = 32   // increased so the first-string dot clears the fret-number labels
 const PAD_B = 18
 const S_GAP = 22
 const F_GAP = 42
 
 const SVG_W = PAD_L + FRET_COUNT * F_GAP + PAD_R  // ≈ 358
-const SVG_H = PAD_T + 5 * S_GAP + PAD_B           // ≈ 148
+const SVG_H = PAD_T + 5 * S_GAP + PAD_B           // ≈ 160
 
 const sY = (si: number) => PAD_T + si * S_GAP
 const fMidX = (fi: number) => PAD_L + (fi - 0.5) * F_GAP
 const fDivX = (fi: number) => PAD_L + fi * F_GAP
 
 const FRET_MARKERS = [3, 5, 7, 9, 12]
-
-// ── Auto-assign fingers based on absolute fret order ─────────────────────────
-// Finger 1 = lowest absolute fret, 2 = next unique, etc. (up to 4)
-function assignFingers(frets: FretValue[], baseFret: number): number[] {
-  const pressed = frets
-    .map((f, si) => (f > 0 ? { si, absF: baseFret + f - 1 } : null))
-    .filter((x): x is { si: number; absF: number } => x !== null)
-
-  const uniqueFrets = [...new Set(pressed.map((p) => p.absF))].sort((a, b) => a - b)
-  const map = new Map<number, number>()
-  uniqueFrets.slice(0, 4).forEach((absF, idx) => map.set(absF, idx + 1))
-
-  return frets.map((f) => {
-    if (f <= 0) return 0
-    return map.get(baseFret + f - 1) ?? 0
-  })
-}
 
 // Span of pressed absolute frets (>3 means a stretch that may be hard to play)
 function fretSpan(frets: FretValue[], baseFret: number): number {
@@ -69,7 +51,6 @@ export function FretboardInput({
 }: FretboardInputProps) {
   const { t } = useLocale()
   const isNut = baseFret === 1
-  const fingers = assignFingers(frets, baseFret)
   const span = fretSpan(frets, baseFret)
   const isStretch = span > 3
 
@@ -93,7 +74,7 @@ export function FretboardInput({
           {Array.from({ length: FRET_COUNT }, (_, fi) => (
             <text
               key={fi}
-              x={fMidX(fi + 1)} y={PAD_T - 5}
+              x={fMidX(fi + 1)} y={PAD_T - 14}
               textAnchor="middle" fontSize="9"
               fill="currentColor" opacity="0.4"
             >
@@ -193,7 +174,7 @@ export function FretboardInput({
             )
           })}
 
-          {/* Fret cells + colored numbered dots ON string lines */}
+          {/* Fret cells + dots ON string lines (single color) */}
           {Array.from({ length: FRET_COUNT }, (_, fi) => {
             const fi1 = fi + 1
             const cellX = PAD_L + fi * F_GAP
@@ -201,8 +182,6 @@ export function FretboardInput({
               const isActive = frets[si] === fi1
               const cy = sY(si)
               const cx = fMidX(fi1)
-              const fingerNum = fingers[si]
-              const color = fingerNum > 0 ? FINGER_COLORS[fingerNum] : "currentColor"
 
               return (
                 <g key={`${fi}-${si}`} onClick={() => handleFretCell(si, fi1)} style={{ cursor: "pointer" }}>
@@ -212,18 +191,7 @@ export function FretboardInput({
                     fill="transparent"
                   />
                   {isActive && (
-                    <>
-                      <circle cx={cx} cy={cy} r={9} fill={color} />
-                      {fingerNum > 0 && (
-                        <text
-                          x={cx} y={cy + 3.5}
-                          textAnchor="middle" fontSize="9" fontWeight="bold"
-                          style={{ fill: "white" }}
-                        >
-                          {fingerNum}
-                        </text>
-                      )}
-                    </>
+                    <circle cx={cx} cy={cy} r={9} fill="currentColor" opacity="0.85" />
                   )}
                 </g>
               )

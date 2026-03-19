@@ -1,17 +1,9 @@
 "use client"
 
 /**
- * Shared chord-diagram SVG renderer with finger-colored dots.
+ * Shared chord-diagram SVG renderer.
  * Used by the chords glossary, chord analyzer, and lyrics editor.
  */
-
-// ── Finger colors (blue → violet → orange → yellow, matching photo) ──────────
-export const FINGER_COLORS: Record<number, string> = {
-  1: "#3b82f6",
-  2: "#8b5cf6",
-  3: "#f97316",
-  4: "#eab308",
-}
 
 // ── SVG layout ────────────────────────────────────────────────────────────────
 const S  = 32   // string spacing
@@ -142,7 +134,7 @@ export function ChordPositionDiagram({ position }: ChordPositionDiagramProps) {
           x={sx(b.minSi) - 7} y={dotY(b.barreFret) - 8}
           width={sx(b.maxSi) - sx(b.minSi) + 14} height={16}
           rx={8}
-          fill={FINGER_COLORS[b.fingerNum] ?? "currentColor"}
+          fill="currentColor" opacity="0.85"
         />
       ))}
 
@@ -151,15 +143,14 @@ export function ChordPositionDiagram({ position }: ChordPositionDiagramProps) {
         if (fret <= 0) return null
         if (barreCovered.has(`${si}-${fret}`)) return null
         const fingerNum = fingers[si]
-        const color = FINGER_COLORS[fingerNum] ?? "currentColor"
         return (
           <g key={si}>
-            <circle cx={sx(si)} cy={dotY(fret)} r={10} fill={color} />
+            <circle cx={sx(si)} cy={dotY(fret)} r={10} fill="currentColor" opacity="0.85" />
             {fingerNum > 0 && (
               <text
                 x={sx(si)} y={dotY(fret) + 3.5}
                 textAnchor="middle" fontSize="9" fontWeight="bold"
-                style={{ fill: "white" }}
+                style={{ fill: "hsl(var(--background))" }}
               >
                 {fingerNum}
               </text>
@@ -201,8 +192,7 @@ export function FingerLegend() {
       {([1, 2, 3, 4] as const).map((f) => (
         <div key={f} className="flex flex-col items-center gap-1">
           <div
-            className="h-6 w-6 rounded-full flex items-center justify-center text-[11px] font-bold text-white shadow-sm"
-            style={{ background: FINGER_COLORS[f] }}
+            className="h-6 w-6 rounded-full flex items-center justify-center text-[11px] font-bold bg-foreground text-background shadow-sm"
           >
             {f}
           </div>
