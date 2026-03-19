@@ -6,9 +6,11 @@ import {
   ChordPositionDiagram,
   type ChordPosition,
 } from "@/components/chord-position-diagram"
-import { keyLabel, type ChordEntry } from "../utils/chord-db-helpers"
+import { type ChordEntry } from "../utils/chord-db-helpers"
 import { cn } from "@/lib/utils"
 import { useLocale } from "@/features/settings"
+import { useChordOrientation } from "../hooks/use-chord-orientation"
+import { ChordOrientationControls } from "./chord-orientation-controls"
 
 interface ChordDetailSheetProps {
   chord: ChordEntry | null
@@ -20,6 +22,7 @@ export function ChordDetailSheet({ chord, onClose }: ChordDetailSheetProps) {
   const [animKey, setAnimKey] = React.useState(0)
   const [slideDir, setSlideDir] = React.useState<"left" | "right">("left")
   const { t } = useLocale()
+  const { flipVertical, mirror } = useChordOrientation()
   const touchStartX = React.useRef(0)
 
   React.useEffect(() => {
@@ -28,7 +31,7 @@ export function ChordDetailSheet({ chord, onClose }: ChordDetailSheetProps) {
 
   if (!chord) return null
 
-  const displayName = chord.suffix === "major" ? keyLabel(chord.key) : chord.name
+  const displayName = chord.name
   const total = chord.positions.length
   const current = chord.positions[positionIndex] as ChordPosition
 
@@ -61,14 +64,19 @@ export function ChordDetailSheet({ chord, onClose }: ChordDetailSheetProps) {
         `}</style>
 
         <SheetHeader className="mb-4">
-          <SheetTitle className="text-3xl font-black tracking-tight">{displayName}</SheetTitle>
-          {total > 1 && (
-            <p className="text-xs text-muted-foreground uppercase tracking-widest">
-              {t.chords.positionOf
-                .replace("{current}", String(positionIndex + 1))
-                .replace("{total}", String(total))}
-            </p>
-          )}
+          <div className="flex items-start justify-between gap-2">
+            <div>
+              <SheetTitle className="text-3xl font-black tracking-tight">{displayName}</SheetTitle>
+              {total > 1 && (
+                <p className="text-xs text-muted-foreground uppercase tracking-widest mt-0.5">
+                  {t.chords.positionOf
+                    .replace("{current}", String(positionIndex + 1))
+                    .replace("{total}", String(total))}
+                </p>
+              )}
+            </div>
+            <ChordOrientationControls className="shrink-0 pt-1" />
+          </div>
         </SheetHeader>
 
         <div
@@ -85,7 +93,13 @@ export function ChordDetailSheet({ chord, onClose }: ChordDetailSheetProps) {
                 : undefined,
             }}
           >
-            {current && <ChordPositionDiagram position={current} />}
+            {current && (
+              <ChordPositionDiagram
+                position={current}
+                flipVertical={flipVertical}
+                mirror={mirror}
+              />
+            )}
           </div>
 
           {total > 1 && (

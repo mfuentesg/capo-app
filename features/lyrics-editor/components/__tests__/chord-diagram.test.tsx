@@ -33,10 +33,22 @@ jest.mock("@/features/settings", () => ({
         noDiagram: "No diagram available for this chord.",
         positionOf: "Position {current} of {total}",
         variation: "Variation {count}",
-        notFound: "not found"
+        notFound: "not found",
+        orientation: {
+          flipVertical: "Flip (nut at bottom)",
+          mirror: "Mirror",
+          rh: "RH",
+          lh: "LH"
+        }
       }
     }
   })
+}))
+
+// Mock chord orientation hook and controls
+jest.mock("@/features/chords", () => ({
+  useChordOrientation: () => ({ flipVertical: false, mirror: false }),
+  ChordOrientationControls: () => null,
 }))
 
 describe("ChordDiagram", () => {

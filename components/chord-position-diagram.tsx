@@ -19,13 +19,6 @@ const DOT_R = 12 // dot radius
 export const DIAGRAM_W = PL + (NS - 1) * S + PR  // 242
 export const DIAGRAM_H = PT + NF * F + PB          // 186
 
-/** x of string si (0 = low E, 5 = high e) — high e is leftmost, low E rightmost */
-const sx = (si: number) => PL + (NS - 1 - si) * S
-/** y of fret divider fi (0 = nut, 1..NF = fret lines) */
-const fy = (fi: number) => PT + fi * F
-/** y midpoint of relative fret fi (1-indexed) — where the dot sits */
-const dotY = (fi: number) => PT + (fi - 0.5) * F
-
 // ── Types ─────────────────────────────────────────────────────────────────────
 export interface ChordPosition {
   frets: number[]    // -1 muted, 0 open, 1..4 relative fret
@@ -55,9 +48,17 @@ export function autoAssignFingers(frets: number[], baseFret: number): number[] {
 // ── Main diagram component ────────────────────────────────────────────────────
 interface ChordPositionDiagramProps {
   position: ChordPosition
+  /** Flip vertically so the nut is at the bottom (player's looking-down view) */
+  flipVertical?: boolean
+  /** Mirror horizontally for left-handed players */
+  mirror?: boolean
 }
 
-export function ChordPositionDiagram({ position }: ChordPositionDiagramProps) {
+export function ChordPositionDiagram({
+  position,
+  flipVertical = false,
+  mirror = false,
+}: ChordPositionDiagramProps) {
   const { frets, baseFret, barres } = position
   const isNut = baseFret === 1
 
@@ -67,7 +68,24 @@ export function ChordPositionDiagram({ position }: ChordPositionDiagramProps) {
       ? autoAssignFingers(frets, baseFret)
       : position.fingers
 
-  // Barre metadata: span + finger number for each barre fret
+  // ── Coordinate helpers (orientation-aware) ─────────────────────────────────
+  /** x of string si — direction depends on mirror */
+  const sx = (si: number) => (mirror ? PL + si * S : PL + (NS - 1 - si) * S)
+  /** y of fret divider fi (0 = nut side) — direction depends on flipVertical */
+  const fy = (fi: number) => (flipVertical ? DIAGRAM_H - PT - fi * F : PT + fi * F)
+  /** y midpoint of relative fret fi (1-indexed) — where the dot sits */
+  const dotY = (fi: number) =>
+    flipVertical ? DIAGRAM_H - PT - (fi - 0.5) * F : PT + (fi - 0.5) * F
+
+  // Y coordinate for X / O symbols (opposite side from nut)
+  const xoY = flipVertical ? DIAGRAM_H - PT + 15 : PT - 15
+
+  // Nut / position-marker rect Y and height
+  // Normal: rect extends upward from fy(0)
+  // Flipped: rect extends downward from fy(0)
+  const nutBarY = flipVertical ? DIAGRAM_H - PT : PT - (isNut ? 5 : 1.5)
+
+  // ── Barre metadata ─────────────────────────────────────────────────────────
   const barreData = barres
     .map((barreFret) => {
       const barredSi = frets
@@ -92,9 +110,9 @@ export function ChordPositionDiagram({ position }: ChordPositionDiagramProps) {
 
   return (
     <svg viewBox={`0 0 ${DIAGRAM_W} ${DIAGRAM_H}`} className="w-full h-auto">
-      {/* Nut / top line */}
+      {/* Nut / position marker */}
       <rect
-        x={PL} y={PT - (isNut ? 5 : 1.5)}
+        x={PL} y={nutBarY}
         width={(NS - 1) * S} height={isNut ? 5 : 2}
         rx="1" fill="currentColor" opacity={isNut ? 0.75 : 0.25}
       />
@@ -112,21 +130,25 @@ export function ChordPositionDiagram({ position }: ChordPositionDiagramProps) {
       {Array.from({ length: NS }, (_, si) => (
         <line
           key={si}
-          x1={sx(si)} y1={PT} x2={sx(si)} y2={PT + NF * F}
+          x1={sx(si)} y1={fy(0)} x2={sx(si)} y2={fy(NF)}
           stroke="currentColor" strokeWidth="0.75" opacity="0.25"
         />
       ))}
 
-      {/* Barre bars */}
-      {barreData.map((b) => (
-        <rect
-          key={b.barreFret}
-          x={sx(b.maxSi) - 9} y={dotY(b.barreFret) - 10}
-          width={sx(b.minSi) - sx(b.maxSi) + 18} height={20}
-          rx={10}
-          fill="currentColor" opacity="0.85"
-        />
-      ))}
+      {/* Barre bars — use min/max to handle both mirror orientations */}
+      {barreData.map((b) => {
+        const barreLeft = Math.min(sx(b.minSi), sx(b.maxSi))
+        const barreRight = Math.max(sx(b.minSi), sx(b.maxSi))
+        return (
+          <rect
+            key={b.barreFret}
+            x={barreLeft - 9} y={dotY(b.barreFret) - 10}
+            width={barreRight - barreLeft + 18} height={20}
+            rx={10}
+            fill="currentColor" opacity="0.85"
+          />
+        )
+      })}
 
       {/* BaseFret label — rendered after barres so it's always on top */}
       {!isNut && (
@@ -162,10 +184,10 @@ export function ChordPositionDiagram({ position }: ChordPositionDiagramProps) {
         )
       })}
 
-      {/* X / O above the nut */}
+      {/* X / O above/below the nut */}
       {frets.map((fret, si) => {
         const x = sx(si)
-        const y = PT - 15
+        const y = xoY
         if (fret === -1) {
           return (
             <g key={si}>

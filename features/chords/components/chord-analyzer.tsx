@@ -9,6 +9,7 @@ import { getAllChords } from "../utils/chord-db-helpers"
 import { useLocale } from "@/features/settings"
 import { RotateCcw } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useChordOrientation } from "../hooks/use-chord-orientation"
 
 function findDbPosition(chordName: string): ChordPosition | null {
   const all = getAllChords()
@@ -18,6 +19,7 @@ function findDbPosition(chordName: string): ChordPosition | null {
 
 export function ChordAnalyzer() {
   const { t } = useLocale()
+  const { flipVertical, mirror } = useChordOrientation()
   const {
     frets,
     baseFret,
@@ -106,7 +108,11 @@ export function ChordAnalyzer() {
 
                     {dbPosition && (
                       <div className="w-full overflow-hidden rounded-lg bg-white dark:bg-zinc-950 p-1">
-                        <ChordPositionDiagram position={dbPosition} />
+                        <ChordPositionDiagram
+                          position={dbPosition}
+                          flipVertical={flipVertical}
+                          mirror={mirror}
+                        />
                       </div>
                     )}
 

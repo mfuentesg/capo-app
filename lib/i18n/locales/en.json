@@ -457,6 +457,12 @@
     "positionOf": "Position {current} of {total}",
     "variation": "Variation {count}",
     "notFound": "not found",
+    "orientation": {
+      "flipVertical": "Flip (nut at bottom)",
+      "mirror": "Mirror",
+      "rh": "RH",
+      "lh": "LH"
+    },
     "glossary": {
       "searchPlaceholder": "Search chords…",
       "chordsFound": "{count} chords"

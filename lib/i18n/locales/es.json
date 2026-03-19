@@ -457,6 +457,12 @@
     "positionOf": "Posición {current} de {total}",
     "variation": "Variación {count}",
     "notFound": "no encontrado",
+    "orientation": {
+      "flipVertical": "Girar (cejilla abajo)",
+      "mirror": "Espejo",
+      "rh": "MD",
+      "lh": "MI"
+    },
     "glossary": {
       "searchPlaceholder": "Buscar acordes…",
       "chordsFound": "{count} acordes"
