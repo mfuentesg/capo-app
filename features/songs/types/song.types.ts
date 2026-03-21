@@ -30,6 +30,7 @@ export interface UserPreferences {
   lyricsColumns: 1 | 2
   locale?: string
   theme?: "light" | "dark" | "system"
+  chordHand?: "right" | "left"
 }
 
 export type GroupBy = "none" | "key" | "artist" | "bucket"

@@ -5,6 +5,7 @@ import {
   ThemeSettings,
   LanguageSettings,
   AccountDangerZone,
+  ChordHandSettings,
   useLocale
 } from "@/features/settings"
 import { Separator } from "@/components/ui/separator"
@@ -24,6 +25,8 @@ export function SettingsClient() {
         <ThemeSettings />
         <Separator />
         <LanguageSettings />
+        <Separator />
+        <ChordHandSettings />
       </div>
 
       <AccountDangerZone />

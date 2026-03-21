@@ -18,7 +18,8 @@ function mapJsonToPreferences(json: PreferencesJson): UserPreferences {
   return {
     lyricsColumns: json["lyricsColumns"] === 1 ? 1 : 2,
     locale: typeof json["locale"] === "string" ? json["locale"] : undefined,
-    theme: isValidTheme(json["theme"]) ? json["theme"] : undefined
+    theme: isValidTheme(json["theme"]) ? json["theme"] : undefined,
+    chordHand: json["chordHand"] === "right" ? "right" : json["chordHand"] === "left" ? "left" : undefined
   }
 }
 

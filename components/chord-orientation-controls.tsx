@@ -1,6 +1,6 @@
 "use client"
 
-import { FlipHorizontal2, FlipVertical2 } from "lucide-react"
+import { FlipVertical2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useChordOrientation } from "@/hooks/use-chord-orientation"
 import { useLocale } from "@/features/settings"
@@ -11,7 +11,7 @@ interface ChordOrientationControlsProps {
 }
 
 export function ChordOrientationControls({ className }: ChordOrientationControlsProps) {
-  const { flipVertical, mirror, toggleFlipVertical, toggleMirror } = useChordOrientation()
+  const { flipVertical, toggleFlipVertical } = useChordOrientation()
   const { t } = useLocale()
 
   return (
@@ -24,16 +24,6 @@ export function ChordOrientationControls({ className }: ChordOrientationControls
         title={t.chords.orientation.flipVertical}
       >
         <FlipVertical2 className="h-3.5 w-3.5" />
-      </Button>
-      <Button
-        variant={mirror ? "default" : "outline"}
-        size="sm"
-        onClick={toggleMirror}
-        className="h-7 px-2 gap-1 text-xs font-semibold"
-        title={t.chords.orientation.mirror}
-      >
-        <FlipHorizontal2 className="h-3.5 w-3.5" />
-        <span>{mirror ? t.chords.orientation.lh : t.chords.orientation.rh}</span>
       </Button>
     </div>
   )

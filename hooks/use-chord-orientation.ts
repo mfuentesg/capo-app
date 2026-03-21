@@ -1,26 +1,19 @@
 "use client"
 
 import { useSyncExternalStore, useCallback } from "react"
+import { useChordHand } from "@/features/settings"
 
-export interface ChordOrientation {
-  flipVertical: boolean
-  mirror: boolean
-}
-
-const DEFAULT: ChordOrientation = { flipVertical: false, mirror: false }
-
-// In-memory singleton — shared across all components on the client.
-// Resets on hard refresh (intentional: no localStorage complexity).
-// Survives soft navigation because the client bundle stays loaded.
-let current: ChordOrientation = DEFAULT
+// In-memory singleton for flipVertical — shared across all components on the
+// client. Resets on hard refresh (intentional). Survives soft navigation.
+let current = false
 const listeners = new Set<() => void>()
 
-function getSnapshot(): ChordOrientation {
+function getSnapshot(): boolean {
   return current
 }
 
-function getServerSnapshot(): ChordOrientation {
-  return DEFAULT
+function getServerSnapshot(): boolean {
+  return false
 }
 
 function subscribe(listener: () => void) {
@@ -30,21 +23,19 @@ function subscribe(listener: () => void) {
   }
 }
 
-function update(next: ChordOrientation) {
+function update(next: boolean) {
   current = next
   listeners.forEach((l) => l())
 }
 
 export function useChordOrientation() {
-  const orientation = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot)
+  const flipVertical = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot)
+  const { chordHand } = useChordHand()
+  const mirror = chordHand === "left"
 
   const toggleFlipVertical = useCallback(() => {
-    update({ ...current, flipVertical: !current.flipVertical })
+    update(!current)
   }, [])
 
-  const toggleMirror = useCallback(() => {
-    update({ ...current, mirror: !current.mirror })
-  }, [])
-
-  return { ...orientation, toggleFlipVertical, toggleMirror }
+  return { flipVertical, mirror, toggleFlipVertical }
 }
