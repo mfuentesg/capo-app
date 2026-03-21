@@ -489,8 +489,9 @@
     "page": {
       "title": "Chord Reference",
       "subtitle": "Browse all chords or identify a chord by its finger positions.",
-      "glossaryTab": "Glossary",
-      "analyzerTab": "Analyzer"
+      "glossaryTab": "Chord Library",
+      "analyzerTab": "Chord Finder",
+      "betaBadge": "Beta"
     }
   },
   "songSections": {

@@ -489,8 +489,9 @@
     "page": {
       "title": "Referencia de Acordes",
       "subtitle": "Explora todos los acordes o identifica uno según sus posiciones de dedos.",
-      "glossaryTab": "Glosario",
-      "analyzerTab": "Analizador"
+      "glossaryTab": "Biblioteca de acordes",
+      "analyzerTab": "Buscador de acordes",
+      "betaBadge": "Beta"
     }
   },
   "songSections": {

@@ -17,14 +17,17 @@ export function ChordsPage() {
       </div>
 
       <Tabs defaultValue="glossary">
-        <TabsList className="mb-6">
+        <TabsList className="mb-6 overflow-visible">
           <TabsTrigger value="glossary" className="gap-2">
             <BookOpen className="h-4 w-4" />
             {t.chords.page.glossaryTab}
           </TabsTrigger>
-          <TabsTrigger value="analyzer" className="gap-2">
+          <TabsTrigger value="analyzer" className="relative gap-2">
             <ScanSearch className="h-4 w-4" />
             {t.chords.page.analyzerTab}
+            <span className="absolute -top-2.5 right-1 rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground ring-1 ring-border/50">
+              {t.chords.page.betaBadge}
+            </span>
           </TabsTrigger>
         </TabsList>
 
