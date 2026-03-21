@@ -99,19 +99,15 @@ export function SongDraftForm({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onChange])
 
-  const generateSongId = useCallback(() => {
-    return crypto.randomUUID()
-  }, [])
-
   const buildSong = useCallback(
     (values: SongFormValues): Song => ({
-      id: song?.id?.startsWith("preview-") ? generateSongId() : song?.id || generateSongId(),
+      id: song?.id?.startsWith("preview-") ? crypto.randomUUID() : song?.id || crypto.randomUUID(),
       title: values.title,
       artist: values.artist,
       key: values.key,
       bpm: values.bpm
     }),
-    [song?.id, generateSongId]
+    [song?.id]
   )
 
   const onSubmit = useCallback(
