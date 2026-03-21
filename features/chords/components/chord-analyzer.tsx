@@ -5,15 +5,38 @@ import { Button } from "@/components/ui/button"
 import { ChordPositionDiagram, type ChordPosition } from "@/components/chord-position-diagram"
 import { useChordAnalyzer } from "../hooks/use-chord-analyzer"
 import { FretboardInput } from "./fretboard-input"
-import { getAllChords } from "../utils/chord-db-helpers"
+import { getChordsByKey } from "../utils/chord-db-helpers"
 import { useLocale } from "@/features/settings"
 import { RotateCcw } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useChordOrientation } from "@/hooks/use-chord-orientation"
 
-function findDbPosition(chordName: string): ChordPosition | null {
-  const all = getAllChords()
-  const match = all.find((c) => c.name === chordName || (chordName === c.key && c.suffix === "major"))
+// Maps note names (including enharmonic equivalents) to chord-db keys
+const NOTE_TO_DB_KEY: Record<string, string> = {
+  C: "C",
+  "C#": "Csharp",
+  Db: "Csharp",
+  D: "D",
+  "D#": "Eb",
+  Eb: "Eb",
+  E: "E",
+  F: "F",
+  "F#": "Fsharp",
+  Gb: "Fsharp",
+  G: "G",
+  "G#": "Ab",
+  Ab: "Ab",
+  A: "A",
+  "A#": "Bb",
+  Bb: "Bb",
+  B: "B",
+}
+
+function findDbPosition(root: string, suffix: string): ChordPosition | null {
+  const dbKey = NOTE_TO_DB_KEY[root]
+  if (!dbKey) return null
+  const entries = getChordsByKey(dbKey)
+  const match = entries.find((c) => c.suffix === suffix)
   return (match?.positions[0] as ChordPosition | undefined) ?? null
 }
 
@@ -84,7 +107,7 @@ export function ChordAnalyzer() {
           {results.length > 0 && (
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
               {results.slice(0, 8).map((result) => {
-                const dbPosition = findDbPosition(result.name)
+                const dbPosition = findDbPosition(result.root, result.suffix)
                 return (
                   <div
                     key={result.name}

@@ -8,7 +8,9 @@
 // Semitone values: C=0, C#=1, D=2, D#=3, E=4, F=5, F#=6, G=7, G#=8, A=9, A#=10, B=11
 const OPEN_STRING_NOTES = [4, 9, 2, 7, 11, 4] as const // E A D G B E
 
-export const NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
+// Use flat notation where the chord DB stores flat keys (Eb, Ab, Bb) so that
+// identified chord names round-trip to the DB lookup without remapping.
+export const NOTE_NAMES = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"]
 
 /**
  * Common chord patterns: sorted from most to least restrictive so that a full
