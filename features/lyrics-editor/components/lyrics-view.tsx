@@ -62,7 +62,7 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
     isSaving = false,
     initialSettings,
     onSettingsChange,
-    initialLyricsColumns = 2
+    initialLyricsColumns = 1
   }: LyricsViewProps,
   ref
 ) {
@@ -83,7 +83,7 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
   const SCROLL_SPEED_STEP = 10
   const DEFAULT_SCROLL_SPEED = 30
   const [scrollSpeed, setScrollSpeed] = useState(() =>
-    song.bpm > 0 ? Math.round(song.bpm * 0.5) : DEFAULT_SCROLL_SPEED
+    song.bpm > 0 ? song.bpm : DEFAULT_SCROLL_SPEED
   )
   const { isScrolling, stop: stopAutoScroll, toggle: toggleAutoScroll } = useAutoScroll({
     speed: scrollSpeed,
@@ -178,7 +178,7 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
       scrollContainer.scrollTo({ top: 0 })
     }
     stopAutoScroll()
-    setScrollSpeed(song.bpm > 0 ? Math.round(song.bpm * 0.5) : DEFAULT_SCROLL_SPEED)
+    setScrollSpeed(song.bpm > 0 ? song.bpm : DEFAULT_SCROLL_SPEED)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [song.id])
 
@@ -328,6 +328,7 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
       {/* Header */}
       <div className="sticky top-0 z-10 border-b bg-background">
         <div className={cn("px-4 py-2", !isPanel && "container mx-auto")}>
+          {/* Row 1: navigation + song info */}
           <div className="flex items-center gap-2">
             <Button
               variant="ghost"
@@ -339,7 +340,6 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
               {onClose ? <X className="h-4 w-4" /> : <ArrowLeft className="h-4 w-4" />}
             </Button>
 
-            {/* All song info on one line */}
             <div className="flex-1 min-w-0 flex items-center gap-2 overflow-hidden">
               <p className="text-sm font-medium truncate shrink">
                 {song.title}
@@ -358,10 +358,11 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
                 </Badge>
               )}
             </div>
+          </div>
 
-            {/* Actions */}
-            <div className="flex items-center gap-0.5 shrink-0">
-              {canEdit && isEditing ? (
+          {/* Row 2: actions */}
+          <div className="flex items-center gap-0.5 pl-10">
+            {canEdit && isEditing ? (
                 <>
                   <SaveStatus status={saveStatus} className="mr-1" />
                   <Button
@@ -490,7 +491,6 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
                 </>
               )}
             </div>
-          </div>
         </div>
       </div>
 
