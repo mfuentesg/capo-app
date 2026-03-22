@@ -30,6 +30,8 @@ import { LazyChordProReference } from "./chordpro-reference-lazy"
 import { LazySongEditor, preloadSongEditor } from "./song-editor"
 import { useTranslation } from "@/hooks/use-translation"
 import { useAutoSave } from "@/hooks/use-auto-save"
+import { useAutoScroll } from "@/hooks/use-auto-scroll"
+import { AutoScrollControls } from "./auto-scroll-controls"
 import { SaveStatus } from "@/components/ui/save-status"
 import { createOverlayIds } from "@/lib/ui/stable-overlay-ids"
 import { cn } from "@/lib/utils"
@@ -75,6 +77,18 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
   const [savedLyrics, setSavedLyrics] = useState(song.lyrics || "")
   const [lyricsColumns, setLyricsColumnsState] = useState<1 | 2>(initialLyricsColumns)
   const { mutate: upsertPreferences } = useUpsertUserPreferences()
+
+  const MIN_SCROLL_SPEED = 10
+  const MAX_SCROLL_SPEED = 300
+  const SCROLL_SPEED_STEP = 10
+  const DEFAULT_SCROLL_SPEED = 30
+  const [scrollSpeed, setScrollSpeed] = useState(() =>
+    song.bpm > 0 ? Math.round(song.bpm * 0.5) : DEFAULT_SCROLL_SPEED
+  )
+  const { isScrolling, stop: stopAutoScroll, toggle: toggleAutoScroll } = useAutoScroll({
+    speed: scrollSpeed,
+    containerRef
+  })
 
   const setLyricsColumns = useCallback(
     (value: 1 | 2) => {
@@ -123,6 +137,7 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
 
   const handleEdit = () => {
     if (!canEdit) return
+    stopAutoScroll()
     setHasInitializedEditor(true)
     setIsEditing(true)
     setIsPreviewing(false)
@@ -156,12 +171,15 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
     handleClose()
   }, [handleClose])
 
-  // Reset scroll to top when song changes
+  // Reset scroll to top and auto-scroll speed when song changes
   useEffect(() => {
     if (containerRef.current) {
       const scrollContainer = containerRef.current.closest(".overflow-y-auto") || window
       scrollContainer.scrollTo({ top: 0 })
     }
+    stopAutoScroll()
+    setScrollSpeed(song.bpm > 0 ? Math.round(song.bpm * 0.5) : DEFAULT_SCROLL_SPEED)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [song.id])
 
   const settingsPopoverContent = (
@@ -401,6 +419,19 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
                       <Pencil className="h-3.5 w-3.5" />
                     </Button>
                   )}
+                  <AutoScrollControls
+                    isScrolling={isScrolling}
+                    onToggle={toggleAutoScroll}
+                    speed={scrollSpeed}
+                    onIncrease={() =>
+                      setScrollSpeed((s) => Math.min(s + SCROLL_SPEED_STEP, MAX_SCROLL_SPEED))
+                    }
+                    onDecrease={() =>
+                      setScrollSpeed((s) => Math.max(s - SCROLL_SPEED_STEP, MIN_SCROLL_SPEED))
+                    }
+                    isAtMin={scrollSpeed <= MIN_SCROLL_SPEED}
+                    isAtMax={scrollSpeed >= MAX_SCROLL_SPEED}
+                  />
                   {isPanel && (
                     <Button
                       variant="ghost"

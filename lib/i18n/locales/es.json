@@ -170,6 +170,13 @@
       "oneColumn": "1 columna",
       "twoColumns": "2 columnas",
       "chordproReference": "Referencia ChordPro",
+      "autoScroll": {
+        "start": "Iniciar desplazamiento automático",
+        "stop": "Detener desplazamiento automático",
+        "speed": "Velocidad",
+        "increaseSpeed": "Aumentar velocidad",
+        "decreaseSpeed": "Reducir velocidad"
+      },
       "reference": {
         "metadata": "Metadatos",
         "section": "Secciones",
