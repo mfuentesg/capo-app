@@ -6,7 +6,7 @@ describe("useAutoScroll", () => {
   let rafCallbacks: FrameRequestCallback[]
   let rafSpy: jest.SpyInstance
   let cafSpy: jest.SpyInstance
-  let containerRef: RefObject<HTMLDivElement>
+  let containerRef: RefObject<HTMLDivElement | null>
 
   beforeEach(() => {
     rafCallbacks = []
