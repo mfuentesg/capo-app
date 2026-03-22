@@ -129,6 +129,10 @@
     "[E]",
     "[F#m]",
     "F#m",
-    "capo.app/shared/"
+    "capo.app/shared/",
+    "[$1]",
+    "capo-agent",
+    "Get Song Chords",
+    "Invalid URL provided."
   ]
 }

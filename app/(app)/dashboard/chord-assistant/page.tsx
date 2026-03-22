@@ -4,6 +4,10 @@ import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Send, Loader2, Music, Wrench } from "lucide-react"
+import { useTranslation } from "@/hooks/use-translation"
+
+const WELCOME_CONTENT =
+  "Hi! I can fetch chord sheets from CifraClub, LaCuerda, or Ultimate Guitar.\n\nPaste a song URL and I'll get the chords for you — e.g.:\nhttps://www.cifraclub.com.br/oasis/wonderwall/"
 
 type MessageRole = "user" | "assistant"
 
@@ -49,13 +53,9 @@ function MessageBubble({ message }: { message: Message }) {
 }
 
 export default function ChordAssistantPage() {
+  const { t } = useTranslation()
   const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "welcome",
-      role: "assistant",
-      content:
-        "Hi! I can fetch chord sheets from CifraClub, LaCuerda, or Ultimate Guitar.\n\nPaste a song URL and I'll get the chords for you — e.g.:\nhttps://www.cifraclub.com.br/oasis/wonderwall/",
-    },
+    { id: "welcome", role: "assistant", content: WELCOME_CONTENT },
   ])
   const [input, setInput] = useState("")
   const [isLoading, setIsLoading] = useState(false)
@@ -165,10 +165,8 @@ export default function ChordAssistantPage() {
   return (
     <div className="mx-auto flex h-[calc(100dvh-4rem)] max-w-2xl flex-col gap-0 px-4 py-6">
       <div className="mb-4">
-        <h1 className="text-xl font-semibold">Chord Assistant</h1>
-        <p className="text-sm text-muted-foreground">
-          Fetch chord sheets from CifraClub, LaCuerda, or Ultimate Guitar
-        </p>
+        <h1 className="text-xl font-semibold">{t.chordAssistant.title}</h1>
+        <p className="text-sm text-muted-foreground">{t.chordAssistant.subtitle}</p>
       </div>
 
       {/* Message list */}
@@ -192,7 +190,7 @@ export default function ChordAssistantPage() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && sendMessage()}
-          placeholder="Paste a song URL or ask for chords…"
+          placeholder={t.chordAssistant.placeholder}
           disabled={isLoading}
           className="flex-1"
         />

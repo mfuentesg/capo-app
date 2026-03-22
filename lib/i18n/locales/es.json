@@ -673,5 +673,10 @@
   "offline": {
     "title": "Estás sin conexión",
     "description": "Esta página no está disponible sin conexión. Verifica tu conexión e intenta de nuevo."
+  },
+  "chordAssistant": {
+    "title": "Asistente de Acordes",
+    "subtitle": "Busca tablaturas en CifraClub, LaCuerda o Ultimate Guitar",
+    "placeholder": "Pega un enlace de canción o pide los acordes…"
   }
 }
