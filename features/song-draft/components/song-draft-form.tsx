@@ -207,8 +207,11 @@ export function SongDraftForm({
                         <Input
                           type="number"
                           placeholder="120"
-                          value={field.value}
-                          onChange={(e) => field.onChange(Number(e.target.value) || 0)}
+                          value={field.value || ""}
+                          onChange={(e) => {
+                            const num = parseInt(e.target.value, 10)
+                            field.onChange(isNaN(num) ? 0 : num)
+                          }}
                           onBlur={field.onBlur}
                           name={field.name}
                           ref={field.ref}
