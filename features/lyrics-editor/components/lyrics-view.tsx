@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import {
   ArrowLeft,
+  BookOpen,
   Music2,
   Type,
   Plus,
@@ -25,6 +26,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Separator } from "@/components/ui/separator"
 import { useLyricsSettings } from "@/features/lyrics-editor"
 import { RenderedSong } from "./rendered-song"
+import { LazyChordProReference } from "./chordpro-reference-lazy"
 import { LazySongEditor, preloadSongEditor } from "./song-editor"
 import { useTranslation } from "@/hooks/use-translation"
 import { useAutoSave } from "@/hooks/use-auto-save"
@@ -67,6 +69,7 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
   const containerRef = useRef<HTMLDivElement>(null)
   const [isEditing, setIsEditing] = useState(false)
   const [isPreviewing, setIsPreviewing] = useState(false)
+  const [isReferenceOpen, setIsReferenceOpen] = useState(false)
   const [hasInitializedEditor, setHasInitializedEditor] = useState(false)
   const [editedLyrics, setEditedLyrics] = useState(song.lyrics || "")
   const [savedLyrics, setSavedLyrics] = useState(song.lyrics || "")
@@ -375,6 +378,15 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
                   >
                     <Save className="h-3.5 w-3.5" />
                   </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() => setIsReferenceOpen(true)}
+                    aria-label={t.songs.lyrics.chordproReference}
+                  >
+                    <BookOpen className="h-3.5 w-3.5" />
+                  </Button>
                 </>
               ) : (
                 <>
@@ -435,6 +447,15 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
                       {settingsPopoverContent}
                     </PopoverContent>
                   </Popover>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() => setIsReferenceOpen(true)}
+                    aria-label={t.songs.lyrics.chordproReference}
+                  >
+                    <BookOpen className="h-3.5 w-3.5" />
+                  </Button>
                 </>
               )}
             </div>
@@ -485,6 +506,7 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
           </div>
         </div>
       </div>
+      <LazyChordProReference open={isReferenceOpen} onOpenChange={setIsReferenceOpen} />
     </div>
   )
 })

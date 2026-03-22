@@ -2,7 +2,15 @@
 
 **Date:** 2026-03-08
 **GitHub Issue:** #37
-**Status:** Pending
+**Status:** Partially completed (2026-03-22)
+
+**Implemented:**
+- `features/lyrics-editor/data/chordpro-directives.ts` — typed directive registry with descriptions, examples, and flag documentation (`CHORDPRO_DIRECTIVES`, `SECTION_FLAG_DOCS`)
+- `features/lyrics-editor/components/chordpro-reference.tsx` — reference Sheet panel accessible via BookOpen button in `LyricsView` header; groups directives by category with full/shorthand names, descriptions, and code examples; includes a Performance Flags section
+- Autocomplete `detail` strings updated in `chordpro-lang.ts` to hint count + flag syntax
+
+**Not yet implemented:**
+- Rich autocomplete `info()` popover (showing description + example on hover in CodeMirror dropdown) — Task 2 of the original plan
 
 ## Problem
 
