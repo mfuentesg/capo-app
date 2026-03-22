@@ -40,8 +40,18 @@ export const PlaylistItem = memo(function PlaylistItem({
           : "bg-linear-to-br from-accent-playlists/5 via-accent-playlists/3 to-transparent border-border/60 hover:bg-muted/50 hover:border-border"
       }`}
     >
-      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent-playlists/15 shrink-0">
-        <Music3 className="h-5 w-5 text-accent-playlists" />
+      <div
+        className={`flex h-10 w-10 items-center justify-center rounded-lg shrink-0 ${!bucketColor ? "bg-accent-playlists/15" : ""}`}
+        style={
+          bucketColor
+            ? { background: `color-mix(in oklch, ${bucketColor} 15%, transparent)` }
+            : undefined
+        }
+      >
+        <Music3
+          className={`h-5 w-5 ${!bucketColor ? "text-accent-playlists" : ""}`}
+          style={bucketColor ? { color: bucketColor } : undefined}
+        />
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
