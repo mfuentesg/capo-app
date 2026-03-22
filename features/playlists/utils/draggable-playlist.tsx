@@ -1,7 +1,8 @@
 "use client"
 
-import { memo, useRef, useState, startTransition } from "react"
-import { GripVerticalIcon, Trash2 } from "lucide-react"
+import { memo, startTransition } from "react"
+import { GripVerticalIcon, X } from "lucide-react"
+import { useTranslation } from "@/hooks/use-translation"
 import {
   DndContext,
   closestCenter,
@@ -18,9 +19,6 @@ import { PlaylistSongItem } from "@/features/playlists"
 import { type SongWithPosition, type PlaylistWithSongs } from "@/types/extended"
 import { blockNextDocumentClick } from "@/lib/dnd"
 
-const SWIPE_DELETE_THRESHOLD = -80
-const SWIPE_MAX = -120
-
 const SortableSong = memo(
   ({
     song,
@@ -33,93 +31,48 @@ const SortableSong = memo(
     onSongClick?: (index: number) => void
     onRemoveSong?: (songId: string) => void
   }) => {
+    const { t } = useTranslation()
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
       id: song.id
     })
 
-    const [swipeOffset, setSwipeOffset] = useState(0)
-    const [isAnimating, setIsAnimating] = useState(false)
-    const [isDeleted, setIsDeleted] = useState(false)
-    const swipeStartX = useRef<number | null>(null)
-    const didSwipe = useRef(false)
-
     const sortStyle = {
       transform: CSS.Transform.toString(transform),
-      transition,
-      display: isDeleted ? "none" : undefined
+      transition
     }
-
-    const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-      if (isDragging || !onRemoveSong || isDeleted) return
-      // Ignore events that originate from the drag handle — those belong to @dnd-kit
-      if ((e.target as HTMLElement).closest("[data-drag-handle]")) return
-      ;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
-      swipeStartX.current = e.clientX
-      didSwipe.current = false
-    }
-
-    const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-      if (swipeStartX.current === null || isDragging || !onRemoveSong || isDeleted) return
-      const delta = e.clientX - swipeStartX.current
-      if (delta < -8) {
-        didSwipe.current = true
-        setIsAnimating(false)
-        setSwipeOffset(Math.max(delta, SWIPE_MAX))
-      }
-    }
-
-    const handlePointerUp = () => {
-      if (swipeStartX.current === null) return
-      swipeStartX.current = null
-      const wasSwiped = didSwipe.current
-      didSwipe.current = false
-
-      if (!wasSwiped) return
-
-      blockNextDocumentClick()
-
-      if (swipeOffset < SWIPE_DELETE_THRESHOLD) {
-        setIsDeleted(true)
-        onRemoveSong?.(song.id)
-      } else {
-        setIsAnimating(true)
-        setSwipeOffset(0)
-      }
-    }
-
-    const showDeleteIndicator = swipeOffset < -20
 
     return (
       <div
         ref={setNodeRef}
         style={sortStyle}
         {...attributes}
-        className={`relative overflow-hidden rounded-lg ${isDragging ? "opacity-70 z-50" : ""}`}
+        className={`relative rounded-lg ${isDragging ? "opacity-70 z-50" : ""}`}
       >
-        {/* Delete indicator revealed by swipe */}
+        {/* Song row — draggable anywhere via long-press, tappable to open lyrics */}
         <div
-          className={`absolute inset-0 flex items-center justify-end bg-destructive px-4 transition-opacity ${showDeleteIndicator ? "opacity-100" : "opacity-0"}`}
-        >
-          <Trash2 className="h-4 w-4 text-destructive-foreground" />
-        </div>
-
-        {/* Song row — slides left on swipe */}
-        <div
-          className={`relative touch-manipulation ${isAnimating ? "transition-transform duration-200 ease-out" : ""}`}
-          style={{ transform: `translateX(${swipeOffset}px)` }}
-          onPointerDown={handlePointerDown}
-          onPointerMove={handlePointerMove}
-          onPointerUp={handlePointerUp}
-          onTransitionEnd={() => setIsAnimating(false)}
+          className={`relative touch-manipulation cursor-pointer ${isDragging ? "cursor-grabbing" : ""}`}
+          {...listeners}
           onClick={() => startTransition(() => onSongClick?.(index))}
         >
           <PlaylistSongItem song={song} index={index} showDragHandle />
-          <div
-            data-drag-handle
-            className="absolute right-4 top-1/2 -translate-y-1/2 cursor-grab active:cursor-grabbing touch-none"
-            {...listeners}
-          >
-            <GripVerticalIcon className="h-5 w-5 text-muted-foreground transition-colors group-hover:text-foreground" />
+
+          {/* Right action column: drag affordance + remove button */}
+          <div className="absolute right-3 inset-y-0 flex flex-col items-center justify-center gap-1.5">
+            <GripVerticalIcon className="h-4 w-4 text-muted-foreground/40 transition-colors group-hover:text-muted-foreground/70 pointer-events-none" />
+            {onRemoveSong && (
+              <button
+                type="button"
+                aria-label={t.common.removeSong}
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onRemoveSong(song.id)
+                }}
+                className="flex h-5 w-5 items-center justify-center rounded text-muted-foreground/50 hover:text-destructive transition-colors"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -144,13 +97,14 @@ export function DraggablePlaylist({
 }) {
   const sensors = useSensors(
     useSensor(PointerSensor, {
-      activationConstraint: { distance: 8 }
+      // Long-press to activate drag so a quick tap still opens lyrics without
+      // accidentally triggering a reorder.
+      activationConstraint: { delay: 200, tolerance: 5 }
     })
   )
 
   const handleDragEnd = (event: DragEndEvent) => {
-    // Always block the synthetic click that follows pointerup, regardless of
-    // whether the drop resulted in a reorder.
+    // Block the synthetic click that follows pointerup so it doesn't open lyrics.
     blockNextDocumentClick()
 
     const { active, over } = event
