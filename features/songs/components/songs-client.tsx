@@ -26,7 +26,8 @@ import {
   X,
   Turtle,
   Rabbit,
-  Zap
+  Zap,
+  Link
 } from "lucide-react"
 import { SongList } from "@/features/songs"
 import { useSongs, useCreateSong, useUpdateSong, useDeleteSong } from "../hooks/use-songs"
@@ -35,6 +36,8 @@ import { useAppContext, type AppContext } from "@/features/app-context"
 import type { Song, GroupBy, BPMRange, SongFilterStatus } from "../types"
 import { getTranslations } from "@/lib/i18n/translations"
 import { createOverlayIds } from "@/lib/ui/stable-overlay-ids"
+import { ImportUrlDialog } from "@/features/song-draft"
+import type { DraftSong } from "@/features/song-draft"
 
 interface SongsClientProps {
   initialSongs?: Song[]
@@ -146,6 +149,7 @@ export function SongsClient({ initialSongs = [], t }: SongsClientProps) {
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false)
   const [isCreatingNewSong, setIsCreatingNewSong] = useState(false)
   const [previewSong, setPreviewSong] = useState<Song | null>(null)
+  const [isImportDialogOpen, setIsImportDialogOpen] = useState(false)
   const filterPopoverIds = createOverlayIds("songs-filter-popover")
   const resizeHandleIds = createOverlayIds("songs-layout-resize")
   const mobileDrawerIds = createOverlayIds("songs-mobile-drawer")
@@ -224,6 +228,24 @@ export function SongsClient({ initialSongs = [], t }: SongsClientProps) {
     setCreationBucket(context)
   }
 
+  const handleImportedSong = (draft: DraftSong) => {
+    const previewId = crypto.randomUUID()
+    const newPreview: Song = {
+      id: previewId,
+      title: draft.title,
+      artist: draft.artist,
+      key: draft.key,
+      bpm: draft.bpm || 0,
+      lyrics: draft.lyrics,
+      isDraft: true
+    }
+    setPreviewSong(newPreview)
+    setSelectedSong(newPreview)
+    setIsCreatingNewSong(true)
+    setIsMobileDrawerOpen(true)
+    setCreationBucket(context)
+  }
+
   const handleUpdatePreview = (updates: Partial<Song>) => {
     if (previewSong) {
       setPreviewSong((prev) => (prev ? { ...prev, ...updates } : null))
@@ -290,15 +312,28 @@ export function SongsClient({ initialSongs = [], t }: SongsClientProps) {
                 </h1>
                 <Badge variant="secondary">{songs.length}</Badge>
               </div>
-              <Button
-                size="sm"
-                className="gap-1.5 rounded-full"
-                onClick={handleCreateNewSong}
-                disabled={isCreatingNewSong}
-              >
-                <Plus className="h-4 w-4" />
-                {t.songs.addSong}
-              </Button>
+              <div className="flex items-center gap-1.5">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="gap-1.5 rounded-full"
+                  onClick={() => setIsImportDialogOpen(true)}
+                  disabled={isCreatingNewSong}
+                  title={t.editor.importFromUrl}
+                >
+                  <Link className="h-4 w-4" />
+                  <span className="hidden sm:inline">{t.editor.importFromUrl}</span>
+                </Button>
+                <Button
+                  size="sm"
+                  className="gap-1.5 rounded-full"
+                  onClick={handleCreateNewSong}
+                  disabled={isCreatingNewSong}
+                >
+                  <Plus className="h-4 w-4" />
+                  {t.songs.addSong}
+                </Button>
+              </div>
             </div>
 
             <div className="relative mt-4 flex items-center gap-2">
@@ -602,6 +637,12 @@ export function SongsClient({ initialSongs = [], t }: SongsClientProps) {
           </SheetContent>
         </Sheet>
       )}
+
+      <ImportUrlDialog
+        open={isImportDialogOpen}
+        onClose={() => setIsImportDialogOpen(false)}
+        onImported={handleImportedSong}
+      />
     </div>
   )
 }

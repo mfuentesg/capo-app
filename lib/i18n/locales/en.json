@@ -673,5 +673,25 @@
   "offline": {
     "title": "You are offline",
     "description": "This page is not available offline. Check your connection and try again."
+  },
+  "editor": {
+    "pasteConverted": "Converted pasted text to ChordPro format",
+    "importFromUrl": "Import from URL",
+    "importDialogTitle": "Import song from URL",
+    "importDialogDescription": "Paste a URL from CifraClub or Ultimate Guitar.",
+    "importUrlPlaceholder": "https://www.cifraclub.com.br/…",
+    "importParse": "Parse",
+    "importConfirm": "Import",
+    "importBack": "Back",
+    "importCancel": "Cancel",
+    "importImporting": "Importing…",
+    "importParsing": "Parsing…",
+    "importPreviewTitle": "Song preview",
+    "importPreviewLyricsLabel": "Lyrics preview",
+    "importReplaceLyrics": "Replace existing lyrics?",
+    "importReplaceLyricsDescription": "This song already has lyrics. Do you want to replace them with the imported lyrics?",
+    "importReplace": "Replace",
+    "importKeep": "Keep existing",
+    "unsupportedPlatform": "Unsupported platform. Try CifraClub or Ultimate Guitar."
   }
 }

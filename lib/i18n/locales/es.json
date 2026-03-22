@@ -673,5 +673,25 @@
   "offline": {
     "title": "Estás sin conexión",
     "description": "Esta página no está disponible sin conexión. Verifica tu conexión e intenta de nuevo."
+  },
+  "editor": {
+    "pasteConverted": "Texto pegado convertido al formato ChordPro",
+    "importFromUrl": "Importar desde URL",
+    "importDialogTitle": "Importar canción desde URL",
+    "importDialogDescription": "Pega una URL de CifraClub o Ultimate Guitar.",
+    "importUrlPlaceholder": "https://www.cifraclub.com.br/…",
+    "importParse": "Analizar",
+    "importConfirm": "Importar",
+    "importBack": "Atrás",
+    "importCancel": "Cancelar",
+    "importImporting": "Importando…",
+    "importParsing": "Analizando…",
+    "importPreviewTitle": "Vista previa de la canción",
+    "importPreviewLyricsLabel": "Vista previa de la letra",
+    "importReplaceLyrics": "¿Reemplazar la letra existente?",
+    "importReplaceLyricsDescription": "Esta canción ya tiene letra. ¿Deseas reemplazarla con la letra importada?",
+    "importReplace": "Reemplazar",
+    "importKeep": "Mantener existente",
+    "unsupportedPlatform": "Plataforma no compatible. Prueba CifraClub o Ultimate Guitar."
   }
 }

@@ -1,10 +1,14 @@
 "use client"
 
+import { useMemo } from "react"
 import CodeMirror from "@uiw/react-codemirror"
 import { EditorView } from "@codemirror/view"
 import { useTheme } from "next-themes"
 import { catppuccinLatte, catppuccinMocha } from "@catppuccin/codemirror"
+import { toast } from "sonner"
 import { chordProExtensions } from "../utils/chordpro-lang"
+import { pasteConvertExtension } from "../utils/paste-convert-extension"
+import { useTranslation } from "@/hooks/use-translation"
 
 interface Props {
   content: string
@@ -21,11 +25,21 @@ const editorStyle = EditorView.theme({
   }
 })
 
-// Extensions are created once at module level — they don't depend on runtime state.
-const extensions = [...chordProExtensions(), EditorView.lineWrapping, editorStyle]
-
 export default function SongEditorImpl({ content, onChange }: Props) {
   const { resolvedTheme } = useTheme()
+  const { t } = useTranslation()
+
+  const extensions = useMemo(
+    () => [
+      ...chordProExtensions(),
+      EditorView.lineWrapping,
+      editorStyle,
+      pasteConvertExtension({
+        onConversion: () => toast.success(t.editor.pasteConverted)
+      })
+    ],
+    [t.editor.pasteConverted]
+  )
 
   return (
     <CodeMirror
