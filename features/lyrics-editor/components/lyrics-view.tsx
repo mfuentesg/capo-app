@@ -26,7 +26,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Separator } from "@/components/ui/separator"
 import { useLyricsSettings } from "@/features/lyrics-editor"
 import { RenderedSong } from "./rendered-song"
-import { ChordProReference } from "./chordpro-reference"
+import { LazyChordProReference } from "./chordpro-reference-lazy"
 import { LazySongEditor, preloadSongEditor } from "./song-editor"
 import { useTranslation } from "@/hooks/use-translation"
 import { useAutoSave } from "@/hooks/use-auto-save"
@@ -506,7 +506,7 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
           </div>
         </div>
       </div>
-      <ChordProReference open={isReferenceOpen} onOpenChange={setIsReferenceOpen} />
+      <LazyChordProReference open={isReferenceOpen} onOpenChange={setIsReferenceOpen} />
     </div>
   )
 })
