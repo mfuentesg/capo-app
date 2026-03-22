@@ -63,7 +63,12 @@ function mergeChordAndLyricLines(chordLine: string, lyricLine: string): string {
   // Insert from right to left so positions don't shift
   for (let i = chords.length - 1; i >= 0; i--) {
     const { pos, chord } = chords[i]
-    const insertAt = Math.min(pos, result.length)
+    let insertAt = Math.min(pos, result.length)
+    // If the insert position lands on a space, advance to the next non-space
+    // character so the chord bracket precedes the word it applies to
+    while (insertAt < result.length && result[insertAt] === " ") {
+      insertAt++
+    }
     result = result.slice(0, insertAt) + `[${chord}]` + result.slice(insertAt)
   }
 
