@@ -7,6 +7,7 @@ const DEFAULT_CHORD_HAND: ChordHand = "left"
 
 interface ChordHandContextType {
   chordHand: ChordHand
+  isPending: boolean
   setChordHand: (hand: ChordHand) => void
 }
 
@@ -20,7 +21,7 @@ export function ChordHandProvider({
   initialChordHand?: ChordHand
 }) {
   const [chordHand, setChordHandState] = useState<ChordHand>(initialChordHand)
-  const [, startTransition] = useTransition()
+  const [isPending, startTransition] = useTransition()
 
   const setChordHand = useCallback(
     (hand: ChordHand) => {
@@ -32,7 +33,7 @@ export function ChordHandProvider({
     [startTransition]
   )
 
-  const value = useMemo(() => ({ chordHand, setChordHand }), [chordHand, setChordHand])
+  const value = useMemo(() => ({ chordHand, isPending, setChordHand }), [chordHand, isPending, setChordHand])
 
   return <ChordHandContext.Provider value={value}>{children}</ChordHandContext.Provider>
 }
