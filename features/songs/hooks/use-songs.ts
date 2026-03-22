@@ -212,6 +212,7 @@ export function useDeleteSong() {
     },
     onSuccess: (_, songId) => {
       queryClient.removeQueries({ queryKey: songsKeys.detail(songId) })
+      void queryClient.invalidateQueries({ queryKey: songsKeys.lists() })
       toast.success(t.toasts?.songDeleted || "Song deleted")
     }
   })
@@ -238,6 +239,7 @@ export function useTransferSongToTeam() {
     },
     onSuccess: (_, { songId }) => {
       queryClient.removeQueries({ queryKey: songsKeys.detail(songId) })
+      void queryClient.invalidateQueries({ queryKey: songsKeys.lists() })
       toast.success(t.toasts?.songTransferred || "Song transferred to team")
     },
     onError: (error, _vars, rollbackContext) => {

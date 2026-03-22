@@ -51,7 +51,6 @@ export async function createPlaylistAction(
   const result = context
     ? await createPlaylistApi(supabase, playlistData, userId, context)
     : await createPlaylistApi(supabase, playlistData, userId)
-  revalidatePath("/dashboard/playlists")
   return result
 }
 
@@ -61,7 +60,6 @@ export async function updatePlaylistAction(
 ): Promise<Playlist> {
   const supabase = await createClient()
   const result = await updatePlaylistApi(supabase, playlistId, updates)
-  revalidatePath("/dashboard/playlists")
   if (result.shareCode) {
     revalidatePath(`/shared/${result.shareCode}`)
   }
@@ -71,7 +69,6 @@ export async function updatePlaylistAction(
 export async function deletePlaylistAction(playlistId: string): Promise<void> {
   const supabase = await createClient()
   await deletePlaylistApi(supabase, playlistId)
-  revalidatePath("/dashboard/playlists")
 }
 
 export async function addSongToPlaylistAction(
@@ -80,7 +77,6 @@ export async function addSongToPlaylistAction(
 ): Promise<void> {
   const supabase = await createClient()
   await addSongToPlaylistApi(supabase, playlistId, songId)
-  revalidatePath("/dashboard/playlists")
 }
 
 export async function addSongsToPlaylistAction(
@@ -89,7 +85,6 @@ export async function addSongsToPlaylistAction(
 ): Promise<void> {
   const supabase = await createClient()
   await addSongsToPlaylistApi(supabase, playlistId, songIds)
-  revalidatePath("/dashboard/playlists")
 }
 
 export async function removeSongFromPlaylistAction(
@@ -98,7 +93,6 @@ export async function removeSongFromPlaylistAction(
 ): Promise<void> {
   const supabase = await createClient()
   await removeSongFromPlaylistApi(supabase, playlistId, songId)
-  revalidatePath("/dashboard/playlists")
 }
 
 export async function reorderPlaylistSongsAction(

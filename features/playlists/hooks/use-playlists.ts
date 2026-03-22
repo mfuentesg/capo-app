@@ -191,6 +191,7 @@ export function useDeletePlaylist() {
       toast.error(t.toasts?.error || "Something went wrong")
     },
     onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: playlistsKeys.lists() })
       toast.success(t.toasts?.playlistDeleted || "Playlist deleted")
     }
   })

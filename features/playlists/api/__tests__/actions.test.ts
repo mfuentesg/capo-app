@@ -54,7 +54,7 @@ describe("playlist actions", () => {
     ;(createClient as jest.Mock).mockResolvedValue(mockSupabase)
   })
 
-  it("creates a playlist and revalidates playlist list", async () => {
+  it("creates a playlist", async () => {
     const playlistData = { name: "Setlist", songs: ["song-1"], visibility: "public" as const }
     const createdPlaylist = {
       id: "playlist-1",
@@ -68,10 +68,9 @@ describe("playlist actions", () => {
 
     expect(result).toEqual(createdPlaylist)
     expect(createPlaylistApi).toHaveBeenCalledWith(mockSupabase, playlistData, "user-1")
-    expect(revalidatePath).toHaveBeenCalledWith("/dashboard/playlists")
   })
 
-  it("updates a playlist and revalidates list and detail routes", async () => {
+  it("updates a playlist", async () => {
     const updatedPlaylist = {
       id: "playlist-1",
       name: "Updated",
@@ -85,7 +84,7 @@ describe("playlist actions", () => {
 
     expect(result).toEqual(updatedPlaylist)
     expect(updatePlaylistApi).toHaveBeenCalledWith(mockSupabase, "playlist-1", { name: "Updated" })
-    expect(revalidatePath).toHaveBeenCalledWith("/dashboard/playlists")
+    expect(revalidatePath).not.toHaveBeenCalled()
   })
 
   it("updates a playlist with shareCode and revalidates shared route", async () => {
@@ -104,25 +103,22 @@ describe("playlist actions", () => {
     expect(revalidatePath).toHaveBeenCalledWith("/shared/ABC123")
   })
 
-  it("deletes a playlist and revalidates playlist list", async () => {
+  it("deletes a playlist", async () => {
     await deletePlaylistAction("playlist-2")
 
     expect(deletePlaylistApi).toHaveBeenCalledWith(mockSupabase, "playlist-2")
-    expect(revalidatePath).toHaveBeenCalledWith("/dashboard/playlists")
   })
 
-  it("adds a song to a playlist and revalidates playlist list", async () => {
+  it("adds a song to a playlist", async () => {
     await addSongToPlaylistAction("playlist-1", "song-1")
 
     expect(addSongToPlaylistApi).toHaveBeenCalledWith(mockSupabase, "playlist-1", "song-1")
-    expect(revalidatePath).toHaveBeenCalledWith("/dashboard/playlists")
   })
 
-  it("removes a song from a playlist and revalidates playlist list", async () => {
+  it("removes a song from a playlist", async () => {
     await removeSongFromPlaylistAction("playlist-1", "song-2")
 
     expect(removeSongFromPlaylistApi).toHaveBeenCalledWith(mockSupabase, "playlist-1", "song-2")
-    expect(revalidatePath).toHaveBeenCalledWith("/dashboard/playlists")
   })
 
   it("reorders songs in a playlist without shareCode and skips shared revalidation", async () => {
@@ -215,10 +211,9 @@ describe("addSongsToPlaylistAction", () => {
     ;(createClient as jest.Mock).mockResolvedValue(mockSupabase)
   })
 
-  it("adds multiple songs to a playlist and revalidates playlists route", async () => {
+  it("adds multiple songs to a playlist", async () => {
     await addSongsToPlaylistAction("p-1", ["song-1", "song-2"])
 
     expect(addSongsToPlaylistApi).toHaveBeenCalledWith(mockSupabase, "p-1", ["song-1", "song-2"])
-    expect(revalidatePath).toHaveBeenCalledWith("/dashboard/playlists")
   })
 })
