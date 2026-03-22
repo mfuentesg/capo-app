@@ -78,7 +78,7 @@ export function getChordsByKey(key: string): ChordEntry[] {
 
 /** All root keys available in the DB (e.g. "A", "Bb", "Csharp", …) */
 export function getAvailableKeys(): string[] {
-  return guitarDb.keys
+  return Object.keys(guitarDb.chords)
 }
 
 /** Human-readable label for a DB key (e.g. "Csharp" → "C#", "Bb" → "Bb") */

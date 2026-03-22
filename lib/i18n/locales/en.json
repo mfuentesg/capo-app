@@ -469,7 +469,8 @@
     },
     "glossary": {
       "searchPlaceholder": "Search chords…",
-      "chordsFound": "{count} chords"
+      "chordsFound": "{count} chords",
+      "noResults": "No chords found"
     },
     "analyzer": {
       "instructions": "Select the fret pressed on each string, then see the matching chords below.",

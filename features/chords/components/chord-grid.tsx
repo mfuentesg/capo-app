@@ -21,8 +21,9 @@ export function ChordGrid({ chords }: ChordGridProps) {
 
   if (chords.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
-        <p className="text-sm">{t.common.tryDifferentSearch}</p>
+      <div className="flex flex-col items-center justify-center py-16 gap-2 text-center">
+        <p className="text-sm font-medium text-foreground">{t.chords.glossary.noResults}</p>
+        <p className="text-xs text-muted-foreground">{t.common.tryDifferentSearch}</p>
       </div>
     )
   }

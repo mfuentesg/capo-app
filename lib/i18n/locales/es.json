@@ -469,7 +469,8 @@
     },
     "glossary": {
       "searchPlaceholder": "Buscar acordes…",
-      "chordsFound": "{count} acordes"
+      "chordsFound": "{count} acordes",
+      "noResults": "No se encontraron acordes"
     },
     "analyzer": {
       "instructions": "Selecciona el traste presionado en cada cuerda y ve los acordes correspondientes.",

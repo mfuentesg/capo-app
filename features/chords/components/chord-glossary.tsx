@@ -52,10 +52,12 @@ export function ChordGlossary() {
         </div>
       </div>
 
-      {/* Results count */}
-      <p className="text-xs text-muted-foreground">
-        {t.chords.glossary.chordsFound.replace("{count}", String(chords.length))}
-      </p>
+      {/* Results count — hidden when empty (empty state shows instead) */}
+      {chords.length > 0 && (
+        <p className="text-xs text-muted-foreground">
+          {t.chords.glossary.chordsFound.replace("{count}", String(chords.length))}
+        </p>
+      )}
 
       <ChordGrid chords={chords} />
     </div>
