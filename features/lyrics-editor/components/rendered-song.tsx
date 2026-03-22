@@ -18,9 +18,12 @@ interface RenderedSongProps {
   columns?: 1 | 2
 }
 
+const SECTION_FLAGS = ["attention", "skip", "forte", "piano", "vamp", "tag", "break"] as const
+type SectionFlag = (typeof SECTION_FLAGS)[number]
+
 type LyricsSegment =
   | { type: "normal"; html: string }
-  | { type: "section"; name: string; sectionType: string; html: string }
+  | { type: "section"; name: string; sectionType: string; html: string; count: number; flags: SectionFlag[] }
   | { type: "repeat"; name: string; count: number; html: string; found: boolean }
 
 // Unique tokens that survive ChordProParser unchanged (no [A-G] at word start).
@@ -157,7 +160,10 @@ function buildSectionMap(lyrics: string): Map<string, string> {
   let match: RegExpExecArray | null
   while ((match = blockRe.exec(lyrics)) !== null) {
     const name = match[1]?.trim()
-    if (name) map.set(name.toLowerCase(), match[2].trim())
+    if (name) {
+      const { name: cleanName } = parseSectionValue(name)
+      map.set(cleanName.toLowerCase(), match[2].trim())
+    }
   }
 
   // 2. Comment-labeled sections: {comment: Name} → content until the next
@@ -179,20 +185,29 @@ function buildSectionMap(lyrics: string): Map<string, string> {
   return map
 }
 
-// Parses {repeat: "Name", N} values.
-// Accepts quoted/unquoted names and an optional positive integer count after
-// the last comma, e.g. `"Coro", 2` → { name: "Coro", count: 2 }.
-function parseRepeatValue(raw: string): { name: string; count: number } {
-  const lastCommaIdx = raw.lastIndexOf(",")
-  if (lastCommaIdx !== -1) {
-    const tail = raw.slice(lastCommaIdx + 1).trim()
-    const count = Number(tail)
-    if (Number.isInteger(count) && count > 0) {
-      const rawName = raw.slice(0, lastCommaIdx).trim()
-      return { name: rawName.replace(/^["']|["']$/g, ""), count }
+// Parses directive values that accept an optional count and/or performance flags.
+// Syntax: "Name" | "Name, N" | "Name, flag" | "Name, N, flag1, flag2"
+// - First comma-separated token is the name (quotes stripped)
+// - A positive integer token becomes the repeat count
+// - Tokens matching SECTION_FLAGS become flags
+// - Unknown tokens are ignored
+// Used for both {repeat: Name, N} and {sov: Name, N, forte} directives.
+function parseSectionValue(raw: string): { name: string; count: number; flags: SectionFlag[] } {
+  const parts = raw.split(",").map((p) => p.trim())
+  const name = parts[0].replace(/^["']|["']$/g, "")
+  let count = 1
+  const flags: SectionFlag[] = []
+  for (const part of parts.slice(1)) {
+    const n = Number(part)
+    if (Number.isInteger(n) && n > 0) {
+      count = n
+      continue
+    }
+    if ((SECTION_FLAGS as readonly string[]).includes(part)) {
+      flags.push(part as SectionFlag)
     }
   }
-  return { name: raw.replace(/^["']|["']$/g, ""), count: 1 }
+  return { name, count, flags }
 }
 
 function buildSegments(
@@ -236,7 +251,7 @@ function buildSegments(
 
     if (directive === "repeat") {
       if (value) {
-        const { name, count } = parseRepeatValue(value)
+        const { name, count } = parseSectionValue(value)
         const content = sectionMap.get(name.toLowerCase())
         if (content) {
           segments.push({
@@ -260,14 +275,18 @@ function buildSegments(
           type: "section",
           name: value,
           sectionType: "comment",
-          html: formatLyricsToHtml(content, transpose, capo, sectionLabels)
+          html: formatLyricsToHtml(content, transpose, capo, sectionLabels),
+          count: 1,
+          flags: []
         })
         newPos = matchEnd + (nextBoundary ? nextBoundary.index : remaining.length)
       }
     } else {
       // start_of_X — find the matching end_of_X
       const sectionType = SECTION_DIRECTIVE_MAP[directive] ?? "section"
-      const name = value || (sectionLabels[sectionType] ?? sectionType)
+      const { name: parsedName, count, flags } = value
+        ? parseSectionValue(value)
+        : { name: sectionLabels[sectionType] ?? sectionType, count: 1, flags: [] }
       const remaining = lyrics.slice(matchEnd)
       const endMatch =
         /\{(?:end_of_chorus|eoc|end_of_verse|eov|end_of_bridge|eob|end_of_tab|eot|end_of_grid|eog)\}/i.exec(
@@ -276,9 +295,11 @@ function buildSegments(
       const content = (endMatch ? remaining.slice(0, endMatch.index) : remaining).trim()
       segments.push({
         type: "section",
-        name,
+        name: parsedName,
         sectionType,
-        html: formatLyricsToHtml(content, transpose, capo, sectionLabels)
+        html: formatLyricsToHtml(content, transpose, capo, sectionLabels),
+        count,
+        flags
       })
       newPos = matchEnd + (endMatch ? endMatch.index + endMatch[0].length : remaining.length)
     }
@@ -289,14 +310,25 @@ function buildSegments(
   return segments
 }
 
+const FLAG_CONFIG: Record<SectionFlag, { label: string; className: string }> = {
+  attention: { label: "!", className: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400" },
+  skip: { label: "skip", className: "bg-muted text-muted-foreground" },
+  forte: { label: "f", className: "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400 italic" },
+  piano: { label: "p", className: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400 italic" },
+  vamp: { label: "vamp", className: "bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-400" },
+  tag: { label: "tag", className: "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400" },
+  break: { label: "break", className: "bg-muted text-muted-foreground" }
+}
+
 interface SectionHeaderProps {
   name: string
   isCollapsed: boolean
   onToggle?: () => void
   icon?: ReactNode
+  flags?: SectionFlag[]
 }
 
-function SectionHeader({ name, isCollapsed, onToggle, icon }: SectionHeaderProps) {
+function SectionHeader({ name, isCollapsed, onToggle, icon, flags }: SectionHeaderProps) {
   const dot = (
     <div
       className="w-1.5 h-1.5 rounded-full shrink-0"
@@ -308,12 +340,32 @@ function SectionHeader({ name, isCollapsed, onToggle, icon }: SectionHeaderProps
     />
   )
 
+  const flagBadges =
+    flags && flags.length > 0 ? (
+      <span className="flex items-center gap-1 shrink-0">
+        {flags.map((flag) => {
+          const cfg = FLAG_CONFIG[flag]
+          return (
+            <span
+              key={flag}
+              className={`text-[9px] font-bold uppercase tracking-wide px-1 py-0.5 rounded leading-none ${cfg.className}`}
+            >
+              {cfg.label}
+            </span>
+          )
+        })}
+      </span>
+    ) : null
+
   const label = (
-    <span
-      className="text-[12px] font-bold uppercase tracking-[0.18em] flex-1"
-      style={{ color: "var(--section-accent)" }}
-    >
-      {name}
+    <span className="flex items-center gap-1.5 flex-1 min-w-0">
+      <span
+        className="text-[12px] font-bold uppercase tracking-[0.18em]"
+        style={{ color: "var(--section-accent)" }}
+      >
+        {name}
+      </span>
+      {flagBadges}
     </span>
   )
 
@@ -447,12 +499,15 @@ export function RenderedSong({
 
           if (segment.type === "section") {
             const isCollapsed = collapsedSet.has(index)
+            const sectionLabel =
+              segment.count > 1 ? `${segment.name} × ${segment.count}` : segment.name
             return (
               <div key={index} className="section-repeat" data-section-type={segment.sectionType}>
                 <SectionHeader
-                  name={segment.name}
+                  name={sectionLabel}
                   isCollapsed={isCollapsed}
                   onToggle={() => toggleCollapse(index)}
+                  flags={segment.flags}
                 />
                 {!isCollapsed && (
                   <div className="section-repeat-content">
@@ -468,7 +523,7 @@ export function RenderedSong({
 
           // repeat segment
           const repeatLabel =
-            segment.count > 1 ? `${segment.name} x ${segment.count}` : segment.name
+            segment.count > 1 ? `${segment.name} × ${segment.count}` : segment.name
 
           if (!segment.found) {
             return (
