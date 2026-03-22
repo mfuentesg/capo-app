@@ -1,6 +1,5 @@
 "use server"
 
-import { revalidatePath } from "next/cache"
 import { createClient } from "@/lib/supabase/server"
 import type { Song, UserSongSettings, UserPreferences } from "../types"
 import type { UserProfileData } from "./user-preferences-api"
@@ -56,7 +55,6 @@ export async function createSongAction(
   const result = context
     ? await createSongApi(supabase, song, userId, context)
     : await createSongApi(supabase, song, userId)
-  revalidatePath("/dashboard/songs")
   return result
 }
 
