@@ -1,6 +1,6 @@
 # Unsaved Changes Guard Implementation Plan
 
-> **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
+**Status:** Completed
 
 **Goal:** Prevent users from accidentally losing unsaved work in `SongDraftForm` and `LyricsView` when swiping a Drawer closed, pressing Escape, browser back/forward, or refreshing the page.
 

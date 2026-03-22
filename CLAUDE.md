@@ -52,6 +52,7 @@ features/
 ├── activity/        # Activity tracking
 ├── teams/           # Team management and invitations
 ├── app-context/     # Global app context
+├── feedback/        # In-app feedback submission
 └── docs/            # FBA_GUIDE.md
 ```
 

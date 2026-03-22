@@ -168,7 +168,19 @@
       "standardView": "Vista estándar",
       "columnLayout": "Diseño",
       "oneColumn": "1 columna",
-      "twoColumns": "2 columnas"
+      "twoColumns": "2 columnas",
+      "chordproReference": "Referencia ChordPro",
+      "reference": {
+        "metadata": "Metadatos",
+        "section": "Secciones",
+        "comment": "Comentarios",
+        "chord": "Acordes y formato",
+        "formatting": "Directivas personalizadas",
+        "performanceFlags": "Indicadores de interpretación",
+        "performanceFlagsDescription": "Añade indicadores tras el nombre (o el número de repeticiones) en cualquier directiva de sección.",
+        "shorthand": "o",
+        "example": "Ejemplo"
+      }
     }
   },
   "playlists": {

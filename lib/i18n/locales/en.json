@@ -168,7 +168,19 @@
       "standardView": "Standard view",
       "columnLayout": "Layout",
       "oneColumn": "1 column",
-      "twoColumns": "2 columns"
+      "twoColumns": "2 columns",
+      "chordproReference": "ChordPro Reference",
+      "reference": {
+        "metadata": "Metadata",
+        "section": "Sections",
+        "comment": "Comments",
+        "chord": "Chords & Formatting",
+        "formatting": "Custom Directives",
+        "performanceFlags": "Performance Flags",
+        "performanceFlagsDescription": "Add flags after the name (or count) on any section directive.",
+        "shorthand": "or",
+        "example": "Example"
+      }
     }
   },
   "playlists": {

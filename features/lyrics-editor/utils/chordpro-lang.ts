@@ -29,17 +29,17 @@ const SUPPORTED_DIRECTIVES = [
   { label: "capo", detail: "Capo fret position", apply: "capo: " },
   { label: "ca", detail: "Capo (short)", apply: "ca: " },
   { label: "meta", detail: "Custom metadata", apply: "meta: " },
-  // Sections — no value, close immediately with }
-  { label: "start_of_chorus", detail: "Begin chorus section", apply: "start_of_chorus}" },
-  { label: "soc", detail: "Begin chorus (short)", apply: "soc}" },
+  // Sections — optional name, count, and performance flags (attention, skip, forte, piano, vamp, tag, break)
+  { label: "start_of_chorus", detail: "Begin chorus — e.g. {soc: Chorus, 3, forte}", apply: "start_of_chorus: " },
+  { label: "soc", detail: "Begin chorus (short) — e.g. {soc: Chorus, 3, forte}", apply: "soc: " },
   { label: "end_of_chorus", detail: "End chorus section", apply: "end_of_chorus}" },
   { label: "eoc", detail: "End chorus (short)", apply: "eoc}" },
-  { label: "start_of_verse", detail: "Begin verse section", apply: "start_of_verse}" },
-  { label: "sov", detail: "Begin verse (short)", apply: "sov}" },
+  { label: "start_of_verse", detail: "Begin verse — e.g. {sov: Verse 1, 2, attention}", apply: "start_of_verse: " },
+  { label: "sov", detail: "Begin verse (short) — e.g. {sov: Verse 1, 2, attention}", apply: "sov: " },
   { label: "end_of_verse", detail: "End verse section", apply: "end_of_verse}" },
   { label: "eov", detail: "End verse (short)", apply: "eov}" },
-  { label: "start_of_bridge", detail: "Begin bridge section", apply: "start_of_bridge}" },
-  { label: "sob", detail: "Begin bridge (short)", apply: "sob}" },
+  { label: "start_of_bridge", detail: "Begin bridge — e.g. {sob: Bridge, vamp}", apply: "start_of_bridge: " },
+  { label: "sob", detail: "Begin bridge (short) — e.g. {sob: Bridge, vamp}", apply: "sob: " },
   { label: "end_of_bridge", detail: "End bridge section", apply: "end_of_bridge}" },
   { label: "eob", detail: "End bridge (short)", apply: "eob}" },
   { label: "start_of_tab", detail: "Begin tablature section", apply: "start_of_tab}" },
@@ -51,7 +51,7 @@ const SUPPORTED_DIRECTIVES = [
   { label: "end_of_grid", detail: "End chord grid section", apply: "end_of_grid}" },
   { label: "eog", detail: "End grid (short)", apply: "eog}" },
   // Section references
-  { label: "repeat", detail: "Reference a named section, optionally with count: repeat: Name, 2", apply: "repeat: " },
+  { label: "repeat", detail: "Reference a named section with optional count — e.g. {repeat: Chorus, 2}", apply: "repeat: " },
   // Comments
   { label: "comment", detail: "Inline annotation", apply: "comment: " },
   { label: "c", detail: "Comment (short)", apply: "c: " },
@@ -164,4 +164,9 @@ export function chordProExtensions(): Extension[] {
     syntaxHighlighting(chordHighlight),
     autocompletion({ override: [chordProCompletions] }),
   ]
+}
+
+/** Syntax highlighting only — no autocomplete. Used by the reference panel code blocks. */
+export function chordProDisplayExtensions(): Extension[] {
+  return [chordProLang.extension, syntaxHighlighting(chordHighlight)]
 }
