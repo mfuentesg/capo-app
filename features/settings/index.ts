@@ -1,5 +1,11 @@
 "use client"
 
-export { ThemeSettings, LanguageSettings, AccountDangerZone, ProfileSettings } from "./components"
+export {
+  ThemeSettings,
+  LanguageSettings,
+  AccountDangerZone,
+  ProfileSettings,
+  ChordHandSettings
+} from "./components"
 
-export { LocaleProvider, useLocale } from "./contexts"
+export { LocaleProvider, useLocale, ChordHandProvider, useChordHand } from "./contexts"

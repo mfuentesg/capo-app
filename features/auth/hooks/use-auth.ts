@@ -6,7 +6,6 @@ import { createClient } from "@/lib/supabase/client"
 import {
   authKeys,
   AUTH_CALLBACK_PATH,
-  DEFAULT_REDIRECT_PATH,
   LOGIN_PATH
 } from "@/lib/supabase/constants"
 import { SELECTED_TEAM_ID_KEY } from "@/features/app-context/constants"
@@ -63,12 +62,10 @@ export function useSignInWithGoogle() {
   return useMutation({
     mutationFn: async () => {
       const supabase = createClient()
-      const callbackUrl = `${AUTH_CALLBACK_PATH}?next=${encodeURIComponent(DEFAULT_REDIRECT_PATH)}`
-
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}${callbackUrl}`
+          redirectTo: `${window.location.origin}${AUTH_CALLBACK_PATH}`
         }
       })
 

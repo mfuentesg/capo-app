@@ -2,9 +2,8 @@
 
 import * as React from "react"
 import { Chord as ChordJS } from "chordsheetjs"
-// @ts-expect-error - no types for this library
-import Chord from "@tombatossals/react-chords/lib/Chord"
 import guitarDataRaw from "@tombatossals/chords-db/lib/guitar.json"
+import { keyLabel, toDbKey } from "@/features/chords"
 import {
   Dialog,
   DialogContent,
@@ -15,9 +14,11 @@ import {
 import { ChevronLeft, ChevronRight, Info } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useLocale } from "@/features/settings"
+import { useChordOrientation } from "@/hooks/use-chord-orientation"
 // @ts-expect-error - no types for this library
 import { findGuitarChord as findGuitarChordRaw } from "chord-fingering"
 import { cn } from "@/lib/utils"
+import { ChordPositionDiagram } from "@/components/chord-position-diagram"
 
 interface ChordPosition {
   frets: number[]
@@ -128,12 +129,7 @@ function getStandardNote(rootName: string): string {
   
   const standardRoot = keyMap[normalizedRoot] || normalizedRoot
   
-  const dbKeyMap: Record<string, string> = {
-    "C#": "Csharp",
-    "F#": "Fsharp",
-  }
-  
-  return dbKeyMap[standardRoot] || standardRoot
+  return toDbKey(standardRoot)
 }
 
 // Normalize chord names to the database
@@ -220,9 +216,7 @@ function parseChord(
   if (parsed.bass && parsed.bass.type === "symbol") {
     // Note: Bass note also needs to be normalized to database standard (e.g. /Gb -> /F#)
     const rawBassNote = parsed.bass.originalKeyString + (parsed.bass.modifier || "")
-    const standardBass = getStandardNote(rawBassNote)
-      .replace("Csharp", "C#")
-      .replace("Fsharp", "F#")
+    const standardBass = keyLabel(getStandardNote(rawBassNote))
     
     let baseSuffix = (parsed.suffix || "").trim()
 
@@ -243,7 +237,11 @@ function parseChord(
 
 export function ChordDiagram({ chordName, onClose }: ChordDiagramProps) {
   const [positionIndex, setPositionIndex] = React.useState(0)
+  const [animKey, setAnimKey] = React.useState(0)
+  const [slideDir, setSlideDir] = React.useState<"left" | "right">("left")
+  const touchStartX = React.useRef(0)
   const { t } = useLocale()
+  const { mirror } = useChordOrientation()
 
   React.useEffect(() => {
     setPositionIndex(0)
@@ -313,46 +311,67 @@ export function ChordDiagram({ chordName, onClose }: ChordDiagramProps) {
 
   const currentChord = positions[positionIndex]
 
-  const handlePrev = () => {
-    setPositionIndex((prev) => (prev > 0 ? prev - 1 : totalPositions - 1))
+  const navigate = (dir: "left" | "right", next: number) => {
+    setSlideDir(dir)
+    setAnimKey((k) => k + 1)
+    setPositionIndex(next)
   }
 
-  const handleNext = () => {
-    setPositionIndex((prev) => (prev < totalPositions - 1 ? prev + 1 : 0))
+  const handlePrev = () =>
+    navigate("right", positionIndex > 0 ? positionIndex - 1 : totalPositions - 1)
+
+  const handleNext = () =>
+    navigate("left", positionIndex < totalPositions - 1 ? positionIndex + 1 : 0)
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX
+  }
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const dx = e.changedTouches[0].clientX - touchStartX.current
+    if (Math.abs(dx) > 40) {
+      if (dx > 0) handlePrev()
+      else handleNext()
+    }
   }
 
   return (
     <Dialog open={!!chordName} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent 
+      <style>{`
+        @keyframes slideFromRight { from { transform: translateX(48px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes slideFromLeft  { from { transform: translateX(-48px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+      `}</style>
+      <DialogContent
         fancy
         className="w-full h-full max-w-none sm:h-auto sm:max-w-[450px] flex flex-col justify-center max-sm:bg-background"
       >
         <div className="p-5 sm:p-8 flex-1 sm:flex-initial flex flex-col justify-center sm:block">
           <DialogHeader className="mb-8 sm:mb-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <DialogTitle className="text-4xl sm:text-4xl font-black tracking-tight">
-                  {chordName}
-                </DialogTitle>
-                <div className="mt-1 font-medium text-muted-foreground uppercase tracking-widest text-[12px] sm:text-[10px]">
-                  {isAlgorithmic ? "Generated Diagram" : "Verified Shape"}
-                </div>
-              </div>
+            <DialogTitle className="text-4xl sm:text-4xl font-black tracking-tight">
+              {chordName}
+            </DialogTitle>
+            <div className="mt-1 font-medium text-muted-foreground uppercase tracking-widest text-[12px] sm:text-[10px]">
+              {isAlgorithmic ? "Generated Diagram" : "Verified Shape"}
             </div>
           </DialogHeader>
 
-          <div className="flex flex-col items-center relative group py-8 sm:py-0">
-            <div className="relative w-full aspect-square max-w-[280px] bg-white dark:bg-zinc-950 rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-[0_20px_50px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-border/50 flex items-center justify-center overflow-hidden transition-transform duration-500 group-hover:scale-[1.02]">
-              <div className="w-full h-full scale-[1.2] sm:scale-[1.3] transition-transform duration-500 group-hover:scale-[1.25] sm:group-hover:scale-[1.35]">
-                <Chord
-                  chord={currentChord}
-                  instrument={{
-                    ...guitarData.main,
-                    tunings: guitarData.tunings,
-                  }}
-                  lite={false}
-                />
-              </div>
+          <div
+            className="flex flex-col items-center relative group py-8 sm:py-0 gap-5"
+            onTouchStart={totalPositions > 1 ? handleTouchStart : undefined}
+            onTouchEnd={totalPositions > 1 ? handleTouchEnd : undefined}
+          >
+            <div
+              key={animKey}
+              className="relative w-full bg-white dark:bg-zinc-950 rounded-2xl sm:rounded-3xl px-4 py-5 sm:p-8 shadow-[0_20px_50px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-border/50 overflow-hidden transition-transform duration-500 group-hover:scale-[1.02]"
+              style={{
+                animation: animKey > 0
+                  ? `${slideDir === "left" ? "slideFromRight" : "slideFromLeft"} 0.25s ease-out`
+                  : undefined,
+              }}
+            >
+              <ChordPositionDiagram
+                position={currentChord}
+                mirror={mirror}
+              />
             </div>
 
             {totalPositions > 1 && (
@@ -365,7 +384,7 @@ export function ChordDiagram({ chordName, onClose }: ChordDiagramProps) {
                       "h-1.5 rounded-full transition-transform duration-300",
                       i === positionIndex ? "w-6 bg-primary" : "w-1.5 bg-muted-foreground/30 hover:bg-muted-foreground/50 cursor-pointer"
                     )}
-                    onClick={() => setPositionIndex(i)}
+                    onClick={() => navigate(i > positionIndex ? "left" : "right", i)}
                     aria-label={`Go to variation ${i + 1}`}
                   />
                 ))}

@@ -63,7 +63,8 @@
     "goToTeamDashboard": "Go to team dashboard",
     "profile": "Profile",
     "account": "Account",
-    "invitations": "Invitations"
+    "invitations": "Invitations",
+    "chords": "Chords"
   },
   "settings": {
     "title": "Settings",
@@ -75,6 +76,10 @@
     "appearance": "Appearance",
     "theme": "Theme",
     "themeDescription": "Choose your preferred theme",
+    "chordHand": "Chord diagrams",
+    "chordHandDescription": "Choose how chord diagrams are oriented for your playing style.",
+    "rightHand": "Right hand",
+    "leftHand": "Left hand",
     "dangerZone": "Danger Zone",
     "dangerZoneDescription": "Permanently delete your account and all associated data. This cannot be undone.",
     "deleteAccount": "Delete account",
@@ -467,7 +472,46 @@
     "noDiagram": "No diagram available for this chord.",
     "positionOf": "Position {current} of {total}",
     "variation": "Variation {count}",
-    "notFound": "not found"
+    "notFound": "not found",
+    "orientation": {
+      "flipVertical": "Flip (nut at bottom)",
+      "mirror": "Mirror",
+      "rh": "RH",
+      "lh": "LH"
+    },
+    "glossary": {
+      "searchPlaceholder": "Search chords…",
+      "chordsFound": "{count} chords",
+      "noResults": "No chords found"
+    },
+    "analyzer": {
+      "instructions": "Select the fret pressed on each string, then see the matching chords below.",
+      "instructionsDiagram": "Tap a fret on each string to build your chord shape.",
+      "reset": "Reset",
+      "notes": "Notes",
+      "matches": "Matching chords",
+      "noMatch": "No matching chords found. Try a different combination.",
+      "exact": "Exact",
+      "missingNotes": "{count} note(s) missing",
+      "emptyStateTitle": "Identify a chord",
+      "emptyState": "Tap frets on the strings above to build your chord shape.",
+      "noMatchTitle": "No chords found",
+      "fretPosition": "Fret position:",
+      "lowerFret": "Lower fret position",
+      "higherFret": "Higher fret position",
+      "mutedLegend": "= muted",
+      "openLegend": "= open",
+      "fretLegend": "numbers = fret",
+      "stretchWarning": "Wide span — this shape may be difficult to play.",
+      "fretboardLabel": "Guitar fretboard input"
+    },
+    "page": {
+      "title": "Chord Reference",
+      "subtitle": "Browse all chords or identify a chord by its finger positions.",
+      "glossaryTab": "Chord Library",
+      "analyzerTab": "Chord Finder",
+      "betaBadge": "Beta"
+    }
   },
   "songSections": {
     "chorus": "Chorus",

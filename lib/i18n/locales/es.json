@@ -63,7 +63,8 @@
     "goToTeamDashboard": "Ir al panel del equipo",
     "profile": "Perfil",
     "account": "Cuenta",
-    "invitations": "Invitaciones"
+    "invitations": "Invitaciones",
+    "chords": "Acordes"
   },
   "settings": {
     "title": "Configuración",
@@ -75,6 +76,10 @@
     "appearance": "Apariencia",
     "theme": "Tema",
     "themeDescription": "Elige tu tema preferido",
+    "chordHand": "Diagramas de acordes",
+    "chordHandDescription": "Elige cómo se orientan los diagramas según tu estilo de toque.",
+    "rightHand": "Mano derecha",
+    "leftHand": "Mano izquierda",
     "dangerZone": "Zona de peligro",
     "dangerZoneDescription": "Elimina permanentemente tu cuenta y todos los datos asociados. Esta acción no se puede deshacer.",
     "deleteAccount": "Eliminar cuenta",
@@ -467,7 +472,46 @@
     "noDiagram": "No hay diagrama disponible para este acorde.",
     "positionOf": "Posición {current} de {total}",
     "variation": "Variación {count}",
-    "notFound": "no encontrado"
+    "notFound": "no encontrado",
+    "orientation": {
+      "flipVertical": "Girar (cejilla abajo)",
+      "mirror": "Espejo",
+      "rh": "MD",
+      "lh": "MI"
+    },
+    "glossary": {
+      "searchPlaceholder": "Buscar acordes…",
+      "chordsFound": "{count} acordes",
+      "noResults": "No se encontraron acordes"
+    },
+    "analyzer": {
+      "instructions": "Selecciona el traste presionado en cada cuerda y ve los acordes correspondientes.",
+      "instructionsDiagram": "Toca un traste en cada cuerda para construir tu acorde.",
+      "reset": "Reiniciar",
+      "notes": "Notas",
+      "matches": "Acordes encontrados",
+      "noMatch": "No se encontraron acordes. Prueba una combinación diferente.",
+      "exact": "Exacto",
+      "missingNotes": "{count} nota(s) faltante(s)",
+      "emptyStateTitle": "Identifica un acorde",
+      "emptyState": "Toca los trastes en las cuerdas para construir la forma del acorde.",
+      "noMatchTitle": "No se encontraron acordes",
+      "fretPosition": "Posición del traste:",
+      "lowerFret": "Bajar posición",
+      "higherFret": "Subir posición",
+      "mutedLegend": "= silenciado",
+      "openLegend": "= abierta",
+      "fretLegend": "números = traste",
+      "stretchWarning": "Separación amplia — esta forma puede ser difícil de tocar.",
+      "fretboardLabel": "Entrada de diapasón de guitarra"
+    },
+    "page": {
+      "title": "Referencia de Acordes",
+      "subtitle": "Explora todos los acordes o identifica uno según sus posiciones de dedos.",
+      "glossaryTab": "Biblioteca de acordes",
+      "analyzerTab": "Buscador de acordes",
+      "betaBadge": "Beta"
+    }
   },
   "songSections": {
     "chorus": "Coro",
