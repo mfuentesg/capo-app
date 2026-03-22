@@ -397,7 +397,7 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
           </div>
 
           {/* Row 2: actions */}
-          <div className="flex items-center gap-0.5 pl-10">
+          <div className="flex items-center justify-end gap-0.5">
             {canEdit && isEditing ? (
                 <>
                   <SaveStatus status={saveStatus} className="mr-1" />
