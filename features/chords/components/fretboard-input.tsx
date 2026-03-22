@@ -17,7 +17,7 @@ const F_GAP = 42
 const SVG_W = PAD_L + FRET_COUNT * F_GAP + PAD_R  // ≈ 358
 const SVG_H = PAD_T + 5 * S_GAP + PAD_B           // ≈ 160
 
-const sY = (si: number) => PAD_T + si * S_GAP
+const sY = (si: number) => PAD_T + (5 - si) * S_GAP
 const fMidX = (fi: number) => PAD_L + (fi - 0.5) * F_GAP
 const fDivX = (fi: number) => PAD_L + fi * F_GAP
 
