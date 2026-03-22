@@ -26,14 +26,20 @@ import { TeamIcon, IconPicker } from "@/components/ui/icon-picker"
 import { RoleBadge } from "./role-badge"
 import { cn } from "@/lib/utils"
 
-function getRoleAccentClasses(role: string | undefined) {
+function getRoleAccentStyles(role: string | undefined) {
   switch (role) {
     case "owner":
-      return { bar: "from-blue-400 to-purple-400", iconBg: "bg-blue-500/10 border-blue-500/20" }
+      return { barStyle: { background: "var(--primary)" }, iconBg: "bg-primary/10 border-primary/20" }
     case "admin":
-      return { bar: "from-green-400 to-teal-400", iconBg: "bg-green-500/10 border-green-500/20" }
+      return {
+        barStyle: { background: "var(--accent-songs)" },
+        iconBg: "bg-accent-songs/10 border-accent-songs/20"
+      }
     default:
-      return { bar: "from-yellow-300 to-orange-300", iconBg: "bg-yellow-500/10 border-yellow-500/20" }
+      return {
+        barStyle: { background: "var(--accent-activity)" },
+        iconBg: "bg-accent-activity/10 border-accent-activity/20"
+      }
   }
 }
 
@@ -64,7 +70,7 @@ export function TeamCard({ team, memberCount = 1 }: TeamCardProps) {
   const isCurrentTeam = context?.type === "team" && context.teamId === team.id
   const isOwner = user?.id === team.created_by
   const isOnlyMember = memberCount <= 1
-  const roleClasses = getRoleAccentClasses(team.role)
+  const roleClasses = getRoleAccentStyles(team.role)
 
   const handleIconChange = (newIcon: string) => {
     setEditingIcon(newIcon)
@@ -92,7 +98,7 @@ export function TeamCard({ team, memberCount = 1 }: TeamCardProps) {
         )}
       >
         {/* Role-colored accent bar — h-1 (4px), rounded top corners only */}
-        <div className={cn("h-1 rounded-t-lg bg-gradient-to-r", roleClasses.bar)} />
+        <div className="h-1 rounded-t-lg" style={roleClasses.barStyle} />
 
         <CardHeader className="pb-2">
           {/* Row 1: icon + name + Active badge */}
