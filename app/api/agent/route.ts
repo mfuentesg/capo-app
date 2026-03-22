@@ -1,14 +1,95 @@
-import Anthropic from "@anthropic-ai/sdk"
 import { Client } from "@modelcontextprotocol/sdk/client/index.js"
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js"
 
 export const runtime = "nodejs"
 export const maxDuration = 60
 
-type AgentMessage = {
-  role: "user" | "assistant"
-  content: string
+// ---------------------------------------------------------------------------
+// Cloudflare Workers AI — OpenAI-compatible types (subset)
+// ---------------------------------------------------------------------------
+
+type CFMessage =
+  | { role: "system"; content: string }
+  | { role: "user"; content: string }
+  | { role: "assistant"; content: string | null; tool_calls?: CFToolCall[] }
+  | { role: "tool"; tool_call_id: string; content: string }
+
+type CFToolCall = {
+  id: string
+  type: "function"
+  function: { name: string; arguments: string }
 }
+
+type CFTool = {
+  type: "function"
+  function: { name: string; description: string; parameters: unknown }
+}
+
+type CFResponse = {
+  result: {
+    choices: Array<{
+      message: {
+        role: string
+        content: string | null
+        tool_calls?: CFToolCall[]
+      }
+      finish_reason: string
+    }>
+  }
+}
+
+// Default to llama-3.1-8b — free tier, supports tool use.
+// Override via CLOUDFLARE_AI_MODEL env var (e.g. @cf/meta/llama-3.3-70b-instruct-fp8-fast).
+const DEFAULT_MODEL = "@cf/meta/llama-3.1-8b-instruct"
+
+async function cfChat(
+  messages: CFMessage[],
+  tools: CFTool[]
+): Promise<{ content: string | null; toolCalls: CFToolCall[]; finishReason: string }> {
+  const accountId = process.env.CLOUDFLARE_ACCOUNT_ID
+  const apiToken = process.env.CLOUDFLARE_API_TOKEN
+  const model = process.env.CLOUDFLARE_AI_MODEL ?? DEFAULT_MODEL
+
+  if (!accountId || !apiToken) {
+    throw new Error("Missing CLOUDFLARE_ACCOUNT_ID or CLOUDFLARE_API_TOKEN env vars")
+  }
+
+  const res = await fetch(
+    `https://api.cloudflare.com/client/v4/accounts/${accountId}/ai/v1/chat/completions`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model,
+        messages,
+        tools: tools.length > 0 ? tools : undefined,
+      }),
+    }
+  )
+
+  if (!res.ok) {
+    const text = await res.text()
+    throw new Error(`Cloudflare AI error ${res.status}: ${text}`)
+  }
+
+  const data = (await res.json()) as CFResponse
+  const choice = data.result.choices[0]
+
+  return {
+    content: choice.message.content,
+    toolCalls: choice.message.tool_calls ?? [],
+    finishReason: choice.finish_reason,
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Route handler
+// ---------------------------------------------------------------------------
+
+type AgentMessage = { role: "user" | "assistant"; content: string }
 
 export async function POST(request: Request) {
   const body = (await request.json()) as { messages: AgentMessage[] }
@@ -18,25 +99,22 @@ export async function POST(request: Request) {
     return Response.json({ error: "messages is required" }, { status: 400 })
   }
 
-  // Derive MCP server URL from the incoming request origin
+  // Connect to our MCP server running in the same Next.js app
   const origin = new URL(request.url).origin
-  const mcpUrl = new URL(`${origin}/api/mcp`)
-
-  // Connect to our own MCP server to discover tools
   const mcpClient = new Client({ name: "capo-agent", version: "1.0.0" })
-  const transport = new StreamableHTTPClientTransport(mcpUrl)
-  await mcpClient.connect(transport)
+  await mcpClient.connect(new StreamableHTTPClientTransport(new URL(`${origin}/api/mcp`)))
 
   const { tools: mcpTools } = await mcpClient.listTools()
 
-  // Convert MCP tool definitions to Anthropic format
-  const tools: Anthropic.Tool[] = mcpTools.map((t) => ({
-    name: t.name,
-    description: t.description ?? "",
-    input_schema: t.inputSchema as Anthropic.Tool["input_schema"],
+  // Convert MCP tool definitions → OpenAI function-call format
+  const tools: CFTool[] = mcpTools.map((t) => ({
+    type: "function",
+    function: {
+      name: t.name,
+      description: t.description ?? "",
+      parameters: t.inputSchema,
+    },
   }))
-
-  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
   const encoder = new TextEncoder()
 
@@ -46,81 +124,55 @@ export async function POST(request: Request) {
         controller.enqueue(encoder.encode(`data: ${JSON.stringify(data)}\n\n`))
       }
 
-      // Build the conversation history in Anthropic format
-      const history: Anthropic.MessageParam[] = messages.map((m) => ({
-        role: m.role,
-        content: m.content,
-      }))
+      const history: CFMessage[] = [
+        {
+          role: "system",
+          content:
+            "You are a chord sheet assistant for the Capo app. " +
+            "Use the get_song_chords tool to fetch chord sheets from CifraClub, LaCuerda, or Ultimate Guitar. " +
+            "Ask the user for a song URL if they haven't provided one.",
+        },
+        ...messages.map((m) => ({ role: m.role, content: m.content }) as CFMessage),
+      ]
 
       try {
-        // Agentic loop: keep going until no more tool calls
         while (true) {
-          const apiStream = anthropic.messages.stream({
-            model: "claude-opus-4-6",
-            max_tokens: 4096,
-            system:
-              "You are a chord sheet assistant for the Capo app. " +
-              "You help users find chord sheets from external platforms. " +
-              "When a user asks for chords to a song, use the get_song_chords tool with a URL from " +
-              "cifraclub.com.br, lacuerda.net, or ultimate-guitar.com. " +
-              "If the user hasn't given you a URL, ask them to provide one or tell you which platform to search on. " +
-              "Present the ChordPro lyrics in a clear, readable way.",
-            tools,
-            messages: history,
-          })
+          const { content, toolCalls, finishReason } = await cfChat(history, tools)
 
-          // Stream text deltas to the client
-          apiStream.on("text", (delta) => {
-            send({ type: "text", delta })
-          })
+          if (content) {
+            send({ type: "text", delta: content })
+          }
 
-          const message = await apiStream.finalMessage()
+          if (finishReason !== "tool_calls" || toolCalls.length === 0) break
 
-          if (message.stop_reason === "end_turn") break
+          history.push({ role: "assistant", content, tool_calls: toolCalls })
 
-          if (message.stop_reason !== "tool_use") break
+          for (const tc of toolCalls) {
+            send({ type: "tool_call", name: tc.function.name })
 
-          // Append assistant turn and execute tool calls
-          history.push({ role: "assistant", content: message.content })
+            let args: Record<string, unknown> = {}
+            try {
+              args = JSON.parse(tc.function.arguments) as Record<string, unknown>
+            } catch {
+              // leave empty — callTool will surface the error
+            }
 
-          const toolUseBlocks = message.content.filter(
-            (b): b is Anthropic.ToolUseBlock => b.type === "tool_use"
-          )
+            const result = await mcpClient.callTool({ name: tc.function.name, arguments: args })
 
-          const toolResults: Anthropic.ToolResultBlockParam[] = []
-
-          for (const block of toolUseBlocks) {
-            send({ type: "tool_call", name: block.name, input: block.input })
-
-            const result = await mcpClient.callTool({
-              name: block.name,
-              arguments: block.input as Record<string, unknown>,
-            })
-
-            const content = result.content as Array<{ type: string; text?: string }>
-            const resultText = content
+            const resultText = (result.content as Array<{ type: string; text?: string }>)
               .filter((c) => c.type === "text")
               .map((c) => c.text ?? "")
               .join("\n")
 
-            const isError = Boolean(result.isError)
-            send({ type: "tool_result", name: block.name, isError })
+            send({ type: "tool_result", name: tc.function.name, isError: Boolean(result.isError) })
 
-            toolResults.push({
-              type: "tool_result",
-              tool_use_id: block.id,
-              content: resultText,
-              is_error: isError,
-            })
+            history.push({ role: "tool", tool_call_id: tc.id, content: resultText })
           }
-
-          history.push({ role: "user", content: toolResults })
         }
 
         send({ type: "done" })
       } catch (err) {
-        const message = err instanceof Error ? err.message : "Unknown error"
-        send({ type: "error", message })
+        send({ type: "error", message: err instanceof Error ? err.message : "Unknown error" })
       } finally {
         await mcpClient.close()
         controller.close()
