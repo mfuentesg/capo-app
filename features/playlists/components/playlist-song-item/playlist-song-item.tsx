@@ -13,7 +13,7 @@ interface PlaylistSongItemProps {
   showDragHandle?: boolean
 }
 
-export function PlaylistSongItem({ song, index, className }: PlaylistSongItemProps) {
+export function PlaylistSongItem({ song, index, className, showDragHandle }: PlaylistSongItemProps) {
   return (
     <div
       className={cn(
@@ -21,9 +21,16 @@ export function PlaylistSongItem({ song, index, className }: PlaylistSongItemPro
         className
       )}
     >
-      {/* Position Number */}
+      {/* Position number — morphs to a music icon on hover to hint that the item is tappable */}
       <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
-        {index + 1}
+        {showDragHandle ? (
+          <>
+            <span className="group-hover:hidden">{index + 1}</span>
+            <Music2 className="hidden h-4 w-4 group-hover:block" />
+          </>
+        ) : (
+          index + 1
+        )}
       </div>
 
       {/* Song Info */}

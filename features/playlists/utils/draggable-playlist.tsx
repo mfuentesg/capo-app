@@ -51,9 +51,6 @@ const SortableSong = memo(
 
     const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
       if (isDragging || !onRemoveSong || isDeleted) return
-      // Ignore events that originate from the drag handle — those belong to @dnd-kit
-      if ((e.target as HTMLElement).closest("[data-drag-handle]")) return
-      ;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
       swipeStartX.current = e.clientX
       didSwipe.current = false
     }
@@ -103,23 +100,29 @@ const SortableSong = memo(
           <Trash2 className="h-4 w-4 text-destructive-foreground" />
         </div>
 
-        {/* Song row — slides left on swipe */}
+        {/* Song row — slides left on swipe, draggable anywhere via long-press */}
         <div
-          className={`relative touch-manipulation ${isAnimating ? "transition-transform duration-200 ease-out" : ""}`}
+          className={`relative touch-manipulation cursor-pointer ${isAnimating ? "transition-transform duration-200 ease-out" : ""}`}
           style={{ transform: `translateX(${swipeOffset}px)` }}
-          onPointerDown={handlePointerDown}
+          {...listeners}
+          onPointerDown={(e: React.PointerEvent<HTMLDivElement>) => {
+            // Call dnd-kit's activator before our swipe handler.
+            // Only onPointerDown is in listeners; move/up are on the document.
+            listeners?.onPointerDown?.(e)
+            handlePointerDown(e)
+          }}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
           onTransitionEnd={() => setIsAnimating(false)}
           onClick={() => startTransition(() => onSongClick?.(index))}
         >
           <PlaylistSongItem song={song} index={index} showDragHandle />
+          {/* Grip icon — visual affordance only, drag initiates from the whole row */}
           <div
-            data-drag-handle
-            className="absolute right-4 top-1/2 -translate-y-1/2 cursor-grab active:cursor-grabbing touch-none"
-            {...listeners}
+            className="absolute right-4 top-1/2 -translate-y-1/2 touch-none pointer-events-none"
+            aria-hidden
           >
-            <GripVerticalIcon className="h-5 w-5 text-muted-foreground transition-colors group-hover:text-foreground" />
+            <GripVerticalIcon className="h-5 w-5 text-muted-foreground/50 transition-colors group-hover:text-muted-foreground" />
           </div>
         </div>
       </div>
@@ -144,7 +147,9 @@ export function DraggablePlaylist({
 }) {
   const sensors = useSensors(
     useSensor(PointerSensor, {
-      activationConstraint: { distance: 8 }
+      // Long-press to activate drag so quick horizontal swipes still trigger
+      // swipe-to-delete rather than accidentally starting a drag.
+      activationConstraint: { delay: 200, tolerance: 5 }
     })
   )
 
