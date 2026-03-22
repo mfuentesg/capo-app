@@ -165,3 +165,8 @@ export function chordProExtensions(): Extension[] {
     autocompletion({ override: [chordProCompletions] }),
   ]
 }
+
+/** Syntax highlighting only — no autocomplete. Used by the reference panel code blocks. */
+export function chordProDisplayExtensions(): Extension[] {
+  return [chordProLang.extension, syntaxHighlighting(chordHighlight)]
+}
