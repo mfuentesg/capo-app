@@ -30,9 +30,17 @@ import { LazyChordProReference } from "./chordpro-reference-lazy"
 import { LazySongEditor, preloadSongEditor } from "./song-editor"
 import { useTranslation } from "@/hooks/use-translation"
 import { useAutoSave } from "@/hooks/use-auto-save"
+import { useAutoScroll } from "@/hooks/use-auto-scroll"
+import { AutoScrollControls } from "./auto-scroll-controls"
 import { SaveStatus } from "@/components/ui/save-status"
 import { createOverlayIds } from "@/lib/ui/stable-overlay-ids"
 import { cn } from "@/lib/utils"
+
+const MIN_SCROLL_SPEED = 10
+const MAX_SCROLL_SPEED = 300
+const SCROLL_SPEED_STEP = 10
+const DEFAULT_SCROLL_SPEED = 30
+const BEATS_PER_LINE = 4
 
 export interface LyricsViewHandle {
   requestClose: () => void
@@ -60,7 +68,7 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
     isSaving = false,
     initialSettings,
     onSettingsChange,
-    initialLyricsColumns = 2
+    initialLyricsColumns = 1
   }: LyricsViewProps,
   ref
 ) {
@@ -75,6 +83,14 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
   const [savedLyrics, setSavedLyrics] = useState(song.lyrics || "")
   const [lyricsColumns, setLyricsColumnsState] = useState<1 | 2>(initialLyricsColumns)
   const { mutate: upsertPreferences } = useUpsertUserPreferences()
+
+  const [scrollSpeed, setScrollSpeed] = useState(() =>
+    song.bpm > 0 ? song.bpm : DEFAULT_SCROLL_SPEED
+  )
+  const { isScrolling, stop: stopAutoScroll, toggle: toggleAutoScroll } = useAutoScroll({
+    speed: scrollSpeed,
+    containerRef
+  })
 
   const setLyricsColumns = useCallback(
     (value: 1 | 2) => {
@@ -123,6 +139,7 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
 
   const handleEdit = () => {
     if (!canEdit) return
+    stopAutoScroll()
     setHasInitializedEditor(true)
     setIsEditing(true)
     setIsPreviewing(false)
@@ -156,12 +173,49 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
     handleClose()
   }, [handleClose])
 
-  // Reset scroll to top when song changes
+  // Reset scroll position and stop auto-scroll when song changes
   useEffect(() => {
     if (containerRef.current) {
       const scrollContainer = containerRef.current.closest(".overflow-y-auto") || window
       scrollContainer.scrollTo({ top: 0 })
     }
+    stopAutoScroll()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [song.id])
+
+  // Infer scroll speed from actual content height, line count, and BPM
+  useEffect(() => {
+    if (song.bpm <= 0) {
+      setScrollSpeed(DEFAULT_SCROLL_SPEED)
+      return
+    }
+    const lines =
+      (song.lyrics || "")
+        .split("\n")
+        .filter((l) => {
+          const trimmed = l.trim()
+          return trimmed.length > 0 && !trimmed.startsWith("{")
+        }).length || 1
+
+    const durationSec = (lines * BEATS_PER_LINE) / (song.bpm / 60)
+
+    let scrollableHeight = 0
+    if (containerRef.current) {
+      const el = containerRef.current.closest(".overflow-y-auto")
+      if (el instanceof HTMLElement) {
+        scrollableHeight = el.scrollHeight - el.clientHeight
+      }
+    }
+    if (scrollableHeight <= 0) {
+      scrollableHeight = document.documentElement.scrollHeight - window.innerHeight
+    }
+    if (scrollableHeight <= 0) {
+      scrollableHeight = lines * 30
+    }
+
+    const inferred = Math.round(scrollableHeight / durationSec)
+    setScrollSpeed(Math.min(Math.max(inferred, MIN_SCROLL_SPEED), MAX_SCROLL_SPEED))
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [song.id])
 
   const settingsPopoverContent = (
@@ -310,6 +364,7 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
       {/* Header */}
       <div className="sticky top-0 z-10 border-b bg-background">
         <div className={cn("px-4 py-2", !isPanel && "container mx-auto")}>
+          {/* Row 1: navigation + song info */}
           <div className="flex items-center gap-2">
             <Button
               variant="ghost"
@@ -321,7 +376,6 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
               {onClose ? <X className="h-4 w-4" /> : <ArrowLeft className="h-4 w-4" />}
             </Button>
 
-            {/* All song info on one line */}
             <div className="flex-1 min-w-0 flex items-center gap-2 overflow-hidden">
               <p className="text-sm font-medium truncate shrink">
                 {song.title}
@@ -340,10 +394,11 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
                 </Badge>
               )}
             </div>
+          </div>
 
-            {/* Actions */}
-            <div className="flex items-center gap-0.5 shrink-0">
-              {canEdit && isEditing ? (
+          {/* Row 2: actions */}
+          <div className="flex items-center justify-end gap-0.5">
+            {canEdit && isEditing ? (
                 <>
                   <SaveStatus status={saveStatus} className="mr-1" />
                   <Button
@@ -393,12 +448,12 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
                   {canEdit && (
                     <Button
                       variant="ghost"
-                      size="icon"
-                      className="h-8 w-8"
+                      className="h-8 gap-1.5 px-2"
                       onClick={handleEdit}
                       aria-label={t.songs.editLyrics}
                     >
                       <Pencil className="h-3.5 w-3.5" />
+                      <span className="hidden sm:inline text-xs">{t.common.edit}</span>
                     </Button>
                   )}
                   {isPanel && (
@@ -418,48 +473,18 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
                       </a>
                     </Button>
                   )}
-                  <Popover>
-                    {" "}
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="relative h-8 w-8"
-                        id={settingsPopoverIds.triggerId}
-                        aria-controls={settingsPopoverIds.contentId}
-                        aria-label={t.songs.lyrics.settings}
-                      >
-                        <Settings2 className="h-3.5 w-3.5" />
-                        {hasModifications() && (
-                          <span className="absolute -top-0.5 -right-0.5 flex h-2 w-2">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
-                          </span>
-                        )}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent
-                      className="w-auto mr-2.5"
-                      align="end"
-                      id={settingsPopoverIds.contentId}
-                      aria-labelledby={settingsPopoverIds.triggerId}
-                    >
-                      {settingsPopoverContent}
-                    </PopoverContent>
-                  </Popover>
                   <Button
                     variant="ghost"
-                    size="icon"
-                    className="h-8 w-8"
+                    className="h-8 gap-1.5 px-2"
                     onClick={() => setIsReferenceOpen(true)}
                     aria-label={t.songs.lyrics.chordproReference}
                   >
                     <BookOpen className="h-3.5 w-3.5" />
+                    <span className="hidden sm:inline text-xs">{t.songs.lyrics.docs}</span>
                   </Button>
                 </>
               )}
             </div>
-          </div>
         </div>
       </div>
 
@@ -506,6 +531,54 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
           </div>
         </div>
       </div>
+      {/* Floating controls — auto-scroll + settings, always visible while scrolling */}
+      {!isEditing && (
+        <div className="fixed bottom-6 right-4 z-20 flex items-center gap-1 rounded-2xl border bg-background px-2 py-1.5 shadow-lg">
+          <AutoScrollControls
+            isScrolling={isScrolling}
+            onToggle={toggleAutoScroll}
+            speed={scrollSpeed}
+            onIncrease={() =>
+              setScrollSpeed((s) => Math.min(s + SCROLL_SPEED_STEP, MAX_SCROLL_SPEED))
+            }
+            onDecrease={() =>
+              setScrollSpeed((s) => Math.max(s - SCROLL_SPEED_STEP, MIN_SCROLL_SPEED))
+            }
+            isAtMin={scrollSpeed <= MIN_SCROLL_SPEED}
+            isAtMax={scrollSpeed >= MAX_SCROLL_SPEED}
+          />
+          <Separator orientation="vertical" className="mx-0.5 h-4" />
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="relative h-8 w-8"
+                id={settingsPopoverIds.triggerId}
+                aria-controls={settingsPopoverIds.contentId}
+                aria-label={t.songs.lyrics.settings}
+              >
+                <Settings2 className="h-3.5 w-3.5" />
+                {hasModifications() && (
+                  <span className="absolute -top-0.5 -right-0.5 flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                  </span>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent
+              side="top"
+              align="end"
+              className="w-auto"
+              id={settingsPopoverIds.contentId}
+              aria-labelledby={settingsPopoverIds.triggerId}
+            >
+              {settingsPopoverContent}
+            </PopoverContent>
+          </Popover>
+        </div>
+      )}
       <LazyChordProReference open={isReferenceOpen} onOpenChange={setIsReferenceOpen} />
     </div>
   )

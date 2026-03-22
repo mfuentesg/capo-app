@@ -170,6 +170,14 @@
       "oneColumn": "1 column",
       "twoColumns": "2 columns",
       "chordproReference": "ChordPro Reference",
+      "docs": "Docs",
+      "autoScroll": {
+        "start": "Start auto-scroll",
+        "stop": "Stop auto-scroll",
+        "speed": "Speed",
+        "increaseSpeed": "Increase speed",
+        "decreaseSpeed": "Decrease speed"
+      },
       "reference": {
         "metadata": "Metadata",
         "section": "Sections",
