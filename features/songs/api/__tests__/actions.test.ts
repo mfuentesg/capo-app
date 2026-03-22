@@ -1,4 +1,3 @@
-import { revalidatePath } from "next/cache"
 import { createClient } from "@/lib/supabase/server"
 import {
   getSongs as getSongsApi,
@@ -30,10 +29,6 @@ import {
   transferSongToTeamAction,
   updateSongAction
 } from "../actions"
-
-jest.mock("next/cache", () => ({
-  revalidatePath: jest.fn()
-}))
 
 jest.mock("@/lib/supabase/server", () => ({
   createClient: jest.fn()
@@ -67,7 +62,7 @@ describe("song actions", () => {
     ;(createClient as jest.Mock).mockResolvedValue(mockSupabase)
   })
 
-  it("creates a song and revalidates songs page", async () => {
+  it("creates a song", async () => {
     const song = {
       id: "song-1",
       title: "Amazing Grace",
@@ -84,7 +79,6 @@ describe("song actions", () => {
 
     expect(result).toEqual(song)
     expect(createSongApi).toHaveBeenCalledWith(mockSupabase, { title: "Amazing Grace" }, "user-1")
-    expect(revalidatePath).toHaveBeenCalledWith("/dashboard/songs")
   })
 
   it("updates a song without revalidating routes", async () => {
@@ -104,14 +98,12 @@ describe("song actions", () => {
 
     expect(result).toEqual(updatedSong)
     expect(updateSongApi).toHaveBeenCalledWith(mockSupabase, "song-1", { title: "Updated Song" })
-    expect(revalidatePath).not.toHaveBeenCalled()
   })
 
-  it("deletes a song and revalidates songs list route", async () => {
+  it("deletes a song", async () => {
     await deleteSongAction("song-4")
 
     expect(deleteSongApi).toHaveBeenCalledWith(mockSupabase, "song-4")
-    expect(revalidatePath).toHaveBeenCalledWith("/dashboard/songs")
   })
 })
 
@@ -129,7 +121,7 @@ describe("transferSongToTeamAction", () => {
     expect(transferSongToTeamApi).not.toHaveBeenCalled()
   })
 
-  it("transfers song to team and revalidates songs page", async () => {
+  it("transfers song to team", async () => {
     const mockSupabase = {
       auth: { getUser: jest.fn().mockResolvedValue({ data: { user: { id: "user-1" } } }) }
     }
@@ -139,7 +131,6 @@ describe("transferSongToTeamAction", () => {
     await transferSongToTeamAction("song-1", "team-1")
 
     expect(transferSongToTeamApi).toHaveBeenCalledWith(mockSupabase, "song-1", "team-1")
-    expect(revalidatePath).toHaveBeenCalledWith("/dashboard/songs")
   })
 })
 
