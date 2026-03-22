@@ -21,12 +21,14 @@ import type { Song } from "@/types"
 import type { AppContext } from "@/features/app-context"
 import { BucketSelector, useAppContext } from "@/features/app-context"
 import { useTranslation } from "@/hooks/use-translation"
+import { TagInput } from "./tag-input"
 
 type SongFormValues = {
   title: string
   artist: string
   key: string
   bpm: number
+  tags: string[]
 }
 
 interface SongDraftFormProps {
@@ -66,7 +68,8 @@ export function SongDraftForm({
       .number()
       .int()
       .min(40, t.validation.minBpm.replace("{min}", "40"))
-      .max(300, t.validation.maxBpm.replace("{max}", "300"))
+      .max(300, t.validation.maxBpm.replace("{max}", "300")),
+    tags: z.array(z.string())
   })
 
   const form = useForm<SongFormValues>({
@@ -75,7 +78,8 @@ export function SongDraftForm({
       title: song?.title || "",
       artist: song?.artist || "",
       key: song?.key || "",
-      bpm: song?.bpm || 120
+      bpm: song?.bpm || 120,
+      tags: song?.tags || []
     }
   })
 
@@ -105,7 +109,8 @@ export function SongDraftForm({
       title: values.title,
       artist: values.artist,
       key: values.key,
-      bpm: values.bpm
+      bpm: values.bpm,
+      tags: values.tags
     }),
     [song?.id]
   )
@@ -222,6 +227,24 @@ export function SongDraftForm({
                   )}
                 />
               </div>
+
+              <FormField
+                control={form.control}
+                name="tags"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t.songs.tags}</FormLabel>
+                    <FormControl>
+                      <TagInput
+                        value={field.value}
+                        onChange={field.onChange}
+                        placeholder={t.songs.tagsPlaceholder}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               {onBucketChange !== undefined && (
                 <BucketSelector
