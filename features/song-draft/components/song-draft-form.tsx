@@ -1,7 +1,6 @@
 "use client"
 
 import { useCallback, useEffect } from "react"
-import { useAutoSave } from "@/hooks/use-auto-save"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
@@ -10,7 +9,6 @@ import { Input } from "@/components/ui/input"
 import { KeySelect } from "@/features/songs"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { X, Info } from "lucide-react"
-import { SaveStatus } from "@/components/ui/save-status"
 import {
   Form,
   FormControl,
@@ -35,24 +33,20 @@ interface SongDraftFormProps {
   song?: Song
   onClose: () => void
   onSave: (song: Song) => void
-  onAutoSave?: (song: Song) => Promise<void>
   onChange?: (updates: Partial<Song>) => void
   autoFocus?: boolean
   selectedBucket?: AppContext | null
   onBucketChange?: (ctx: AppContext) => void
-  isBucketLocked?: boolean
 }
 
 export function SongDraftForm({
   song,
   onClose,
   onSave,
-  onAutoSave,
   onChange,
   autoFocus = false,
   selectedBucket,
-  onBucketChange,
-  isBucketLocked = false
+  onBucketChange
 }: SongDraftFormProps) {
   const { t } = useTranslation()
   const { teams, context } = useAppContext()
@@ -86,12 +80,8 @@ export function SongDraftForm({
   })
 
   const {
-    formState: { isDirty, isValid }
+    formState: { isValid }
   } = form
-
-  const watchedValues = form.watch()
-  // Stable string for useAutoSave comparison — avoids resetting debounce on every render
-  const watchedValuesKey = JSON.stringify(watchedValues)
 
   // Notify parent of field changes for live preview
   useEffect(() => {
@@ -109,29 +99,15 @@ export function SongDraftForm({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onChange])
 
-  const generateSongId = useCallback(() => {
-    return crypto.randomUUID()
-  }, [])
-
   const buildSong = useCallback(
     (values: SongFormValues): Song => ({
-      id: song?.id?.startsWith("preview-") ? generateSongId() : song?.id || generateSongId(),
+      id: song?.id?.startsWith("preview-") ? crypto.randomUUID() : song?.id || crypto.randomUUID(),
       title: values.title,
       artist: values.artist,
       key: values.key,
       bpm: values.bpm
     }),
-    [song?.id, generateSongId]
-  )
-
-  const { status: saveStatus } = useAutoSave(
-    watchedValuesKey,
-    async (valuesJson) => {
-      if (onAutoSave) {
-        await onAutoSave(buildSong(JSON.parse(valuesJson) as SongFormValues))
-      }
-    },
-    { enabled: isValid && isDirty && !!onAutoSave }
+    [song?.id]
   )
 
   const onSubmit = useCallback(
@@ -151,7 +127,6 @@ export function SongDraftForm({
           <p className="text-sm text-muted-foreground mt-1">{t.songs.enterSongDetails}</p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          <SaveStatus status={saveStatus} />
           <button
             onClick={onClose}
             className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
@@ -254,7 +229,6 @@ export function SongDraftForm({
                   onChange={onBucketChange}
                   userId={userId}
                   teams={teams}
-                  disabled={isBucketLocked}
                   label={t.songs.bucket}
                 />
               )}

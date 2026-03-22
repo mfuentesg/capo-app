@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useMemo, useCallback, useRef, startTransition } from "react"
+import { useState, useEffect, useMemo, useCallback, startTransition } from "react"
 import dynamic from "next/dynamic"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -146,11 +146,6 @@ export function SongsClient({ initialSongs = [], t }: SongsClientProps) {
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false)
   const [isCreatingNewSong, setIsCreatingNewSong] = useState(false)
   const [previewSong, setPreviewSong] = useState<Song | null>(null)
-  // Ref tracks draft ID immediately to prevent race conditions when auto-save fires twice
-  // before the first mutateAsync resolves and React re-renders with new state
-  const draftSongIdRef = useRef<string | null>(null)
-  // State mirrors the ref for render-safe access (isBucketLocked)
-  const [isDraftCommitted, setIsDraftCommitted] = useState(false)
   const filterPopoverIds = createOverlayIds("songs-filter-popover")
   const resizeHandleIds = createOverlayIds("songs-layout-resize")
   const mobileDrawerIds = createOverlayIds("songs-mobile-drawer")
@@ -211,27 +206,7 @@ export function SongsClient({ initialSongs = [], t }: SongsClientProps) {
     setIsMobileDrawerOpen(false)
     setIsCreatingNewSong(false)
     setPreviewSong(null)
-    draftSongIdRef.current = null
-    setIsDraftCommitted(false)
   }, [])
-
-  const handleAutoSaveSong = useCallback(
-    async (song: Song) => {
-      if (!user?.id) return
-      if (draftSongIdRef.current === null) {
-        const created = await createSongMutation.mutateAsync({
-          song: { ...song, isDraft: true },
-          userId: user.id,
-          context: creationBucket ?? undefined
-        })
-        draftSongIdRef.current = created.id
-        setIsDraftCommitted(true)
-      } else {
-        await updateSongMutation.mutateAsync({ songId: draftSongIdRef.current, updates: song })
-      }
-    },
-    [user, createSongMutation, updateSongMutation, creationBucket]
-  )
 
   const handleCreateNewSong = () => {
     const previewId = crypto.randomUUID()
@@ -261,22 +236,11 @@ export function SongsClient({ initialSongs = [], t }: SongsClientProps) {
       return // User not authenticated
     }
     try {
-      let savedSong: Song
-      if (draftSongIdRef.current !== null) {
-        // Finalise existing draft
-        savedSong = await updateSongMutation.mutateAsync({
-          songId: draftSongIdRef.current,
-          updates: { ...song, isDraft: false }
-        })
-        draftSongIdRef.current = null
-        setIsDraftCommitted(false)
-      } else {
-        savedSong = await createSongMutation.mutateAsync({
-          song,
-          userId: user.id,
-          context: creationBucket ?? undefined
-        })
-      }
+      const savedSong = await createSongMutation.mutateAsync({
+        song,
+        userId: user.id,
+        context: creationBucket ?? undefined
+      })
       setIsCreatingNewSong(false)
       setPreviewSong(null)
       setSelectedSong(savedSong)
@@ -566,14 +530,11 @@ export function SongsClient({ initialSongs = [], t }: SongsClientProps) {
                 setIsCreatingNewSong(false)
                 setPreviewSong(null)
                 setSelectedSong(null)
-                draftSongIdRef.current = null
               }}
               onSave={handleSaveSong}
-              onAutoSave={handleAutoSaveSong}
               onChange={handleUpdatePreview}
               selectedBucket={creationBucket}
               onBucketChange={setCreationBucket}
-              isBucketLocked={isDraftCommitted}
               autoFocus
             />
           ) : selectedSong ? (
@@ -624,11 +585,9 @@ export function SongsClient({ initialSongs = [], t }: SongsClientProps) {
                   song={previewSong || undefined}
                   onClose={handleCloseSongDetail}
                   onSave={handleSaveSong}
-                  onAutoSave={handleAutoSaveSong}
                   onChange={handleUpdatePreview}
                   selectedBucket={creationBucket}
                   onBucketChange={setCreationBucket}
-                  isBucketLocked={isDraftCommitted}
                 />
               ) : selectedSong ? (
                 <SongDetailLazy
