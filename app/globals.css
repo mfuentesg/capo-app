@@ -179,7 +179,7 @@
 }
 
 .chordsheet-content .chord {
-  @apply font-semibold cursor-pointer [color:var(--chord)];
+  @apply font-semibold cursor-pointer [color:var(--chord)] bg-muted;
   padding: 0 1px;
   margin: 0 -1px;
   border-radius: 2px;
@@ -191,7 +191,7 @@
 }
 
 .chordsheet-content .chord:hover {
-  @apply underline bg-muted/50;
+  @apply underline bg-muted;
 }
 
 /* ── Section accent colours by type ─────────────────────────────── */
