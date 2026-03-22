@@ -2,6 +2,7 @@
 
 import { memo, startTransition } from "react"
 import { GripVerticalIcon, X } from "lucide-react"
+import { useTranslation } from "@/hooks/use-translation"
 import {
   DndContext,
   closestCenter,
@@ -30,6 +31,7 @@ const SortableSong = memo(
     onSongClick?: (index: number) => void
     onRemoveSong?: (songId: string) => void
   }) => {
+    const { t } = useTranslation()
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
       id: song.id
     })
@@ -60,7 +62,7 @@ const SortableSong = memo(
             {onRemoveSong && (
               <button
                 type="button"
-                aria-label="Remove from playlist"
+                aria-label={t.common.removeSong}
                 onPointerDown={(e) => e.stopPropagation()}
                 onClick={(e) => {
                   e.stopPropagation()
