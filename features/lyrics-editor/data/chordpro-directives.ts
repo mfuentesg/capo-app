@@ -104,7 +104,7 @@ export const CHORDPRO_DIRECTIVES: ChordProDirective[] = [
     description:
       "Marks the beginning of a verse section. Accepts an optional name, repeat count, and performance flags. Pair with {end_of_verse} or {eov}.",
     example:
-      "{sov: Verse 1}\n[G]Amazing [D]grace, how [Em]sweet the sound\n{eov}\n\n{sov: Verse 1, 2}         ← repeat count: renders \"VERSE 1 × 2\"\n{sov: Verse 1, 2, forte}  ← with performance flag"
+      "{sov: Verse 1}\n[G]Amazing [D]grace, how [Em]sweet the [G]sound\nThat [G]saved a [C]wretch like [G]me\n{eov}\n\n{sov: Verse 2, 2}         ← play twice\n{sov: Verse 3, piano}     ← soft, delicate"
   },
   {
     name: "start_of_chorus",
@@ -113,7 +113,7 @@ export const CHORDPRO_DIRECTIVES: ChordProDirective[] = [
     description:
       "Marks the beginning of a chorus section. Accepts an optional name, repeat count, and performance flags. Pair with {end_of_chorus} or {eoc}.",
     example:
-      "{soc: Chorus}\n[G]How great thou [C]art\n{eoc}\n\n{soc: Chorus, 3}           ← repeat count: renders \"CHORUS × 3\"\n{soc: Chorus, attention}   ← with performance flag"
+      "{soc: Chorus}\n[G]How [G]great thou [C]art\nHow [G]great thou [D7]art\n{eoc}\n\n{soc: Chorus, 3}           ← play three times\n{soc: Chorus, attention}   ← mark as needing focus"
   },
   {
     name: "start_of_bridge",
@@ -121,21 +121,24 @@ export const CHORDPRO_DIRECTIVES: ChordProDirective[] = [
     category: "section",
     description:
       "Marks the beginning of a bridge section. Accepts an optional name, repeat count, and performance flags. Pair with {end_of_bridge} or {eob}.",
-    example: "{sob: Bridge}\n[Am]Then sings my [F]soul\n{eob}\n\n{sob: Bridge, vamp}  ← vamp flag: repeat freely until cue"
+    example:
+      "{sob: Bridge}\n[Am]Then sings my [F]soul\nMy [C]Saviour God to [G]thee\n{eob}\n\n{sob: Bridge, vamp}  ← repeat freely until cue"
   },
   {
     name: "start_of_tab",
     shorthand: "sot",
     category: "section",
     description: "Marks the beginning of a guitar tablature section. Pair with {end_of_tab} or {eot}.",
-    example: "{sot}\ne|--0--2--3--2--0--|\n{eot}"
+    example:
+      "{sot: Intro}\ne|--0--2--3--2--0----|\nB|--1--1--1--1--1----|\nG|--0--0--0--0--0----|\n{eot}"
   },
   {
     name: "start_of_grid",
     shorthand: "sog",
     category: "section",
     description: "Marks the beginning of a chord grid section. Pair with {end_of_grid} or {eog}.",
-    example: "{sog}\n|: C | G | Am | F :|\n{eog}"
+    example:
+      "{sog: Progression}\n| C . . . | G . . . |\n| Am . . . | F . . . |\n{eog}"
   },
 
   // Comments
@@ -219,16 +222,44 @@ export const CHORDPRO_DIRECTIVES: ChordProDirective[] = [
     description:
       "References a previously defined named section and renders its content inline. Supports an optional repeat count. The section must be defined using {soc/sov/sob: Name} or {comment: Name} earlier in the song.",
     example:
-      "{repeat: Chorus}     ← renders the Chorus section\n{repeat: Chorus, 2}  ← renders it and labels it \"CHORUS × 2\"\n{repeat: Verse 1, 3} ← renders Verse 1 labelled \"VERSE 1 × 3\""
+      "{soc: Chorus}\n[G]How great thou [C]art\nHow [G]great thou [D7]art\n{eoc}\n\n{sov: Verse 1}\n[G]Amazing [D]grace\n{eov}\n\n{repeat: Chorus}     ← renders Chorus section\n{repeat: Chorus, 2}  ← labels it \"CHORUS × 2\"\n{repeat: Verse 1, 3} ← labels it \"VERSE 1 × 3\""
   }
 ]
 
 export const SECTION_FLAG_DOCS: { flag: string; description: string; example: string }[] = [
-  { flag: "attention", description: "Needs focus — easy section to fumble live.", example: "{sov: Bridge, attention}" },
-  { flag: "skip", description: "Optional section — can be omitted in shorter sets.", example: "{sov: Intro, skip}" },
-  { flag: "forte", description: "Play loudly / with intensity.", example: "{soc: Chorus, forte}" },
-  { flag: "piano", description: "Play softly / delicately.", example: "{sov: Verse 2, piano}" },
-  { flag: "vamp", description: "Repeat freely until cue (common in jazz and gospel).", example: "{sov: Vamp, vamp}" },
-  { flag: "tag", description: "Tag ending — a short closing phrase played after the final chorus.", example: "{soc: Tag, tag}" },
-  { flag: "break", description: "Full-band rest or pause before continuing.", example: "{sob: Break, break}" }
+  {
+    flag: "attention",
+    description: "Needs focus — easy section to fumble live.",
+    example: "{sob: Bridge, attention}\n[Em]The [B]key changes here — stay [Am]focused\nCome [G]back to verse after\n{eob}"
+  },
+  {
+    flag: "skip",
+    description: "Optional section — can be omitted in shorter sets.",
+    example: "{sov: Intro, skip}\n[G]Instrumental intro riff\n[G] / / / [C] / / /\n{eov}"
+  },
+  {
+    flag: "forte",
+    description: "Play loudly / with intensity.",
+    example: "{soc: Chorus, forte}\n[G]How [G]great thou [C]art\nHow [G]great thou [D7]art\n{eoc}"
+  },
+  {
+    flag: "piano",
+    description: "Play softly / delicately.",
+    example: "{sov: Verse 2, piano}\n[G]T'was [D]grace that taught my [Em]heart to fear\n{eov}"
+  },
+  {
+    flag: "vamp",
+    description: "Repeat freely until cue (common in jazz and gospel).",
+    example: "{sov: Vamp, vamp}\n[G]Yeah [C]yeah [G]yeah\n[G] / [C] / [G] /\n{eov}"
+  },
+  {
+    flag: "tag",
+    description: "Tag ending — a short closing phrase played after the final chorus.",
+    example: "{soc: Tag, tag}\n[G]How great, how [C]great\nHow [G]great thou [D7]art\n{eoc}"
+  },
+  {
+    flag: "break",
+    description: "Full-band rest or pause before continuing.",
+    example: "{sob: Break, break}\n[G]  ←  full stop, let it ring\n{eob}"
+  }
 ]
