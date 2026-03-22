@@ -170,6 +170,7 @@
       "oneColumn": "1 column",
       "twoColumns": "2 columns",
       "chordproReference": "ChordPro Reference",
+      "docs": "Docs",
       "autoScroll": {
         "start": "Start auto-scroll",
         "stop": "Stop auto-scroll",
