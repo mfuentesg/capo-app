@@ -140,7 +140,7 @@ export function SongDetail({ song, onClose, onUpdate, onDelete, onTransferSucces
   const { data: teams = [] } = useTeams()
   const canTransfer = context?.type === "personal" && teams.length > 0
   const bpmDraft = bpmDraftBySongId[song.id]
-  const bpmInputValue = bpmDraft ?? String(song.bpm ?? 0)
+  const bpmInputValue = bpmDraft ?? String(song.bpm ?? 120)
 
   const updateTranspose = (nextValue: number) => {
     const clampedValue = Math.max(-6, Math.min(nextValue, 6))
@@ -184,46 +184,44 @@ export function SongDetail({ song, onClose, onUpdate, onDelete, onTransferSucces
 
   return (
     <div className="flex flex-1 flex-col bg-muted/30">
-      <div className="shrink-0 flex items-center justify-between border-b bg-background p-4 lg:p-6">
-        <div className="flex items-center gap-3 min-w-0">
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 min-w-0">
-              <EditableField
-                value={song.title}
-                onSave={(value) => onUpdate(song.id, { title: value })}
-                className="text-lg font-semibold"
-                inputClassName="text-lg font-semibold"
-              />
-              {song.isDraft && (
-                <Badge variant="secondary" className="text-xs">
-                  {t.songs.draft}
-                </Badge>
-              )}
-            </div>
-            <EditableField
-              value={song.artist}
-              onSave={(value) => onUpdate(song.id, { artist: value })}
-              className="text-sm text-muted-foreground"
-              inputClassName="text-sm"
-            />
-          </div>
+      <div className="shrink-0 border-b bg-background p-4 lg:p-6 space-y-1">
+        <div className="flex items-center gap-2 min-w-0">
+          <EditableField
+            value={song.title}
+            onSave={(value) => onUpdate(song.id, { title: value })}
+            className="text-lg font-semibold flex-1 min-w-0"
+            inputClassName="text-lg font-semibold"
+          />
+          {song.isDraft && (
+            <Badge variant="secondary" className="text-xs shrink-0">
+              {t.songs.draft}
+            </Badge>
+          )}
         </div>
-        <div className="flex items-center gap-1 shrink-0">
-          <Button variant="outline" size="sm" className="gap-1.5" aria-label={t.songs.openSong} asChild>
-            <Link href={`/dashboard/songs/${song.id}`}>
-              <ExternalLink className="h-4 w-4" />
-              <span className="hidden sm:inline">{t.songs.openSong}</span>
-            </Link>
-          </Button>
-          <Button variant="ghost" size="icon" onClick={onClose} aria-label={t.common.close}>
-            <X className="h-4 w-4" />
-          </Button>
+        <div className="flex items-center justify-between gap-2">
+          <EditableField
+            value={song.artist}
+            onSave={(value) => onUpdate(song.id, { artist: value })}
+            className="text-sm text-muted-foreground min-w-0"
+            inputClassName="text-sm"
+          />
+          <div className="flex items-center gap-1 shrink-0">
+            <Button variant="outline" size="sm" className="gap-1.5" aria-label={t.songs.openSong} asChild>
+              <Link href={`/dashboard/songs/${song.id}`}>
+                <ExternalLink className="h-4 w-4" />
+                <span className="hidden sm:inline">{t.songs.openSong}</span>
+              </Link>
+            </Button>
+            <Button variant="ghost" size="icon" onClick={onClose} aria-label={t.common.close}>
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 lg:p-6">
         <div className="max-w-2xl space-y-6">
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-col gap-3">
             <div className="flex items-center gap-2 rounded-full bg-background border px-3 py-1.5">
               <span className="text-xs text-muted-foreground">{t.songs.key}</span>
               <KeySelect
