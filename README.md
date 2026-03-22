@@ -47,6 +47,10 @@ Share any playlist publicly via a unique share code. Recipients can view the ful
 
 Create new songs or edit existing ones using the ChordPro format. The song editor includes syntax highlighting, live preview, and metadata fields (title, artist, key, BPM).
 
+### Chord Glossary & Analyzer
+
+Browse a built-in chord glossary organized by key, search chords by name, and identify chords from guitar fingering positions. Supports both left-hand and right-hand chord diagram orientations.
+
 ### Teams & Collaboration
 
 Create teams and invite other users by email. Team members share a common song library and playlists. Manage pending invitations and switch between personal and team contexts.
@@ -63,6 +67,7 @@ Tracks user engagement across the app to surface relevant content and support fu
 
 - **Theme**: Switch between light and dark mode.
 - **Language**: Change the UI language (i18n support).
+- **Chord Hand**: Choose between left-hand and right-hand chord diagram orientation.
 
 ### Authentication
 
