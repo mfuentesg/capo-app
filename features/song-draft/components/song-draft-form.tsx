@@ -113,9 +113,8 @@ export function SongDraftForm({
   const onSubmit = useCallback(
     async (values: SongFormValues) => {
       await onSave(buildSong(values))
-      form.reset()
     },
-    [onSave, buildSong, form]
+    [onSave, buildSong]
   )
 
   return (
