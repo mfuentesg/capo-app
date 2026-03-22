@@ -7,7 +7,7 @@ import { useChordAnalyzer } from "../hooks/use-chord-analyzer"
 import { FretboardInput } from "./fretboard-input"
 import { getChordsByKey } from "../utils/chord-db-helpers"
 import { useLocale } from "@/features/settings"
-import { RotateCcw } from "lucide-react"
+import { RotateCcw, Hand, SearchX } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useChordOrientation } from "@/hooks/use-chord-orientation"
 
@@ -98,15 +98,24 @@ export function ChordAnalyzer() {
       )}
 
       {/* Results */}
-      {hasInput && (
-        <div className="space-y-3">
-          <h3 className="text-sm font-semibold text-foreground">
-            {results.length === 0 ? t.chords.analyzer.noMatch : t.chords.analyzer.matches}
-          </h3>
+      {hasInput && results.length === 0 && (
+        <div className="flex flex-col items-center justify-center py-12 gap-3 text-center">
+          <div className="rounded-full bg-muted p-4">
+            <SearchX className="h-7 w-7 text-muted-foreground" />
+          </div>
+          <div>
+            <p className="text-sm font-medium text-foreground">{t.chords.analyzer.noMatchTitle}</p>
+            <p className="text-xs text-muted-foreground mt-1">{t.chords.analyzer.noMatch}</p>
+          </div>
+        </div>
+      )}
 
-          {results.length > 0 && (
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
-              {results.slice(0, 8).map((result) => {
+      {hasInput && results.length > 0 && (
+        <div className="space-y-3">
+          <h3 className="text-sm font-semibold text-foreground">{t.chords.analyzer.matches}</h3>
+
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
+            {results.slice(0, 8).map((result) => {
                 const dbPosition = findDbPosition(result.root, result.suffix)
                 return (
                   <div
@@ -146,14 +155,19 @@ export function ChordAnalyzer() {
                   </div>
                 )
               })}
-            </div>
-          )}
+          </div>
         </div>
       )}
 
       {!hasInput && (
-        <div className="flex items-center justify-center py-10">
-          <p className="text-sm text-muted-foreground text-center">{t.chords.analyzer.emptyState}</p>
+        <div className="flex flex-col items-center justify-center py-12 gap-3 text-center">
+          <div className="rounded-full bg-muted p-4">
+            <Hand className="h-7 w-7 text-muted-foreground" />
+          </div>
+          <div>
+            <p className="text-sm font-medium text-foreground">{t.chords.analyzer.emptyStateTitle}</p>
+            <p className="text-xs text-muted-foreground mt-1">{t.chords.analyzer.emptyState}</p>
+          </div>
         </div>
       )}
     </div>

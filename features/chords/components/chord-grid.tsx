@@ -5,6 +5,7 @@ import { ChordCard } from "./chord-card"
 import { ChordDiagram } from "@/features/lyrics-editor"
 import { keyLabel, type ChordEntry } from "../utils/chord-db-helpers"
 import { useLocale } from "@/features/settings"
+import { SearchX } from "lucide-react"
 
 interface ChordGridProps {
   chords: ChordEntry[]
@@ -21,16 +22,21 @@ export function ChordGrid({ chords }: ChordGridProps) {
 
   if (chords.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 gap-2 text-center">
-        <p className="text-sm font-medium text-foreground">{t.chords.glossary.noResults}</p>
-        <p className="text-xs text-muted-foreground">{t.common.tryDifferentSearch}</p>
+      <div className="flex flex-col items-center justify-center py-16 gap-3 text-center">
+        <div className="rounded-full bg-muted p-4">
+          <SearchX className="h-7 w-7 text-muted-foreground" />
+        </div>
+        <div>
+          <p className="text-sm font-medium text-foreground">{t.chords.glossary.noResults}</p>
+          <p className="text-xs text-muted-foreground mt-1">{t.common.tryDifferentSearch}</p>
+        </div>
       </div>
     )
   }
 
   return (
     <>
-      <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
         {chords.map((chord) => (
           <ChordCard key={`${chord.key}-${chord.suffix}`} chord={chord} onClick={() => setSelected(chord)} />
         ))}
