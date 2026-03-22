@@ -1,7 +1,7 @@
 "use client"
 
-import { memo, useRef, useState, startTransition } from "react"
-import { GripVerticalIcon, Trash2 } from "lucide-react"
+import { memo, startTransition } from "react"
+import { GripVerticalIcon, X } from "lucide-react"
 import {
   DndContext,
   closestCenter,
@@ -17,9 +17,6 @@ import { CSS } from "@dnd-kit/utilities"
 import { PlaylistSongItem } from "@/features/playlists"
 import { type SongWithPosition, type PlaylistWithSongs } from "@/types/extended"
 import { blockNextDocumentClick } from "@/lib/dnd"
-
-const SWIPE_DELETE_THRESHOLD = -80
-const SWIPE_MAX = -120
 
 const SortableSong = memo(
   ({
@@ -37,92 +34,43 @@ const SortableSong = memo(
       id: song.id
     })
 
-    const [swipeOffset, setSwipeOffset] = useState(0)
-    const [isAnimating, setIsAnimating] = useState(false)
-    const [isDeleted, setIsDeleted] = useState(false)
-    const swipeStartX = useRef<number | null>(null)
-    const didSwipe = useRef(false)
-
     const sortStyle = {
       transform: CSS.Transform.toString(transform),
-      transition,
-      display: isDeleted ? "none" : undefined
+      transition
     }
-
-    const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-      if (isDragging || !onRemoveSong || isDeleted) return
-      swipeStartX.current = e.clientX
-      didSwipe.current = false
-    }
-
-    const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-      if (swipeStartX.current === null || isDragging || !onRemoveSong || isDeleted) return
-      const delta = e.clientX - swipeStartX.current
-      if (delta < -8) {
-        didSwipe.current = true
-        setIsAnimating(false)
-        setSwipeOffset(Math.max(delta, SWIPE_MAX))
-      }
-    }
-
-    const handlePointerUp = () => {
-      if (swipeStartX.current === null) return
-      swipeStartX.current = null
-      const wasSwiped = didSwipe.current
-      didSwipe.current = false
-
-      if (!wasSwiped) return
-
-      blockNextDocumentClick()
-
-      if (swipeOffset < SWIPE_DELETE_THRESHOLD) {
-        setIsDeleted(true)
-        onRemoveSong?.(song.id)
-      } else {
-        setIsAnimating(true)
-        setSwipeOffset(0)
-      }
-    }
-
-    const showDeleteIndicator = swipeOffset < -20
 
     return (
       <div
         ref={setNodeRef}
         style={sortStyle}
         {...attributes}
-        className={`relative overflow-hidden rounded-lg ${isDragging ? "opacity-70 z-50" : ""}`}
+        className={`relative rounded-lg ${isDragging ? "opacity-70 z-50" : ""}`}
       >
-        {/* Delete indicator revealed by swipe */}
+        {/* Song row — draggable anywhere via long-press, tappable to open lyrics */}
         <div
-          className={`absolute inset-0 flex items-center justify-end bg-destructive px-4 transition-opacity ${showDeleteIndicator ? "opacity-100" : "opacity-0"}`}
-        >
-          <Trash2 className="h-4 w-4 text-destructive-foreground" />
-        </div>
-
-        {/* Song row — slides left on swipe, draggable anywhere via long-press */}
-        <div
-          className={`relative touch-manipulation cursor-pointer ${isAnimating ? "transition-transform duration-200 ease-out" : ""}`}
-          style={{ transform: `translateX(${swipeOffset}px)` }}
+          className={`relative touch-manipulation cursor-pointer ${isDragging ? "cursor-grabbing" : ""}`}
           {...listeners}
-          onPointerDown={(e: React.PointerEvent<HTMLDivElement>) => {
-            // Call dnd-kit's activator before our swipe handler.
-            // Only onPointerDown is in listeners; move/up are on the document.
-            listeners?.onPointerDown?.(e)
-            handlePointerDown(e)
-          }}
-          onPointerMove={handlePointerMove}
-          onPointerUp={handlePointerUp}
-          onTransitionEnd={() => setIsAnimating(false)}
           onClick={() => startTransition(() => onSongClick?.(index))}
         >
           <PlaylistSongItem song={song} index={index} showDragHandle />
-          {/* Grip icon — visual affordance only, drag initiates from the whole row */}
-          <div
-            className="absolute right-4 top-1/2 -translate-y-1/2 touch-none pointer-events-none"
-            aria-hidden
-          >
-            <GripVerticalIcon className="h-5 w-5 text-muted-foreground/50 transition-colors group-hover:text-muted-foreground" />
+
+          {/* Right action column: drag affordance + remove button */}
+          <div className="absolute right-3 inset-y-0 flex flex-col items-center justify-center gap-1.5">
+            <GripVerticalIcon className="h-4 w-4 text-muted-foreground/40 transition-colors group-hover:text-muted-foreground/70 pointer-events-none" />
+            {onRemoveSong && (
+              <button
+                type="button"
+                aria-label="Remove from playlist"
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onRemoveSong(song.id)
+                }}
+                className="flex h-5 w-5 items-center justify-center rounded text-muted-foreground/50 hover:text-destructive transition-colors"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -147,15 +95,14 @@ export function DraggablePlaylist({
 }) {
   const sensors = useSensors(
     useSensor(PointerSensor, {
-      // Long-press to activate drag so quick horizontal swipes still trigger
-      // swipe-to-delete rather than accidentally starting a drag.
+      // Long-press to activate drag so a quick tap still opens lyrics without
+      // accidentally triggering a reorder.
       activationConstraint: { delay: 200, tolerance: 5 }
     })
   )
 
   const handleDragEnd = (event: DragEndEvent) => {
-    // Always block the synthetic click that follows pointerup, regardless of
-    // whether the drop resulted in a reorder.
+    // Block the synthetic click that follows pointerup so it doesn't open lyrics.
     blockNextDocumentClick()
 
     const { active, over } = event
