@@ -8,7 +8,6 @@ import { getAvailableKeys, keyLabel } from "../utils/chord-db-helpers"
 import { useLocale } from "@/features/settings"
 import { X } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { ChordOrientationControls } from "@/components/chord-orientation-controls"
 
 const AVAILABLE_KEYS = getAvailableKeys()
 
@@ -20,25 +19,22 @@ export function ChordGlossary() {
     <div className="space-y-4">
       {/* Search + key filter + orientation */}
       <div className="space-y-3">
-        <div className="flex items-center gap-2">
-          <div className="relative flex-1 max-w-xs">
-            <Input
-              placeholder={t.chords.glossary.searchPlaceholder}
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-            />
-            {query && (
-              <button
-                type="button"
-                onClick={() => setQuery("")}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                aria-label={t.common.clearSearch}
-              >
-                <X className="h-4 w-4" />
-              </button>
-            )}
-          </div>
-          <ChordOrientationControls />
+        <div className="relative flex-1 max-w-xs">
+          <Input
+            placeholder={t.chords.glossary.searchPlaceholder}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+          {query && (
+            <button
+              type="button"
+              onClick={() => setQuery("")}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              aria-label={t.common.clearSearch}
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
         </div>
 
         <div className="flex flex-wrap gap-1.5">

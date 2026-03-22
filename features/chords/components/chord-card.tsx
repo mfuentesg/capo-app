@@ -12,7 +12,7 @@ interface ChordCardProps {
 
 export function ChordCard({ chord, onClick }: ChordCardProps) {
   const position = chord.positions[0] as ChordPosition | undefined
-  const { flipVertical, mirror } = useChordOrientation()
+  const { mirror } = useChordOrientation()
   if (!position) return null
 
   const displayName = chord.name
@@ -28,7 +28,7 @@ export function ChordCard({ chord, onClick }: ChordCardProps) {
       )}
     >
       <div className="w-full overflow-hidden rounded-lg bg-white dark:bg-zinc-950 p-2">
-        <ChordPositionDiagram position={position} flipVertical={flipVertical} mirror={mirror} />
+        <ChordPositionDiagram position={position} mirror={mirror} />
       </div>
       <span className="text-sm font-semibold leading-none text-foreground">{displayName}</span>
     </button>

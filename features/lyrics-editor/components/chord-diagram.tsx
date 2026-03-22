@@ -14,7 +14,6 @@ import { ChevronLeft, ChevronRight, Info } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useLocale } from "@/features/settings"
 import { useChordOrientation } from "@/hooks/use-chord-orientation"
-import { ChordOrientationControls } from "@/components/chord-orientation-controls"
 // @ts-expect-error - no types for this library
 import { findGuitarChord as findGuitarChordRaw } from "chord-fingering"
 import { cn } from "@/lib/utils"
@@ -248,7 +247,7 @@ export function ChordDiagram({ chordName, onClose }: ChordDiagramProps) {
   const [slideDir, setSlideDir] = React.useState<"left" | "right">("left")
   const touchStartX = React.useRef(0)
   const { t } = useLocale()
-  const { flipVertical, mirror } = useChordOrientation()
+  const { mirror } = useChordOrientation()
 
   React.useEffect(() => {
     setPositionIndex(0)
@@ -353,16 +352,11 @@ export function ChordDiagram({ chordName, onClose }: ChordDiagramProps) {
       >
         <div className="p-5 sm:p-8 flex-1 sm:flex-initial flex flex-col justify-center sm:block">
           <DialogHeader className="mb-8 sm:mb-6">
-            <div className="flex items-start justify-between gap-2">
-              <div>
-                <DialogTitle className="text-4xl sm:text-4xl font-black tracking-tight">
-                  {chordName}
-                </DialogTitle>
-                <div className="mt-1 font-medium text-muted-foreground uppercase tracking-widest text-[12px] sm:text-[10px]">
-                  {isAlgorithmic ? "Generated Diagram" : "Verified Shape"}
-                </div>
-              </div>
-              <ChordOrientationControls className="shrink-0 pt-1" />
+            <DialogTitle className="text-4xl sm:text-4xl font-black tracking-tight">
+              {chordName}
+            </DialogTitle>
+            <div className="mt-1 font-medium text-muted-foreground uppercase tracking-widest text-[12px] sm:text-[10px]">
+              {isAlgorithmic ? "Generated Diagram" : "Verified Shape"}
             </div>
           </DialogHeader>
 
@@ -382,7 +376,6 @@ export function ChordDiagram({ chordName, onClose }: ChordDiagramProps) {
             >
               <ChordPositionDiagram
                 position={currentChord}
-                flipVertical={flipVertical}
                 mirror={mirror}
               />
             </div>

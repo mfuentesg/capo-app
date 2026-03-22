@@ -39,13 +39,9 @@ jest.mock("@/features/settings", () => ({
   })
 }))
 
-// Mock chord orientation hook and controls
+// Mock chord orientation hook
 jest.mock("@/hooks/use-chord-orientation", () => ({
-  useChordOrientation: () => ({ flipVertical: false, mirror: false, toggleFlipVertical: jest.fn() }),
-}))
-
-jest.mock("@/components/chord-orientation-controls", () => ({
-  ChordOrientationControls: () => null,
+  useChordOrientation: () => ({ mirror: false }),
 }))
 
 // Mock the shared chord diagram component — receives position prop

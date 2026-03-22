@@ -13,5 +13,3 @@ export type { IdentifiedChord } from "./utils/chord-identifier"
 export { useChordSearch } from "./hooks/use-chord-search"
 export { useChordAnalyzer } from "./hooks/use-chord-analyzer"
 export { useChordOrientation } from "@/hooks/use-chord-orientation"
-
-export { ChordOrientationControls } from "@/components/chord-orientation-controls"
