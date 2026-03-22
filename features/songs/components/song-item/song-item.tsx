@@ -115,6 +115,18 @@ export const SongItem = memo(function SongItem({
             )}
             {song.bpm} BPM
           </Badge>
+          {song.tags && song.tags.length > 0 && (
+            <>
+              {song.tags.slice(0, 3).map((tag) => (
+                <Badge key={tag} variant="outline" className="text-xs font-normal">
+                  {tag}
+                </Badge>
+              ))}
+              {song.tags.length > 3 && (
+                <span className="text-xs text-muted-foreground">+{song.tags.length - 3}</span>
+              )}
+            </>
+          )}
         </div>
       </div>
 

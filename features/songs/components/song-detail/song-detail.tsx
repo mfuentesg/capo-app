@@ -37,6 +37,7 @@ import {
   useUpsertUserSongSettings
 } from "@/features/songs/hooks/use-user-song-settings"
 import { usePlaylistDraft } from "@/features/playlist-draft"
+import { TagInput } from "@/features/song-draft"
 import { useTeams } from "@/features/teams"
 import { useAppContext } from "@/features/app-context"
 import { transposeKey, calculateCapoKey } from "@/lib/music-theory"
@@ -264,6 +265,16 @@ export function SongDetail({ song, onClose, onUpdate, onDelete, onTransferSucces
               />
               <span className="text-xs text-muted-foreground">{t.songs.bpm}</span>
             </div>
+          </div>
+
+          {/* Tags */}
+          <div className="space-y-2">
+            <span className="text-sm font-medium">{t.songs.tags}</span>
+            <TagInput
+              value={song.tags ?? []}
+              onChange={(tags) => onUpdate(song.id, { tags })}
+              placeholder={t.songs.tagsPlaceholder}
+            />
           </div>
 
           {/* Transpose Control */}

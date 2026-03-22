@@ -257,6 +257,7 @@ export type Database = {
           lyrics: string | null
           notes: string | null
           status: Database["public"]["Enums"]["song_status_enum"]
+          tags: string[]
           team_id: string | null
           title: string
           transpose: number
@@ -274,6 +275,7 @@ export type Database = {
           lyrics?: string | null
           notes?: string | null
           status?: Database["public"]["Enums"]["song_status_enum"]
+          tags?: string[]
           team_id?: string | null
           title: string
           transpose?: number
@@ -291,6 +293,7 @@ export type Database = {
           lyrics?: string | null
           notes?: string | null
           status?: Database["public"]["Enums"]["song_status_enum"]
+          tags?: string[]
           team_id?: string | null
           title?: string
           transpose?: number

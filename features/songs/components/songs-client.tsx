@@ -26,7 +26,8 @@ import {
   X,
   Turtle,
   Rabbit,
-  Zap
+  Zap,
+  Tag
 } from "lucide-react"
 import { SongList } from "@/features/songs"
 import { useSongs, useCreateSong, useUpdateSong, useDeleteSong } from "../hooks/use-songs"
@@ -143,6 +144,7 @@ export function SongsClient({ initialSongs = [], t }: SongsClientProps) {
   const [groupBy, setGroupBy] = useState<GroupBy>("none")
   const [filterStatus, setFilterStatus] = useState<SongFilterStatus>("all")
   const [bpmRange, setBpmRange] = useState<BPMRange>("all")
+  const [selectedTags, setSelectedTags] = useState<string[]>([])
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false)
   const [isCreatingNewSong, setIsCreatingNewSong] = useState(false)
   const [previewSong, setPreviewSong] = useState<Song | null>(null)
@@ -252,20 +254,35 @@ export function SongsClient({ initialSongs = [], t }: SongsClientProps) {
     }
   }
 
+  // All unique tags across all songs
+  const allTags = useMemo(() => {
+    const tagSet = new Set<string>()
+    songs.forEach((song) => song.tags?.forEach((tag) => tagSet.add(tag)))
+    return Array.from(tagSet).sort()
+  }, [songs])
+
+  const toggleTag = (tag: string) => {
+    setSelectedTags((prev) =>
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
+    )
+  }
+
   // Calculate active filter count
   const activeFilterCount = useMemo(() => {
     let count = 0
     if (filterStatus !== "all") count++
     if (groupBy !== "none") count++
     if (bpmRange !== "all") count++
+    count += selectedTags.length
     return count
-  }, [filterStatus, groupBy, bpmRange])
+  }, [filterStatus, groupBy, bpmRange, selectedTags])
 
   // Clear all filters
   const clearAllFilters = () => {
     setFilterStatus("all")
     setGroupBy("none")
     setBpmRange("all")
+    setSelectedTags([])
   }
 
   return (
@@ -485,6 +502,33 @@ export function SongsClient({ initialSongs = [], t }: SongsClientProps) {
                         </Button>
                       </div>
                     </div>
+
+                    {allTags.length > 0 && (
+                      <>
+                        <Separator />
+
+                        {/* Tag Filter */}
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <Tag className="h-4 w-4" />
+                            <span className="text-sm font-medium">{t.songs.filterByTag}</span>
+                          </div>
+                          <div className="flex flex-wrap gap-1.5">
+                            {allTags.map((tag) => (
+                              <Button
+                                key={tag}
+                                onClick={() => toggleTag(tag)}
+                                variant={selectedTags.includes(tag) ? "default" : "outline"}
+                                size="sm"
+                                className="h-7 text-xs"
+                              >
+                                {tag}
+                              </Button>
+                            ))}
+                          </div>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </PopoverContent>
               </Popover>
@@ -508,6 +552,7 @@ export function SongsClient({ initialSongs = [], t }: SongsClientProps) {
               groupBy={groupBy}
               filterStatus={filterStatus}
               bpmRange={bpmRange}
+              selectedTags={selectedTags}
               isCreatingNewSong={isCreatingNewSong}
               isLoading={isLoading && songs.length === 0}
               onSelectSong={handleSelectSong}

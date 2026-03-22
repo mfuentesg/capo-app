@@ -14,7 +14,17 @@ import { applyContextFilter } from "@/lib/supabase/apply-context-filter"
 // Only the columns fetched by SONG_COLUMNS — a subset of the full row type
 type SongRow = Pick<
   Tables<"songs">,
-  "id" | "title" | "artist" | "key" | "bpm" | "lyrics" | "notes" | "transpose" | "capo" | "status"
+  | "id"
+  | "title"
+  | "artist"
+  | "key"
+  | "bpm"
+  | "lyrics"
+  | "notes"
+  | "tags"
+  | "transpose"
+  | "capo"
+  | "status"
 >
 
 // Extended row type including ownership columns
@@ -36,7 +46,7 @@ function mapDBSongToFrontend(dbSong: SongRow): FrontendSong {
     notes: dbSong.notes || undefined,
     transpose: dbSong.transpose ?? 0,
     capo: dbSong.capo ?? 0,
-    // tags field not in database schema - omit for now
+    tags: dbSong.tags ?? [],
     isDraft: dbSong.status === "draft"
   }
 }
@@ -58,6 +68,7 @@ function mapFrontendSongToDB(
     bpm: song.bpm || null,
     lyrics: song.lyrics || null,
     notes: song.notes || null,
+    tags: song.tags ?? [],
     transpose: song.transpose ?? 0,
     capo: song.capo ?? 0,
     status: song.isDraft ? "draft" : "published",
@@ -79,6 +90,7 @@ function mapFrontendUpdatesToDB(updates: Partial<FrontendSong>): TablesUpdate<"s
   if (updates.bpm !== undefined) dbUpdate.bpm = updates.bpm || null
   if (updates.lyrics !== undefined) dbUpdate.lyrics = updates.lyrics || null
   if (updates.notes !== undefined) dbUpdate.notes = updates.notes || null
+  if (updates.tags !== undefined) dbUpdate.tags = updates.tags
   if (updates.isDraft !== undefined) {
     dbUpdate.status = updates.isDraft ? "draft" : "published"
   }
@@ -117,9 +129,9 @@ function mapDBSongWithOwnershipToFrontend(
  * @param context - App context (personal or team)
  * @returns Promise<FrontendSong[]> - Array of songs
  */
-const SONG_COLUMNS = "id, title, artist, key, bpm, lyrics, notes, transpose, capo, status"
+const SONG_COLUMNS = "id, title, artist, key, bpm, lyrics, notes, tags, transpose, capo, status"
 const SONG_COLUMNS_WITH_OWNERSHIP =
-  "id, title, artist, key, bpm, lyrics, notes, transpose, capo, status, user_id, team_id"
+  "id, title, artist, key, bpm, lyrics, notes, tags, transpose, capo, status, user_id, team_id"
 
 export async function getSongs(
   supabase: SupabaseClient,

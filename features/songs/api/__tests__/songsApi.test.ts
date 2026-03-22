@@ -6,7 +6,7 @@ jest.mock("@/lib/supabase/apply-context-filter", () => ({
 }))
 
 // Must match the SONG_COLUMNS constant in songsApi.ts
-const SONG_COLUMNS = "id, title, artist, key, bpm, lyrics, notes, transpose, capo, status"
+const SONG_COLUMNS = "id, title, artist, key, bpm, lyrics, notes, tags, transpose, capo, status"
 
 const personalContext = { type: "personal" as const, userId: "user-1" }
 
@@ -56,6 +56,7 @@ describe("getSongs", () => {
         bpm: 120,
         lyrics: "Amazing grace",
         notes: null,
+        tags: ["worship"],
         transpose: 2,
         capo: 0,
         status: "published"
@@ -68,6 +69,7 @@ describe("getSongs", () => {
         bpm: null,
         lyrics: null,
         notes: null,
+        tags: [],
         transpose: 0,
         capo: 0,
         status: "draft"
@@ -86,6 +88,7 @@ describe("getSongs", () => {
         bpm: 120,
         lyrics: "Amazing grace",
         notes: undefined,
+        tags: ["worship"],
         transpose: 2,
         capo: 0,
         isDraft: false
@@ -98,6 +101,7 @@ describe("getSongs", () => {
         bpm: 0,
         lyrics: undefined,
         notes: undefined,
+        tags: [],
         transpose: 0,
         capo: 0,
         isDraft: true
@@ -146,6 +150,7 @@ describe("getSongsByIds", () => {
         bpm: 100,
         lyrics: null,
         notes: "Note",
+        tags: ["upbeat"],
         transpose: 0,
         capo: 1,
         status: "published"
@@ -170,6 +175,7 @@ describe("getSongsByIds", () => {
         bpm: 100,
         lyrics: undefined,
         notes: "Note",
+        tags: ["upbeat"],
         transpose: 0,
         capo: 1,
         isDraft: false
