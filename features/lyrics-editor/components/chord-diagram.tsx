@@ -3,6 +3,7 @@
 import * as React from "react"
 import { Chord as ChordJS } from "chordsheetjs"
 import guitarDataRaw from "@tombatossals/chords-db/lib/guitar.json"
+import { keyLabel, toDbKey } from "@/features/chords"
 import {
   Dialog,
   DialogContent,
@@ -128,12 +129,7 @@ function getStandardNote(rootName: string): string {
   
   const standardRoot = keyMap[normalizedRoot] || normalizedRoot
   
-  const dbKeyMap: Record<string, string> = {
-    "C#": "Csharp",
-    "F#": "Fsharp",
-  }
-  
-  return dbKeyMap[standardRoot] || standardRoot
+  return toDbKey(standardRoot)
 }
 
 // Normalize chord names to the database
@@ -220,9 +216,7 @@ function parseChord(
   if (parsed.bass && parsed.bass.type === "symbol") {
     // Note: Bass note also needs to be normalized to database standard (e.g. /Gb -> /F#)
     const rawBassNote = parsed.bass.originalKeyString + (parsed.bass.modifier || "")
-    const standardBass = getStandardNote(rawBassNote)
-      .replace("Csharp", "C#")
-      .replace("Fsharp", "F#")
+    const standardBass = keyLabel(getStandardNote(rawBassNote))
     
     let baseSuffix = (parsed.suffix || "").trim()
 

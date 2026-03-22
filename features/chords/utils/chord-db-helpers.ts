@@ -85,3 +85,8 @@ export function getAvailableKeys(): string[] {
 export function keyLabel(key: string): string {
   return key.replace("sharp", "#")
 }
+
+/** Convert a display key to a DB key — inverse of keyLabel (e.g. "C#" → "Csharp") */
+export function toDbKey(key: string): string {
+  return key.replace("#", "sharp")
+}
