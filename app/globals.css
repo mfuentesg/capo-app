@@ -180,10 +180,6 @@
 
 .chordsheet-content .chord {
   @apply font-semibold cursor-pointer [color:var(--chord)];
-  padding: 0 1px;
-  margin: 0 -1px;
-  border-radius: 2px;
-  transition: background-color 0.1s ease;
 }
 
 .section-repeat-content .chord {
@@ -191,7 +187,7 @@
 }
 
 .chordsheet-content .chord:hover {
-  @apply underline bg-muted/50;
+  @apply underline;
 }
 
 /* ── Section accent colours by type ─────────────────────────────── */
