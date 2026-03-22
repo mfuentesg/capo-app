@@ -1,6 +1,8 @@
 "use client"
 
+import { useEffect, useRef } from "react"
 import { Loader2, Guitar } from "lucide-react"
+import { toast } from "sonner"
 import { useLocale } from "@/features/settings"
 import { useChordHand } from "@/features/settings/contexts/chord-hand-context"
 import { Label } from "@/components/ui/label"
@@ -15,6 +17,14 @@ const OPTIONS: { value: ChordHand; labelKey: "rightHand" | "leftHand"; mirror: b
 export function ChordHandSettings() {
   const { t } = useLocale()
   const { chordHand, isPending, setChordHand } = useChordHand()
+  const wasPending = useRef(false)
+
+  useEffect(() => {
+    if (wasPending.current && !isPending) {
+      toast.success(t.common.saved)
+    }
+    wasPending.current = isPending
+  }, [isPending, t.common.saved])
 
   return (
     <section className="space-y-4">
