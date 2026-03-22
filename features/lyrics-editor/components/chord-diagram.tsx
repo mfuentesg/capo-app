@@ -342,7 +342,7 @@ export function ChordDiagram({ chordName, onClose }: ChordDiagramProps) {
       `}</style>
       <DialogContent
         fancy
-        className="w-full h-full max-w-none sm:h-auto sm:max-w-[450px] flex flex-col justify-center bg-background sm:bg-transparent"
+        className="w-full h-full max-w-none sm:h-auto sm:max-w-[450px] flex flex-col justify-center max-sm:bg-background"
       >
         <div className="p-5 sm:p-8 flex-1 sm:flex-initial flex flex-col justify-center sm:block">
           <DialogHeader className="mb-8 sm:mb-6">
