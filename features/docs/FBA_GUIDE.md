@@ -1,6 +1,6 @@
 # Feature-Based Architecture (FBA) Guide
 
-**Last Updated:** December 8, 2025  
+**Last Updated:** March 22, 2026
 **Status:** ✅ Production Ready
 
 ---
@@ -34,8 +34,9 @@ import { PlaylistsClient } from "@/features/playlists"
 import { usePlaylistDraft } from "@/features/playlist-draft"
 
 // ❌ WRONG - never import from internal paths
-import { SongsClient } from "@/features/songs"
-import { PlaylistsClient } from "@/features/playlists"
+import { SongsClient } from "@/features/songs/components/songs-client"
+import { PlaylistsClient } from "@/features/playlists/components/playlists-client"
+import { usePlaylistDraft } from "@/features/playlist-draft/contexts/draft.context"
 ```
 
 ---
@@ -67,11 +68,18 @@ features/
 │   ├── __tests__/
 │   └── index.ts             # PUBLIC API ⚠️
 │
-├── playlist-draft/          # Feature: Quick add cart
-├── lyrics-editor/           # Feature: Lyrics display
-├── playlist-sharing/        # Feature: Sharing functionality
-├── settings/                # Feature: App settings
-├── song-draft/              # Feature: Song creation
+├── activity/                # Feature: User activity tracking
+├── app-context/             # Feature: Global app context (team/bucket switching)
+├── auth/                    # Feature: Authentication (Google OAuth)
+├── chords/                  # Feature: Chord glossary and analyzer
+├── dashboard/               # Feature: Dashboard stats and recent songs
+├── feedback/                # Feature: In-app feedback submission
+├── lyrics-editor/           # Feature: ChordPro editor and live preview
+├── playlist-draft/          # Feature: Quick add-to-playlist cart
+├── playlist-sharing/        # Feature: Public playlist sharing via share codes
+├── settings/                # Feature: Theme, language, chord hand preferences
+├── song-draft/              # Feature: Song creation and editing
+├── teams/                   # Feature: Team management and invitations
 │
 └── docs/                    # Documentation
     └── FBA_GUIDE.md         # This file
@@ -79,15 +87,22 @@ features/
 
 ### Core Features
 
-| Feature              | Purpose                                                 | Status      |
-| -------------------- | ------------------------------------------------------- | ----------- |
-| **songs**            | Song library management with search, filtering, editing | ✅ Complete |
-| **playlists**        | Create, manage, and organize song playlists             | ✅ Complete |
-| **playlist-draft**   | Quick-add-to-playlist functionality (cart)              | ✅ Complete |
-| **lyrics-editor**    | Display and format song lyrics                          | ✅ Complete |
-| **playlist-sharing** | Share playlists via share codes                         | ✅ Complete |
-| **settings**         | Theme, language, user preferences                       | ✅ Complete |
-| **song-draft**       | Create and edit new songs                               | ✅ Complete |
+| Feature              | Purpose                                                          | Status      |
+| -------------------- | ---------------------------------------------------------------- | ----------- |
+| **activity**         | User activity tracking across the app                            | ✅ Complete |
+| **app-context**      | Global context for team/bucket switching and view filters        | ✅ Complete |
+| **auth**             | Google OAuth authentication via Supabase Auth                    | ✅ Complete |
+| **chords**           | Chord glossary, search, and guitar chord analyzer                | ✅ Complete |
+| **dashboard**        | Overview stats (songs, playlists, teams) and recent songs        | ✅ Complete |
+| **feedback**         | In-app feedback submission form                                  | ✅ Complete |
+| **lyrics-editor**    | CodeMirror ChordPro editor with live preview and auto-scroll     | ✅ Complete |
+| **playlist-draft**   | Quick-add-to-playlist cart for building setlists on the fly      | ✅ Complete |
+| **playlist-sharing** | Share playlists publicly via unique share codes                  | ✅ Complete |
+| **playlists**        | Create, manage, reorder, and share playlists                     | ✅ Complete |
+| **settings**         | Theme (light/dark), language, and chord hand preferences         | ✅ Complete |
+| **song-draft**       | Create and edit songs in ChordPro format                         | ✅ Complete |
+| **songs**            | Song library management with search, filtering, and editing      | ✅ Complete |
+| **teams**            | Team creation, member management, and email invitations          | ✅ Complete |
 
 ---
 
@@ -272,10 +287,10 @@ export function SongDetail({ song }: { song: Song }) {
 
 ```typescript
 // ❌ WRONG - Internal path
-import { usePlaylistDraft } from "@/features/playlist-draft/contexts/playlist-draft.context"
+import { usePlaylistDraft } from "@/features/playlist-draft/contexts/draft.context"
 
-// ❌ WRONG - Direct component import
-import { SongDetail } from "@/features/songs"
+// ❌ WRONG - Direct component import bypassing public API
+import { SongDetail } from "@/features/songs/components/song-detail"
 ```
 
 ### Managing Dependencies
@@ -469,7 +484,7 @@ git push origin debug/fba-issues
 
 ```typescript
 // ❌ WRONG
-import { SongsClient } from "@/features/songs"
+import { SongsClient } from "@/features/songs/components/songs-client"
 
 // ✅ CORRECT
 import { SongsClient } from "@/features/songs"
@@ -641,6 +656,6 @@ For questions or issues with FBA:
 
 ---
 
-**Last Updated:** December 8, 2025  
-**Maintained By:** Development Team  
+**Last Updated:** March 22, 2026
+**Maintained By:** Development Team
 **Status:** ✅ Production Ready
