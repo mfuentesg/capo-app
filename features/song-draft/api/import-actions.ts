@@ -16,8 +16,17 @@ export async function importSongFromUrl(url: string): Promise<DraftSong> {
   const platform = detectPlatform(parsedUrl)
 
   switch (platform) {
-    case "cifraclub":
+    case "cifraclub": {
+      // Reject search/listing pages — song pages have at least two path segments
+      // e.g. /artist-name/song-name/. Search pages use ?q= with no deep path.
+      const segments = parsedUrl.pathname.split("/").filter(Boolean)
+      if (segments.length < 2) {
+        throw new Error(
+          "Please paste the URL of a specific song page, not a search results page."
+        )
+      }
       return importFromCifraClub(parsedUrl)
+    }
     case "ultimate-guitar":
       return importFromUltimateGuitar(parsedUrl)
     default:
