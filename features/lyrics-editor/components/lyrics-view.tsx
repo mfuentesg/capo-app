@@ -18,7 +18,8 @@ import {
   Pencil,
   Save,
   Columns2,
-  ExternalLink
+  ExternalLink,
+  Link
 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import type { Song } from "@/types"
@@ -35,6 +36,26 @@ import { AutoScrollControls } from "./auto-scroll-controls"
 import { SaveStatus } from "@/components/ui/save-status"
 import { createOverlayIds } from "@/lib/ui/stable-overlay-ids"
 import { cn } from "@/lib/utils"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle
+} from "@/components/ui/alert-dialog"
+import dynamic from "next/dynamic"
+import type { DraftSong } from "@/features/song-draft"
+
+const loadImportUrlDialog = () => import("@/features/song-draft").then((m) => m.ImportUrlDialog)
+
+const LazyImportUrlDialog = dynamic(loadImportUrlDialog, { ssr: false })
+
+export function preloadImportUrlDialog() {
+  void loadImportUrlDialog()
+}
 
 const MIN_SCROLL_SPEED = 10
 const MAX_SCROLL_SPEED = 300
@@ -79,6 +100,8 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
   const [isPreviewing, setIsPreviewing] = useState(false)
   const [isReferenceOpen, setIsReferenceOpen] = useState(false)
   const [hasInitializedEditor, setHasInitializedEditor] = useState(false)
+  const [isImportDialogOpen, setIsImportDialogOpen] = useState(false)
+  const [pendingImportLyrics, setPendingImportLyrics] = useState<string | null>(null)
   const [editedLyrics, setEditedLyrics] = useState(song.lyrics || "")
   const [savedLyrics, setSavedLyrics] = useState(song.lyrics || "")
   const [lyricsColumns, setLyricsColumnsState] = useState<1 | 2>(initialLyricsColumns)
@@ -128,6 +151,7 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
 
   useEffect(() => {
     preloadSongEditor()
+    preloadImportUrlDialog()
   }, [])
 
   const { font, transpose, capo, hasModifications } = useLyricsSettings({
@@ -162,6 +186,35 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
   const handleLyricsChange = (value: string) => {
     if (!canEdit) return
     setEditedLyrics(value)
+  }
+
+  const handleImported = (song: DraftSong) => {
+    const importedLyrics = song.lyrics ?? ""
+    if (editedLyrics.trim()) {
+      // Lyrics already exist — ask for confirmation before replacing
+      setPendingImportLyrics(importedLyrics)
+    } else {
+      setEditedLyrics(importedLyrics)
+    }
+  }
+
+  const handleConfirmReplace = () => {
+    if (pendingImportLyrics !== null) {
+      setEditedLyrics(pendingImportLyrics)
+      setPendingImportLyrics(null)
+    }
+  }
+
+  const handleCancelReplace = () => {
+    setPendingImportLyrics(null)
+  }
+
+  const handleOpenImport = () => {
+    if (!isEditing) {
+      // Enter edit mode first so imported lyrics land in the editor
+      handleEdit()
+    }
+    setIsImportDialogOpen(true)
   }
 
   const togglePreview = () => {
@@ -437,6 +490,16 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8"
+                    onClick={handleOpenImport}
+                    aria-label={t.editor.importFromUrl}
+                    title={t.editor.importFromUrl}
+                  >
+                    <Link className="h-3.5 w-3.5" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
                     onClick={() => setIsReferenceOpen(true)}
                     aria-label={t.songs.lyrics.chordproReference}
                   >
@@ -446,15 +509,28 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
               ) : (
                 <>
                   {canEdit && (
-                    <Button
-                      variant="ghost"
-                      className="h-8 gap-1.5 px-2"
-                      onClick={handleEdit}
-                      aria-label={t.songs.editLyrics}
-                    >
-                      <Pencil className="h-3.5 w-3.5" />
-                      <span className="hidden sm:inline text-xs">{t.common.edit}</span>
-                    </Button>
+                    <>
+                      <Button
+                        variant="ghost"
+                        className="h-8 gap-1.5 px-2"
+                        onClick={handleEdit}
+                        aria-label={t.songs.editLyrics}
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                        <span className="hidden sm:inline text-xs">{t.common.edit}</span>
+                      </Button>
+                      {!savedLyrics && (
+                        <Button
+                          variant="ghost"
+                          className="h-8 gap-1.5 px-2"
+                          onClick={handleOpenImport}
+                          aria-label={t.editor.importFromUrl}
+                        >
+                          <Link className="h-3.5 w-3.5" />
+                          <span className="hidden sm:inline text-xs">{t.editor.importFromUrl}</span>
+                        </Button>
+                      )}
+                    </>
                   )}
                   {isPanel && (
                     <Button
@@ -580,6 +656,34 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
         </div>
       )}
       <LazyChordProReference open={isReferenceOpen} onOpenChange={setIsReferenceOpen} />
+
+      <LazyImportUrlDialog
+        open={isImportDialogOpen}
+        onClose={() => setIsImportDialogOpen(false)}
+        onImported={handleImported}
+      />
+
+      <AlertDialog
+        open={pendingImportLyrics !== null}
+        onOpenChange={(open) => !open && handleCancelReplace()}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t.editor.importReplaceLyrics}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t.editor.importReplaceLyricsDescription}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={handleCancelReplace}>
+              {t.editor.importKeep}
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmReplace}>
+              {t.editor.importReplace}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 })

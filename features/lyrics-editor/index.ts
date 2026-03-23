@@ -10,3 +10,6 @@ export { useLyricsSettings } from "./hooks"
 
 export type { LyricsEditorState } from "./types"
 export type { ChordProDirective } from "./data/chordpro-directives"
+
+export { convertToChordPro } from "./utils/chordpro-converter"
+export type { DetectedFormat, ConversionResult } from "./utils/chordpro-converter"

@@ -4,5 +4,6 @@ export interface DraftSong {
   artist: string
   key: string
   bpm: number
+  lyrics?: string
   isDraft: true
 }
