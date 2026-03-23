@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
@@ -21,7 +21,7 @@ import type { Song } from "@/types"
 import type { AppContext } from "@/features/app-context"
 import { BucketSelector, useAppContext } from "@/features/app-context"
 import { useTranslation } from "@/hooks/use-translation"
-import { importSongFromUrl } from "../api/actions"
+import { useUrlImport } from "../hooks"
 
 type SongFormValues = {
   title: string
@@ -53,9 +53,6 @@ export function SongDraftForm({
   const { teams, context } = useAppContext()
   const userId = context?.userId ?? ""
 
-  const [importUrl, setImportUrl] = useState("")
-  const [importState, setImportState] = useState<"idle" | "loading" | "done" | "error">("idle")
-  const [importError, setImportError] = useState("")
   const importedLyricsRef = useRef<string | undefined>(undefined)
 
   const songFormSchema = z.object({
@@ -89,6 +86,22 @@ export function SongDraftForm({
     formState: { isValid, isSubmitting }
   } = form
 
+  const handleImportSuccess = useCallback(
+    (imported: { title: string; artist: string; key?: string; bpm?: number; lyrics: string }) => {
+      form.setValue("title", imported.title, { shouldValidate: true })
+      form.setValue("artist", imported.artist, { shouldValidate: true })
+      if (imported.key) form.setValue("key", imported.key, { shouldValidate: true })
+      if (imported.bpm) form.setValue("bpm", imported.bpm, { shouldValidate: true })
+      importedLyricsRef.current = imported.lyrics
+    },
+    [form]
+  )
+
+  const { importUrl, setImportUrl, importState, importError, handleImport } = useUrlImport({
+    messages: { unsupportedPlatform: t.songImport.unsupportedPlatform, fetchFailed: t.songImport.fetchFailed },
+    onSuccess: handleImportSuccess
+  })
+
   // Notify parent of field changes for live preview
   useEffect(() => {
     const subscription = form.watch((value) => {
@@ -104,29 +117,6 @@ export function SongDraftForm({
     return () => subscription.unsubscribe()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onChange])
-
-  const handleImport = useCallback(async () => {
-    const url = importUrl.trim()
-    if (!url) return
-    setImportState("loading")
-    setImportError("")
-    importedLyricsRef.current = undefined
-    try {
-      const imported = await importSongFromUrl(url)
-      form.setValue("title", imported.title, { shouldValidate: true })
-      form.setValue("artist", imported.artist, { shouldValidate: true })
-      if (imported.key) form.setValue("key", imported.key, { shouldValidate: true })
-      if (imported.bpm) form.setValue("bpm", imported.bpm, { shouldValidate: true })
-      importedLyricsRef.current = imported.lyrics
-      setImportState("done")
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : ""
-      setImportError(
-        msg === "unsupportedPlatform" ? t.songImport.unsupportedPlatform : t.songImport.fetchFailed
-      )
-      setImportState("error")
-    }
-  }, [importUrl, form, t])
 
   const buildSong = useCallback(
     (values: SongFormValues): Song => ({
@@ -181,10 +171,7 @@ export function SongDraftForm({
                     value={importUrl}
                     onChange={(e) => {
                       setImportUrl(e.target.value)
-                      if (importState !== "idle") {
-                        setImportState("idle")
-                        importedLyricsRef.current = undefined
-                      }
+                      importedLyricsRef.current = undefined
                     }}
                     onKeyDown={(e) => {
                       if (e.key === "Enter") {

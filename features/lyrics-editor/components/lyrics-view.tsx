@@ -18,7 +18,10 @@ import {
   Pencil,
   Save,
   Columns2,
-  ExternalLink
+  ExternalLink,
+  Sparkles,
+  Loader2,
+  CheckCircle2
 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import type { Song } from "@/types"
@@ -31,6 +34,8 @@ import { LazySongEditor, preloadSongEditor } from "./song-editor"
 import { useTranslation } from "@/hooks/use-translation"
 import { useAutoSave } from "@/hooks/use-auto-save"
 import { useAutoScroll } from "@/hooks/use-auto-scroll"
+import { useUrlImport } from "@/features/song-draft"
+import { Input } from "@/components/ui/input"
 import { AutoScrollControls } from "./auto-scroll-controls"
 import { SaveStatus } from "@/components/ui/save-status"
 import { createOverlayIds } from "@/lib/ui/stable-overlay-ids"
@@ -123,8 +128,22 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
   useImperativeHandle(ref, () => ({ requestClose: handleClose }), [handleClose])
 
   const settingsPopoverIds = createOverlayIds(`lyrics-settings-${song.id}`)
+  const importPopoverIds = createOverlayIds(`lyrics-import-${song.id}`)
   const isPanel = mode === "panel"
   const canEdit = !readOnly
+
+  const [isImportOpen, setIsImportOpen] = useState(false)
+
+  const handleImportSuccess = useCallback(
+    (imported: { lyrics: string }) => setEditedLyrics(imported.lyrics),
+    []
+  )
+
+  const { importUrl, setImportUrl, importState, importError, handleImport, reset: resetImport } =
+    useUrlImport({
+      messages: { unsupportedPlatform: t.songImport.unsupportedPlatform, fetchFailed: t.songImport.fetchFailed },
+      onSuccess: handleImportSuccess
+    })
 
   useEffect(() => {
     preloadSongEditor()
@@ -442,6 +461,78 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
                   >
                     <BookOpen className="h-3.5 w-3.5" />
                   </Button>
+                  <Popover
+                    open={isImportOpen}
+                    onOpenChange={(open) => {
+                      setIsImportOpen(open)
+                      if (!open) resetImport()
+                    }}
+                  >
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant={isImportOpen ? "secondary" : "ghost"}
+                        size="icon"
+                        className="h-8 w-8"
+                        id={importPopoverIds.triggerId}
+                        aria-controls={importPopoverIds.contentId}
+                        aria-label={t.songImport.label}
+                      >
+                        <Sparkles className="h-3.5 w-3.5" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent
+                      side="bottom"
+                      align="end"
+                      className="w-80 space-y-3"
+                      id={importPopoverIds.contentId}
+                      aria-labelledby={importPopoverIds.triggerId}
+                    >
+                      <div className="flex items-center gap-1.5 text-sm font-medium text-primary">
+                        <Sparkles className="h-4 w-4" />
+                        <span>{t.songImport.label}</span>
+                      </div>
+                      <div className="flex gap-2">
+                        <Input
+                          value={importUrl}
+                          onChange={(e) => setImportUrl(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              e.preventDefault()
+                              handleImport()
+                            }
+                          }}
+                          placeholder={t.songImport.urlPlaceholder}
+                          className="h-8 text-sm"
+                          disabled={importState === "loading"}
+                          autoFocus
+                        />
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          onClick={handleImport}
+                          disabled={!importUrl.trim() || importState === "loading"}
+                          className="shrink-0 px-2 border-primary/30 hover:bg-primary/10 hover:text-primary hover:border-primary/50"
+                          aria-label={t.songImport.fetch}
+                        >
+                          {importState === "loading" ? (
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          ) : (
+                            <Sparkles className="h-3.5 w-3.5" />
+                          )}
+                        </Button>
+                      </div>
+                      {importState === "done" && (
+                        <p className="flex items-center gap-1.5 text-xs text-green-600 dark:text-green-400">
+                          <CheckCircle2 className="h-3.5 w-3.5" />
+                          {t.songImport.lyricsImported}
+                        </p>
+                      )}
+                      {importState === "error" && (
+                        <p className="text-xs text-destructive">{importError}</p>
+                      )}
+                    </PopoverContent>
+                  </Popover>
                 </>
               ) : (
                 <>
