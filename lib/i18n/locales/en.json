@@ -678,5 +678,13 @@
     "title": "Chord Assistant",
     "subtitle": "Fetch chord sheets from CifraClub, LaCuerda, or Ultimate Guitar",
     "placeholder": "Paste a song URL or ask for chords…"
+  },
+  "songImport": {
+    "urlPlaceholder": "Paste a CifraClub, LaCuerda, or Ultimate Guitar URL…",
+    "fetch": "Fetch",
+    "fetching": "Fetching…",
+    "lyricsImported": "Lyrics imported",
+    "unsupportedPlatform": "Unsupported URL. Try CifraClub, LaCuerda, or Ultimate Guitar.",
+    "fetchFailed": "Failed to fetch song details. Please try again."
   }
 }

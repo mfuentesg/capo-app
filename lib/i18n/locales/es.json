@@ -678,5 +678,13 @@
     "title": "Asistente de Acordes",
     "subtitle": "Busca tablaturas en CifraClub, LaCuerda o Ultimate Guitar",
     "placeholder": "Pega un enlace de canción o pide los acordes…"
+  },
+  "songImport": {
+    "urlPlaceholder": "Pega un enlace de CifraClub, LaCuerda o Ultimate Guitar…",
+    "fetch": "Obtener",
+    "fetching": "Obteniendo…",
+    "lyricsImported": "Letra importada",
+    "unsupportedPlatform": "URL no compatible. Prueba con CifraClub, LaCuerda o Ultimate Guitar.",
+    "fetchFailed": "No se pudo obtener los detalles de la canción. Por favor, inténtalo de nuevo."
   }
 }
