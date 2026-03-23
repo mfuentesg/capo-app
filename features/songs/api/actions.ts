@@ -1,6 +1,5 @@
 "use server"
 
-import { revalidatePath } from "next/cache"
 import { createClient } from "@/lib/supabase/server"
 import type { Song, UserSongSettings, UserPreferences } from "../types"
 import type { UserProfileData } from "./user-preferences-api"
@@ -56,7 +55,6 @@ export async function createSongAction(
   const result = context
     ? await createSongApi(supabase, song, userId, context)
     : await createSongApi(supabase, song, userId)
-  revalidatePath("/dashboard/songs")
   return result
 }
 
@@ -68,7 +66,6 @@ export async function updateSongAction(songId: string, updates: Partial<Song>): 
 export async function deleteSongAction(songId: string): Promise<void> {
   const supabase = await createClient()
   await deleteSongApi(supabase, songId)
-  revalidatePath("/dashboard/songs")
 }
 
 export async function transferSongToTeamAction(songId: string, teamId: string): Promise<void> {
@@ -78,7 +75,6 @@ export async function transferSongToTeamAction(songId: string, teamId: string): 
   } = await supabase.auth.getUser()
   if (!user) throw new Error("Unauthorized")
   await transferSongToTeamApi(supabase, songId, teamId)
-  revalidatePath("/dashboard/songs")
 }
 
 export async function getUserSongSettingsAction(

@@ -33,7 +33,7 @@ type SongFormValues = {
 interface SongDraftFormProps {
   song?: Song
   onClose: () => void
-  onSave: (song: Song) => void
+  onSave: (song: Song) => void | Promise<void>
   onChange?: (updates: Partial<Song>) => void
   autoFocus?: boolean
   selectedBucket?: AppContext | null
@@ -86,7 +86,7 @@ export function SongDraftForm({
   })
 
   const {
-    formState: { isValid }
+    formState: { isValid, isSubmitting }
   } = form
 
   // Notify parent of field changes for live preview
@@ -141,11 +141,10 @@ export function SongDraftForm({
   )
 
   const onSubmit = useCallback(
-    (values: SongFormValues) => {
-      onSave(buildSong(values))
-      form.reset()
+    async (values: SongFormValues) => {
+      await onSave(buildSong(values))
     },
-    [onSave, buildSong, form]
+    [onSave, buildSong]
   )
 
   return (
@@ -291,8 +290,11 @@ export function SongDraftForm({
                         <Input
                           type="number"
                           placeholder="120"
-                          value={field.value}
-                          onChange={(e) => field.onChange(Number(e.target.value) || 0)}
+                          value={field.value || ""}
+                          onChange={(e) => {
+                            const num = parseInt(e.target.value, 10)
+                            field.onChange(isNaN(num) ? 0 : num)
+                          }}
                           onBlur={field.onBlur}
                           name={field.name}
                           ref={field.ref}
@@ -329,8 +331,8 @@ export function SongDraftForm({
             <Button type="button" variant="outline" onClick={onClose}>
               {t.common.cancel}
             </Button>
-            <Button type="submit" disabled={!isValid}>
-              {t.common.submit}
+            <Button type="submit" disabled={!isValid || isSubmitting}>
+              {isSubmitting ? t.common.saving : t.common.submit}
             </Button>
           </div>
         </form>
