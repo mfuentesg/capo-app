@@ -674,12 +674,8 @@
     "title": "You are offline",
     "description": "This page is not available offline. Check your connection and try again."
   },
-  "chordAssistant": {
-    "title": "Chord Assistant",
-    "subtitle": "Fetch chord sheets from CifraClub, LaCuerda, or Ultimate Guitar",
-    "placeholder": "Paste a song URL or ask for chords…"
-  },
   "songImport": {
+    "label": "Import from URL",
     "urlPlaceholder": "Paste a CifraClub, LaCuerda, or Ultimate Guitar URL…",
     "fetch": "Fetch",
     "fetching": "Fetching…",

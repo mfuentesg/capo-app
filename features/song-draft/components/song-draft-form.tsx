@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { KeySelect } from "@/features/songs"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { X, Info, Download, CheckCircle2, Loader2 } from "lucide-react"
+import { X, Info, CheckCircle2, Loader2, Sparkles } from "lucide-react"
 import {
   Form,
   FormControl,
@@ -110,6 +110,7 @@ export function SongDraftForm({
     if (!url) return
     setImportState("loading")
     setImportError("")
+    importedLyricsRef.current = undefined
     try {
       const imported = await importSongFromUrl(url)
       form.setValue("title", imported.title, { shouldValidate: true })
@@ -120,11 +121,9 @@ export function SongDraftForm({
       setImportState("done")
     } catch (err) {
       const msg = err instanceof Error ? err.message : ""
-      if (msg === "unsupportedPlatform") {
-        setImportError(t.songImport.unsupportedPlatform)
-      } else {
-        setImportError(t.songImport.fetchFailed)
-      }
+      setImportError(
+        msg === "unsupportedPlatform" ? t.songImport.unsupportedPlatform : t.songImport.fetchFailed
+      )
       setImportState("error")
     }
   }, [importUrl, form, t])
@@ -173,17 +172,29 @@ export function SongDraftForm({
           <div className="flex-1 overflow-y-auto p-4 md:p-6">
             <div className="space-y-6">
               {/* URL Import */}
-              <div className="space-y-2">
+              <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 space-y-3">
+                <div className="flex items-center gap-1.5 text-sm font-medium text-primary">
+                  <Sparkles className="h-4 w-4" />
+                  <span>{t.songImport.label}</span>
+                </div>
                 <div className="flex gap-2">
                   <Input
                     value={importUrl}
                     onChange={(e) => {
                       setImportUrl(e.target.value)
-                      if (importState !== "idle") setImportState("idle")
+                      if (importState !== "idle") {
+                        setImportState("idle")
+                        importedLyricsRef.current = undefined
+                      }
                     }}
-                    onKeyDown={(e) => e.key === "Enter" && handleImport()}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault()
+                        handleImport()
+                      }
+                    }}
                     placeholder={t.songImport.urlPlaceholder}
-                    className="shadow-none"
+                    className="shadow-none bg-background"
                     disabled={importState === "loading"}
                   />
                   <Button
@@ -191,12 +202,12 @@ export function SongDraftForm({
                     variant="outline"
                     onClick={handleImport}
                     disabled={!importUrl.trim() || importState === "loading"}
-                    className="shrink-0"
+                    className="shrink-0 border-primary/30 hover:bg-primary/10 hover:text-primary hover:border-primary/50"
                   >
                     {importState === "loading" ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
-                      <Download className="h-4 w-4" />
+                      <Sparkles className="h-4 w-4" />
                     )}
                     <span className="ml-2">
                       {importState === "loading" ? t.songImport.fetching : t.songImport.fetch}
