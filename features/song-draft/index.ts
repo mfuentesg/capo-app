@@ -1,5 +1,5 @@
 export { SongDraftForm } from "./components"
 export type { DraftSong } from "./types"
-export { importSongFromUrl } from "./api/actions"
+export { importSongFromUrl, searchSongChords } from "./api/actions"
 export { useUrlImport } from "./hooks"
 export type { ImportState } from "./hooks"
