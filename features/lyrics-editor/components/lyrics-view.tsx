@@ -131,13 +131,19 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
   const canEdit = !readOnly
 
   const [isSearching, setIsSearching] = useState(false)
+  const [lyricsEditorKey, setLyricsEditorKey] = useState(0)
 
   const handleFetchChords = useCallback(async () => {
     if (!song.title || !song.artist) return
     setIsSearching(true)
     try {
       const imported = await searchSongChords(song.title, song.artist)
+      if (!imported.lyrics) {
+        toast.error(t.songImport.notFound)
+        return
+      }
       setEditedLyrics(imported.lyrics)
+      setLyricsEditorKey((k) => k + 1)
       toast.success(t.songImport.lyricsImported)
     } catch (err) {
       const msg = err instanceof Error ? err.message : ""
@@ -560,7 +566,7 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
                   isEditing && !isPreviewing ? "block" : "hidden"
                 )}
               >
-                <LazySongEditor content={editedLyrics} onChange={handleLyricsChange} />
+                <LazySongEditor key={lyricsEditorKey} content={editedLyrics} onChange={handleLyricsChange} />
               </div>
             )}
           </div>
