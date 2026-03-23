@@ -27,7 +27,7 @@ import {
   Turtle,
   Rabbit,
   Zap,
-  Link
+  Sparkles
 } from "lucide-react"
 import { SongList } from "@/features/songs"
 import { useSongs, useCreateSong, useUpdateSong, useDeleteSong } from "../hooks/use-songs"
@@ -321,7 +321,7 @@ export function SongsClient({ initialSongs = [], t }: SongsClientProps) {
                   disabled={isCreatingNewSong}
                   title={t.editor.importFromUrl}
                 >
-                  <Link className="h-4 w-4" />
+                  <Sparkles className="h-4 w-4" />
                   <span className="hidden sm:inline">{t.editor.importFromUrl}</span>
                 </Button>
                 <Button

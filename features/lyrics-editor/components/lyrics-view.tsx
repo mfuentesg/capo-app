@@ -19,7 +19,7 @@ import {
   Save,
   Columns2,
   ExternalLink,
-  Link
+  Sparkles
 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import type { Song } from "@/types"
@@ -494,7 +494,7 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
                     aria-label={t.editor.importFromUrl}
                     title={t.editor.importFromUrl}
                   >
-                    <Link className="h-3.5 w-3.5" />
+                    <Sparkles className="h-3.5 w-3.5" />
                   </Button>
                   <Button
                     variant="ghost"
@@ -526,7 +526,7 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
                           onClick={handleOpenImport}
                           aria-label={t.editor.importFromUrl}
                         >
-                          <Link className="h-3.5 w-3.5" />
+                          <Sparkles className="h-3.5 w-3.5" />
                           <span className="hidden sm:inline text-xs">{t.editor.importFromUrl}</span>
                         </Button>
                       )}
