@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -59,9 +59,14 @@ export function ImportUrlDialog({ open, onClose, onImported }: ImportUrlDialogPr
     }
   }
 
-  const lyricsPreview = parsed?.lyrics
-    ? parsed.lyrics.split("\n").slice(0, 6).join("\n")
-    : ""
+  const { lyricsPreview, lyricsTruncated } = useMemo(() => {
+    if (!parsed?.lyrics) return { lyricsPreview: "", lyricsTruncated: false }
+    const lines = parsed.lyrics.split("\n")
+    return {
+      lyricsPreview: lines.slice(0, 6).join("\n"),
+      lyricsTruncated: lines.length > 6
+    }
+  }, [parsed?.lyrics])
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && handleClose()}>
@@ -117,7 +122,7 @@ export function ImportUrlDialog({ open, onClose, onImported }: ImportUrlDialogPr
                 </p>
                 <pre className="rounded-md border bg-muted/40 p-3 text-xs font-mono overflow-x-auto whitespace-pre-wrap max-h-36">
                   {lyricsPreview}
-                  {parsed.lyrics && parsed.lyrics.split("\n").length > 6 && "\n…"}
+                  {lyricsTruncated && "\n…"}
                 </pre>
               </div>
             )}

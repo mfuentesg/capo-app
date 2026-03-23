@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo } from "react"
+import { useCallback, useMemo } from "react"
 import CodeMirror from "@uiw/react-codemirror"
 import { EditorView } from "@codemirror/view"
 import { useTheme } from "next-themes"
@@ -29,16 +29,20 @@ export default function SongEditorImpl({ content, onChange }: Props) {
   const { resolvedTheme } = useTheme()
   const { t } = useTranslation()
 
+  // Stable callback — only changes when locale changes (essentially never in a session).
+  const handleConversion = useCallback(() => {
+    toast.success(t.editor.pasteConverted)
+  }, [t.editor.pasteConverted])
+
+  // Extensions only rebuild when handleConversion identity changes (i.e. on locale change).
   const extensions = useMemo(
     () => [
       ...chordProExtensions(),
       EditorView.lineWrapping,
       editorStyle,
-      pasteConvertExtension({
-        onConversion: () => toast.success(t.editor.pasteConverted)
-      })
+      pasteConvertExtension({ onConversion: handleConversion })
     ],
-    [t.editor.pasteConverted]
+    [handleConversion]
   )
 
   return (

@@ -5,9 +5,15 @@ export interface ConversionResult {
   output: string
 }
 
+// Module-level constants — compiled once, reused on every paste/import.
+const CHORDPRO_BRACKET_RE = /\[[A-G][^\]]*\]/
+const WHITESPACE_SPLIT_RE = /\s+/
+const CHORD_TOKEN_RE = /^[A-G][b#]?(m|maj|min|aug|dim|sus|add|M)?[0-9]*(\/[A-G][b#]?)?$/
+const NON_WHITESPACE_RE = /\S+/g
+
 /** Detect the most likely format of the input text */
 export function detectFormat(text: string): DetectedFormat {
-  if (/\[[A-G][^\]]*\]/.test(text)) return "chordpro"
+  if (CHORDPRO_BRACKET_RE.test(text)) return "chordpro"
   const lines = text.split("\n")
   const chordLineCount = lines.filter((l) => isChordLine(l)).length
   if (chordLineCount > 0 && chordLineCount >= lines.length * 0.3) {
@@ -18,10 +24,9 @@ export function detectFormat(text: string): DetectedFormat {
 
 /** True if a line consists mostly of chord tokens (e.g. "G  Am  F  C") */
 function isChordLine(line: string): boolean {
-  const tokens = line.trim().split(/\s+/).filter(Boolean)
+  const tokens = line.trim().split(WHITESPACE_SPLIT_RE).filter(Boolean)
   if (tokens.length === 0) return false
-  const chordPattern = /^[A-G][b#]?(m|maj|min|aug|dim|sus|add|M)?[0-9]*(\/[A-G][b#]?)?$/
-  const chordCount = tokens.filter((t) => chordPattern.test(t)).length
+  const chordCount = tokens.filter((t) => CHORD_TOKEN_RE.test(t)).length
   return chordCount / tokens.length >= 0.7
 }
 
@@ -52,11 +57,9 @@ export function convertChordAboveLyrics(text: string): string {
 
 function mergeChordAndLyricLines(chordLine: string, lyricLine: string): string {
   const chords: Array<{ pos: number; chord: string }> = []
-  const regex = /(\S+)/g
-  let match: RegExpExecArray | null
-
-  while ((match = regex.exec(chordLine)) !== null) {
-    chords.push({ pos: match.index, chord: match[1] })
+  // matchAll creates a fresh iterator without mutating the shared regex's lastIndex
+  for (const match of chordLine.matchAll(NON_WHITESPACE_RE)) {
+    chords.push({ pos: match.index, chord: match[0] })
   }
 
   let result = lyricLine

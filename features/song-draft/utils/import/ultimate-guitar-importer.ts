@@ -1,6 +1,13 @@
 import { convertToChordPro } from "@/features/lyrics-editor/utils/chordpro-converter"
 import type { DraftSong } from "../../types"
 
+const FETCH_TIMEOUT_MS = 15_000
+
+// Static regexes — compiled once at module load.
+const UG_STATE_RE = /window\.UGAPP_STATE\s*=\s*(\{[\s\S]*?\});\s*<\/script>/
+const UG_TAB_WRAPPER_RE = /\[tab\]|\[\/tab\]/gi
+const UG_CHORD_TAG_RE = /\[ch\](.*?)\[\/ch\]/gi
+
 interface UgTab {
   song_name?: string
   artist_name?: string
@@ -23,15 +30,23 @@ interface UgAppState {
 }
 
 export async function importFromUltimateGuitar(url: URL): Promise<DraftSong> {
-  const res = await fetch(url.href, {
-    headers: { "User-Agent": "Mozilla/5.0 (compatible; Capo App)" }
-  })
-  if (!res.ok) throw new Error(`Failed to fetch: ${res.status}`)
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS)
 
-  const html = await res.text()
+  let html: string
+  try {
+    const res = await fetch(url.href, {
+      headers: { "User-Agent": "Mozilla/5.0 (compatible; Capo App)" },
+      signal: controller.signal
+    })
+    if (!res.ok) throw new Error(`Failed to fetch: ${res.status}`)
+    html = await res.text()
+  } finally {
+    clearTimeout(timeout)
+  }
 
   // Ultimate Guitar embeds all data in window.UGAPP_STATE
-  const stateMatch = html.match(/window\.UGAPP_STATE\s*=\s*(\{[\s\S]*?\});\s*<\/script>/)
+  const stateMatch = UG_STATE_RE.exec(html)
   if (!stateMatch) throw new Error("Could not parse Ultimate Guitar page data")
 
   let appState: UgAppState
@@ -52,9 +67,11 @@ export async function importFromUltimateGuitar(url: URL): Promise<DraftSong> {
 
   // UG uses [tab]...[/tab] and [ch]chord[/ch] markers — strip UG-specific tags
   const rawLyrics = rawContent
-    .replace(/\[tab\]|\[\/tab\]/gi, "")
-    .replace(/\[ch\](.*?)\[\/ch\]/gi, "$1")
+    .replace(UG_TAB_WRAPPER_RE, "")
+    .replace(UG_CHORD_TAG_RE, "$1")
     .trim()
+
+  if (!rawLyrics) throw new Error("No chord content found on this Ultimate Guitar page")
 
   const { output: lyrics } = convertToChordPro(rawLyrics)
 

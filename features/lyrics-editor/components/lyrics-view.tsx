@@ -49,10 +49,13 @@ import {
 import dynamic from "next/dynamic"
 import type { DraftSong } from "@/features/song-draft"
 
-const LazyImportUrlDialog = dynamic(
-  () => import("@/features/song-draft").then((m) => m.ImportUrlDialog),
-  { ssr: false }
-)
+const loadImportUrlDialog = () => import("@/features/song-draft").then((m) => m.ImportUrlDialog)
+
+const LazyImportUrlDialog = dynamic(loadImportUrlDialog, { ssr: false })
+
+export function preloadImportUrlDialog() {
+  void loadImportUrlDialog()
+}
 
 const MIN_SCROLL_SPEED = 10
 const MAX_SCROLL_SPEED = 300
@@ -148,6 +151,7 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
 
   useEffect(() => {
     preloadSongEditor()
+    preloadImportUrlDialog()
   }, [])
 
   const { font, transpose, capo, hasModifications } = useLyricsSettings({
