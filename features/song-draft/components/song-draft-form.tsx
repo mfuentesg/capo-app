@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect } from "react"
+import { useCallback, useEffect, useRef } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { KeySelect } from "@/features/songs"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { X, Info } from "lucide-react"
+import { X, Info, CheckCircle2, Loader2, Sparkles } from "lucide-react"
 import {
   Form,
   FormControl,
@@ -21,6 +21,7 @@ import type { Song } from "@/types"
 import type { AppContext } from "@/features/app-context"
 import { BucketSelector, useAppContext } from "@/features/app-context"
 import { useTranslation } from "@/hooks/use-translation"
+import { useUrlImport } from "../hooks"
 
 type SongFormValues = {
   title: string
@@ -51,6 +52,8 @@ export function SongDraftForm({
   const { t } = useTranslation()
   const { teams, context } = useAppContext()
   const userId = context?.userId ?? ""
+
+  const importedLyricsRef = useRef<string | undefined>(undefined)
 
   const songFormSchema = z.object({
     title: z
@@ -83,6 +86,22 @@ export function SongDraftForm({
     formState: { isValid, isSubmitting }
   } = form
 
+  const handleImportSuccess = useCallback(
+    (imported: { title: string; artist: string; key?: string; bpm?: number; lyrics: string }) => {
+      form.setValue("title", imported.title, { shouldValidate: true })
+      form.setValue("artist", imported.artist, { shouldValidate: true })
+      if (imported.key) form.setValue("key", imported.key, { shouldValidate: true })
+      if (imported.bpm) form.setValue("bpm", imported.bpm, { shouldValidate: true })
+      importedLyricsRef.current = imported.lyrics
+    },
+    [form]
+  )
+
+  const { importUrl, setImportUrl, importState, importError, handleImport } = useUrlImport({
+    messages: { unsupportedPlatform: t.songImport.unsupportedPlatform, fetchFailed: t.songImport.fetchFailed },
+    onSuccess: handleImportSuccess
+  })
+
   // Notify parent of field changes for live preview
   useEffect(() => {
     const subscription = form.watch((value) => {
@@ -105,7 +124,8 @@ export function SongDraftForm({
       title: values.title,
       artist: values.artist,
       key: values.key,
-      bpm: values.bpm
+      bpm: values.bpm,
+      lyrics: importedLyricsRef.current
     }),
     [song?.id]
   )
@@ -136,8 +156,61 @@ export function SongDraftForm({
         </div>
       </div>
 
+      {/* URL Import — outside the form element */}
+      <div className="px-4 md:px-6 pt-4 md:pt-6 shrink-0">
+        <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 space-y-3">
+          <div className="flex items-center gap-1.5 text-sm font-medium text-primary">
+            <Sparkles className="h-4 w-4" />
+            <span>{t.songImport.label}</span>
+          </div>
+          <div className="flex gap-2">
+            <Input
+              value={importUrl}
+              onChange={(e) => {
+                setImportUrl(e.target.value)
+                importedLyricsRef.current = undefined
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault()
+                  handleImport()
+                }
+              }}
+              placeholder={t.songImport.urlPlaceholder}
+              className="shadow-none bg-background"
+              disabled={importState === "loading"}
+            />
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleImport}
+              disabled={!importUrl.trim() || importState === "loading"}
+              className="shrink-0 border-primary/30 hover:bg-primary/10 hover:text-primary hover:border-primary/50"
+            >
+              {importState === "loading" ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Sparkles className="h-4 w-4" />
+              )}
+              <span className="ml-2">
+                {importState === "loading" ? t.songImport.fetching : t.songImport.fetch}
+              </span>
+            </Button>
+          </div>
+          {importState === "done" && (
+            <p className="flex items-center gap-1.5 text-xs text-green-600 dark:text-green-400">
+              <CheckCircle2 className="h-3.5 w-3.5" />
+              {t.songImport.lyricsImported}
+            </p>
+          )}
+          {importState === "error" && (
+            <p className="text-xs text-destructive">{importError}</p>
+          )}
+        </div>
+      </div>
+
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="flex-1 flex flex-col">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="flex-1 flex flex-col min-h-0">
           <div className="flex-1 overflow-y-auto p-4 md:p-6">
             <div className="space-y-6">
               <div className="grid grid-cols-2 gap-4">

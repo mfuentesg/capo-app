@@ -673,5 +673,17 @@
   "offline": {
     "title": "Estás sin conexión",
     "description": "Esta página no está disponible sin conexión. Verifica tu conexión e intenta de nuevo."
+  },
+  "songImport": {
+    "label": "Importar desde URL",
+    "urlPlaceholder": "Pega un enlace de CifraClub, LaCuerda o Ultimate Guitar…",
+    "fetch": "Obtener",
+    "fetching": "Obteniendo…",
+    "lyricsImported": "Letra importada",
+    "unsupportedPlatform": "URL no compatible. Prueba con CifraClub, LaCuerda o Ultimate Guitar.",
+    "fetchFailed": "No se pudo obtener los detalles de la canción. Por favor, inténtalo de nuevo.",
+    "searching": "Buscando…",
+    "notFound": "No se encontraron acordes para esta canción en CifraClub.",
+    "searchFailed": "No se pudo buscar acordes. Por favor, inténtalo de nuevo."
   }
 }

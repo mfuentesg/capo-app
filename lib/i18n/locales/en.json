@@ -673,5 +673,17 @@
   "offline": {
     "title": "You are offline",
     "description": "This page is not available offline. Check your connection and try again."
+  },
+  "songImport": {
+    "label": "Import from URL",
+    "urlPlaceholder": "Paste a CifraClub, LaCuerda, or Ultimate Guitar URL…",
+    "fetch": "Fetch",
+    "fetching": "Fetching…",
+    "lyricsImported": "Lyrics imported",
+    "unsupportedPlatform": "Unsupported URL. Try CifraClub, LaCuerda, or Ultimate Guitar.",
+    "fetchFailed": "Failed to fetch song details. Please try again.",
+    "searching": "Searching…",
+    "notFound": "No chords found for this song on CifraClub.",
+    "searchFailed": "Failed to search for chords. Please try again."
   }
 }

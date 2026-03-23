@@ -18,7 +18,9 @@ import {
   Pencil,
   Save,
   Columns2,
-  ExternalLink
+  ExternalLink,
+  Sparkles,
+  Loader2
 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import type { Song } from "@/types"
@@ -31,6 +33,8 @@ import { LazySongEditor, preloadSongEditor } from "./song-editor"
 import { useTranslation } from "@/hooks/use-translation"
 import { useAutoSave } from "@/hooks/use-auto-save"
 import { useAutoScroll } from "@/hooks/use-auto-scroll"
+import { searchSongChords } from "@/features/song-draft"
+import { toast } from "sonner"
 import { AutoScrollControls } from "./auto-scroll-controls"
 import { SaveStatus } from "@/components/ui/save-status"
 import { createOverlayIds } from "@/lib/ui/stable-overlay-ids"
@@ -125,6 +129,29 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
   const settingsPopoverIds = createOverlayIds(`lyrics-settings-${song.id}`)
   const isPanel = mode === "panel"
   const canEdit = !readOnly
+
+  const [isSearching, setIsSearching] = useState(false)
+  const [lyricsEditorKey, setLyricsEditorKey] = useState(0)
+
+  const handleFetchChords = useCallback(async () => {
+    if (!song.title || !song.artist) return
+    setIsSearching(true)
+    try {
+      const imported = await searchSongChords(song.title, song.artist)
+      if (!imported.lyrics) {
+        toast.error(t.songImport.notFound)
+        return
+      }
+      setEditedLyrics(imported.lyrics)
+      setLyricsEditorKey((k) => k + 1)
+      toast.success(t.songImport.lyricsImported)
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : ""
+      toast.error(msg === "notFound" ? t.songImport.notFound : t.songImport.searchFailed)
+    } finally {
+      setIsSearching(false)
+    }
+  }, [song.title, song.artist, t.songImport])
 
   useEffect(() => {
     preloadSongEditor()
@@ -442,6 +469,20 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
                   >
                     <BookOpen className="h-3.5 w-3.5" />
                   </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={handleFetchChords}
+                    disabled={isSearching || !song.title || !song.artist}
+                    aria-label={isSearching ? t.songImport.searching : t.songImport.label}
+                  >
+                    {isSearching ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <Sparkles className="h-3.5 w-3.5" />
+                    )}
+                  </Button>
                 </>
               ) : (
                 <>
@@ -525,7 +566,7 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
                   isEditing && !isPreviewing ? "block" : "hidden"
                 )}
               >
-                <LazySongEditor content={editedLyrics} onChange={handleLyricsChange} />
+                <LazySongEditor key={lyricsEditorKey} content={editedLyrics} onChange={handleLyricsChange} />
               </div>
             )}
           </div>
