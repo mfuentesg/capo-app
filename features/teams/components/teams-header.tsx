@@ -10,17 +10,17 @@ export function TeamsHeader() {
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div className="min-w-0">
-        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{t.teams.title}</h1>
-        <p className="text-sm text-muted-foreground sm:text-base">{t.teams.manageTeams}</p>
+        <h1 className="text-2xl font-black tracking-tighter sm:text-4xl leading-none">{t.teams.title}</h1>
+        <p className="text-sm text-muted-foreground sm:text-base pt-1">{t.teams.manageTeams}</p>
       </div>
       <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto">
-        <Button variant="outline" asChild className="w-full sm:w-auto">
+        <Button variant="outline" asChild className="w-full sm:w-auto transition active:scale-[0.98]">
           <Link href="/dashboard/invitations" className="inline-flex w-full items-center justify-center">
             <Mail className="mr-2 h-4 w-4" />
             {t.nav.invitations}
           </Link>
         </Button>
-        <Button asChild className="w-full sm:w-auto">
+        <Button asChild className="w-full sm:w-auto transition active:scale-[0.98]">
           <Link href="/dashboard/teams/new" className="inline-flex w-full items-center justify-center">
             <Plus className="mr-2 h-4 w-4" />
             {t.teams.createTeam}

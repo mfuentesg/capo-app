@@ -6,42 +6,40 @@ import { useUser } from "@/features/auth"
 import { useAcceptTeamInvitation, usePendingInvitations, mapInvitationAcceptError } from "@/features/teams"
 import type { PendingInvitation } from "@/features/teams/types"
 import { getTranslations } from "@/lib/i18n/translations"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Spinner } from "@/components/ui/spinner"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Mail, CheckCircle, Clock, AlertCircle, ArrowLeft } from "lucide-react"
+import { cn } from "@/lib/utils"
+
+function getExpiryMeta(expiresAt: string): { label: string; className: string; isExpired: boolean } {
+  const now = new Date()
+  const expires = new Date(expiresAt)
+  const isExpired = expires < now
+  if (isExpired) return { label: "", className: "text-destructive", isExpired: true }
+  const daysLeft = Math.ceil((expires.getTime() - now.getTime()) / 86400000)
+  const className =
+    daysLeft <= 2 ? "text-destructive" : daysLeft <= 5 ? "text-amber-500" : "text-muted-foreground"
+  return { label: expires.toLocaleDateString(), className, isExpired: false }
+}
 
 export function InvitationCardSkeleton() {
   return (
-    <div className="rounded-lg border bg-card shadow-sm">
-      <div className="p-6 pb-3">
-        <div className="flex items-start justify-between">
-          <div className="space-y-1.5">
-            <Skeleton className="h-5 w-36" />
-            <Skeleton className="h-4 w-48" />
-          </div>
-          <Skeleton className="h-5 w-16 rounded-full" />
-        </div>
-      </div>
-      <div className="p-6 pt-0 space-y-4">
+    <div className="rounded-2xl border bg-card shadow-sm p-6 space-y-4">
+      <div className="flex items-start justify-between">
         <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <Skeleton className="h-4 w-4 rounded" />
-            <Skeleton className="h-4 w-40" />
-          </div>
-          <div className="flex items-center gap-2">
-            <Skeleton className="h-4 w-4 rounded" />
-            <Skeleton className="h-4 w-32" />
-          </div>
+          <Skeleton className="h-8 w-48" />
+          <Skeleton className="h-4 w-36" />
         </div>
-        <div className="flex gap-2 pt-2">
-          <Skeleton className="h-10 flex-1 rounded-md" />
-          <Skeleton className="h-10 flex-1 rounded-md" />
-        </div>
+        <Skeleton className="h-5 w-16 rounded-full" />
       </div>
+      <div className="flex items-center gap-4">
+        <Skeleton className="h-4 w-40" />
+        <Skeleton className="h-4 w-28" />
+      </div>
+      <Skeleton className="h-10 w-full rounded-lg" />
     </div>
   )
 }
@@ -68,8 +66,6 @@ export function PendingInvitationsClient({
     try {
       setAcceptingId(invitationId)
       await acceptInvitationMutation.mutateAsync({ token })
-      // React Query will handle the list update via invalidation if we want, 
-      // or we can manually remove it from cache for instant feedback.
     } catch (err) {
       setError(mapInvitationAcceptError(err, t))
       setAcceptingId(null)
@@ -84,31 +80,42 @@ export function PendingInvitationsClient({
       <div className="min-h-screen bg-background p-4 sm:p-6 lg:p-8">
         <div className="mx-auto max-w-2xl space-y-6">
           <div className="space-y-2">
-            <Skeleton className="h-9 w-56" />
+            <Skeleton className="h-10 w-56" />
             <Skeleton className="h-5 w-80" />
           </div>
           <div className="space-y-4">
             <InvitationCardSkeleton />
             <InvitationCardSkeleton />
           </div>
-          <div className="pt-4">
-            <Skeleton className="h-10 w-full rounded-md" />
-          </div>
+          <Skeleton className="h-10 w-full rounded-lg" />
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-background p-4 sm:p-6 lg:p-8">
+    <div className="relative min-h-screen bg-background p-4 sm:p-6 lg:p-8 overflow-hidden">
+      {/* Gradient orbs */}
+      <div className="pointer-events-none absolute inset-0 -z-10" aria-hidden>
+        <div
+          className="absolute -top-32 -right-32 h-[500px] w-[500px] rounded-full"
+          style={{ background: "radial-gradient(circle, oklch(0.749 0.160 298 / 10%) 0%, transparent 70%)" }}
+        />
+        <div
+          className="absolute -bottom-32 -left-32 h-[500px] w-[500px] rounded-full"
+          style={{ background: "radial-gradient(circle, oklch(0.793 0.132 56 / 10%) 0%, transparent 70%)" }}
+        />
+      </div>
+
       <div className="mx-auto max-w-2xl space-y-6">
+        {/* Header */}
         <div>
-          <div className="flex items-center gap-3">
-            <h1 className="text-3xl font-bold">{t.invitations.pendingTitle}</h1>
+          <div className="flex items-baseline gap-2">
+            <h1 className="text-3xl font-black tracking-tighter leading-none">
+              {t.invitations.pendingTitle}
+            </h1>
             {invitations.length > 0 && (
-              <Badge variant="secondary" className="text-sm">
-                {invitations.length}
-              </Badge>
+              <span className="text-lg text-muted-foreground tabular-nums">· {invitations.length}</span>
             )}
           </div>
           <p className="text-muted-foreground mt-2">{t.invitations.pendingDescription}</p>
@@ -124,113 +131,108 @@ export function PendingInvitationsClient({
         )}
 
         {invitations.length === 0 ? (
-          <Card>
-            <CardContent className="pt-12 pb-10">
-              <div className="text-center space-y-4">
-                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-muted">
-                  <Mail className="h-8 w-8 text-muted-foreground" />
-                </div>
-                <div className="space-y-1">
-                  <p className="font-semibold text-lg">{t.invitations.emptyTitle}</p>
-                  <p className="text-sm text-muted-foreground">{t.invitations.emptyDescription}</p>
-                </div>
-                <Button onClick={() => router.push("/dashboard/teams")} className="mt-2">
-                  {t.invitations.goToTeams}
-                </Button>
+          <div className="rounded-2xl border bg-card shadow-sm relative overflow-hidden">
+            <div className="pointer-events-none select-none absolute inset-0 flex items-center justify-center" aria-hidden>
+              <Mail style={{ width: "40%", height: "40%" }} className="text-foreground/[0.04]" />
+            </div>
+            <div className="relative text-center py-16 px-8 space-y-4">
+              <div className="space-y-1">
+                <p className="font-black text-lg tracking-tight">{t.invitations.emptyTitle}</p>
+                <p className="text-sm text-muted-foreground">{t.invitations.emptyDescription}</p>
               </div>
-            </CardContent>
-          </Card>
+              <Button onClick={() => router.push("/dashboard/teams")} className="transition active:scale-[0.98]">
+                {t.invitations.goToTeams}
+              </Button>
+            </div>
+          </div>
         ) : (
           <>
             <div className="space-y-4">
-              {invitations.map((invitation) => (
-                <Card key={invitation.id}>
-                  <CardHeader className="pb-3">
-                    <div className="flex items-start justify-between">
-                      <div className="space-y-1">
-                        <CardTitle>{invitation.teamName}</CardTitle>
-                        <CardDescription>
-                          {t.invitations.invitationFrom.replace(
-                            "{name}",
-                            invitation.inviterName || ""
-                          )}
-                        </CardDescription>
+              {invitations.map((invitation) => {
+                const expiry = getExpiryMeta(invitation.expires_at)
+                return (
+                  <div key={invitation.id} className="rounded-2xl border bg-card shadow-sm overflow-hidden">
+                    <div className="p-6 pb-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <h3 className="text-2xl font-black tracking-tighter leading-tight truncate">
+                            {invitation.teamName}
+                          </h3>
+                          <p className="text-sm text-muted-foreground mt-0.5">
+                            {t.invitations.invitationFrom.replace("{name}", invitation.inviterName || "")}
+                          </p>
+                        </div>
+                        <Badge variant="outline" className="capitalize shrink-0 mt-1">
+                          {invitation.role}
+                        </Badge>
                       </div>
-                      <Badge variant="outline" className="capitalize">
-                        {invitation.role}
-                      </Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="space-y-2 text-sm">
-                      <div className="flex items-center gap-2 text-muted-foreground">
-                        <Mail className="h-4 w-4" />
-                        <span>{invitation.email}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-muted-foreground">
-                        <Clock className="h-4 w-4" />
-                        <span>
-                          {t.invitations.expires.replace(
-                            "{date}",
-                            new Date(invitation.expires_at).toLocaleDateString()
-                          )}
+
+                      <div className="flex flex-wrap items-center gap-4 mt-4 text-sm">
+                        <span className="flex items-center gap-1.5 text-muted-foreground">
+                          <Mail className="h-3.5 w-3.5 shrink-0" />
+                          {invitation.email}
+                        </span>
+                        <span className={cn("flex items-center gap-1.5", expiry.className)}>
+                          <Clock className="h-3.5 w-3.5 shrink-0" />
+                          {expiry.isExpired
+                            ? t.invitations.expired
+                            : t.invitations.expires.replace("{date}", expiry.label)}
                         </span>
                       </div>
                     </div>
 
-                    {new Date(invitation.expires_at) < new Date() ? (
-                      <Alert variant="destructive">
-                        <AlertCircle className="h-4 w-4" />
-                        <AlertDescription className="ml-2">
-                          {t.invitations.expired}
-                        </AlertDescription>
-                      </Alert>
-                    ) : (
-                      <div className="flex gap-2 pt-2">
-                        <Button
-                          onClick={() => handleAcceptInvitation(invitation.token, invitation.id)}
-                          disabled={acceptingId === invitation.id}
-                          className="flex-1"
-                        >
-                          {acceptingId === invitation.id ? (
-                            <>
-                              <Spinner className="h-4 w-4 mr-2" />
-                              {t.invitations.accepting}
-                            </>
-                          ) : (
-                            <>
-                              <CheckCircle className="h-4 w-4 mr-2" />
-                              {t.invitations.accept}
-                            </>
-                          )}
-                        </Button>
-                        <Button
-                          variant="outline"
-                          onClick={() =>
-                            router.push(`/teams/accept-invitation?token=${invitation.token}`)
-                          }
-                          disabled={acceptingId === invitation.id}
-                          className="flex-1"
-                        >
-                          {t.invitations.view}
-                        </Button>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              ))}
+                    <div className="px-6 pb-6">
+                      {expiry.isExpired ? (
+                        <Alert variant="destructive">
+                          <AlertCircle className="h-4 w-4" />
+                          <AlertDescription className="ml-2">{t.invitations.expired}</AlertDescription>
+                        </Alert>
+                      ) : (
+                        <div className="space-y-2">
+                          <Button
+                            onClick={() => handleAcceptInvitation(invitation.token, invitation.id)}
+                            disabled={acceptingId === invitation.id}
+                            className="w-full transition active:scale-[0.98]"
+                          >
+                            {acceptingId === invitation.id ? (
+                              <>
+                                <Spinner className="h-4 w-4 mr-2" />
+                                {t.invitations.accepting}
+                              </>
+                            ) : (
+                              <>
+                                <CheckCircle className="h-4 w-4 mr-2" />
+                                {t.invitations.accept}
+                              </>
+                            )}
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() =>
+                              router.push(`/teams/accept-invitation?token=${invitation.token}`)
+                            }
+                            disabled={acceptingId === invitation.id}
+                            className="w-full text-muted-foreground hover:text-foreground"
+                          >
+                            {t.invitations.view}
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )
+              })}
             </div>
 
-            <div className="pt-4">
-              <Button
-                variant="outline"
-                onClick={() => router.push("/dashboard/teams")}
-                className="w-full"
-              >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                {t.invitations.backToTeams}
-              </Button>
-            </div>
+            <Button
+              variant="outline"
+              onClick={() => router.push("/dashboard/teams")}
+              className="w-full transition active:scale-[0.98]"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              {t.invitations.backToTeams}
+            </Button>
           </>
         )}
       </div>

@@ -4,7 +4,6 @@ import { useEffect, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useUser } from "@/features/auth"
 import { useAcceptTeamInvitation } from "@/features/teams"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Spinner } from "@/components/ui/spinner"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -72,72 +71,91 @@ export function AcceptInvitationClient() {
   }, [token, user, userLoading, router, t, acceptInvitation, status])
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>{t.invitations.title}</CardTitle>
-          <CardDescription>
-            {status === "loading" && t.invitations.processing}
-            {status === "success" && t.invitations.welcome}
-            {status === "error" && t.invitations.unableToAccept}
-            {status === "invalid" && t.invitations.invalid}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4 relative overflow-hidden">
+      {/* Gradient orbs */}
+      <div className="pointer-events-none absolute inset-0 -z-10" aria-hidden>
+        <div
+          className="absolute -top-32 -right-32 h-[500px] w-[500px] rounded-full"
+          style={{ background: "radial-gradient(circle, oklch(0.793 0.132 56 / 15%) 0%, transparent 70%)" }}
+        />
+        <div
+          className="absolute -bottom-32 -left-32 h-[500px] w-[500px] rounded-full"
+          style={{ background: "radial-gradient(circle, oklch(0.749 0.160 298 / 10%) 0%, transparent 70%)" }}
+        />
+      </div>
+
+      <div className="w-full max-w-sm space-y-4">
+        {/* Status icon above the card */}
+        {status === "success" && (
+          <div className="flex justify-center">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-500/10 border border-green-500/20">
+              <CheckCircle className="h-8 w-8 text-green-500" />
+            </div>
+          </div>
+        )}
+        {(status === "error" || status === "invalid") && (
+          <div className="flex justify-center">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-destructive/10 border border-destructive/20">
+              {status === "error" ? (
+                <XCircle className="h-8 w-8 text-destructive" />
+              ) : (
+                <AlertCircle className="h-8 w-8 text-destructive" />
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Card */}
+        <div className="rounded-2xl border bg-card shadow-lg p-8 space-y-6">
           {status === "loading" && (
-            <div className="flex flex-col items-center justify-center py-8 space-y-4">
+            <div className="flex flex-col items-center text-center space-y-4">
               <Spinner className="h-8 w-8" />
-              <p className="text-sm text-muted-foreground">{t.invitations.acceptingDescription}</p>
+              <div>
+                <h1 className="text-xl font-black tracking-tight">{t.invitations.title}</h1>
+                <p className="text-sm text-muted-foreground mt-1">{t.invitations.acceptingDescription}</p>
+              </div>
             </div>
           )}
 
           {status === "success" && (
-            <Alert className="border-green-500/50 bg-green-500/10">
-              <CheckCircle className="h-4 w-4 text-green-500" />
-              <AlertDescription className="ml-2">
-                <div className="space-y-2">
-                  <p className="font-medium">{t.invitations.acceptedTitle}</p>
-                  <p className="text-sm text-muted-foreground">{t.invitations.redirecting}</p>
-                </div>
-              </AlertDescription>
-            </Alert>
+            <div className="text-center space-y-2">
+              <h1 className="text-2xl font-black tracking-tighter">{t.invitations.acceptedTitle}</h1>
+              <p className="text-muted-foreground">{t.invitations.welcome}</p>
+              <p className="text-sm text-muted-foreground">{t.invitations.redirecting}</p>
+            </div>
           )}
 
           {status === "error" && (
             <div className="space-y-4">
-              <Alert variant="destructive">
-                <XCircle className="h-4 w-4" />
-                <AlertDescription className="ml-2">
-                  <div className="space-y-2">
-                    <p className="font-medium">{t.invitations.failedToAccept}</p>
-                    <p className="text-sm">{error}</p>
-                  </div>
-                </AlertDescription>
-              </Alert>
+              <div className="text-center">
+                <h1 className="text-xl font-black tracking-tight">{t.invitations.unableToAccept}</h1>
+                <p className="text-sm text-muted-foreground mt-1">{error}</p>
+              </div>
               <div className="flex flex-col gap-2">
                 {isAuthError ? (
                   <Button
                     onClick={() => {
-                      // Store the token in a cookie so the auth callback can
-                      // redirect back to this invitation page after sign-in.
                       if (token) {
                         document.cookie = `_invitation_token=${token}; path=/; max-age=3600; SameSite=Lax`
                       }
                       router.push("/")
                     }}
-                    className="w-full"
+                    className="w-full transition active:scale-[0.98]"
                   >
                     {t.invitations.signIn}
                   </Button>
                 ) : (
-                  <Button onClick={() => router.push("/dashboard/teams")} className="w-full">
+                  <Button
+                    onClick={() => router.push("/dashboard/teams")}
+                    className="w-full transition active:scale-[0.98]"
+                  >
                     {t.invitations.goToTeams}
                   </Button>
                 )}
                 <Button
                   variant="outline"
                   onClick={() => router.push("/dashboard")}
-                  className="w-full"
+                  className="w-full transition active:scale-[0.98]"
                 >
                   {t.invitations.goToDashboard}
                 </Button>
@@ -147,31 +165,33 @@ export function AcceptInvitationClient() {
 
           {status === "invalid" && (
             <div className="space-y-4">
+              <div className="text-center">
+                <h1 className="text-xl font-black tracking-tight">{t.invitations.invalid}</h1>
+                <p className="text-sm text-muted-foreground mt-1">{t.invitations.invalidLinkDescription}</p>
+              </div>
               <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
-                <AlertDescription className="ml-2">
-                  <div className="space-y-2">
-                    <p className="font-medium">{t.invitations.invalidLinkTitle}</p>
-                    <p className="text-sm">{t.invitations.invalidLinkDescription}</p>
-                  </div>
-                </AlertDescription>
+                <AlertDescription className="ml-2">{t.invitations.invalidLinkTitle}</AlertDescription>
               </Alert>
               <div className="flex flex-col gap-2">
-                <Button onClick={() => router.push("/dashboard/teams")} className="w-full">
+                <Button
+                  onClick={() => router.push("/dashboard/teams")}
+                  className="w-full transition active:scale-[0.98]"
+                >
                   {t.invitations.goToTeams}
                 </Button>
                 <Button
                   variant="outline"
                   onClick={() => router.push("/dashboard")}
-                  className="w-full"
+                  className="w-full transition active:scale-[0.98]"
                 >
                   {t.invitations.goToDashboard}
                 </Button>
               </div>
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   )
 }

@@ -1,8 +1,7 @@
 "use client"
 
-import { CircleUserRound } from "lucide-react"
+import { CircleUserRound, KeyRound } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
 import { useUser } from "@/features/auth"
 import { useLocale } from "@/features/settings"
 import { getInitials } from "@/lib/utils"
@@ -21,26 +20,31 @@ export function ProfileSettings() {
   const providerName = formatProviderName(user?.provider)
 
   return (
-    <section className="space-y-4">
+    <section className="space-y-5">
       <div>
-        <h2 className="text-base font-semibold">{t.settings.profile}</h2>
-        <p className="text-sm text-muted-foreground">{t.settings.profileDescription}</p>
+        <h2 className="text-base font-bold tracking-tight">{t.settings.profile}</h2>
+        <p className="text-sm text-muted-foreground mt-0.5">{t.settings.profileDescription}</p>
       </div>
+
       <div className="flex items-center gap-4">
-        <Avatar className="h-16 w-16 shrink-0">
-          <AvatarImage src={user?.avatarUrl} alt={displayName} />
-          <AvatarFallback className="bg-primary/10 text-lg font-semibold">
-            {initials || <CircleUserRound className="h-8 w-8 text-muted-foreground" />}
-          </AvatarFallback>
-        </Avatar>
-        <div className="min-w-0 space-y-1">
-          <p className="truncate font-semibold">{displayName}</p>
+        <div className="relative shrink-0">
+          <Avatar className="h-16 w-16">
+            <AvatarImage src={user?.avatarUrl} alt={displayName} />
+            <AvatarFallback className="bg-primary/10 text-xl font-black text-primary">
+              {initials || <CircleUserRound className="h-8 w-8 text-muted-foreground" />}
+            </AvatarFallback>
+          </Avatar>
+        </div>
+
+        <div className="min-w-0 flex-1 space-y-1">
+          <p className="truncate font-bold tracking-tight">{displayName}</p>
           {user?.email && (
             <p className="truncate text-sm text-muted-foreground">{user.email}</p>
           )}
-          <Badge variant="secondary" className="text-xs">
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
+            <KeyRound className="h-3 w-3" />
             {t.settings.connectedVia.replace("{provider}", providerName)}
-          </Badge>
+          </div>
         </div>
       </div>
     </section>

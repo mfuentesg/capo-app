@@ -17,29 +17,33 @@ export function AccountDangerZone() {
   }
 
   return (
-    <section className="space-y-4 rounded-lg border border-destructive/50 p-6">
+    <section className="space-y-4">
       <div>
-        <h2 className="text-base font-semibold text-destructive">{t.settings.dangerZone}</h2>
-        <p className="text-sm text-muted-foreground">{t.settings.dangerZoneDescription}</p>
+        <h2 className="text-base font-bold text-destructive">{t.settings.dangerZone}</h2>
+        <p className="text-sm text-muted-foreground mt-0.5">{t.settings.dangerZoneDescription}</p>
       </div>
       {!confirming ? (
-        <Button variant="destructive" size="sm" onClick={() => setConfirming(true)}>
+        <Button variant="destructive" onClick={() => setConfirming(true)} className="transition active:scale-[0.98]">
           {t.settings.deleteAccount}
         </Button>
       ) : (
         <div className="space-y-3">
           <p className="text-sm font-medium">{t.settings.deleteAccountConfirm}</p>
           <div className="flex gap-2">
-            <Button variant="destructive" size="sm" disabled={isPending} onClick={handleDelete}>
-              {isPending ? t.settings.deleteAccountPending : t.settings.deleteAccountConfirmButton}
-            </Button>
             <Button
               variant="ghost"
-              size="sm"
               disabled={isPending}
               onClick={() => setConfirming(false)}
             >
               {t.common.cancel}
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={isPending}
+              onClick={handleDelete}
+              className="transition active:scale-[0.98]"
+            >
+              {isPending ? t.settings.deleteAccountPending : t.settings.deleteAccountConfirmButton}
             </Button>
           </div>
         </div>

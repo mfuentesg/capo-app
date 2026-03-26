@@ -41,9 +41,12 @@ export function ChordGlossary() {
           {AVAILABLE_KEYS.map((key) => (
             <Button
               key={key}
-              variant={selectedKey === key ? "default" : "outline"}
+              variant={selectedKey === key ? "default" : "ghost"}
               size="sm"
-              className={cn("h-9 min-w-[2.75rem] shrink-0 px-3 text-sm font-semibold", selectedKey === key && "shadow-none")}
+              className={cn(
+                "h-9 min-w-[2.75rem] shrink-0 rounded-full px-4 text-sm font-semibold",
+                selectedKey === key && "shadow-none"
+              )}
               onClick={() => toggleKey(key)}
             >
               {keyLabel(key)}

@@ -2,17 +2,18 @@
 
 import { useSyncExternalStore, useTransition } from "react"
 import { useTheme } from "next-themes"
+import { Sun, Moon, Monitor } from "lucide-react"
 import { useLocale } from "@/features/settings"
-import { Label } from "@/components/ui/label"
+import { cn } from "@/lib/utils"
 import { setThemeAction } from "@/lib/actions/theme"
 
 const THEMES = ["light", "dark", "system"] as const
 type Theme = (typeof THEMES)[number]
 
-const THEME_LABELS: Record<Theme, string> = {
-  light: "Light",
-  dark: "Dark",
-  system: "System"
+const THEME_CONFIG: Record<Theme, { icon: typeof Sun; label: string }> = {
+  light: { icon: Sun, label: "Light" },
+  dark: { icon: Moon, label: "Dark" },
+  system: { icon: Monitor, label: "System" }
 }
 
 // next-themes reads from localStorage on the client, which may differ from the
@@ -39,30 +40,40 @@ export function ThemeSettings() {
   return (
     <section className="space-y-4">
       <div>
-        <h2 className="text-base font-semibold">{t.settings.appearance}</h2>
-        <p className="text-sm text-muted-foreground">{t.settings.themeDescription}</p>
+        <h2 className="text-base font-bold tracking-tight">{t.settings.appearance}</h2>
+        <p className="text-sm text-muted-foreground mt-0.5">{t.settings.themeDescription}</p>
       </div>
-      <div className="flex gap-2" role="radiogroup" aria-label={t.settings.theme}>
-        {THEMES.map((option) => (
-          <Label
-            key={option}
-            className={`flex cursor-pointer select-none items-center justify-center rounded-md border px-4 py-2 text-sm font-medium transition-colors ${
-              activeTheme === option
-                ? "border-primary bg-primary text-primary-foreground"
-                : "border-border bg-background hover:bg-accent hover:text-accent-foreground"
-            }`}
-          >
-            <input
-              type="radio"
-              name="theme"
-              value={option}
-              checked={activeTheme === option}
-              onChange={() => handleThemeChange(option)}
-              className="sr-only"
-            />
-            {THEME_LABELS[option]}
-          </Label>
-        ))}
+      <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label={t.settings.theme}>
+        {THEMES.map((option) => {
+          const { icon: Icon, label } = THEME_CONFIG[option]
+          const isActive = activeTheme === option
+          return (
+            <label
+              key={option}
+              className={cn(
+                "relative flex cursor-pointer flex-col items-center gap-2 rounded-xl border px-3 py-4 text-sm font-medium transition select-none",
+                "active:scale-[0.97]",
+                isActive
+                  ? "border-primary/60 bg-primary/8 text-primary shadow-sm"
+                  : "border-border bg-muted/40 text-muted-foreground hover:bg-muted hover:text-foreground"
+              )}
+            >
+              <input
+                type="radio"
+                name="theme"
+                value={option}
+                checked={isActive}
+                onChange={() => handleThemeChange(option)}
+                className="sr-only"
+              />
+              <Icon className={cn("h-5 w-5", isActive ? "text-primary" : "text-muted-foreground")} />
+              <span className="text-xs leading-none">{label}</span>
+              {isActive && (
+                <span className="absolute bottom-1.5 left-1/2 h-1 w-4 -translate-x-1/2 rounded-full bg-primary" />
+              )}
+            </label>
+          )
+        })}
       </div>
     </section>
   )
