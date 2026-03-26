@@ -151,9 +151,9 @@ export function LandingPage({ t }: { t: ReturnType<typeof getTranslations> }) {
       <section className="relative flex min-h-svh flex-col items-center justify-center px-4 pt-24 pb-16 text-center">
         <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
           {/* Replaced filter:blur with radial-gradient — free on WebKit, same visual */}
-          <div className="absolute -top-40 -left-40 h-[600px] w-[600px] rounded-full" style={{ background: "radial-gradient(circle, oklch(0.646 0.222 41.116 / 15%) 0%, transparent 70%)" }} />
-          <div className="absolute -top-20 right-0 h-[500px] w-[500px] rounded-full" style={{ background: "radial-gradient(circle, oklch(0.55 0.19 290 / 10%) 0%, transparent 70%)" }} />
-          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 h-[400px] w-[800px] rounded-full" style={{ background: "radial-gradient(ellipse, oklch(0.646 0.222 41.116 / 8%) 0%, transparent 70%)" }} />
+          <div className="absolute -top-40 -left-40 h-[600px] w-[600px] rounded-full" style={{ background: "radial-gradient(circle, oklch(0.793 0.132 56 / 15%) 0%, transparent 70%)" }} />
+          <div className="absolute -top-20 right-0 h-[500px] w-[500px] rounded-full" style={{ background: "radial-gradient(circle, oklch(0.749 0.160 298 / 10%) 0%, transparent 70%)" }} />
+          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 h-[400px] w-[800px] rounded-full" style={{ background: "radial-gradient(ellipse, oklch(0.793 0.132 56 / 8%) 0%, transparent 70%)" }} />
         </div>
 
         <div className="relative mb-6 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">
@@ -336,7 +336,7 @@ export function LandingPage({ t }: { t: ReturnType<typeof getTranslations> }) {
 
       {/* ── Spotlight: Song Library ─────────────────────────────────────── */}
       <section className="relative px-4 py-24 sm:py-32 overflow-hidden">
-        <div aria-hidden className="pointer-events-none absolute top-1/2 -translate-y-1/2 -left-20 h-[500px] w-[500px] rounded-full" style={{ background: "radial-gradient(circle, oklch(0.55 0.18 248 / 8%) 0%, transparent 70%)" }} />
+        <div aria-hidden className="pointer-events-none absolute top-1/2 -translate-y-1/2 -left-20 h-[500px] w-[500px] rounded-full" style={{ background: "radial-gradient(circle, oklch(0.742 0.139 257 / 8%) 0%, transparent 70%)" }} />
         <div className="mx-auto max-w-6xl">
           <div className="grid items-center gap-12 lg:grid-cols-2">
             <div>
@@ -407,7 +407,7 @@ export function LandingPage({ t }: { t: ReturnType<typeof getTranslations> }) {
 
       {/* ── Spotlight: Teams ───────────────────────────────────────────── */}
       <section className="relative px-4 py-24 sm:py-32 overflow-hidden">
-        <div aria-hidden className="pointer-events-none absolute top-1/2 -translate-y-1/2 -right-20 h-[500px] w-[500px] rounded-full" style={{ background: "radial-gradient(circle, oklch(0.52 0.15 155 / 8%) 0%, transparent 70%)" }} />
+        <div aria-hidden className="pointer-events-none absolute top-1/2 -translate-y-1/2 -right-20 h-[500px] w-[500px] rounded-full" style={{ background: "radial-gradient(circle, oklch(0.862 0.121 152 / 8%) 0%, transparent 70%)" }} />
         <div className="mx-auto max-w-6xl">
           <div className="grid items-center gap-12 lg:grid-cols-2">
             {/* Teams mock */}
@@ -471,7 +471,7 @@ export function LandingPage({ t }: { t: ReturnType<typeof getTranslations> }) {
 
       {/* ── Spotlight: Sharing ─────────────────────────────────────────── */}
       <section className="relative px-4 py-24 sm:py-32 overflow-hidden">
-        <div aria-hidden className="pointer-events-none absolute top-1/2 -translate-y-1/2 left-1/4 h-[400px] w-[600px] rounded-full" style={{ background: "radial-gradient(ellipse, oklch(0.65 0.21 0 / 8%) 0%, transparent 70%)" }} />
+        <div aria-hidden className="pointer-events-none absolute top-1/2 -translate-y-1/2 left-1/4 h-[400px] w-[600px] rounded-full" style={{ background: "radial-gradient(ellipse, oklch(0.648 0.195 340 / 8%) 0%, transparent 70%)" }} />
         <div className="mx-auto max-w-6xl">
           <div className="grid items-center gap-12 lg:grid-cols-2">
             <div>
@@ -545,7 +545,7 @@ export function LandingPage({ t }: { t: ReturnType<typeof getTranslations> }) {
       {/* ── CTA ────────────────────────────────────────────────────────── */}
       <section className="relative px-4 py-24 sm:py-32">
         <div aria-hidden className="pointer-events-none absolute inset-0 flex items-center justify-center overflow-hidden">
-          <div className="h-[600px] w-[600px] rounded-full" style={{ background: "radial-gradient(circle, oklch(0.646 0.222 41.116 / 12%) 0%, transparent 70%)" }} />
+          <div className="h-[600px] w-[600px] rounded-full" style={{ background: "radial-gradient(circle, oklch(0.793 0.132 56 / 12%) 0%, transparent 70%)" }} />
         </div>
         <div className="relative mx-auto max-w-2xl text-center">
           <div className="mb-6 flex justify-center">

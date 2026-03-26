@@ -94,21 +94,21 @@ export default function DashboardClient({
           className="absolute -top-32 -right-32 h-[500px] w-[500px] rounded-full"
           style={{
             background:
-              "radial-gradient(circle, oklch(0.62 0.2 280 / 10%) 0%, transparent 70%)"
+              "radial-gradient(circle, oklch(0.749 0.160 298 / 10%) 0%, transparent 70%)"
           }}
         />
         <div
           className="absolute top-1/2 -left-48 h-[600px] w-[600px] rounded-full"
           style={{
             background:
-              "radial-gradient(circle, oklch(0.65 0.21 40 / 10%) 0%, transparent 70%)"
+              "radial-gradient(circle, oklch(0.793 0.132 56 / 10%) 0%, transparent 70%)"
           }}
         />
         <div
           className="absolute -bottom-32 right-1/3 h-[400px] w-[400px] rounded-full"
           style={{
             background:
-              "radial-gradient(circle, oklch(0.58 0.18 220 / 8%) 0%, transparent 70%)"
+              "radial-gradient(circle, oklch(0.778 0.120 224 / 8%) 0%, transparent 70%)"
           }}
         />
       </div>
