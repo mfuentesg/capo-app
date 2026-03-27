@@ -54,8 +54,8 @@ describe("PlaylistList", () => {
   it("should use selectedPlaylistId as the single source of truth for selected state", () => {
     const { rerender } = renderPlaylistList("playlist-1")
 
-    expect(getPlaylistRow("Morning Set")).toHaveClass("bg-primary/10")
-    expect(getPlaylistRow("Night Set")).not.toHaveClass("bg-primary/10")
+    expect(getPlaylistRow("Morning Set")).toHaveClass("bg-accent-playlists/10")
+    expect(getPlaylistRow("Night Set")).not.toHaveClass("bg-accent-playlists/10")
 
     rerender(
       <LocaleProvider>
@@ -70,8 +70,8 @@ describe("PlaylistList", () => {
       </LocaleProvider>
     )
 
-    expect(getPlaylistRow("Morning Set")).not.toHaveClass("bg-primary/10")
-    expect(getPlaylistRow("Night Set")).toHaveClass("bg-primary/10")
+    expect(getPlaylistRow("Morning Set")).not.toHaveClass("bg-accent-playlists/10")
+    expect(getPlaylistRow("Night Set")).toHaveClass("bg-accent-playlists/10")
   })
 
   it("should call onSelectPlaylist when a playlist is clicked", () => {
