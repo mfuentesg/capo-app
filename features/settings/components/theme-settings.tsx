@@ -10,12 +10,6 @@ import { setThemeAction } from "@/lib/actions/theme"
 const THEMES = ["light", "dark", "system"] as const
 type Theme = (typeof THEMES)[number]
 
-const THEME_CONFIG: Record<Theme, { icon: typeof Sun; label: string }> = {
-  light: { icon: Sun, label: "Light" },
-  dark: { icon: Moon, label: "Dark" },
-  system: { icon: Monitor, label: "System" }
-}
-
 // next-themes reads from localStorage on the client, which may differ from the
 // SSR defaultTheme prop. useSyncExternalStore gives false on the server and true
 // on the client — React re-renders with the correct theme after hydration without
@@ -29,6 +23,12 @@ export function ThemeSettings() {
   const mounted = useSyncExternalStore(subscribe, () => true, () => false)
 
   const activeTheme = mounted ? theme : undefined
+
+  const themeConfig: Record<Theme, { icon: typeof Sun; label: string }> = {
+    light: { icon: Sun, label: t.settings.themeLight },
+    dark: { icon: Moon, label: t.settings.themeDark },
+    system: { icon: Monitor, label: t.settings.themeSystem }
+  }
 
   function handleThemeChange(option: Theme) {
     setTheme(option)
@@ -45,7 +45,7 @@ export function ThemeSettings() {
       </div>
       <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label={t.settings.theme}>
         {THEMES.map((option) => {
-          const { icon: Icon, label } = THEME_CONFIG[option]
+          const { icon: Icon, label } = themeConfig[option]
           const isActive = activeTheme === option
           return (
             <label
