@@ -87,7 +87,7 @@ describe("AcceptInvitationClient", () => {
 
     render(<AcceptInvitationClient />)
 
-    expect(screen.getByText("Processing your invitation...")).toBeInTheDocument()
+    expect(screen.getByText("Team Invitation")).toBeInTheDocument()
     expect(screen.getByText("Accepting your invitation...")).toBeInTheDocument()
   })
 

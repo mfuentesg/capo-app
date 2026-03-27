@@ -17,13 +17,13 @@ export function PlaylistSongItem({ song, index, className, showDragHandle }: Pla
   return (
     <div
       className={cn(
-        "group flex items-start gap-4 rounded-lg border bg-card p-4 transition-shadow hover:shadow-sm",
+        "group flex items-start gap-4 rounded-xl bg-card shadow-sm p-4 transition-shadow hover:shadow-md",
         showDragHandle && "pr-10",
         className
       )}
     >
       {/* Position number — morphs to a music icon on hover to hint that the item is tappable */}
-      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-base font-black text-primary">
         {showDragHandle ? (
           <>
             <span className="group-hover:hidden">{index + 1}</span>

@@ -183,7 +183,7 @@ export function SongDetail({ song, onClose, onUpdate, onDelete, onTransferSucces
   }
 
   return (
-    <div className="flex flex-1 flex-col bg-muted/30">
+    <div className="flex flex-1 flex-col bg-muted/30 border-t-2 border-accent-songs">
       <div className="shrink-0 flex items-center justify-between border-b bg-background p-4 lg:p-6">
         <div className="flex items-center gap-3 min-w-0">
           <div className="flex-1 min-w-0">
@@ -191,8 +191,8 @@ export function SongDetail({ song, onClose, onUpdate, onDelete, onTransferSucces
               <EditableField
                 value={song.title}
                 onSave={(value) => onUpdate(song.id, { title: value })}
-                className="text-lg font-semibold"
-                inputClassName="text-lg font-semibold"
+                className="text-lg font-black tracking-tight"
+                inputClassName="text-lg font-black"
               />
               {song.isDraft && (
                 <Badge variant="secondary" className="text-xs">
@@ -266,129 +266,137 @@ export function SongDetail({ song, onClose, onUpdate, onDelete, onTransferSucces
             </div>
           </div>
 
-          {/* Transpose Control */}
-          <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <Music2 className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm font-medium">{t.songs.transpose}</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => updateTranspose(transpose - 1)}
-                disabled={transpose <= -6}
-                className="h-8"
-              >
-                <Minus className="h-3.5 w-3.5" />
-              </Button>
-              <div className="flex items-center gap-2 rounded-lg bg-background border px-4 py-2 min-w-20 justify-center">
-                <span className="text-sm font-medium tabular-nums">
-                  {transpose > 0 ? `+${transpose}` : transpose}
-                </span>
-                <span className="text-xs text-muted-foreground">{t.songs.semitones}</span>
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => updateTranspose(transpose + 1)}
-                disabled={transpose >= 6}
-                className="h-8"
-              >
-                <Plus className="h-3.5 w-3.5" />
-              </Button>
-              {transpose !== 0 && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => updateTranspose(0)}
-                  className="text-xs h-8"
-                >
-                  {t.songs.reset}
-                </Button>
-              )}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {t.songs.originalKey}: <span className="font-medium">{song.key}</span>
-              {transpose !== 0 && (
-                <>
-                  {" → "}
-                  {t.songs.transposed}:{" "}
-                  <span className="font-medium">{transposeKey(song.key, transpose)}</span>
-                </>
-              )}
-            </p>
-          </div>
-
-          {/* Capo Control */}
-          <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <Guitar className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm font-medium">{t.songs.capo}</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => updateCapoPosition(capoPosition - 1)}
-                disabled={capoPosition <= 0}
-                className="h-8"
-              >
-                <Minus className="h-3.5 w-3.5" />
-              </Button>
-              <div className="flex items-center gap-2 rounded-lg bg-background border px-4 py-2 min-w-30 justify-center">
-                <span className="text-sm font-medium tabular-nums">
-                  {capoPosition === 0 ? t.songs.noCapo : `${t.songs.fret} ${capoPosition}`}
+          {/* Transpose + Capo — grouped in a card */}
+          <div className="rounded-xl border bg-card shadow-sm p-4 space-y-5">
+            {/* Transpose */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-1.5">
+                <Music2 className="h-3.5 w-3.5 text-muted-foreground" />
+                <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                  {t.songs.transpose}
                 </span>
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => updateCapoPosition(capoPosition + 1)}
-                disabled={capoPosition >= 12}
-                className="h-8"
-              >
-                <Plus className="h-3.5 w-3.5" />
-              </Button>
-              {capoPosition !== 0 && (
+              <div className="flex items-center gap-3">
                 <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => updateCapoPosition(0)}
-                  className="text-xs h-8"
+                  variant="outline"
+                  size="icon"
+                  onClick={() => updateTranspose(transpose - 1)}
+                  disabled={transpose <= -6}
+                  className="h-9 w-9 rounded-full"
                 >
-                  {t.songs.reset}
+                  <Minus className="h-3.5 w-3.5" />
                 </Button>
-              )}
-            </div>
-            {capoPosition > 0 && (
+                <div className="flex items-center gap-2 rounded-lg bg-background border px-4 py-2 min-w-20 justify-center">
+                  <span className="text-sm font-medium tabular-nums">
+                    {transpose > 0 ? `+${transpose}` : transpose}
+                  </span>
+                  <span className="text-xs text-muted-foreground">{t.songs.semitones}</span>
+                </div>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => updateTranspose(transpose + 1)}
+                  disabled={transpose >= 6}
+                  className="h-9 w-9 rounded-full"
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                </Button>
+                {transpose !== 0 && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => updateTranspose(0)}
+                    className="text-xs h-8"
+                  >
+                    {t.songs.reset}
+                  </Button>
+                )}
+              </div>
               <p className="text-xs text-muted-foreground">
-                {t.songs.playIn}:{" "}
-                <span className="font-medium">{calculateCapoKey(song.key, capoPosition)}</span>
-                {" ("}
-                {t.songs.capo} {capoPosition}
-                {" = "}
-                <span className="font-medium">{song.key}</span> {t.songs.key.toLowerCase()}
-                {")"}
+                {t.songs.originalKey}: <span className="font-medium">{song.key}</span>
+                {transpose !== 0 && (
+                  <>
+                    {" → "}
+                    {t.songs.transposed}:{" "}
+                    <span className="font-medium">{transposeKey(song.key, transpose)}</span>
+                  </>
+                )}
               </p>
-            )}
+            </div>
+
+            <div className="border-t" />
+
+            {/* Capo */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-1.5">
+                <Guitar className="h-3.5 w-3.5 text-muted-foreground" />
+                <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                  {t.songs.capo}
+                </span>
+              </div>
+              <div className="flex items-center gap-3">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => updateCapoPosition(capoPosition - 1)}
+                  disabled={capoPosition <= 0}
+                  className="h-9 w-9 rounded-full"
+                >
+                  <Minus className="h-3.5 w-3.5" />
+                </Button>
+                <div className="flex items-center gap-2 rounded-lg bg-background border px-4 py-2 min-w-30 justify-center">
+                  <span className="text-sm font-medium tabular-nums">
+                    {capoPosition === 0 ? t.songs.noCapo : `${t.songs.fret} ${capoPosition}`}
+                  </span>
+                </div>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => updateCapoPosition(capoPosition + 1)}
+                  disabled={capoPosition >= 12}
+                  className="h-9 w-9 rounded-full"
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                </Button>
+                {capoPosition !== 0 && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => updateCapoPosition(0)}
+                    className="text-xs h-8"
+                  >
+                    {t.songs.reset}
+                  </Button>
+                )}
+              </div>
+              {capoPosition > 0 && (
+                <p className="text-xs text-muted-foreground">
+                  {t.songs.playIn}:{" "}
+                  <span className="font-medium">{calculateCapoKey(song.key, capoPosition)}</span>
+                  {" ("}
+                  {t.songs.capo} {capoPosition}
+                  {" = "}
+                  <span className="font-medium">{song.key}</span> {t.songs.key.toLowerCase()}
+                  {")"}
+                </p>
+              )}
+            </div>
           </div>
 
-          <div className="flex flex-wrap gap-2 pt-4 border-t">
+          <div className="flex flex-wrap gap-2 pt-2">
             <Button
               variant={isInCart ? "default" : "outline"}
-              size="sm"
-              className="gap-2"
+              className="gap-2 transition active:scale-[0.98]"
               onClick={() => toggleSongInDraft(song)}
             >
               {isInCart ? (
                 <>
-                  <Check className="h-3.5 w-3.5" />
+                  <Check className="h-4 w-4" />
                   {t.songs.addedToSelection}
                 </>
               ) : (
                 <>
-                  <ListPlus className="h-3.5 w-3.5" />
+                  <ListPlus className="h-4 w-4" />
                   {t.songs.addToPlaylist}
                 </>
               )}
@@ -396,11 +404,10 @@ export function SongDetail({ song, onClose, onUpdate, onDelete, onTransferSucces
             {canTransfer && (
               <Button
                 variant="outline"
-                size="sm"
-                className="gap-2"
+                className="gap-2 transition active:scale-[0.98]"
                 onClick={() => setIsTransferDialogOpen(true)}
               >
-                <ArrowRightFromLine className="h-3.5 w-3.5" />
+                <ArrowRightFromLine className="h-4 w-4" />
                 {t.songs.transferToTeam}
               </Button>
             )}
@@ -415,8 +422,8 @@ export function SongDetail({ song, onClose, onUpdate, onDelete, onTransferSucces
           )}
 
           {/* Danger Zone */}
-          <div className="rounded-lg border border-destructive/50 bg-card p-4">
-            <h3 className="text-sm font-semibold text-destructive mb-3">{t.songs.dangerZone}</h3>
+          <div className="rounded-2xl border border-destructive/30 bg-destructive/[0.02] p-4">
+            <h3 className="text-sm font-bold text-destructive mb-3">{t.songs.dangerZone}</h3>
             <div className="flex items-center justify-between gap-4">
               <div className="space-y-0.5">
                 <p className="text-sm font-medium">{t.songs.deleteSong}</p>
@@ -427,11 +434,12 @@ export function SongDetail({ song, onClose, onUpdate, onDelete, onTransferSucces
                   <Button
                     variant="destructive"
                     size="sm"
-                    className="shrink-0"
+                    className="shrink-0 gap-1.5 transition active:scale-[0.98]"
                     id={deleteDialogIds.triggerId}
                     aria-controls={deleteDialogIds.contentId}
                   >
                     <Trash2 className="h-3.5 w-3.5" />
+                    {t.songs.deleteSong}
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent id={deleteDialogIds.contentId}>

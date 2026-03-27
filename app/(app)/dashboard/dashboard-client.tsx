@@ -3,7 +3,7 @@
 import { } from "react"
 import Link from "next/link"
 import dynamic from "next/dynamic"
-import { Music, ListMusic, Plus, Calendar, TrendingUp, Clock, ArrowRight, Zap } from "lucide-react"
+import { Music, ListMusic, Plus, Clock, ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import KeyBadge from "@/components/key-badge"
@@ -35,15 +35,17 @@ const ActivityFeedLazy = dynamic(
   }
 )
 
-function StatCardSkeleton() {
+function StatStripSkeleton() {
   return (
-    <div className="rounded-lg border bg-card p-6 shadow-sm">
-      <div className="flex items-center gap-4">
-        <Skeleton className="h-12 w-12 rounded-xl" />
-        <div className="space-y-2">
-          <Skeleton className="h-7 w-12" />
-          <Skeleton className="h-4 w-20" />
-        </div>
+    <div className="rounded-2xl border bg-card shadow-sm overflow-hidden">
+      <div className="grid grid-cols-2 sm:grid-cols-4">
+        {[1, 2, 3, 4].map((i) => (
+          <div key={i} className="p-6 space-y-2">
+            <Skeleton className="h-4 w-8 rounded-full mb-3" />
+            <Skeleton className="h-9 w-14" />
+            <Skeleton className="h-3 w-16" />
+          </div>
+        ))}
       </div>
     </div>
   )
@@ -112,25 +114,30 @@ export default function DashboardClient({
           }}
         />
       </div>
+
       <main className="px-4 py-6 sm:px-8 sm:py-10 lg:px-12 lg:py-12">
         <div className="mx-auto max-w-7xl space-y-6 sm:space-y-8">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="space-y-1">
-              <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{t.dashboard.title}</h1>
-              <p className="text-muted-foreground">{t.dashboard.description}</p>
+
+          {/* Header */}
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="space-y-0.5">
+              <h1 className="text-3xl font-black tracking-tighter leading-none sm:text-4xl">
+                {t.dashboard.title}
+              </h1>
+              <p className="text-muted-foreground pt-1">{t.dashboard.description}</p>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 shrink-0">
               <Button
                 variant="outline"
                 asChild
-                className="transition-shadow hover:shadow-md bg-transparent"
+                className="transition active:scale-[0.98] bg-transparent"
               >
                 <Link href="/dashboard/playlists">
                   <ListMusic className="mr-2 h-4 w-4" />
                   {t.dashboard.newPlaylist}
                 </Link>
               </Button>
-              <Button asChild className="transition-shadow hover:shadow-md">
+              <Button asChild className="transition active:scale-[0.98]">
                 <Link href="/dashboard/songs">
                   <Plus className="mr-2 h-4 w-4" />
                   {t.dashboard.addSong}
@@ -139,116 +146,86 @@ export default function DashboardClient({
             </div>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {statsLoading ? (
-              <>
-                <StatCardSkeleton />
-                <StatCardSkeleton />
-                <StatCardSkeleton />
-                <StatCardSkeleton />
-              </>
-            ) : (
-              <>
+          {/* Stats strip — scorecard style, single container with accent bars */}
+          {statsLoading ? (
+            <StatStripSkeleton />
+          ) : (
+            <div className="rounded-2xl border bg-card shadow-sm overflow-hidden">
+              <div className="grid grid-cols-2 sm:grid-cols-4">
                 <Link
                   href="/dashboard/songs"
-                  className="block rounded-lg border bg-card p-6 shadow-sm transition hover:shadow-md hover:-translate-y-0.5"
-                  style={{ borderColor: "color-mix(in oklch, var(--accent-songs) 20%, transparent)" }}
+                  className="p-6 transition-colors hover:bg-muted/40 border-b border-r sm:border-b-0"
                 >
-                  <div className="flex items-center gap-4">
-                    <div
-                      className="flex h-12 w-12 items-center justify-center rounded-xl"
-                      style={{ backgroundColor: "color-mix(in oklch, var(--accent-songs) 10%, transparent)" }}
-                    >
-                      <Music className="h-6 w-6" style={{ color: "var(--accent-songs)" }} />
-                    </div>
-                    <div>
-                      <p className="text-2xl font-bold">{stats?.totalSongs ?? 0}</p>
-                      <p className="text-sm text-muted-foreground">{t.dashboard.totalSongs}</p>
-                    </div>
-                  </div>
+                  <div className="h-0.5 w-8 rounded-full mb-3" style={{ background: "var(--accent-songs)" }} />
+                  <p className="text-3xl font-black tabular-nums">{stats?.totalSongs ?? 0}</p>
+                  <p className="text-xs uppercase tracking-widest text-muted-foreground mt-1">
+                    {t.dashboard.totalSongs}
+                  </p>
                 </Link>
-
                 <Link
                   href="/dashboard/playlists"
-                  className="block rounded-lg border bg-card p-6 shadow-sm transition hover:shadow-md hover:-translate-y-0.5"
-                  style={{ borderColor: "color-mix(in oklch, var(--accent-playlists) 20%, transparent)" }}
+                  className="p-6 transition-colors hover:bg-muted/40 border-b sm:border-b-0 sm:border-r"
                 >
-                  <div className="flex items-center gap-4">
-                    <div
-                      className="flex h-12 w-12 items-center justify-center rounded-xl"
-                      style={{ backgroundColor: "color-mix(in oklch, var(--accent-playlists) 10%, transparent)" }}
-                    >
-                      <ListMusic className="h-6 w-6" style={{ color: "var(--accent-playlists)" }} />
-                    </div>
-                    <div>
-                      <p className="text-2xl font-bold">{stats?.totalPlaylists ?? 0}</p>
-                      <p className="text-sm text-muted-foreground">{t.dashboard.playlists}</p>
-                    </div>
-                  </div>
+                  <div className="h-0.5 w-8 rounded-full mb-3" style={{ background: "var(--accent-playlists)" }} />
+                  <p className="text-3xl font-black tabular-nums">{stats?.totalPlaylists ?? 0}</p>
+                  <p className="text-xs uppercase tracking-widest text-muted-foreground mt-1">
+                    {t.dashboard.playlists}
+                  </p>
                 </Link>
-
                 <Link
                   href="/dashboard/songs"
-                  className="block rounded-lg border bg-card p-6 shadow-sm transition hover:shadow-md hover:-translate-y-0.5"
-                  style={{ borderColor: "color-mix(in oklch, var(--accent-activity) 20%, transparent)" }}
+                  className="p-6 transition-colors hover:bg-muted/40 border-r"
                 >
-                  <div className="flex items-center gap-4">
-                    <div
-                      className="flex h-12 w-12 items-center justify-center rounded-xl"
-                      style={{ backgroundColor: "color-mix(in oklch, var(--accent-activity) 10%, transparent)" }}
-                    >
-                      <TrendingUp className="h-6 w-6" style={{ color: "var(--accent-activity)" }} />
-                    </div>
-                    <div>
-                      <p className={`text-2xl font-bold ${(stats?.songsThisMonth ?? 0) === 0 ? "text-muted-foreground" : ""}`}>
-                        {(stats?.songsThisMonth ?? 0) > 0 ? `+${stats!.songsThisMonth}` : "—"}
-                      </p>
-                      <p className="text-sm text-muted-foreground">{t.dashboard.thisMonth}</p>
-                    </div>
-                  </div>
+                  <div className="h-0.5 w-8 rounded-full mb-3" style={{ background: "var(--accent-activity)" }} />
+                  <p className={cn("text-3xl font-black tabular-nums", (stats?.songsThisMonth ?? 0) === 0 && "text-muted-foreground")}>
+                    {(stats?.songsThisMonth ?? 0) > 0 ? `+${stats!.songsThisMonth}` : "—"}
+                  </p>
+                  <p className="text-xs uppercase tracking-widest text-muted-foreground mt-1">
+                    {t.dashboard.thisMonth}
+                  </p>
                 </Link>
-
                 <Link
                   href="/dashboard/playlists"
-                  className="block rounded-lg border border-primary/20 bg-card p-6 shadow-sm transition hover:shadow-md hover:-translate-y-0.5"
+                  className="p-6 transition-colors hover:bg-muted/40"
                 >
-                  <div className="flex items-center gap-4">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
-                      <Calendar className="h-6 w-6 text-primary" />
-                    </div>
-                    <div>
-                      <p className="text-2xl font-bold">{stats?.upcomingPlaylists ?? 0}</p>
-                      <p className="text-sm text-muted-foreground">{t.dashboard.upcoming}</p>
-                    </div>
-                  </div>
+                  <div className="h-0.5 w-8 rounded-full mb-3 bg-primary" />
+                  <p className="text-3xl font-black tabular-nums">{stats?.upcomingPlaylists ?? 0}</p>
+                  <p className="text-xs uppercase tracking-widest text-muted-foreground mt-1">
+                    {t.dashboard.upcoming}
+                  </p>
                 </Link>
-              </>
-            )}
-          </div>
+              </div>
+            </div>
+          )}
 
+          {/* Bento: Recent Songs (2/3) + Activity Feed (1/3) */}
           <div className="grid gap-6 lg:grid-cols-3">
-            <div className="lg:col-span-2 rounded-lg border bg-card shadow-sm">
-              <div className="flex items-center justify-between p-4 border-b">
+
+            {/* Recent Songs — watermark number floats behind list */}
+            <div className="lg:col-span-2 relative rounded-2xl border bg-card shadow-sm overflow-hidden">
+              {/* Watermark: total songs count */}
+              <div
+                className="pointer-events-none select-none absolute bottom-0 right-2 font-black leading-none text-foreground/[0.045]"
+                aria-hidden
+                style={{ fontSize: "clamp(6rem, 16vw, 12rem)" }}
+              >
+                {stats?.totalSongs ?? 0}
+              </div>
+
+              <div className="relative flex items-center justify-between p-5 border-b">
                 <div>
-                  <div className="flex items-center gap-2 mb-0.5">
-                    <div
-                      className="flex h-6 w-6 items-center justify-center rounded-full"
-                      style={{ backgroundColor: "color-mix(in oklch, var(--accent-songs) 10%, transparent)" }}
-                    >
-                      <Music className="h-3.5 w-3.5" style={{ color: "var(--accent-songs)" }} />
-                    </div>
-                    <h3 className="text-lg font-semibold">{t.dashboard.recentlyAdded}</h3>
-                  </div>
+                  <h3 className="font-bold tracking-tight">{t.dashboard.recentlyAdded}</h3>
                   <p className="text-sm text-muted-foreground">{t.dashboard.latestSongs}</p>
                 </div>
-                <Button variant="ghost" size="sm" asChild className="hover:bg-accent">
+                <Button variant="ghost" size="sm" asChild className="hover:bg-accent shrink-0">
                   <Link href="/dashboard/songs">
                     {t.dashboard.viewAll}
                     <ArrowRight className="ml-1 h-4 w-4" />
                   </Link>
                 </Button>
               </div>
-              <div className="space-y-3 p-4">
+
+              <div className="relative space-y-1 p-4">
                 {songsLoading ? (
                   <>
                     <RecentSongSkeleton />
@@ -260,7 +237,7 @@ export default function DashboardClient({
                     <Link
                       key={song.id}
                       href={`/dashboard/songs/${song.id}`}
-                      className="flex items-center gap-4 rounded-xl p-3 transition hover:bg-muted/50 hover:shadow-sm cursor-pointer"
+                      className="flex items-center gap-4 rounded-xl p-3 transition-colors hover:bg-muted/50 cursor-pointer"
                     >
                       <KeyBadge keyValue={song.key} size="md" />
                       <div className="flex-1 min-w-0">
@@ -279,7 +256,7 @@ export default function DashboardClient({
                     </Link>
                   ))
                 ) : (
-                  <div className="text-center py-8 text-muted-foreground">
+                  <div className="text-center py-12 text-muted-foreground">
                     <Music className="mx-auto h-8 w-8 mb-2 opacity-50" />
                     <p>{t.dashboard.noSongsYet}</p>
                     <Button variant="link" asChild className="mt-2">
@@ -290,20 +267,17 @@ export default function DashboardClient({
               </div>
             </div>
 
-            <div className="rounded-lg border bg-card shadow-sm">
-              <div className="p-4 border-b">
-                <div className="flex items-center gap-2 mb-0.5">
-                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10">
-                    <Zap className="h-3.5 w-3.5 text-primary" />
-                  </div>
-                  <h3 className="text-lg font-semibold">{t.dashboard.recentActivity}</h3>
-                </div>
+            {/* Activity feed */}
+            <div className="rounded-2xl border bg-card shadow-sm overflow-hidden">
+              <div className="p-5 border-b">
+                <h3 className="font-bold tracking-tight">{t.dashboard.recentActivity}</h3>
                 <p className="text-sm text-muted-foreground">
                   {t.dashboard.recentActivityDescription}
                 </p>
               </div>
               <ActivityFeedLazy />
             </div>
+
           </div>
         </div>
       </main>

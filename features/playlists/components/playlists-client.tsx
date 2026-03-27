@@ -195,12 +195,15 @@ export function PlaylistsClient({ initialPlaylists = [], t }: PlaylistsClientPro
           <div className="border-b border-r p-4 lg:p-6">
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-2">
-                <h1 className="text-xl font-semibold tracking-tight lg:text-2xl">
+                <h1 className="text-xl font-black tracking-tighter lg:text-2xl">
                   {t.playlists.title}
                 </h1>
-                <Badge variant="secondary" suppressHydrationWarning>
-                  {playlists.length}
-                </Badge>
+                <span
+                  className="text-sm text-muted-foreground tabular-nums"
+                  suppressHydrationWarning
+                >
+                  · {playlists.length}
+                </span>
               </div>
               <Button size="sm" className="gap-1.5 rounded-full" onClick={handleCreateClick}>
                 <Plus className="h-4 w-4" />
@@ -385,14 +388,16 @@ export function PlaylistsClient({ initialPlaylists = [], t }: PlaylistsClientPro
               }}
             />
           ) : (
-            <div className="flex flex-1 flex-col items-center justify-center bg-muted/30 p-8 text-center">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted">
-                <ListMusic className="h-7 w-7 text-muted-foreground" />
+            <div className="flex flex-1 flex-col items-center justify-center bg-muted/30 relative overflow-hidden">
+              <div className="pointer-events-none select-none absolute inset-0 flex items-center justify-center" aria-hidden>
+                <ListMusic style={{ width: "45%", height: "45%" }} className="text-foreground/[0.04]" />
               </div>
-              <h3 className="mt-4 text-lg font-medium">{t.playlists.selectPlaylist}</h3>
-              <p className="mt-1 text-sm text-muted-foreground max-w-xs">
-                {t.playlists.selectPlaylistDescription}
-              </p>
+              <div className="relative text-center px-8">
+                <h3 className="text-lg font-black tracking-tight">{t.playlists.selectPlaylist}</h3>
+                <p className="mt-1 text-sm text-muted-foreground max-w-xs">
+                  {t.playlists.selectPlaylistDescription}
+                </p>
+              </div>
             </div>
           )}
         </ResizablePanel>

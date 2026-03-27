@@ -7,6 +7,7 @@ import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip
 import type { Playlist } from "@/features/playlists/types"
 import { useTranslation } from "@/hooks/use-translation"
 import { formatDate } from "@/lib/utils"
+import { cn } from "@/lib/utils"
 import { createOverlayIds } from "@/lib/ui/stable-overlay-ids"
 import { TeamIcon } from "@/components/ui/icon-picker"
 
@@ -34,28 +35,35 @@ export const PlaylistItem = memo(function PlaylistItem({
   return (
     <div
       onClick={() => onSelect(playlist)}
-      className={`relative flex w-full items-center gap-3 rounded-lg p-3 cursor-pointer transition-colors border touch-manipulation ${
+      className={cn(
+        "relative flex w-full items-center gap-3 rounded-xl p-3 cursor-pointer touch-manipulation shadow-sm transition",
         isSelected
-          ? "bg-primary/10 border-primary"
-          : "bg-card border-border/60 hover:bg-muted/50 hover:border-border"
-      }`}
+          ? "bg-accent-playlists/10 shadow-md ring-2 ring-accent-playlists/40"
+          : "bg-card hover:shadow-md hover:-translate-y-px"
+      )}
     >
+      {/* Icon badge */}
       <div
-        className={`flex h-10 w-10 items-center justify-center rounded-lg shrink-0 ${!bucketColor ? "bg-accent-playlists/15" : ""}`}
+        className="flex h-10 w-10 items-center justify-center rounded-xl shrink-0"
         style={
           bucketColor
             ? { background: `color-mix(in oklch, ${bucketColor} 15%, transparent)` }
-            : undefined
+            : { background: "color-mix(in oklch, var(--color-accent-playlists) 12%, transparent)" }
         }
       >
         <Music3
-          className={`h-5 w-5 ${!bucketColor ? "text-accent-playlists" : ""}`}
-          style={bucketColor ? { color: bucketColor } : undefined}
+          className="h-5 w-5"
+          style={
+            bucketColor
+              ? { color: bucketColor }
+              : { color: "var(--color-accent-playlists)" }
+          }
         />
       </div>
+
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <p className="text-sm font-medium truncate">{playlist.name}</p>
+          <p className="text-sm font-bold truncate">{playlist.name}</p>
           {playlist.isDraft && (
             <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 shrink-0">
               {t.playlists.draft}

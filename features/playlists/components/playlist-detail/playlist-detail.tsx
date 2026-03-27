@@ -299,14 +299,14 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
   }
 
   return (
-    <div className="flex flex-1 flex-col bg-muted/30">
+    <div className="flex flex-1 flex-col bg-muted/30 border-t-2 border-accent-playlists">
       <div className="shrink-0 flex flex-col border-b bg-background p-4 lg:p-6">
         <div className="flex items-center justify-between">
           <div className="flex-1 min-w-0">
             <EditableField
               value={playlist.name}
               onSave={(value) => onUpdate(playlist.id, { name: value })}
-              className="text-lg font-semibold"
+              className="text-lg font-black tracking-tight"
               label={t.common.clickToAdd}
             />
           </div>
@@ -328,7 +328,7 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
       <div className="flex-1 overflow-y-auto p-4 lg:p-6 space-y-6">
         {/* Details Section */}
         <div className="space-y-3">
-          <h3 className="text-sm font-medium">{t.playlistDetail.details}</h3>
+          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{t.playlistDetail.details}</h3>
           <div className="flex flex-wrap gap-2">
             <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
               <PopoverTrigger asChild>
@@ -378,8 +378,8 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
 
         {/* Privacy Settings Section */}
         <div className="space-y-3">
-          <h3 className="text-sm font-medium">{t.playlistDetail.privacySharing}</h3>
-          <div className="space-y-3 max-w-md">
+          <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{t.playlistDetail.privacySharing}</h3>
+          <div className="rounded-xl border bg-card shadow-sm p-4 space-y-4 max-w-md">
             <div className="flex items-center justify-between gap-4">
               <div className="space-y-0.5 flex-1">
                 <label className="text-sm font-medium">{t.playlistDetail.publicVisibility}</label>
@@ -450,7 +450,7 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
         {/* Songs Section */}
         <div>
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-medium">{t.playlistDetail.songs}</h3>
+            <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{t.playlistDetail.songs}</h3>
             <Button
               variant="outline"
               size="sm"
@@ -500,8 +500,8 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
         </div>
 
         {/* Danger Zone */}
-        <div className="rounded-lg border border-destructive/50 bg-card p-4">
-          <h3 className="text-sm font-semibold text-destructive mb-3">
+        <div className="rounded-2xl border border-destructive/30 bg-destructive/[0.02] p-4">
+          <h3 className="text-sm font-bold text-destructive mb-3">
             {t.playlistDetail.dangerZone}
           </h3>
           <div className="flex items-center justify-between gap-4">
@@ -516,11 +516,12 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
                 <Button
                   variant="destructive"
                   size="sm"
-                  className="shrink-0"
+                  className="shrink-0 gap-1.5 transition active:scale-[0.98]"
                   id={deleteDialogIds.triggerId}
                   aria-controls={deleteDialogIds.contentId}
                 >
                   <Trash2 className="h-3.5 w-3.5" />
+                  {t.playlistDetail.deletePlaylist}
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent id={deleteDialogIds.contentId}>

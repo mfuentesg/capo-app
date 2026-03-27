@@ -176,15 +176,15 @@ export function TeamMembersSection({
 
   return (
     <>
-      <div className="rounded-lg border bg-card p-6">
+      <div className="rounded-2xl border bg-card p-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <UsersIcon className="h-5 w-5" />
-            <h2 className="text-lg font-semibold">{t.teams.members}</h2>
+            <h2 className="text-base font-bold tracking-tight">{t.teams.members}</h2>
             <Badge variant="secondary">{totalCount}</Badge>
           </div>
           {canManageTeamMembers() && (
-            <Button size="sm" onClick={() => setIsInviteDialogOpen(true)}>
+            <Button onClick={() => setIsInviteDialogOpen(true)} className="transition active:scale-[0.98]">
               <UserPlus className="h-4 w-4 sm:mr-2" />
               <span className="hidden sm:inline">{t.teams.addMember}</span>
             </Button>

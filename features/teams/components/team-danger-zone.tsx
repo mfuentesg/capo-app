@@ -84,8 +84,8 @@ function OwnerDangerActions({
             <AlertDialogTrigger asChild>
               <Button
                 variant="destructive"
-                size="sm"
                 disabled={isDeleting}
+                className="transition active:scale-[0.98]"
                 id={deleteOnlyDialogIds.triggerId}
                 aria-controls={deleteOnlyDialogIds.contentId}
               >
@@ -127,8 +127,8 @@ function OwnerDangerActions({
             <AlertDialogTrigger asChild>
               <Button
                 variant="destructive"
-                size="sm"
                 disabled={isTransferring}
+                className="transition active:scale-[0.98]"
                 id={leaveDialogIds.triggerId}
                 aria-controls={leaveDialogIds.contentId}
               >
@@ -187,8 +187,8 @@ function OwnerDangerActions({
             <AlertDialogTrigger asChild>
               <Button
                 variant="outline"
-                size="sm"
                 disabled={isTransferring}
+                className="transition active:scale-[0.98]"
                 id={transferDialogIds.triggerId}
                 aria-controls={transferDialogIds.contentId}
               >
@@ -247,8 +247,8 @@ function OwnerDangerActions({
             <AlertDialogTrigger asChild>
               <Button
                 variant="destructive"
-                size="sm"
                 disabled={isDeleting}
+                className="transition active:scale-[0.98]"
                 id={deleteDialogIds.triggerId}
                 aria-controls={deleteDialogIds.contentId}
               >
@@ -300,8 +300,8 @@ function MemberLeaveAction({ teamName, onLeave, isLeaving }: MemberLeaveActionPr
           <AlertDialogTrigger asChild>
             <Button
               variant="destructive"
-              size="sm"
               disabled={isLeaving}
+              className="transition active:scale-[0.98]"
               id={leaveDialogIds.triggerId}
               aria-controls={leaveDialogIds.contentId}
             >
@@ -381,8 +381,8 @@ export function TeamDangerZone({
     member.user_full_name || member.user_email || member.user_id.slice(0, 8)
 
   return (
-    <div className="rounded-lg border border-destructive/50 bg-card p-6">
-      <h2 className="text-lg font-semibold text-destructive mb-4">{t.account.dangerZone}</h2>
+    <div className="rounded-2xl border border-destructive/30 bg-destructive/[0.02] p-6">
+      <h2 className="text-base font-bold text-destructive mb-4">{t.account.dangerZone}</h2>
       <ItemGroup className="gap-4">
         {isOwner ? (
           <OwnerDangerActions

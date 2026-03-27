@@ -129,7 +129,7 @@ function PlaylistDraftBody({
         onDragCancel={blockNextDocumentClick}
       >
         <SortableContext items={songs.map((s) => s.id)} strategy={verticalListSortingStrategy}>
-          <div className="space-y-3">
+          <div className="space-y-2">
             {songs.map((song, index) => (
               <SortableDraftItem key={song.id} song={song} index={index} onRemove={onRemove} />
             ))}
@@ -211,24 +211,20 @@ export function PlaylistDraft({
   }
 
   const trigger = (
-    <div className="fixed bottom-6 right-6 z-50">
-      <div className="relative">
-        <Button
-          className="h-14 w-14 rounded-full shadow-lg p-0 flex items-center justify-center"
-          size="lg"
-          aria-label={t.playlistDraft.openDraft}
-          id={drawerIds.triggerId}
-          aria-controls={drawerIds.contentId}
-        >
-          <ListMusic className="h-6 w-6" />
-        </Button>
-        <span className="absolute -top-2 -right-2 flex h-8 w-8">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-600 dark:bg-orange-500 opacity-75"></span>
-          <span className="relative inline-flex items-center justify-center rounded-full h-8 w-8 bg-orange-600 dark:bg-orange-500 text-white text-sm font-bold shadow-lg border-2 border-background">
-            {songs.length}
-          </span>
+    <div className="fixed bottom-6 right-4 sm:right-6 z-50">
+      <Button
+        className="h-12 rounded-full pl-3 pr-4 shadow-lg gap-2 font-semibold transition active:scale-[0.97]"
+        aria-label={t.playlistDraft.openDraft}
+        id={drawerIds.triggerId}
+        aria-controls={drawerIds.contentId}
+      >
+        {/* Count bubble */}
+        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary-foreground/20 text-xs font-black tabular-nums">
+          {songs.length}
         </span>
-      </div>
+        <ListMusic className="h-4 w-4" />
+        <span className="text-sm">{t.playlistDraft.addToPlaylist}</span>
+      </Button>
     </div>
   )
 
@@ -270,8 +266,8 @@ export function PlaylistDraft({
         <DialogTrigger asChild>{trigger}</DialogTrigger>
         <DialogContent className="sm:max-w-md flex flex-col max-h-[80vh]">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <ListMusic className="h-5 w-5" />
+            <DialogTitle className="flex items-center gap-2 font-black tracking-tight">
+              <ListMusic className="h-5 w-5 text-primary" />
               {t.playlistDraft.addToPlaylist}
             </DialogTitle>
             <DialogDescription>
@@ -295,8 +291,8 @@ export function PlaylistDraft({
         id={drawerIds.contentId}
       >
         <DrawerHeader>
-          <DrawerTitle className="flex items-center gap-2">
-            <ListMusic className="h-5 w-5" />
+          <DrawerTitle className="flex items-center gap-2 font-black tracking-tight">
+            <ListMusic className="h-5 w-5 text-primary" />
             {t.playlistDraft.addToPlaylist}
           </DrawerTitle>
           <DrawerDescription>

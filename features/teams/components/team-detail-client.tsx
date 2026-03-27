@@ -137,7 +137,21 @@ export function TeamDetailClient({
   }
 
   return (
-    <div className="min-h-screen bg-background p-4 sm:p-6 lg:p-8">
+    <div className="relative min-h-screen bg-background p-4 sm:p-6 lg:p-8 overflow-x-hidden">
+      {/* Gradient orbs */}
+      <div
+        className="pointer-events-none fixed inset-0 -z-10 overflow-hidden"
+        aria-hidden
+      >
+        <div
+          className="absolute -top-40 -left-40 h-80 w-80 rounded-full opacity-[0.07] blur-3xl"
+          style={{ background: "var(--color-accent-teams, oklch(0.495 0.265 295))" }}
+        />
+        <div
+          className="absolute top-20 -right-32 h-72 w-72 rounded-full opacity-[0.05] blur-3xl"
+          style={{ background: "var(--color-primary)" }}
+        />
+      </div>
       <div className="mx-auto max-w-4xl space-y-6">
         <TeamDetailHeader
           team={team}
@@ -173,3 +187,4 @@ export function TeamDetailClient({
     </div>
   )
 }
+
