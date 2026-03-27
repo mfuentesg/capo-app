@@ -15,7 +15,7 @@ const customJestConfig = {
     "^react-resizable-panels$": "<rootDir>/__mocks__/react-resizable-panels.js"
   },
   testMatch: ["**/__tests__/**/*.[jt]s?(x)", "**/?(*.)+(spec|test).[jt]s?(x)"],
-  testPathIgnorePatterns: ["/node_modules/", "/.next/", ".*fixtures\\.ts$"],
+  testPathIgnorePatterns: ["/node_modules/", "/.next/", ".*fixtures\\.ts$", "/.worktrees/"],
   collectCoverageFrom: [
     "app/auth/callback/route.ts",
     "features/**/api/actions.ts",

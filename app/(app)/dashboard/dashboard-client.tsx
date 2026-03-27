@@ -3,7 +3,7 @@
 import { } from "react"
 import Link from "next/link"
 import dynamic from "next/dynamic"
-import { Music, ListMusic, Plus, Clock, ArrowRight } from "lucide-react"
+import { ListMusic, Plus, Clock, ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import KeyBadge from "@/components/key-badge"
@@ -214,7 +214,7 @@ export default function DashboardClient({
 
               <div className="relative flex items-center justify-between p-5 border-b">
                 <div>
-                  <h3 className="font-bold tracking-tight">{t.dashboard.recentlyAdded}</h3>
+                  <h3 className="font-black tracking-tighter">{t.dashboard.recentlyAdded}</h3>
                   <p className="text-sm text-muted-foreground">{t.dashboard.latestSongs}</p>
                 </div>
                 <Button variant="ghost" size="sm" asChild className="hover:bg-accent shrink-0">
@@ -256,10 +256,10 @@ export default function DashboardClient({
                     </Link>
                   ))
                 ) : (
-                  <div className="text-center py-12 text-muted-foreground">
-                    <Music className="mx-auto h-8 w-8 mb-2 opacity-50" />
-                    <p>{t.dashboard.noSongsYet}</p>
-                    <Button variant="link" asChild className="mt-2">
+                  <div className="py-10 px-4">
+                    <div className="h-0.5 w-8 rounded-full mb-4" style={{ background: "var(--accent-songs)" }} />
+                    <p className="font-black tracking-tighter text-lg leading-none">{t.dashboard.noSongsYet}</p>
+                    <Button variant="link" asChild className="mt-3 px-0 text-muted-foreground hover:text-foreground">
                       <Link href="/dashboard/songs">{t.dashboard.addYourFirstSong}</Link>
                     </Button>
                   </div>
@@ -270,7 +270,7 @@ export default function DashboardClient({
             {/* Activity feed */}
             <div className="rounded-2xl border bg-card shadow-sm overflow-hidden">
               <div className="p-5 border-b">
-                <h3 className="font-bold tracking-tight">{t.dashboard.recentActivity}</h3>
+                <h3 className="font-black tracking-tighter">{t.dashboard.recentActivity}</h3>
                 <p className="text-sm text-muted-foreground">
                   {t.dashboard.recentActivityDescription}
                 </p>
