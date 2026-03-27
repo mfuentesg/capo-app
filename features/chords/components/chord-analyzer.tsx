@@ -7,7 +7,7 @@ import { useChordAnalyzer } from "../hooks/use-chord-analyzer"
 import { FretboardInput } from "./fretboard-input"
 import { getChordsByKey } from "../utils/chord-db-helpers"
 import { useLocale } from "@/features/settings"
-import { RotateCcw, Hand, SearchX } from "lucide-react"
+import { RotateCcw } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useChordOrientation } from "@/hooks/use-chord-orientation"
 
@@ -99,14 +99,9 @@ export function ChordAnalyzer() {
 
       {/* Results */}
       {hasInput && results.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-12 gap-3 text-center">
-          <div className="rounded-full bg-muted p-4">
-            <SearchX className="h-7 w-7 text-muted-foreground" />
-          </div>
-          <div>
-            <p className="text-sm font-medium text-foreground">{t.chords.analyzer.noMatchTitle}</p>
-            <p className="text-xs text-muted-foreground mt-1">{t.chords.analyzer.noMatch}</p>
-          </div>
+        <div className="py-6 text-center">
+          <p className="text-sm font-semibold text-foreground">{t.chords.analyzer.noMatchTitle}</p>
+          <p className="text-xs text-muted-foreground mt-1">{t.chords.analyzer.noMatch}</p>
         </div>
       )}
 
@@ -128,7 +123,7 @@ export function ChordAnalyzer() {
                     )}
                   >
                     <div className="flex w-full items-start justify-between">
-                      <span className="text-base font-black tracking-tight leading-none">
+                      <span className="text-base font-black tracking-tighter leading-none">
                         {result.name}
                       </span>
                       {result.confidence === "exact" && (
@@ -160,14 +155,9 @@ export function ChordAnalyzer() {
       )}
 
       {!hasInput && (
-        <div className="flex flex-col items-center justify-center py-12 gap-3 text-center">
-          <div className="rounded-full bg-muted p-4">
-            <Hand className="h-7 w-7 text-muted-foreground" />
-          </div>
-          <div>
-            <p className="text-sm font-medium text-foreground">{t.chords.analyzer.emptyStateTitle}</p>
-            <p className="text-xs text-muted-foreground mt-1">{t.chords.analyzer.emptyState}</p>
-          </div>
+        <div className="py-6 text-center">
+          <p className="text-sm font-semibold text-foreground">{t.chords.analyzer.emptyStateTitle}</p>
+          <p className="text-xs text-muted-foreground mt-1">{t.chords.analyzer.emptyState}</p>
         </div>
       )}
     </div>

@@ -347,13 +347,13 @@ export function LandingPage({ t }: { t: ReturnType<typeof getTranslations> }) {
           {/* Bento grid — lg: 12-col explicit placement */}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-12 lg:grid-rows-3">
             {/* Song Library — tall, rows 1–2, cols 1–5 */}
-            <div className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card p-8 transition duration-300 ease-out hover:-translate-y-1 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5 lg:col-span-5 lg:col-start-1 lg:row-span-2 lg:row-start-1">
+            <div className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card p-8 transition-[transform,box-shadow,border-color] duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5 lg:col-span-5 lg:col-start-1 lg:row-span-2 lg:row-start-1">
               <div aria-hidden className="absolute inset-0 rounded-2xl bg-linear-to-br from-primary/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
               <div className="relative">
                 <div className="mb-5 inline-flex items-center justify-center rounded-xl bg-blue-500/10 p-3">
                   <Music className="h-6 w-6 text-blue-500" />
                 </div>
-                <h3 className="mb-2 text-xl font-bold tracking-tight">{features[0].title}</h3>
+                <h3 className="mb-2 text-xl font-bold tracking-tighter">{features[0].title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">{features[0].description}</p>
                 <div className="mt-6 space-y-2">
                   {LIBRARY_SONGS.slice(0, 3).map((song) => (
@@ -368,13 +368,13 @@ export function LandingPage({ t }: { t: ReturnType<typeof getTranslations> }) {
             </div>
 
             {/* ChordPro Editor — row 1, cols 6–12 */}
-            <div className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card p-8 transition duration-300 ease-out hover:-translate-y-1 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5 lg:col-span-7 lg:col-start-6 lg:row-start-1">
+            <div className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card p-8 transition-[transform,box-shadow,border-color] duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5 lg:col-span-7 lg:col-start-6 lg:row-start-1">
               <div aria-hidden className="absolute inset-0 rounded-2xl bg-linear-to-br from-primary/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
               <div className="relative">
                 <div className="mb-5 inline-flex items-center justify-center rounded-xl bg-violet-500/10 p-3">
                   <FileText className="h-6 w-6 text-violet-500" />
                 </div>
-                <h3 className="mb-2 text-xl font-bold tracking-tight">{features[1].title}</h3>
+                <h3 className="mb-2 text-xl font-bold tracking-tighter">{features[1].title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">{features[1].description}</p>
                 <div className="mt-5 rounded-xl bg-background/60 p-4 font-mono text-xs leading-7">
                   <span className="text-primary/70">{"{key: A}"}</span>
@@ -395,13 +395,13 @@ export function LandingPage({ t }: { t: ReturnType<typeof getTranslations> }) {
             </div>
 
             {/* Smart Setlists — row 2, cols 6–9 */}
-            <div className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card p-8 transition duration-300 ease-out hover:-translate-y-1 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5 lg:col-span-4 lg:col-start-6 lg:row-start-2">
+            <div className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card p-8 transition-[transform,box-shadow,border-color] duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5 lg:col-span-4 lg:col-start-6 lg:row-start-2">
               <div aria-hidden className="absolute inset-0 rounded-2xl bg-linear-to-br from-primary/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
               <div className="relative">
                 <div className="mb-5 inline-flex items-center justify-center rounded-xl bg-primary/10 p-3">
                   <ListMusic className="h-6 w-6 text-primary" />
                 </div>
-                <h3 className="mb-2 text-xl font-bold tracking-tight">{features[2].title}</h3>
+                <h3 className="mb-2 text-xl font-bold tracking-tighter">{features[2].title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">{features[2].description}</p>
                 <div className="mt-5 space-y-1.5">
                   {SETLISTS.map((name, i) => (
@@ -416,13 +416,13 @@ export function LandingPage({ t }: { t: ReturnType<typeof getTranslations> }) {
             </div>
 
             {/* Team Collaboration — row 2, cols 10–12 */}
-            <div className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card p-7 transition duration-300 ease-out hover:-translate-y-1 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5 lg:col-span-3 lg:col-start-10 lg:row-start-2">
+            <div className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card p-7 transition-[transform,box-shadow,border-color] duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5 lg:col-span-3 lg:col-start-10 lg:row-start-2">
               <div aria-hidden className="absolute inset-0 rounded-2xl bg-linear-to-br from-primary/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
               <div className="relative">
                 <div className="mb-5 inline-flex items-center justify-center rounded-xl bg-green-500/10 p-3">
                   <Users className="h-6 w-6 text-green-500" />
                 </div>
-                <h3 className="mb-2 text-lg font-bold tracking-tight">{features[3].title}</h3>
+                <h3 className="mb-2 text-lg font-bold tracking-tighter">{features[3].title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">{features[3].description}</p>
                 <div className="mt-5 flex -space-x-2">
                   {TEAM_MEMBERS.slice(0, 3).map((m) => (
@@ -444,13 +444,13 @@ export function LandingPage({ t }: { t: ReturnType<typeof getTranslations> }) {
             </div>
 
             {/* Instant Sharing — row 3, cols 1–8 */}
-            <div className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card p-8 transition duration-300 ease-out hover:-translate-y-1 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5 lg:col-span-8 lg:col-start-1 lg:row-start-3">
+            <div className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card p-8 transition-[transform,box-shadow,border-color] duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5 lg:col-span-8 lg:col-start-1 lg:row-start-3">
               <div aria-hidden className="absolute inset-0 rounded-2xl bg-linear-to-br from-primary/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
               <div className="relative">
                 <div className="mb-5 inline-flex items-center justify-center rounded-xl bg-pink-500/10 p-3">
                   <Share2 className="h-6 w-6 text-pink-500" />
                 </div>
-                <h3 className="mb-2 text-xl font-bold tracking-tight">{features[4].title}</h3>
+                <h3 className="mb-2 text-xl font-bold tracking-tighter">{features[4].title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">{features[4].description}</p>
                 <div className="mt-5 flex items-center gap-3 rounded-xl border border-border/60 bg-background/60 px-4 py-3">
                   <span className="min-w-0 flex-1 truncate font-mono text-xs text-muted-foreground">
@@ -465,13 +465,13 @@ export function LandingPage({ t }: { t: ReturnType<typeof getTranslations> }) {
             </div>
 
             {/* Chord Diagrams — row 3, cols 9–12 */}
-            <div className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card p-7 transition duration-300 ease-out hover:-translate-y-1 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5 lg:col-span-4 lg:col-start-9 lg:row-start-3">
+            <div className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card p-7 transition-[transform,box-shadow,border-color] duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5 lg:col-span-4 lg:col-start-9 lg:row-start-3">
               <div aria-hidden className="absolute inset-0 rounded-2xl bg-linear-to-br from-primary/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
               <div className="relative">
                 <div className="mb-5 inline-flex items-center justify-center rounded-xl bg-amber-500/10 p-3">
                   <Guitar className="h-6 w-6 text-amber-500" />
                 </div>
-                <h3 className="mb-2 text-lg font-bold tracking-tight">{features[5].title}</h3>
+                <h3 className="mb-2 text-lg font-bold tracking-tighter">{features[5].title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">{features[5].description}</p>
               </div>
             </div>

@@ -135,9 +135,10 @@ export function PendingInvitationsClient({
             <div className="pointer-events-none select-none absolute inset-0 flex items-center justify-center" aria-hidden>
               <Mail style={{ width: "40%", height: "40%" }} className="text-foreground/[0.04]" />
             </div>
-            <div className="relative text-center py-16 px-8 space-y-4">
+            <div className="relative p-8 space-y-4">
+              <div className="h-0.5 w-8 rounded-full" style={{ background: "var(--accent-activity)" }} />
               <div className="space-y-1">
-                <p className="font-black text-lg tracking-tight">{t.invitations.emptyTitle}</p>
+                <p className="font-black text-lg tracking-tighter leading-none">{t.invitations.emptyTitle}</p>
                 <p className="text-sm text-muted-foreground">{t.invitations.emptyDescription}</p>
               </div>
               <Button onClick={() => router.push("/dashboard/teams")} className="transition active:scale-[0.98]">

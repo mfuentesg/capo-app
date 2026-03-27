@@ -122,32 +122,31 @@ export const PlaylistItem = memo(function PlaylistItem({
           )}
           {ownershipLabel && bucketColor && (
             <span
-              className="shrink-0 inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-medium"
+              className="shrink-0 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium"
               style={{
                 color: bucketColor,
                 background: `color-mix(in oklch, ${bucketColor} 15%, transparent)`
               }}
             >
-              <span
-                data-testid="ownership-dot"
-                className="h-1.5 w-1.5 rounded-sm shrink-0"
-                style={{ background: bucketColor }}
-              />
+              {teamIcon ? (
+                <TeamIcon
+                  data-testid="ownership-dot"
+                  icon={teamIcon}
+                  className="h-3 w-3 shrink-0"
+                />
+              ) : (
+                <span
+                  data-testid="ownership-dot"
+                  className="h-1.5 w-1.5 rounded-full shrink-0"
+                  style={{ background: bucketColor }}
+                />
+              )}
               {ownershipLabel}
             </span>
           )}
         </div>
       </div>
 
-      {bucketColor && teamIcon && (
-        <span
-          className="absolute top-1.5 right-1.5 flex size-4 items-center justify-center rounded-full text-[9px]"
-          style={{ background: `color-mix(in oklch, ${bucketColor} 25%, transparent)` }}
-          aria-hidden
-        >
-          <TeamIcon icon={teamIcon} className="size-2.5" />
-        </span>
-      )}
     </div>
   )
 })

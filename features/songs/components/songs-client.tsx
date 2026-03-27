@@ -546,13 +546,14 @@ export function SongsClient({ initialSongs = [], t }: SongsClientProps) {
               onTransferSuccess={handleTransferSuccess}
             />
           ) : (
-            <div className="flex flex-1 flex-col items-center justify-center bg-muted/30 relative overflow-hidden">
+            <div className="flex flex-1 flex-col justify-end bg-muted/30 relative overflow-hidden p-8 lg:p-12">
               <div className="pointer-events-none select-none absolute inset-0 flex items-center justify-center" aria-hidden>
                 <Music style={{ width: "45%", height: "45%" }} className="text-foreground/[0.04]" />
               </div>
-              <div className="relative text-center px-8">
-                <h3 className="text-lg font-black tracking-tight">{t.songs.selectSong}</h3>
-                <p className="mt-1 text-sm text-muted-foreground max-w-xs">
+              <div className="relative">
+                <div className="h-0.5 w-8 rounded-full mb-4" style={{ background: "var(--accent-songs)" }} />
+                <h3 className="text-lg font-black tracking-tighter leading-none">{t.songs.selectSong}</h3>
+                <p className="mt-2 text-sm text-muted-foreground max-w-xs leading-relaxed">
                   {t.songs.selectSongDescription}
                 </p>
               </div>

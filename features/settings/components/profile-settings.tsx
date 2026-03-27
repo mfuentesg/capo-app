@@ -22,7 +22,7 @@ export function ProfileSettings() {
   return (
     <section className="space-y-5">
       <div>
-        <h2 className="text-base font-bold tracking-tight">{t.settings.profile}</h2>
+        <h2 className="text-base font-black tracking-tighter">{t.settings.profile}</h2>
         <p className="text-sm text-muted-foreground mt-0.5">{t.settings.profileDescription}</p>
       </div>
 
@@ -37,7 +37,7 @@ export function ProfileSettings() {
         </div>
 
         <div className="min-w-0 flex-1 space-y-1">
-          <p className="truncate font-bold tracking-tight">{displayName}</p>
+          <p className="truncate font-black tracking-tighter">{displayName}</p>
           {user?.email && (
             <p className="truncate text-sm text-muted-foreground">{user.email}</p>
           )}
