@@ -5,7 +5,6 @@ import { ChordCard } from "./chord-card"
 import { ChordDiagram } from "@/features/lyrics-editor"
 import { keyLabel, type ChordEntry } from "../utils/chord-db-helpers"
 import { useLocale } from "@/features/settings"
-import { SearchX } from "lucide-react"
 
 interface ChordGridProps {
   chords: ChordEntry[]
@@ -22,14 +21,10 @@ export function ChordGrid({ chords }: ChordGridProps) {
 
   if (chords.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 gap-3 text-center">
-        <div className="rounded-full bg-muted p-4">
-          <SearchX className="h-7 w-7 text-muted-foreground" />
-        </div>
-        <div>
-          <p className="text-sm font-medium text-foreground">{t.chords.glossary.noResults}</p>
-          <p className="text-xs text-muted-foreground mt-1">{t.common.tryDifferentSearch}</p>
-        </div>
+      <div className="py-10 px-2">
+        <div className="h-0.5 w-8 rounded-full mb-4 bg-muted-foreground/30" />
+        <p className="font-black tracking-tighter text-base leading-none mb-1">{t.chords.glossary.noResults}</p>
+        <p className="text-xs text-muted-foreground">{t.common.tryDifferentSearch}</p>
       </div>
     )
   }

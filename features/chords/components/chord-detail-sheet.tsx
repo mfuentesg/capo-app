@@ -64,7 +64,7 @@ export function ChordDetailSheet({ chord, onClose }: ChordDetailSheetProps) {
 
         <SheetHeader className="mb-4">
           <div>
-            <SheetTitle className="text-3xl font-black tracking-tight">{displayName}</SheetTitle>
+            <SheetTitle className="text-3xl font-black tracking-tighter">{displayName}</SheetTitle>
             {total > 1 && (
               <p className="text-xs text-muted-foreground uppercase tracking-widest mt-0.5">
                 {t.chords.positionOf
