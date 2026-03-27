@@ -99,10 +99,9 @@ export function ChordAnalyzer() {
 
       {/* Results */}
       {hasInput && results.length === 0 && (
-        <div className="py-8 px-2">
-          <div className="h-0.5 w-8 rounded-full mb-4 bg-muted-foreground/30" />
-          <p className="font-black tracking-tighter text-base leading-none mb-1">{t.chords.analyzer.noMatchTitle}</p>
-          <p className="text-xs text-muted-foreground">{t.chords.analyzer.noMatch}</p>
+        <div className="py-6 text-center">
+          <p className="text-sm font-semibold text-foreground">{t.chords.analyzer.noMatchTitle}</p>
+          <p className="text-xs text-muted-foreground mt-1">{t.chords.analyzer.noMatch}</p>
         </div>
       )}
 
@@ -156,10 +155,9 @@ export function ChordAnalyzer() {
       )}
 
       {!hasInput && (
-        <div className="py-8 px-2">
-          <div className="h-0.5 w-8 rounded-full mb-4 bg-muted-foreground/30" />
-          <p className="font-black tracking-tighter text-base leading-none mb-1">{t.chords.analyzer.emptyStateTitle}</p>
-          <p className="text-xs text-muted-foreground">{t.chords.analyzer.emptyState}</p>
+        <div className="py-6 text-center">
+          <p className="text-sm font-semibold text-foreground">{t.chords.analyzer.emptyStateTitle}</p>
+          <p className="text-xs text-muted-foreground mt-1">{t.chords.analyzer.emptyState}</p>
         </div>
       )}
     </div>
