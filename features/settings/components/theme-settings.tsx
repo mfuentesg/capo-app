@@ -10,10 +10,16 @@ import { setThemeAction } from "@/lib/actions/theme"
 const THEMES = ["light", "dark", "system"] as const
 type Theme = (typeof THEMES)[number]
 
-const THEME_CONFIG: Record<Theme, { icon: typeof Sun; label: string }> = {
-  light: { icon: Sun, label: "Light" },
-  dark: { icon: Moon, label: "Dark" },
-  system: { icon: Monitor, label: "System" }
+const THEME_ICONS: Record<Theme, typeof Sun> = {
+  light: Sun,
+  dark: Moon,
+  system: Monitor
+}
+
+const THEME_LABEL_KEYS: Record<Theme, "themeLight" | "themeDark" | "themeSystem"> = {
+  light: "themeLight",
+  dark: "themeDark",
+  system: "themeSystem"
 }
 
 // next-themes reads from localStorage on the client, which may differ from the
@@ -45,7 +51,8 @@ export function ThemeSettings() {
       </div>
       <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label={t.settings.theme}>
         {THEMES.map((option) => {
-          const { icon: Icon, label } = THEME_CONFIG[option]
+          const Icon = THEME_ICONS[option]
+          const label = t.settings[THEME_LABEL_KEYS[option]]
           const isActive = activeTheme === option
           return (
             <label
