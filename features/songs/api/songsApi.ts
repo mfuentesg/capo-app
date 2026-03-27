@@ -121,6 +121,21 @@ const SONG_COLUMNS = "id, title, artist, key, bpm, lyrics, notes, transpose, cap
 const SONG_COLUMNS_WITH_OWNERSHIP =
   "id, title, artist, key, bpm, lyrics, notes, transpose, capo, status, user_id, team_id"
 
+/**
+ * Builds a prefix-matching tsquery string for use with to_tsquery().
+ * Each word gets a :* suffix so partial inputs match (e.g. "lib" matches "Libertad").
+ * Special tsquery characters are stripped to prevent syntax errors.
+ */
+function buildPrefixTsQuery(searchQuery: string): string {
+  return searchQuery
+    .trim()
+    .split(/\s+/)
+    .map((w) => w.replace(/[&|!():*\\]/g, ""))
+    .filter((w) => w.length > 0)
+    .map((w) => `${w}:*`)
+    .join(" & ")
+}
+
 export async function getSongs(
   supabase: SupabaseClient,
   context: AppContext,
@@ -130,7 +145,7 @@ export async function getSongs(
   query = applyContextFilter(query, context)
 
   if (searchQuery && searchQuery.trim().length > 0) {
-    query = query.textSearch("search_vector", searchQuery.trim(), { type: "websearch" })
+    query = query.textSearch("search_vector", buildPrefixTsQuery(searchQuery))
   }
 
   const { data, error } = await query.order("created_at", { ascending: false })
@@ -172,7 +187,7 @@ export async function getSongsAllBuckets(
     .or(orFilter)
 
   if (searchQuery && searchQuery.trim().length > 0) {
-    query = query.textSearch("search_vector", searchQuery.trim(), { type: "websearch" })
+    query = query.textSearch("search_vector", buildPrefixTsQuery(searchQuery))
   }
 
   const { data, error } = await query.order("created_at", { ascending: false })

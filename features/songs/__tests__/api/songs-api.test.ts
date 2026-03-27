@@ -17,14 +17,20 @@ function makeMockSupabase(rows: object[] = []) {
 }
 
 describe("getSongs", () => {
-  it("calls textSearch when a non-empty query is provided", async () => {
+  it("calls textSearch with prefix query when a non-empty query is provided", async () => {
     const { supabase, chain } = makeMockSupabase()
 
     await getSongs(supabase, mockPersonalContext, "amazing grace")
 
-    expect(chain.textSearch).toHaveBeenCalledWith("search_vector", "amazing grace", {
-      type: "websearch"
-    })
+    expect(chain.textSearch).toHaveBeenCalledWith("search_vector", "amazing:* & grace:*")
+  })
+
+  it("applies prefix matching for partial words", async () => {
+    const { supabase, chain } = makeMockSupabase()
+
+    await getSongs(supabase, mockPersonalContext, "hay lib")
+
+    expect(chain.textSearch).toHaveBeenCalledWith("search_vector", "hay:* & lib:*")
   })
 
   it("does not call textSearch when query is empty", async () => {
