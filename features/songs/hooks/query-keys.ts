@@ -12,8 +12,10 @@ import type { AppContext } from "@/features/app-context"
 export const songsKeys = {
   all: ["songs"] as const,
   lists: () => [...songsKeys.all, "list"] as const,
-  list: (context: AppContext) => [...songsKeys.lists(), context] as const,
-  listAll: (userId: string) => [...songsKeys.lists(), "all", userId] as const,
+  list: (context: AppContext, searchQuery?: string) =>
+    [...songsKeys.lists(), context, searchQuery ?? ""] as const,
+  listAll: (userId: string, searchQuery?: string) =>
+    [...songsKeys.lists(), "all", userId, searchQuery ?? ""] as const,
   details: () => [...songsKeys.all, "detail"] as const,
   detail: (id: string) => [...songsKeys.details(), id] as const,
   allUserSettings: () => [...songsKeys.all, "user-settings", "all"] as const,

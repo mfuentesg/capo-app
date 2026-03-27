@@ -50,7 +50,6 @@ export interface SongListProps {
   songs: Song[]
   previewSong?: Song | null
   selectedSong?: Song | null
-  searchQuery: string
   groupBy: GroupBy
   filterStatus: SongFilterStatus
   bpmRange: BPMRange

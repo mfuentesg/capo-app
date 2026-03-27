@@ -123,10 +123,15 @@ const SONG_COLUMNS_WITH_OWNERSHIP =
 
 export async function getSongs(
   supabase: SupabaseClient,
-  context: AppContext
+  context: AppContext,
+  searchQuery?: string
 ): Promise<FrontendSong[]> {
   let query = supabase.from("songs").select(SONG_COLUMNS)
   query = applyContextFilter(query, context)
+
+  if (searchQuery && searchQuery.trim().length > 0) {
+    query = query.textSearch("search_vector", searchQuery.trim(), { type: "websearch" })
+  }
 
   const { data, error } = await query.order("created_at", { ascending: false })
 
@@ -147,12 +152,13 @@ export async function getSongsAllBuckets(
   supabase: SupabaseClient,
   userId: string,
   teamIds: string[],
-  teams: Pick<Tables<"teams">, "id" | "name" | "icon">[]
+  teams: Pick<Tables<"teams">, "id" | "name" | "icon">[],
+  searchQuery?: string
 ): Promise<FrontendSong[]> {
   if (teamIds.length === 0) {
     // No teams — fall back to personal-only query
     const context: AppContext = { type: "personal", userId }
-    return getSongs(supabase, context)
+    return getSongs(supabase, context, searchQuery)
   }
 
   const orFilter = [
@@ -160,11 +166,16 @@ export async function getSongsAllBuckets(
     ...teamIds.map((id) => `team_id.eq.${id}`)
   ].join(",")
 
-  const { data, error } = await supabase
+  let query = supabase
     .from("songs")
     .select(SONG_COLUMNS_WITH_OWNERSHIP)
     .or(orFilter)
-    .order("created_at", { ascending: false })
+
+  if (searchQuery && searchQuery.trim().length > 0) {
+    query = query.textSearch("search_vector", searchQuery.trim(), { type: "websearch" })
+  }
+
+  const { data, error } = await query.order("created_at", { ascending: false })
 
   if (error) throw error
   return (data || []).map((row) =>

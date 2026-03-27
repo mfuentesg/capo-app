@@ -22,10 +22,10 @@ import {
   upsertUserPreferences as upsertUserPreferencesApi
 } from "./user-preferences-api"
 
-export async function getSongsAction(context: AppContext): Promise<Song[]> {
+export async function getSongsAction(context: AppContext, searchQuery?: string): Promise<Song[]> {
   const supabase = await createClient()
   const [songs, settings] = await Promise.all([
-    getSongsApi(supabase, context),
+    getSongsApi(supabase, context, searchQuery),
     getAllUserSongSettingsApi(supabase, context.userId)
   ])
   const settingsBySongId = new Map(settings.map((s) => [s.songId, s]))
@@ -35,11 +35,12 @@ export async function getSongsAction(context: AppContext): Promise<Song[]> {
 export async function getSongsAllBucketsAction(
   userId: string,
   teamIds: string[],
-  teams: { id: string; name: string; icon: string | null }[]
+  teams: { id: string; name: string; icon: string | null }[],
+  searchQuery?: string
 ): Promise<Song[]> {
   const supabase = await createClient()
   const [songs, settings] = await Promise.all([
-    getSongsAllBucketsApi(supabase, userId, teamIds, teams),
+    getSongsAllBucketsApi(supabase, userId, teamIds, teams, searchQuery),
     getAllUserSongSettingsApi(supabase, userId)
   ])
   const settingsBySongId = new Map(settings.map((s) => [s.songId, s]))
