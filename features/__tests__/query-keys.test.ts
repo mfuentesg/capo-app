@@ -42,7 +42,7 @@ describe("query key factories", () => {
   it("builds song query keys", () => {
     expect(songsKeys.all).toEqual(["songs"])
     expect(songsKeys.lists()).toEqual(["songs", "list"])
-    expect(songsKeys.list(personalContext)).toEqual(["songs", "list", personalContext])
+    expect(songsKeys.list(personalContext)).toEqual(["songs", "list", personalContext, ""])
     expect(songsKeys.details()).toEqual(["songs", "detail"])
     expect(songsKeys.detail("song-2")).toEqual(["songs", "detail", "song-2"])
   })

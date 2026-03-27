@@ -37,17 +37,17 @@ function restoreSongQueries(
 /**
  * Internal hook for fetching songs from all accessible buckets
  */
-function useAllSongs() {
+function useAllSongs(searchQuery?: string) {
   const { context, teams } = useAppContext()
   const { data: user } = useUser()
 
   return useQuery({
-    queryKey: user?.id ? songsKeys.listAll(user.id) : songsKeys.lists(),
+    queryKey: user?.id ? songsKeys.listAll(user.id, searchQuery) : songsKeys.lists(),
     queryFn: async () => {
       if (!user?.id) return []
       const teamIds = teams.map((t) => t.id)
       const teamsMeta = teams.map((t) => ({ id: t.id, name: t.name, icon: t.icon ?? null }))
-      return getSongsAllBucketsAction(user.id, teamIds, teamsMeta)
+      return getSongsAllBucketsAction(user.id, teamIds, teamsMeta, searchQuery)
     },
     enabled: !!context && !!user?.id,
     staleTime: 30 * 1000,
@@ -59,11 +59,11 @@ function useAllSongs() {
  * Hook to fetch songs, routing between all-buckets and per-context queries
  * based on the current viewFilter.
  */
-export function useSongs() {
+export function useSongs(searchQuery?: string) {
   const { viewFilter } = useViewFilter()
   const { data: user } = useUser()
 
-  const allSongs = useAllSongs()
+  const allSongs = useAllSongs(searchQuery)
 
   // Derive the effective context from viewFilter when not "all"
   const filteredContext: AppContext | null =
@@ -74,10 +74,10 @@ export function useSongs() {
         : null
 
   const perContextSongs = useQuery({
-    queryKey: filteredContext ? songsKeys.list(filteredContext) : songsKeys.lists(),
+    queryKey: filteredContext ? songsKeys.list(filteredContext, searchQuery) : songsKeys.lists(),
     queryFn: async () => {
       if (!filteredContext) return []
-      return getSongsAction(filteredContext)
+      return getSongsAction(filteredContext, searchQuery)
     },
     enabled: viewFilter.type !== "all" && !!filteredContext && !!user?.id,
     staleTime: 30 * 1000,

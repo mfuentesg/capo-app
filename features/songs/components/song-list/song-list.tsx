@@ -33,7 +33,6 @@ export const SongList = memo(function SongList({
   songs,
   previewSong,
   selectedSong,
-  searchQuery,
   groupBy,
   filterStatus,
   bpmRange,
@@ -48,13 +47,7 @@ export const SongList = memo(function SongList({
   const showBucketColors = viewFilter.type === "all"
 
   const filteredSongs = useMemo(() => {
-    const normalizedQuery = searchQuery.trim().toLowerCase()
-    const filtered = songs.filter((song) => {
-      const matchesSearch =
-        normalizedQuery.length === 0 ||
-        song.title.toLowerCase().includes(normalizedQuery) ||
-        song.artist.toLowerCase().includes(normalizedQuery)
-
+    return songs.filter((song) => {
       const matchesStatus =
         filterStatus === "all" ||
         (filterStatus === "drafts" ? song.isDraft === true : song.isDraft !== true)
@@ -68,11 +61,9 @@ export const SongList = memo(function SongList({
             ? bpm >= 100 && bpm <= 140
             : bpm > 140)
 
-      return matchesSearch && matchesStatus && matchesBpm
+      return matchesStatus && matchesBpm
     })
-
-    return filtered
-  }, [bpmRange, filterStatus, searchQuery, songs])
+  }, [bpmRange, filterStatus, songs])
 
   const groupedSongs = useMemo(() => {
     if (groupBy === "none") {

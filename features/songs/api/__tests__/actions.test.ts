@@ -178,7 +178,7 @@ describe("getSongsAction", () => {
 
     const result = await getSongsAction(context)
 
-    expect(getSongsApi).toHaveBeenCalledWith(mockSupabase, context)
+    expect(getSongsApi).toHaveBeenCalledWith(mockSupabase, context, undefined)
     expect(getAllUserSongSettings).toHaveBeenCalledWith(mockSupabase, "user-1")
     expect(result).toEqual([{ ...songs[0], userSettings: settings[0] }])
   })
@@ -215,7 +215,8 @@ describe("getSongsAllBucketsAction", () => {
       mockSupabase,
       "user-1",
       ["team-1"],
-      [{ id: "team-1", name: "Band", icon: null }]
+      [{ id: "team-1", name: "Band", icon: null }],
+      undefined
     )
     expect(result).toEqual([{ ...songs[0], userSettings: settings[0] }])
   })

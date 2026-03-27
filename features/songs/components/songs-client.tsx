@@ -131,14 +131,10 @@ const SongDraftFormLazy = dynamic(
 export function SongsClient({ initialSongs = [], t }: SongsClientProps) {
   const { data: user } = useUser()
   const { context } = useAppContext()
-  const { data: songs = initialSongs, isLoading } = useSongs()
-  const createSongMutation = useCreateSong()
-  const [creationBucket, setCreationBucket] = useState<AppContext | null>(null)
-  const updateSongMutation = useUpdateSong()
-  const deleteSongMutation = useDeleteSong()
 
   const [isMobile, setIsMobile] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
+  const [debouncedQuery, setDebouncedQuery] = useState("")
   const [selectedSong, setSelectedSong] = useState<Song | null>(null)
   const [groupBy, setGroupBy] = useState<GroupBy>("none")
   const [filterStatus, setFilterStatus] = useState<SongFilterStatus>("all")
@@ -146,9 +142,15 @@ export function SongsClient({ initialSongs = [], t }: SongsClientProps) {
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false)
   const [isCreatingNewSong, setIsCreatingNewSong] = useState(false)
   const [previewSong, setPreviewSong] = useState<Song | null>(null)
+  const [creationBucket, setCreationBucket] = useState<AppContext | null>(null)
   const filterPopoverIds = createOverlayIds("songs-filter-popover")
   const resizeHandleIds = createOverlayIds("songs-layout-resize")
   const mobileDrawerIds = createOverlayIds("songs-mobile-drawer")
+
+  const { data: songs = initialSongs, isLoading } = useSongs(debouncedQuery || undefined)
+  const createSongMutation = useCreateSong()
+  const updateSongMutation = useUpdateSong()
+  const deleteSongMutation = useDeleteSong()
 
   // Track viewport to render Sheet only after mount and on mobile
   useEffect(() => {
@@ -167,6 +169,14 @@ export function SongsClient({ initialSongs = [], t }: SongsClientProps) {
       void import("@/features/song-draft")
     }
   }, [isMobile])
+
+  // Debounce search query before sending to server
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedQuery(searchQuery)
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [searchQuery])
 
   const updateSong = useCallback(
     (songId: string, updates: Partial<Song>) => {
@@ -504,7 +514,6 @@ export function SongsClient({ initialSongs = [], t }: SongsClientProps) {
               songs={songs}
               previewSong={previewSong}
               selectedSong={selectedSong}
-              searchQuery={searchQuery}
               groupBy={groupBy}
               filterStatus={filterStatus}
               bpmRange={bpmRange}

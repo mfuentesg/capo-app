@@ -7,11 +7,20 @@ describe("songsKeys", () => {
 
   it("list returns key scoped to context", () => {
     const context = { type: "personal" as const, userId: "u1" }
-    expect(songsKeys.list(context)).toEqual(["songs", "list", context])
+    expect(songsKeys.list(context)).toEqual(["songs", "list", context, ""])
+  })
+
+  it("list includes searchQuery when provided", () => {
+    const context = { type: "personal" as const, userId: "u1" }
+    expect(songsKeys.list(context, "grace")).toEqual(["songs", "list", context, "grace"])
   })
 
   it("listAll returns key scoped to userId", () => {
-    expect(songsKeys.listAll("u1")).toEqual(["songs", "list", "all", "u1"])
+    expect(songsKeys.listAll("u1")).toEqual(["songs", "list", "all", "u1", ""])
+  })
+
+  it("listAll includes searchQuery when provided", () => {
+    expect(songsKeys.listAll("u1", "grace")).toEqual(["songs", "list", "all", "u1", "grace"])
   })
 
   it("details returns base detail key", () => {
