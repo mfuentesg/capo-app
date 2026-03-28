@@ -82,6 +82,11 @@ Section types:
 | `start_of_bridge` / `end_of_bridge` | `sob` / `eob` | Bridge |
 | `start_of_tab` / `end_of_tab` | `sot` / `eot` | Tab |
 | `start_of_grid` / `end_of_grid` | `sog` / `eog` | Grid |
+| `start_of_intro` / `end_of_intro` | `soi` / `eoi` | Intro |
+| `start_of_outro` / `end_of_outro` | `soo` / `eoo` | Outro |
+| `start_of_pre_chorus` / `end_of_pre_chorus` | `sopc` / `eopc` | Pre-Chorus |
+
+> **Custom extensions** — `intro`, `outro`, and `pre_chorus` section types are not part of the official [ChordPro specification](https://www.chordpro.org/). They are app-specific additions.
 
 ### Performance flags
 
@@ -96,6 +101,7 @@ Flags render as small inline badges next to the section header:
 | `vamp` | purple `vamp` | Repeat freely until cue (jazz/gospel) |
 | `tag` | green `tag` | Tag ending — short closing phrase |
 | `break` | gray `break` | Full-band rest/pause |
+| `inline` | — | Renders chords on the same line as text instead of stacked above lyrics. Works on any section type. Custom extension. |
 
 ### Comments / section labels
 ```
@@ -136,7 +142,7 @@ buildSectionMap()          — extracts named section content into a Map<name, c
   ↓
 buildSegments()            — scans for section/repeat/comment directives, builds segment list
   ↓  for each segment:
-formatLyricsToHtml()       — preprocesses directives → ChordProParser → chord+lyric HTML
+formatLyricsToHtml() / formatInlineLyricsToHtml()  — preprocesses directives → ChordProParser → chord+lyric HTML (stacked or inline)
   ↓
 React render               — segments rendered as collapsible SectionHeader + content blocks
 ```

@@ -18,12 +18,12 @@ interface RenderedSongProps {
   columns?: 1 | 2
 }
 
-const SECTION_FLAGS = ["attention", "skip", "forte", "piano", "vamp", "tag", "break"] as const
+const SECTION_FLAGS = ["attention", "skip", "forte", "piano", "vamp", "tag", "break", "inline"] as const
 type SectionFlag = (typeof SECTION_FLAGS)[number]
 
 type LyricsSegment =
   | { type: "normal"; html: string }
-  | { type: "section"; name: string; sectionType: string; html: string; count: number; flags: SectionFlag[] }
+  | { type: "section"; name: string; sectionType: string; html: string; count: number; flags: SectionFlag[]; inline: boolean }
   | { type: "repeat"; name: string; count: number; html: string; found: boolean }
 
 // Unique tokens that survive ChordProParser unchanged (no [A-G] at word start).
@@ -40,14 +40,20 @@ const SECTION_DIRECTIVE_MAP: Record<string, string> = {
   start_of_tab: "tab",
   sot: "tab",
   start_of_grid: "grid",
-  sog: "grid"
+  sog: "grid",
+  start_of_intro: "intro",
+  soi: "intro",
+  start_of_outro: "outro",
+  soo: "outro",
+  start_of_pre_chorus: "pre_chorus",
+  sopc: "pre_chorus"
 }
 
 const SECTION_END_RE =
-  /\{(?:end_of_chorus|eoc|end_of_verse|eov|end_of_bridge|eob|end_of_tab|eot|end_of_grid|eog)\}/gi
+  /\{(?:end_of_chorus|eoc|end_of_verse|eov|end_of_bridge|eob|end_of_tab|eot|end_of_grid|eog|end_of_intro|eoi|end_of_outro|eoo|end_of_pre_chorus|eopc)\}/gi
 
 const SECTION_START_RE =
-  /\{(start_of_chorus|soc|start_of_verse|sov|start_of_bridge|sob|start_of_tab|sot|start_of_grid|sog)(?::\s*([^}]+))?\}/gi
+  /\{(start_of_chorus|soc|start_of_verse|sov|start_of_bridge|sob|start_of_tab|sot|start_of_grid|sog|start_of_intro|soi|start_of_outro|soo|start_of_pre_chorus|sopc)(?::\s*([^}]+))?\}/gi
 
 function formatLyricsToHtml(
   text: string,
@@ -140,16 +146,94 @@ function formatLyricsToHtml(
     .join("\n")
 }
 
+function formatInlineLyricsToHtml(
+  text: string,
+  transpose: number,
+  capo: number,
+  sectionLabels: Record<string, string>
+): string {
+  const commentLabels: string[] = []
+  const sectionStarts: { type: string; label: string }[] = []
+
+  let processedText = text.replace(
+    /\{c(?:omment(?:_italic|_box)?)?: *([^}]*)\}/gi,
+    (_, content: string) => {
+      commentLabels.push(content.trim())
+      return `${COMMENT_TOKEN}${commentLabels.length - 1}`
+    }
+  )
+
+  processedText = processedText
+    .replace(SECTION_START_RE, (_, directive: string, name?: string) => {
+      const type = SECTION_DIRECTIVE_MAP[directive.toLowerCase()] ?? "section"
+      const label = name?.trim() ?? sectionLabels[type] ?? type
+      sectionStarts.push({ type, label })
+      return `${SECTION_START_TOKEN}${sectionStarts.length - 1}`
+    })
+    .replace(SECTION_END_RE, "")
+
+  const parser = new ChordProParser()
+  let parsedSong = parser.parse(processedText)
+
+  if (transpose !== 0) {
+    parsedSong = parsedSong.transpose(transpose, { normalizeChordSuffix: false })
+  }
+  if (capo > 0) {
+    parsedSong = parsedSong.transpose(-capo, { normalizeChordSuffix: false })
+  }
+
+  return parsedSong.lines
+    .map((line) => {
+      const rawText = line.toString()
+
+      const commentMatch = rawText.match(new RegExp(`${COMMENT_TOKEN}(\\d+)`))
+      if (commentMatch) {
+        const label = commentLabels[parseInt(commentMatch[1], 10)]
+        return label ? `<span class="section-label">${label}</span>` : ""
+      }
+
+      const sectionMatch = rawText.match(new RegExp(`${SECTION_START_TOKEN}(\\d+)`))
+      if (sectionMatch) {
+        const { type, label } = sectionStarts[parseInt(sectionMatch[1], 10)]
+        return `<span class="section-label section-label--${type}">${label}</span>`
+      }
+
+      const inlineParts: string[] = []
+
+      line.items.forEach((item) => {
+        const chordPair = item as { chords?: string; lyrics?: string | null }
+        const contentItem = item as { content?: string }
+
+        const chord = chordPair.chords || ""
+        const lyrics = chordPair.lyrics || ""
+
+        // In ChordPro, lyrics precede the chord they annotate — output lyrics first, then chord.
+        if (lyrics) {
+          inlineParts.push(lyrics)
+        }
+        if (chord) {
+          inlineParts.push(`<span class="chord">${chord}</span> `)
+        }
+        if (!chord && !lyrics && contentItem.content) {
+          inlineParts.push(contentItem.content)
+        }
+      })
+
+      return inlineParts.join("").replace(/\s{2,}/g, " ").trim()
+    })
+    .join("\n")
+}
+
 // Matches the opening { of any directive that starts a new section or a repeat
 // reference, used to determine where a comment-defined section ends.
 const SECTION_BOUNDARY_RE =
-  /\{(?:c(?:omment(?:_italic|_box)?)?|start_of_(?:chorus|verse|bridge|tab|grid)|soc|sov|sob|sot|sog|repeat)(?:[:\s}])/
+  /\{(?:c(?:omment(?:_italic|_box)?)?|start_of_(?:chorus|verse|bridge|tab|grid|intro|outro|pre_chorus)|soc|sov|sob|sot|sog|soi|soo|sopc|repeat)(?:[:\s}])/
 
 // Scanner: finds all collapsible segment boundaries in order.
 // Unnamed {c} / {comment} (no colon+value) are intentionally skipped — they
 // render as empty labels and should not be treated as section boundaries.
 const SEGMENT_SCAN_RE =
-  /\{(start_of_chorus|soc|start_of_verse|sov|start_of_bridge|sob|start_of_tab|sot|start_of_grid|sog|c(?:omment(?:_italic|_box)?)?|repeat)(?::\s*([^}]*))?\}/gi
+  /\{(start_of_chorus|soc|start_of_verse|sov|start_of_bridge|sob|start_of_tab|sot|start_of_grid|sog|start_of_intro|soi|start_of_outro|soo|start_of_pre_chorus|sopc|c(?:omment(?:_italic|_box)?)?|repeat)(?::\s*([^}]*))?\}/gi
 
 function buildSectionMap(lyrics: string): Map<string, string> {
   const map = new Map<string, string>()
@@ -277,7 +361,8 @@ function buildSegments(
           sectionType: "comment",
           html: formatLyricsToHtml(content, transpose, capo, sectionLabels),
           count: 1,
-          flags: []
+          flags: [],
+          inline: false
         })
         newPos = matchEnd + (nextBoundary ? nextBoundary.index : remaining.length)
       }
@@ -289,17 +374,21 @@ function buildSegments(
         : { name: sectionLabels[sectionType] ?? sectionType, count: 1, flags: [] }
       const remaining = lyrics.slice(matchEnd)
       const endMatch =
-        /\{(?:end_of_chorus|eoc|end_of_verse|eov|end_of_bridge|eob|end_of_tab|eot|end_of_grid|eog)\}/i.exec(
+        /\{(?:end_of_chorus|eoc|end_of_verse|eov|end_of_bridge|eob|end_of_tab|eot|end_of_grid|eog|end_of_intro|eoi|end_of_outro|eoo|end_of_pre_chorus|eopc)\}/i.exec(
           remaining
         )
       const content = (endMatch ? remaining.slice(0, endMatch.index) : remaining).trim()
+      const inline = flags.includes("inline")
       segments.push({
         type: "section",
         name: parsedName,
         sectionType,
-        html: formatLyricsToHtml(content, transpose, capo, sectionLabels),
+        html: inline
+          ? formatInlineLyricsToHtml(content, transpose, capo, sectionLabels)
+          : formatLyricsToHtml(content, transpose, capo, sectionLabels),
         count,
-        flags
+        flags,
+        inline
       })
       newPos = matchEnd + (endMatch ? endMatch.index + endMatch[0].length : remaining.length)
     }
@@ -317,7 +406,8 @@ const FLAG_CONFIG: Record<SectionFlag, { label: string; className: string }> = {
   piano: { label: "p", className: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400 italic" },
   vamp: { label: "vamp", className: "bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-400" },
   tag: { label: "tag", className: "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400" },
-  break: { label: "break", className: "bg-muted text-muted-foreground" }
+  break: { label: "break", className: "bg-muted text-muted-foreground" },
+  inline: { label: "inline", className: "bg-muted text-muted-foreground" }
 }
 
 interface SectionHeaderProps {
@@ -417,7 +507,10 @@ export function RenderedSong({
       verse: t.songSections.verse,
       bridge: t.songSections.bridge,
       tab: t.songSections.tab,
-      grid: t.songSections.grid
+      grid: t.songSections.grid,
+      intro: t.songSections.intro,
+      outro: t.songSections.outro,
+      pre_chorus: t.songSections.pre_chorus
     }),
     [t]
   )

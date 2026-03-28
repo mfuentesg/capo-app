@@ -141,6 +141,34 @@ export const CHORDPRO_DIRECTIVES: ChordProDirective[] = [
       "{sog: Progression}\n| C . . . | G . . . |\n| Am . . . | F . . . |\n{eog}"
   },
 
+  // Custom extensions — not part of the official ChordPro specification
+  {
+    name: "start_of_intro",
+    shorthand: "soi",
+    category: "section",
+    description:
+      "Marks the beginning of an intro section. Pair with {end_of_intro} or {eoi}. Add the 'inline' flag to render chords on the same line as instrument labels instead of stacked above lyrics. Custom extension.",
+    example:
+      "{soi: Intro, inline}\nBass: [Gm][Bb][Dm] x2\nElectric Guitar: [Gm] x2\n{eoi}"
+  },
+  {
+    name: "start_of_outro",
+    shorthand: "soo",
+    category: "section",
+    description:
+      "Marks the beginning of an outro section. Pair with {end_of_outro} or {eoo}. Accepts an optional name, repeat count, and performance flags. Custom extension.",
+    example: "{soo: Outro}\n[Gm][Bb][Dm] x2\n{eoo}"
+  },
+  {
+    name: "start_of_pre_chorus",
+    shorthand: "sopc",
+    category: "section",
+    description:
+      "Marks the beginning of a pre-chorus section. Pair with {end_of_pre_chorus} or {eopc}. Accepts an optional name, repeat count, and performance flags. Custom extension.",
+    example:
+      "{sopc: Pre-Chorus}\n[Em]Every day I'm getting [C]closer\n{eopc}"
+  },
+
   // Comments
   {
     name: "comment",
@@ -261,5 +289,11 @@ export const SECTION_FLAG_DOCS: { flag: string; description: string; example: st
     flag: "break",
     description: "Full-band rest or pause before continuing.",
     example: "{sob: Break, break}\n[G]  ←  full stop, let it ring\n{eob}"
+  },
+  {
+    flag: "inline",
+    description:
+      "Renders chords on the same line as text instead of stacked above lyrics. Useful for instrument-specific intros or any section where chords and labels should appear together. Custom extension.",
+    example: "{soi: Intro, inline}\nBass: [Gm][Bb][Dm] x2\nElectric Guitar: [Gm] x2\n{eoi}"
   }
 ]

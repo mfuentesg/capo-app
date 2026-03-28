@@ -29,7 +29,7 @@ const SUPPORTED_DIRECTIVES = [
   { label: "capo", detail: "Capo fret position", apply: "capo: " },
   { label: "ca", detail: "Capo (short)", apply: "ca: " },
   { label: "meta", detail: "Custom metadata", apply: "meta: " },
-  // Sections — optional name, count, and performance flags (attention, skip, forte, piano, vamp, tag, break)
+  // Sections — optional name, count, and performance flags (attention, skip, forte, piano, vamp, tag, break, inline)
   { label: "start_of_chorus", detail: "Begin chorus — e.g. {soc: Chorus, 3, forte}", apply: "start_of_chorus: " },
   { label: "soc", detail: "Begin chorus (short) — e.g. {soc: Chorus, 3, forte}", apply: "soc: " },
   { label: "end_of_chorus", detail: "End chorus section", apply: "end_of_chorus}" },
@@ -50,6 +50,19 @@ const SUPPORTED_DIRECTIVES = [
   { label: "sog", detail: "Begin grid (short)", apply: "sog}" },
   { label: "end_of_grid", detail: "End chord grid section", apply: "end_of_grid}" },
   { label: "eog", detail: "End grid (short)", apply: "eog}" },
+  // Custom extensions — not part of the official ChordPro specification
+  { label: "start_of_intro", detail: "Begin intro section — e.g. {soi: Intro, inline}", apply: "start_of_intro: " },
+  { label: "soi", detail: "Begin intro (short)", apply: "soi: " },
+  { label: "end_of_intro", detail: "End intro section", apply: "end_of_intro}" },
+  { label: "eoi", detail: "End intro (short)", apply: "eoi}" },
+  { label: "start_of_outro", detail: "Begin outro section", apply: "start_of_outro: " },
+  { label: "soo", detail: "Begin outro (short)", apply: "soo: " },
+  { label: "end_of_outro", detail: "End outro section", apply: "end_of_outro}" },
+  { label: "eoo", detail: "End outro (short)", apply: "eoo}" },
+  { label: "start_of_pre_chorus", detail: "Begin pre-chorus section", apply: "start_of_pre_chorus: " },
+  { label: "sopc", detail: "Begin pre-chorus (short)", apply: "sopc: " },
+  { label: "end_of_pre_chorus", detail: "End pre-chorus section", apply: "end_of_pre_chorus}" },
+  { label: "eopc", detail: "End pre-chorus (short)", apply: "eopc}" },
   // Section references
   { label: "repeat", detail: "Reference a named section with optional count — e.g. {repeat: Chorus, 2}", apply: "repeat: " },
   // Comments

@@ -241,6 +241,24 @@
 .dark .section-repeat[data-section-type="grid"] {
   --section-accent: oklch(0.65 0.01 280);
 }
+.section-repeat[data-section-type="intro"] {
+  --section-accent: oklch(0.52 0.15 145);
+}
+.section-repeat[data-section-type="outro"] {
+  --section-accent: oklch(0.5 0.14 200);
+}
+.section-repeat[data-section-type="pre_chorus"] {
+  --section-accent: oklch(0.5 0.15 310);
+}
+.dark .section-repeat[data-section-type="intro"] {
+  --section-accent: oklch(0.72 0.14 145);
+}
+.dark .section-repeat[data-section-type="outro"] {
+  --section-accent: oklch(0.7 0.13 200);
+}
+.dark .section-repeat[data-section-type="pre_chorus"] {
+  --section-accent: oklch(0.72 0.14 310);
+}
 
 /* ── Section block ───────────────────────────────────────────────── */
 .section-repeat {
