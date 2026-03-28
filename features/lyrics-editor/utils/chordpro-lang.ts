@@ -29,7 +29,7 @@ const SUPPORTED_DIRECTIVES = [
   { label: "capo", detail: "Capo fret position", apply: "capo: " },
   { label: "ca", detail: "Capo (short)", apply: "ca: " },
   { label: "meta", detail: "Custom metadata", apply: "meta: " },
-  // Sections — optional name, count, and performance flags (attention, skip, forte, piano, vamp, tag, break, inline)
+  // Sections — optional name, count, and performance flags (attention, skip, forte, piano, vamp, tag, break)
   { label: "start_of_chorus", detail: "Begin chorus — e.g. {soc: Chorus, 3, forte}", apply: "start_of_chorus: " },
   { label: "soc", detail: "Begin chorus (short) — e.g. {soc: Chorus, 3, forte}", apply: "soc: " },
   { label: "end_of_chorus", detail: "End chorus section", apply: "end_of_chorus}" },

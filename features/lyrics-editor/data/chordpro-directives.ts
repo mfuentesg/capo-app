@@ -147,9 +147,9 @@ export const CHORDPRO_DIRECTIVES: ChordProDirective[] = [
     shorthand: "soi",
     category: "section",
     description:
-      "Marks the beginning of an intro section. Pair with {end_of_intro} or {eoi}. Add the 'inline' flag to render chords on the same line as instrument labels instead of stacked above lyrics. Custom extension.",
+      "Marks the beginning of an intro section. Pair with {end_of_intro} or {eoi}. Lines with both instrument labels and chords (e.g. Bass: [Gm][Bb]) render inline automatically. Custom extension.",
     example:
-      "{soi: Intro, inline}\nBass: [Gm][Bb][Dm] x2\nElectric Guitar: [Gm] x2\n{eoi}"
+      "{soi: Intro}\nBass: [Gm][Bb][Dm] x2\nElectric Guitar: [Gm] x2\n{eoi}"
   },
   {
     name: "start_of_outro",
@@ -289,11 +289,5 @@ export const SECTION_FLAG_DOCS: { flag: string; description: string; example: st
     flag: "break",
     description: "Full-band rest or pause before continuing.",
     example: "{sob: Break, break}\n[G]  ←  full stop, let it ring\n{eob}"
-  },
-  {
-    flag: "inline",
-    description:
-      "Renders chords on the same line as text instead of stacked above lyrics. Useful for instrument-specific intros or any section where chords and labels should appear together. Custom extension.",
-    example: "{soi: Intro, inline}\nBass: [Gm][Bb][Dm] x2\nElectric Guitar: [Gm] x2\n{eoi}"
   }
 ]

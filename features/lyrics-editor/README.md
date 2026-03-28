@@ -101,7 +101,6 @@ Flags render as small inline badges next to the section header:
 | `vamp` | purple `vamp` | Repeat freely until cue (jazz/gospel) |
 | `tag` | green `tag` | Tag ending — short closing phrase |
 | `break` | gray `break` | Full-band rest/pause |
-| `inline` | — | Renders chords on the same line as text instead of stacked above lyrics. Works on any section type. Custom extension. |
 
 ### Comments / section labels
 ```
@@ -142,7 +141,7 @@ buildSectionMap()          — extracts named section content into a Map<name, c
   ↓
 buildSegments()            — scans for section/repeat/comment directives, builds segment list
   ↓  for each segment:
-formatLyricsToHtml() / formatInlineLyricsToHtml()  — preprocesses directives → ChordProParser → chord+lyric HTML (stacked or inline)
+formatLyricsToHtml()       — preprocesses directives → ChordProParser → chord+lyric HTML (auto-inline when a line has both chords and text)
   ↓
 React render               — segments rendered as collapsible SectionHeader + content blocks
 ```
