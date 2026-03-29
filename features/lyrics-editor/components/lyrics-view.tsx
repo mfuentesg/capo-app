@@ -66,6 +66,7 @@ interface LyricsViewProps {
   hasPrevSong?: boolean
   hasNextSong?: boolean
   songPosition?: { current: number; total: number }
+  slideDirection?: "next" | "prev"
 }
 
 export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function LyricsView(
@@ -83,7 +84,8 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
     onNextSong,
     hasPrevSong = false,
     hasNextSong = false,
-    songPosition
+    songPosition,
+    slideDirection
   }: LyricsViewProps,
   ref
 ) {
@@ -394,7 +396,15 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
   )
 
   return (
-    <div ref={containerRef} className={cn("bg-background", isPanel ? "h-full" : "min-h-screen")}>
+    <div
+      ref={containerRef}
+      className={cn(
+        "bg-background",
+        isPanel ? "h-full" : "min-h-screen",
+        slideDirection === "next" && "animate-in slide-in-from-right-4 fade-in-0 duration-200",
+        slideDirection === "prev" && "animate-in slide-in-from-left-4 fade-in-0 duration-200"
+      )}
+    >
       {/* Header */}
       <div className="sticky top-0 z-10 border-b bg-background">
         <div className={cn("px-4 pt-2 pb-1", !isPanel && "container mx-auto")}>

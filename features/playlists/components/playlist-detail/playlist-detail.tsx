@@ -71,6 +71,7 @@ interface ActiveSongLyricsProps {
   hasPrevSong?: boolean
   hasNextSong?: boolean
   songPosition?: { current: number; total: number }
+  slideDirection?: "next" | "prev"
 }
 
 function ActiveSongLyrics({
@@ -82,7 +83,8 @@ function ActiveSongLyrics({
   onNextSong,
   hasPrevSong,
   hasNextSong,
-  songPosition
+  songPosition,
+  slideDirection
 }: ActiveSongLyricsProps) {
   const { data: userSettings } = useUserSongSettings(song)
   const effectiveSettings = useEffectiveSongSettings(song)
@@ -112,6 +114,7 @@ function ActiveSongLyrics({
       hasPrevSong={hasPrevSong}
       hasNextSong={hasNextSong}
       songPosition={songPosition}
+      slideDirection={slideDirection}
     />
   )
 }
@@ -231,6 +234,7 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
   const queryClient = useQueryClient()
   const [isCalendarOpen, setIsCalendarOpen] = useState(false)
   const [activeIndex, setActiveIndex] = useState<number | null>(null)
+  const [slideDirection, setSlideDirection] = useState<"next" | "prev" | null>(null)
   const [isAddSongsOpen, setIsAddSongsOpen] = useState(false)
   const deleteDialogIds = createOverlayIds(`playlist-detail-delete-${playlist.id}`)
   const calendarPopoverIds = createOverlayIds(`playlist-detail-calendar-${playlist.id}`)
@@ -296,7 +300,18 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
   const totalSongs = songsWithPosition.length
 
   const handleOpenLyrics = useCallback((index: number) => {
+    setSlideDirection(null)
     startTransition(() => setActiveIndex(index))
+  }, [])
+
+  const handlePrevSong = useCallback(() => {
+    setSlideDirection("prev")
+    setActiveIndex((i) => (i !== null && i > 0 ? i - 1 : i))
+  }, [])
+
+  const handleNextSong = useCallback((total: number) => {
+    setSlideDirection("next")
+    setActiveIndex((i) => (i !== null && i < total - 1 ? i + 1 : i))
   }, [])
 
   const handleSongReorder = async (sourceIndex: number, destinationIndex: number) => {
@@ -582,16 +597,14 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
           </SheetTitle>
           <div className="relative flex h-full flex-col">
 
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto overflow-x-hidden">
               {activeSong && (
                 <ActiveSongLyrics
                   key={activeSong.id}
                   song={activeSong}
                   onClose={() => setActiveIndex(null)}
-                  onPrevSong={() => setActiveIndex((i) => (i !== null && i > 0 ? i - 1 : i))}
-                  onNextSong={() =>
-                    setActiveIndex((i) => (i !== null && i < totalSongs - 1 ? i + 1 : i))
-                  }
+                  onPrevSong={handlePrevSong}
+                  onNextSong={() => handleNextSong(totalSongs)}
                   hasPrevSong={activeIndex !== null && activeIndex > 0}
                   hasNextSong={activeIndex !== null && activeIndex < totalSongs - 1}
                   songPosition={
@@ -599,6 +612,7 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
                       ? { current: activeIndex + 1, total: totalSongs }
                       : undefined
                   }
+                  slideDirection={slideDirection ?? undefined}
                   onSaveLyrics={(lyrics) => {
                     const songId = activeSong.id
                     queryClient.setQueryData(

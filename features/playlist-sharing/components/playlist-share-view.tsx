@@ -49,6 +49,7 @@ interface ActiveSongLyricsForShareProps {
   hasPrevSong?: boolean
   hasNextSong?: boolean
   songPosition?: { current: number; total: number }
+  slideDirection?: "next" | "prev"
 }
 
 function ActiveSongLyricsForShare({
@@ -60,7 +61,8 @@ function ActiveSongLyricsForShare({
   onNextSong,
   hasPrevSong,
   hasNextSong,
-  songPosition
+  songPosition,
+  slideDirection
 }: ActiveSongLyricsForShareProps) {
   const effectiveSettings = useEffectiveSongSettings(song)
   const { mutate: upsertSettings } = useUpsertUserSongSettings(song)
@@ -86,6 +88,7 @@ function ActiveSongLyricsForShare({
       hasPrevSong={hasPrevSong}
       hasNextSong={hasNextSong}
       songPosition={songPosition}
+      slideDirection={slideDirection}
     />
   )
 }
@@ -101,6 +104,7 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
   // Pre-populate individual song settings caches so the lyrics drawer has warm data on open.
   useAllUserSongSettings()
   const [activeIndex, setActiveIndex] = useState<number | null>(null)
+  const [slideDirection, setSlideDirection] = useState<"next" | "prev" | null>(null)
   const [songs, setSongs] = useState<Song[]>(playlist.songs)
   const [localVisibility, setLocalVisibility] = useState(playlist.visibility)
   const [localGuestEditing, setLocalGuestEditing] = useState(playlist.allowGuestEditing ?? false)
@@ -217,10 +221,12 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
   const handleCloseDrawer = () => startTransition(() => setActiveIndex(null))
   const handlePrevSong = () => {
     if (activeIndex === null || activeIndex === 0) return
+    setSlideDirection("prev")
     startTransition(() => setActiveIndex(activeIndex - 1))
   }
   const handleNextSong = () => {
     if (activeIndex === null || activeIndex >= totalSongs - 1) return
+    setSlideDirection("next")
     startTransition(() => setActiveIndex(activeIndex + 1))
   }
 
@@ -427,7 +433,7 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
                           {...provided.draggableProps}
                           {...provided.dragHandleProps}
                           className={`group flex w-full items-center gap-3 px-4 py-4 text-left transition-colors touch-manipulation cursor-grab active:cursor-grabbing ${snapshot.isDragging ? "bg-card opacity-90 shadow-md" : "hover:bg-muted/50"}`}
-                          onClick={() => startTransition(() => setActiveIndex(index))}
+                          onClick={() => { setSlideDirection(null); startTransition(() => setActiveIndex(index)) }}
                         >
                           <GripVertical className="h-4 w-4 shrink-0 text-muted-foreground" />
                           <span className="w-5 shrink-0 text-center text-xs tabular-nums text-muted-foreground">
@@ -479,7 +485,7 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
                 key={song.id}
                 type="button"
                 className="group flex w-full items-center gap-3 px-4 py-4 text-left transition-colors hover:bg-muted/50 first:rounded-t-xl last:rounded-b-xl active:bg-muted"
-                onClick={() => startTransition(() => setActiveIndex(index))}
+                onClick={() => { setSlideDirection(null); startTransition(() => setActiveIndex(index)) }}
                 aria-label={`${song.title} ${song.artist}`}
               >
                 <span className="w-5 shrink-0 text-center text-xs tabular-nums text-muted-foreground transition-colors group-hover:text-accent-playlists">
@@ -535,7 +541,7 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
           </SheetTitle>
           <div className="relative flex h-full flex-col">
 
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto overflow-x-hidden">
               {activeSong && (
                 <ActiveSongLyricsForShare
                   key={activeSong.id}
@@ -552,6 +558,7 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
                       ? { current: activeIndex + 1, total: totalSongs }
                       : undefined
                   }
+                  slideDirection={slideDirection ?? undefined}
                 />
               )}
             </div>
