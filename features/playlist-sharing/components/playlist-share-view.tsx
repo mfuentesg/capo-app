@@ -502,7 +502,13 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
                       variant="outline"
                       className="hidden h-6 items-center gap-0.5 px-2 text-xs font-normal sm:flex"
                     >
-                      <Clock3 className="h-3 w-3" />
+                      {song.bpm < 90 ? (
+                        <Turtle className="h-3 w-3" />
+                      ) : song.bpm <= 120 ? (
+                        <Rabbit className="h-3 w-3" />
+                      ) : (
+                        <Zap className="h-3 w-3" />
+                      )}
                       {song.bpm}
                     </Badge>
                   )}
