@@ -1,6 +1,6 @@
 "use client"
 
-import { type ReactNode, useMemo, useState } from "react"
+import { type ReactNode, useEffect, useMemo, useRef, useState } from "react"
 import dynamic from "next/dynamic"
 import { ChordProParser } from "chordsheetjs"
 import { ChevronDown, Music2, Repeat2 } from "lucide-react"
@@ -506,6 +506,7 @@ export function RenderedSong({
 }: RenderedSongProps) {
   const [collapsedSet, setCollapsedSet] = useState<Set<number>>(new Set())
   const [selectedChord, setSelectedChord] = useState<string | null>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
 
   const { t } = useLocale()
 
@@ -543,6 +544,18 @@ export function RenderedSong({
     })
   }
 
+  useEffect(() => {
+    if (!containerRef.current) return
+    containerRef.current.querySelectorAll<HTMLElement>(".chord--active").forEach((el) => {
+      el.classList.remove("chord--active")
+    })
+    if (selectedChord) {
+      containerRef.current.querySelectorAll<HTMLElement>(".chord").forEach((el) => {
+        if (el.textContent === selectedChord) el.classList.add("chord--active")
+      })
+    }
+  }, [selectedChord])
+
   const segments = useMemo(() => {
     if (!lyrics) return null
 
@@ -574,7 +587,7 @@ export function RenderedSong({
 
     if (!hasComplexSegments) {
       return (
-        <div onClick={handleChordClick}>
+        <div ref={containerRef} onClick={handleChordClick}>
           <pre
             className="chordsheet-content multi-column-lyrics"
             style={fontStyle}
@@ -586,7 +599,7 @@ export function RenderedSong({
     }
 
     return (
-      <div className="multi-column-lyrics space-y-6" style={fontStyle} onClick={handleChordClick}>
+      <div ref={containerRef} className="multi-column-lyrics space-y-6" style={fontStyle} onClick={handleChordClick}>
         {segments.map((segment, index) => {
           if (segment.type === "normal") {
             return (

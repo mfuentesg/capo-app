@@ -201,6 +201,17 @@
   @apply underline;
 }
 
+.chordsheet-content .chord--active {
+  background-color: color-mix(in oklch, var(--chord) 18%, transparent);
+  border-radius: 3px;
+  padding: 0 3px;
+  margin: 0 -3px;
+}
+
+.section-repeat-content .chord--active {
+  background-color: color-mix(in oklch, var(--section-accent) 18%, transparent);
+}
+
 /* ── Section accent colours by type ─────────────────────────────── */
 .section-repeat[data-section-type="verse"] {
   --section-accent: oklch(0.48 0.16 248);
