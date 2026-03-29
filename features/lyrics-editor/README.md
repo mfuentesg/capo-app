@@ -47,7 +47,8 @@ Parses and renders ChordPro text. Handles collapsible sections, repeat reference
 
 Server-side-render-safe CodeMirror 6 wrapper. Provides:
 - ChordPro syntax highlighting (chords in `[Chord]` style, directives in `{name: value}` style)
-- Inline autocomplete triggered by `{` — suggests all known directives with examples
+- Autocomplete triggered by `{` — suggests all known directives with examples
+- Autocomplete triggered after a comma inside a section/repeat directive — suggests repeat counts (`2`–`8`) and performance flags (`inline`, `attention`, `forte`, etc.), excluding tokens already present in the value
 
 ### `ChordProReference`
 
@@ -72,7 +73,10 @@ Section directives accept an optional **name**, **repeat count**, and **performa
 {sov: Verse 1, 2, forte}         count + flag → "VERSE 1 × 2" with [f] badge
 {soc: Chorus, attention, forte}  multiple flags, no count
 {sob: Bridge, vamp}              flag only
+{soi: Intro, inline}             inline flag — chords rendered beside lyrics
 ```
+
+The editor autocompletes counts and flags after each comma: type `{soc: Chorus, ` and the completion menu shows `2`–`8` and all available flags.
 
 Section types:
 | Long form | Short | Default label |
@@ -94,6 +98,7 @@ Flags render as small inline badges next to the section header:
 
 | Flag | Badge | Meaning |
 |---|---|---|
+| `inline` | gray `inline` | Render chords side-by-side with text instead of stacked |
 | `attention` | amber `!` | Needs focus — easy to fumble live |
 | `skip` | gray `skip` | Optional — can be omitted in shorter sets |
 | `forte` | red italic `f` | Play loudly / with intensity |
@@ -101,6 +106,21 @@ Flags render as small inline badges next to the section header:
 | `vamp` | purple `vamp` | Repeat freely until cue (jazz/gospel) |
 | `tag` | green `tag` | Tag ending — short closing phrase |
 | `break` | gray `break` | Full-band rest/pause |
+
+The `inline` flag is particularly useful for intro/outro sections that list instruments with their chord patterns:
+
+```
+{soi: Intro, inline}
+Bass: [Gm][Bb][Dm] x2
+Guitarra: [Gm][Bb][Dm][F] x4
+{eoi}
+```
+
+Renders as:
+```
+Bass: Gm Bb Dm x2
+Guitarra: Gm Bb Dm F x4
+```
 
 ### Comments / section labels
 ```
@@ -137,16 +157,18 @@ Also works with `{comment: Name}` labels:
 ```
 Raw ChordPro text (string)
   ↓
-buildSectionMap()          — extracts named section content into a Map<name, content>
+buildSectionMap()            — extracts named section content into a Map<name, content>
   ↓
-buildSegments()            — scans for section/repeat/comment directives, builds segment list
+buildSegments()              — scans for section/repeat/comment directives, builds segment list
   ↓  for each segment:
-formatLyricsToHtml()       — preprocesses directives → ChordProParser → chord+lyric HTML (auto-inline when a line has both chords and text)
+formatLyricsToHtml()         — stacked layout: chord line above lyric line (default)
+formatInlineLyricsToHtml()   — inline layout: chords rendered beside lyrics on one line
+                               (used when the section carries the 'inline' flag)
   ↓
-React render               — segments rendered as collapsible SectionHeader + content blocks
+React render                 — segments rendered as collapsible SectionHeader + content blocks
 ```
 
-`formatLyricsToHtml` uses `chordsheetjs@^12.3.1` for chord/lyric parsing and transposition. Section directives are preprocessed into placeholder tokens before parsing because ChordProParser does not preserve them in the AST.
+Both formatters use `chordsheetjs@^12.3.1` for chord/lyric parsing and transposition. Section directives are preprocessed into placeholder tokens before parsing because `ChordProParser` does not preserve them in the AST.
 
 ## Settings persistence
 
