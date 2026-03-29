@@ -99,7 +99,7 @@ function ActiveSongLyrics({
       song={{
         ...song,
         lyrics: song.lyrics ?? "",
-        fontSize: song.fontSize ?? 1,
+        fontSize: song.fontSize ?? 1.25,
         transpose: song.transpose ?? 0,
         capo: song.capo ?? 0
       }}

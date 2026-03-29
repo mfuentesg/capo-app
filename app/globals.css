@@ -190,15 +190,22 @@
 }
 
 .chordsheet-content .chord {
-  @apply font-semibold cursor-pointer [color:var(--chord)];
+  @apply font-bold cursor-pointer;
+  color: var(--chord);
+  background: color-mix(in oklch, var(--chord) 12%, transparent);
+  border-radius: 3px;
+  padding: 0 3px;
+  margin: 0 1px;
 }
 
 .section-repeat-content .chord {
   color: var(--section-accent) !important;
+  background: color-mix(in oklch, var(--section-accent) 12%, transparent) !important;
 }
 
 .chordsheet-content .chord:hover {
   @apply underline;
+  background: color-mix(in oklch, var(--chord) 22%, transparent);
 }
 
 /* ── Section accent colours by type ─────────────────────────────── */
