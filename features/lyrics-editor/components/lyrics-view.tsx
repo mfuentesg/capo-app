@@ -586,11 +586,12 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
           </div>
         </div>
       </div>
-      {/* Floating controls — song navigation + auto-scroll + settings */}
+      {/* Floating controls — song navigation (left) + auto-scroll/settings (right) */}
       {!isEditing && (
-        <div className="fixed bottom-6 right-4 z-20 flex items-center gap-1 rounded-2xl border bg-background px-2 py-1.5 shadow-lg">
+        <>
+          {/* Song navigation — bottom-left, only when playlist context is active */}
           {(onPrevSong || onNextSong) && (
-            <>
+            <div className="fixed bottom-6 left-4 z-20 flex items-center gap-1 rounded-2xl border bg-background px-2 py-1.5 shadow-lg">
               <Button
                 variant="ghost"
                 size="icon"
@@ -616,9 +617,11 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
               >
                 <ChevronDown className="h-4 w-4" />
               </Button>
-              <Separator orientation="vertical" className="mx-0.5 h-4" />
-            </>
+            </div>
           )}
+
+          {/* Auto-scroll + display settings — bottom-right */}
+          <div className="fixed bottom-6 right-4 z-20 flex items-center gap-1 rounded-2xl border bg-background px-2 py-1.5 shadow-lg">
           <AutoScrollControls
             isScrolling={isScrolling}
             onToggle={toggleAutoScroll}
@@ -662,7 +665,8 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
               {settingsPopoverContent}
             </PopoverContent>
           </Popover>
-        </div>
+          </div>
+        </>
       )}
       <LazyChordProReference open={isReferenceOpen} onOpenChange={setIsReferenceOpen} />
     </div>
