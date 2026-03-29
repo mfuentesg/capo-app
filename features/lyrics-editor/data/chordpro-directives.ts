@@ -147,9 +147,9 @@ export const CHORDPRO_DIRECTIVES: ChordProDirective[] = [
     shorthand: "soi",
     category: "section",
     description:
-      "Marks the beginning of an intro section. Pair with {end_of_intro} or {eoi}. Lines with both instrument labels and chords (e.g. Bass: [Gm][Bb]) render inline automatically. Custom extension.",
+      "Marks the beginning of an intro section. Pair with {end_of_intro} or {eoi}. Add the 'inline' flag to render all lines with chords and lyrics side-by-side (e.g. Bass: Gm Bb x2) instead of stacked. Custom extension.",
     example:
-      "{soi: Intro}\nBass: [Gm][Bb][Dm] x2\nElectric Guitar: [Gm] x2\n{eoi}"
+      "{soi: Intro, inline}\nBass: [Gm][Bb][Dm] x2\nElectric Guitar: [Gm] x2\n{eoi}"
   },
   {
     name: "start_of_outro",
