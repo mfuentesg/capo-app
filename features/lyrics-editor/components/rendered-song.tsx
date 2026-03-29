@@ -115,6 +115,7 @@ function formatLyricsToHtml(
       let lyricsLine = ""
       let currentPos = 0
       const inlineParts: string[] = []
+      let hasContentItems = false
 
       line.items.forEach((item) => {
         // Use type casting to safely access properties that might exist on different item types
@@ -141,11 +142,14 @@ function formatLyricsToHtml(
           lyricsLine += contentItem.content
           currentPos += contentItem.content.length
           inlineParts.push(contentItem.content)
+          hasContentItems = true
         }
       })
 
-      // Auto-detect: if a line has both chords and lyrics text, render inline
-      if (chordLine.trim() && lyricsLine.trim()) {
+      // Auto-detect inline: only when plain text content items (e.g. "Bass: ") are
+      // mixed with chords, as in "Bass: [Gm][Bb] x2". Normal chord-lyric verses
+      // (pure ChordLyricsPairs) always use the stacked format.
+      if (hasContentItems && chordLine.trim()) {
         return inlineParts.join("").replace(/\s{2,}/g, " ").trim()
       }
       if (chordLine.trim()) {
