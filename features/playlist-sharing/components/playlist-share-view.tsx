@@ -3,16 +3,16 @@
 import {
   Globe,
   Share2,
-  Clock3,
   CalendarDays,
-  ChevronUp,
-  ChevronDown,
   Music2,
   GripVertical,
   Settings,
   Copy,
   ExternalLink,
-  Link as LinkIcon
+  Link as LinkIcon,
+  Turtle,
+  Rabbit,
+  Zap
 } from "lucide-react"
 import { toast } from "sonner"
 import { useEffect, useState, startTransition } from "react"
@@ -44,13 +44,23 @@ interface ActiveSongLyricsForShareProps {
   onClose: () => void
   isAuthenticated: boolean
   canEdit?: boolean
+  onPrevSong?: () => void
+  onNextSong?: () => void
+  hasPrevSong?: boolean
+  hasNextSong?: boolean
+  songPosition?: { current: number; total: number }
 }
 
 function ActiveSongLyricsForShare({
   song,
   onClose,
   isAuthenticated,
-  canEdit = false
+  canEdit = false,
+  onPrevSong,
+  onNextSong,
+  hasPrevSong,
+  hasNextSong,
+  songPosition
 }: ActiveSongLyricsForShareProps) {
   const effectiveSettings = useEffectiveSongSettings(song)
   const { mutate: upsertSettings } = useUpsertUserSongSettings(song)
@@ -71,6 +81,11 @@ function ActiveSongLyricsForShare({
       initialSettings={effectiveSettings}
       onSettingsChange={isAuthenticated ? upsertSettings : undefined}
       initialLyricsColumns={preferences?.lyricsColumns ?? 2}
+      onPrevSong={onPrevSong}
+      onNextSong={onNextSong}
+      hasPrevSong={hasPrevSong}
+      hasNextSong={hasNextSong}
+      songPosition={songPosition}
     />
   )
 }
@@ -437,7 +452,13 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
                                 variant="outline"
                                 className="hidden h-6 items-center gap-0.5 px-2 text-xs font-normal sm:flex"
                               >
-                                <Clock3 className="h-3 w-3" />
+                                {song.bpm < 90 ? (
+                                  <Turtle className="h-3 w-3" />
+                                ) : song.bpm <= 120 ? (
+                                  <Rabbit className="h-3 w-3" />
+                                ) : (
+                                  <Zap className="h-3 w-3" />
+                                )}
                                 {song.bpm}
                               </Badge>
                             )}
@@ -508,37 +529,6 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
           </SheetTitle>
           <div className="relative flex h-full flex-col">
 
-            {/* Navigation controls */}
-            <div className="pointer-events-none absolute right-4 bottom-safe-4 bottom-6 z-20">
-              <div className="pointer-events-auto flex items-center gap-1 rounded-full border bg-background px-1.5 py-1 shadow-md">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 rounded-full"
-                  onClick={handlePrevSong}
-                  disabled={activeIndex === null || activeIndex === 0}
-                  aria-label={t.playlistShare.previousSong}
-                >
-                  <ChevronUp className="h-4 w-4" />
-                </Button>
-                <span className="min-w-10 text-center text-xs tabular-nums text-muted-foreground">
-                  {activeIndex !== null ? `${activeIndex + 1}/${totalSongs}` : ""}
-                </span>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 rounded-full"
-                  onClick={handleNextSong}
-                  disabled={activeIndex === null || activeIndex >= totalSongs - 1}
-                  aria-label={t.playlistShare.nextSong}
-                >
-                  <ChevronDown className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-
             <div className="flex-1 overflow-y-auto">
               {activeSong && (
                 <ActiveSongLyricsForShare
@@ -547,6 +537,15 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
                   onClose={handleCloseDrawer}
                   isAuthenticated={!!user}
                   canEdit={canEditSongs}
+                  onPrevSong={handlePrevSong}
+                  onNextSong={handleNextSong}
+                  hasPrevSong={activeIndex !== null && activeIndex > 0}
+                  hasNextSong={activeIndex !== null && activeIndex < totalSongs - 1}
+                  songPosition={
+                    activeIndex !== null
+                      ? { current: activeIndex + 1, total: totalSongs }
+                      : undefined
+                  }
                 />
               )}
             </div>
