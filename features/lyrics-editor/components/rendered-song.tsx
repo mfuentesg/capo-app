@@ -40,14 +40,20 @@ const SECTION_DIRECTIVE_MAP: Record<string, string> = {
   start_of_tab: "tab",
   sot: "tab",
   start_of_grid: "grid",
-  sog: "grid"
+  sog: "grid",
+  start_of_intro: "intro",
+  soi: "intro",
+  start_of_outro: "outro",
+  soo: "outro",
+  start_of_pre_chorus: "pre_chorus",
+  sopc: "pre_chorus"
 }
 
 const SECTION_END_RE =
-  /\{(?:end_of_chorus|eoc|end_of_verse|eov|end_of_bridge|eob|end_of_tab|eot|end_of_grid|eog)\}/gi
+  /\{(?:end_of_chorus|eoc|end_of_verse|eov|end_of_bridge|eob|end_of_tab|eot|end_of_grid|eog|end_of_intro|eoi|end_of_outro|eoo|end_of_pre_chorus|eopc)\}/gi
 
 const SECTION_START_RE =
-  /\{(start_of_chorus|soc|start_of_verse|sov|start_of_bridge|sob|start_of_tab|sot|start_of_grid|sog)(?::\s*([^}]+))?\}/gi
+  /\{(start_of_chorus|soc|start_of_verse|sov|start_of_bridge|sob|start_of_tab|sot|start_of_grid|sog|start_of_intro|soi|start_of_outro|soo|start_of_pre_chorus|sopc)(?::\s*([^}]+))?\}/gi
 
 function formatLyricsToHtml(
   text: string,
@@ -108,6 +114,7 @@ function formatLyricsToHtml(
       let chordLine = ""
       let lyricsLine = ""
       let currentPos = 0
+      const inlineParts: string[] = []
 
       line.items.forEach((item) => {
         // Use type casting to safely access properties that might exist on different item types
@@ -126,12 +133,21 @@ function formatLyricsToHtml(
 
           lyricsLine += lyrics
           currentPos += Math.max(chord.length + 1, lyrics.length)
+
+          // Also collect inline representation (lyrics precede the chord they annotate)
+          if (lyrics) inlineParts.push(lyrics)
+          if (chord) inlineParts.push(`<span class="chord">${chord}</span> `)
         } else if (contentItem.content) {
           lyricsLine += contentItem.content
           currentPos += contentItem.content.length
+          inlineParts.push(contentItem.content)
         }
       })
 
+      // Auto-detect: if a line has both chords and lyrics text, render inline
+      if (chordLine.trim() && lyricsLine.trim()) {
+        return inlineParts.join("").replace(/\s{2,}/g, " ").trim()
+      }
       if (chordLine.trim()) {
         return `${chordLine}\n${lyricsLine}`
       }
@@ -140,16 +156,17 @@ function formatLyricsToHtml(
     .join("\n")
 }
 
+
 // Matches the opening { of any directive that starts a new section or a repeat
 // reference, used to determine where a comment-defined section ends.
 const SECTION_BOUNDARY_RE =
-  /\{(?:c(?:omment(?:_italic|_box)?)?|start_of_(?:chorus|verse|bridge|tab|grid)|soc|sov|sob|sot|sog|repeat)(?:[:\s}])/
+  /\{(?:c(?:omment(?:_italic|_box)?)?|start_of_(?:chorus|verse|bridge|tab|grid|intro|outro|pre_chorus)|soc|sov|sob|sot|sog|soi|soo|sopc|repeat)(?:[:\s}])/
 
 // Scanner: finds all collapsible segment boundaries in order.
 // Unnamed {c} / {comment} (no colon+value) are intentionally skipped — they
 // render as empty labels and should not be treated as section boundaries.
 const SEGMENT_SCAN_RE =
-  /\{(start_of_chorus|soc|start_of_verse|sov|start_of_bridge|sob|start_of_tab|sot|start_of_grid|sog|c(?:omment(?:_italic|_box)?)?|repeat)(?::\s*([^}]*))?\}/gi
+  /\{(start_of_chorus|soc|start_of_verse|sov|start_of_bridge|sob|start_of_tab|sot|start_of_grid|sog|start_of_intro|soi|start_of_outro|soo|start_of_pre_chorus|sopc|c(?:omment(?:_italic|_box)?)?|repeat)(?::\s*([^}]*))?\}/gi
 
 function buildSectionMap(lyrics: string): Map<string, string> {
   const map = new Map<string, string>()
@@ -289,7 +306,7 @@ function buildSegments(
         : { name: sectionLabels[sectionType] ?? sectionType, count: 1, flags: [] }
       const remaining = lyrics.slice(matchEnd)
       const endMatch =
-        /\{(?:end_of_chorus|eoc|end_of_verse|eov|end_of_bridge|eob|end_of_tab|eot|end_of_grid|eog)\}/i.exec(
+        /\{(?:end_of_chorus|eoc|end_of_verse|eov|end_of_bridge|eob|end_of_tab|eot|end_of_grid|eog|end_of_intro|eoi|end_of_outro|eoo|end_of_pre_chorus|eopc)\}/i.exec(
           remaining
         )
       const content = (endMatch ? remaining.slice(0, endMatch.index) : remaining).trim()
@@ -417,7 +434,10 @@ export function RenderedSong({
       verse: t.songSections.verse,
       bridge: t.songSections.bridge,
       tab: t.songSections.tab,
-      grid: t.songSections.grid
+      grid: t.songSections.grid,
+      intro: t.songSections.intro,
+      outro: t.songSections.outro,
+      pre_chorus: t.songSections.pre_chorus
     }),
     [t]
   )
