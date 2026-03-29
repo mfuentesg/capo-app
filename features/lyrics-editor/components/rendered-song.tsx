@@ -408,6 +408,7 @@ export function RenderedSong({
 }: RenderedSongProps) {
   const [collapsedSet, setCollapsedSet] = useState<Set<number>>(new Set())
   const [selectedChord, setSelectedChord] = useState<string | null>(null)
+  const [chordPreferences, setChordPreferences] = useState<Record<string, number>>({})
 
   const { t } = useLocale()
 
@@ -479,7 +480,14 @@ export function RenderedSong({
             style={fontStyle}
             dangerouslySetInnerHTML={{ __html: segments[0]?.html ?? "" }}
           />
-          <ChordDiagram chordName={selectedChord} onClose={() => setSelectedChord(null)} />
+          <ChordDiagram
+            chordName={selectedChord}
+            onClose={() => setSelectedChord(null)}
+            initialPositionIndex={chordPreferences[selectedChord ?? ""] ?? 0}
+            onVariationChange={(chord, idx) =>
+              setChordPreferences((prev) => ({ ...prev, [chord]: idx }))
+            }
+          />
         </div>
       )
     }
@@ -565,7 +573,14 @@ export function RenderedSong({
             </div>
           )
         })}
-        <ChordDiagram chordName={selectedChord} onClose={() => setSelectedChord(null)} />
+        <ChordDiagram
+          chordName={selectedChord}
+          onClose={() => setSelectedChord(null)}
+          initialPositionIndex={chordPreferences[selectedChord ?? ""] ?? 0}
+          onVariationChange={(chord, idx) =>
+            setChordPreferences((prev) => ({ ...prev, [chord]: idx }))
+          }
+        />
       </div>
     )
   }

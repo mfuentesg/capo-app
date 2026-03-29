@@ -55,6 +55,8 @@ const guitarData = guitarDataRaw as unknown as GuitarData
 interface ChordDiagramProps {
   chordName: string | null
   onClose: () => void
+  initialPositionIndex?: number
+  onVariationChange?: (chordName: string, index: number) => void
 }
 
 interface GeneratedPosition {
@@ -235,7 +237,7 @@ function parseChord(
   return { key: lookupKey, suffix: normalized }
 }
 
-export function ChordDiagram({ chordName, onClose }: ChordDiagramProps) {
+export function ChordDiagram({ chordName, onClose, initialPositionIndex, onVariationChange }: ChordDiagramProps) {
   const [positionIndex, setPositionIndex] = React.useState(0)
   const [animKey, setAnimKey] = React.useState(0)
   const [slideDir, setSlideDir] = React.useState<"left" | "right">("left")
@@ -244,7 +246,8 @@ export function ChordDiagram({ chordName, onClose }: ChordDiagramProps) {
   const { mirror } = useChordOrientation()
 
   React.useEffect(() => {
-    setPositionIndex(0)
+    setPositionIndex(initialPositionIndex ?? 0)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chordName])
 
   const { positions, totalPositions, isAlgorithmic } = React.useMemo(() => {
@@ -315,6 +318,9 @@ export function ChordDiagram({ chordName, onClose }: ChordDiagramProps) {
     setSlideDir(dir)
     setAnimKey((k) => k + 1)
     setPositionIndex(next)
+    if (chordName) {
+      onVariationChange?.(chordName, next)
+    }
   }
 
   const handlePrev = () =>
