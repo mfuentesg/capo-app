@@ -141,6 +141,34 @@ export const CHORDPRO_DIRECTIVES: ChordProDirective[] = [
       "{sog: Progression}\n| C . . . | G . . . |\n| Am . . . | F . . . |\n{eog}"
   },
 
+  // Custom extensions — not part of the official ChordPro specification
+  {
+    name: "start_of_intro",
+    shorthand: "soi",
+    category: "section",
+    description:
+      "Marks the beginning of an intro section. Pair with {end_of_intro} or {eoi}. Lines with both instrument labels and chords (e.g. Bass: [Gm][Bb]) render inline automatically. Custom extension.",
+    example:
+      "{soi: Intro}\nBass: [Gm][Bb][Dm] x2\nElectric Guitar: [Gm] x2\n{eoi}"
+  },
+  {
+    name: "start_of_outro",
+    shorthand: "soo",
+    category: "section",
+    description:
+      "Marks the beginning of an outro section. Pair with {end_of_outro} or {eoo}. Accepts an optional name, repeat count, and performance flags. Custom extension.",
+    example: "{soo: Outro}\n[Gm][Bb][Dm] x2\n{eoo}"
+  },
+  {
+    name: "start_of_pre_chorus",
+    shorthand: "sopc",
+    category: "section",
+    description:
+      "Marks the beginning of a pre-chorus section. Pair with {end_of_pre_chorus} or {eopc}. Accepts an optional name, repeat count, and performance flags. Custom extension.",
+    example:
+      "{sopc: Pre-Chorus}\n[Em]Every day I'm getting [C]closer\n{eopc}"
+  },
+
   // Comments
   {
     name: "comment",
