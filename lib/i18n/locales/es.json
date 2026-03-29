@@ -529,7 +529,10 @@
     "verse": "Verso",
     "bridge": "Puente",
     "tab": "Tablatura",
-    "grid": "Grilla"
+    "grid": "Grilla",
+    "intro": "Intro",
+    "outro": "Outro",
+    "pre_chorus": "Pre-Coro"
   },
   "activity": {
     "noActivity": "Aún no hay actividad",

@@ -529,7 +529,10 @@
     "verse": "Verse",
     "bridge": "Bridge",
     "tab": "Tab",
-    "grid": "Grid"
+    "grid": "Grid",
+    "intro": "Intro",
+    "outro": "Outro",
+    "pre_chorus": "Pre-Chorus"
   },
   "activity": {
     "noActivity": "No activity yet",
