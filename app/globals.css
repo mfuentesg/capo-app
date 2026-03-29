@@ -208,6 +208,28 @@
   background: color-mix(in oklch, var(--chord) 22%, transparent);
 }
 
+/* Flex chord-lyric layout — avoids space-based alignment that breaks with proportional fonts */
+.chord-line {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.clp {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.clp .chord {
+  min-height: 1.4em;
+}
+
+.clp-lyric {
+  white-space: pre;
+  line-height: inherit;
+}
+
 /* ── Section accent colours by type ─────────────────────────────── */
 .section-repeat[data-section-type="verse"] {
   --section-accent: oklch(0.48 0.16 248);

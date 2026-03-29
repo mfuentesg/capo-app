@@ -111,10 +111,10 @@ function formatLyricsToHtml(
         return `<span class="section-label section-label--${type}">${label}</span>`
       }
 
-      let chordLine = ""
+      let hasChords = false
       let lyricsLine = ""
-      let currentPos = 0
       const inlineParts: string[] = []
+      const clpParts: string[] = []
       let hasContentItems = false
 
       line.items.forEach((item) => {
@@ -126,21 +126,19 @@ function formatLyricsToHtml(
         const lyrics = chordPair.lyrics || ""
 
         if (chord || lyrics) {
-          if (chord) {
-            // Add chord with class and padding
-            const offset = Math.max(0, currentPos - chordLine.replace(/<[^>]*>/g, "").length)
-            chordLine += " ".repeat(offset) + `<span class="chord">${chord}</span>`
-          }
+          if (chord) hasChords = true
+
+          // Flex chord-lyric pair: chord stacked above its lyrics, no space-based positioning
+          const chordSpan = chord ? `<span class="chord">${chord}</span>` : `<span class="chord"></span>`
+          clpParts.push(`<span class="clp">${chordSpan}<span class="clp-lyric">${lyrics}</span></span>`)
 
           lyricsLine += lyrics
-          currentPos += Math.max(chord.length + 1, lyrics.length)
 
           // Also collect inline representation (lyrics precede the chord they annotate)
           if (lyrics) inlineParts.push(lyrics)
           if (chord) inlineParts.push(`<span class="chord">${chord}</span> `)
         } else if (contentItem.content) {
           lyricsLine += contentItem.content
-          currentPos += contentItem.content.length
           inlineParts.push(contentItem.content)
           hasContentItems = true
         }
@@ -149,11 +147,11 @@ function formatLyricsToHtml(
       // Auto-detect inline: only when plain text content items (e.g. "Bass: ") are
       // mixed with chords, as in "Bass: [Gm][Bb] x2". Normal chord-lyric verses
       // (pure ChordLyricsPairs) always use the stacked format.
-      if (hasContentItems && chordLine.trim()) {
+      if (hasContentItems && hasChords) {
         return inlineParts.join("").replace(/\s{2,}/g, " ").trim()
       }
-      if (chordLine.trim()) {
-        return `${chordLine}\n${lyricsLine}`
+      if (hasChords) {
+        return `<span class="chord-line">${clpParts.join("")}</span>`
       }
       return lyricsLine
     })
