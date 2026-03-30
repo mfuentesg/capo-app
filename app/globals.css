@@ -202,6 +202,10 @@
   margin: 0 1px;
 }
 
+.clp-chord-empty {
+  min-height: 1.4em;
+}
+
 .section-repeat-content .clp .chord {
   color: var(--section-accent) !important;
   background: color-mix(in oklch, var(--section-accent) 12%, transparent) !important;
@@ -226,10 +230,6 @@
   display: inline-flex;
   flex-direction: column;
   align-items: flex-start;
-}
-
-.clp .chord {
-  min-height: 1.4em;
 }
 
 .clp-lyric {

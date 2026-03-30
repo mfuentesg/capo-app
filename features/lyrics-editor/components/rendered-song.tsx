@@ -129,7 +129,7 @@ function formatLyricsToHtml(
           if (chord) hasChords = true
 
           // Flex chord-lyric pair: chord stacked above its lyrics, no space-based positioning
-          const chordSpan = chord ? `<span class="chord">${chord}</span>` : `<span class="chord"></span>`
+          const chordSpan = chord ? `<span class="chord">${chord}</span>` : `<span class="clp-chord-empty"></span>`
           clpParts.push(`<span class="clp">${chordSpan}<span class="clp-lyric">${lyrics}</span></span>`)
 
           lyricsLine += lyrics
