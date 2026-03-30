@@ -192,6 +192,10 @@
 .chordsheet-content .chord {
   @apply font-bold cursor-pointer;
   color: var(--chord);
+}
+
+/* Background pill only on stacked chords (above lyrics in chord-line layout) */
+.clp .chord {
   background: color-mix(in oklch, var(--chord) 12%, transparent);
   border-radius: 3px;
   padding: 0 3px;
@@ -200,11 +204,17 @@
 
 .section-repeat-content .chord {
   color: var(--section-accent) !important;
+}
+
+.section-repeat-content .clp .chord {
   background: color-mix(in oklch, var(--section-accent) 12%, transparent) !important;
 }
 
 .chordsheet-content .chord:hover {
   @apply underline;
+}
+
+.clp .chord:hover {
   background: color-mix(in oklch, var(--chord) 22%, transparent);
 }
 
