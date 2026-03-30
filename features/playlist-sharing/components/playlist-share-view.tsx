@@ -221,13 +221,17 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
   const handleCloseDrawer = () => startTransition(() => setActiveIndex(null))
   const handlePrevSong = () => {
     if (activeIndex === null || activeIndex === 0) return
-    setSlideDirection("prev")
-    startTransition(() => setActiveIndex(activeIndex - 1))
+    startTransition(() => {
+      setSlideDirection("prev")
+      setActiveIndex(activeIndex - 1)
+    })
   }
   const handleNextSong = () => {
     if (activeIndex === null || activeIndex >= totalSongs - 1) return
-    setSlideDirection("next")
-    startTransition(() => setActiveIndex(activeIndex + 1))
+    startTransition(() => {
+      setSlideDirection("next")
+      setActiveIndex(activeIndex + 1)
+    })
   }
 
   const copyShareUrl = async () => {

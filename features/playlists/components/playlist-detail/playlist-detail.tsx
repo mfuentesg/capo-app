@@ -305,13 +305,17 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
   }, [])
 
   const handlePrevSong = useCallback(() => {
-    setSlideDirection("prev")
-    setActiveIndex((i) => (i !== null && i > 0 ? i - 1 : i))
+    startTransition(() => {
+      setSlideDirection("prev")
+      setActiveIndex((i) => (i !== null && i > 0 ? i - 1 : i))
+    })
   }, [])
 
   const handleNextSong = useCallback((total: number) => {
-    setSlideDirection("next")
-    setActiveIndex((i) => (i !== null && i < total - 1 ? i + 1 : i))
+    startTransition(() => {
+      setSlideDirection("next")
+      setActiveIndex((i) => (i !== null && i < total - 1 ? i + 1 : i))
+    })
   }, [])
 
   const handleSongReorder = async (sourceIndex: number, destinationIndex: number) => {
