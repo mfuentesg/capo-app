@@ -426,21 +426,21 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
           <div className="flex items-center gap-1 mt-0.5 pl-1">
             <div className="flex items-center gap-1.5 min-w-0 flex-1 overflow-hidden">
               {song.artist && (
-                <span className="text-sm text-muted-foreground truncate shrink">{song.artist}</span>
+                <span className="text-xs text-muted-foreground truncate shrink">{song.artist}</span>
               )}
               {song.key && (
-                <Badge variant="secondary" className="shrink-0 text-sm">
+                <Badge variant="secondary" className="shrink-0 text-xs">
                   {song.key}
                 </Badge>
               )}
               {song.bpm > 0 && (
-                <Badge variant="outline" className="shrink-0 text-sm gap-1">
+                <Badge variant="outline" className="shrink-0 text-xs gap-1">
                   {song.bpm < 90 ? (
-                    <Turtle className="h-3.5 w-3.5" />
+                    <Turtle className="h-3 w-3" />
                   ) : song.bpm <= 120 ? (
-                    <Rabbit className="h-3.5 w-3.5" />
+                    <Rabbit className="h-3 w-3" />
                   ) : (
-                    <Zap className="h-3.5 w-3.5" />
+                    <Zap className="h-3 w-3" />
                   )}
                   {song.bpm} {t.songs.bpm}
                 </Badge>
