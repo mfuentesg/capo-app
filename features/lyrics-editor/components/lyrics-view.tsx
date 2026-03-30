@@ -18,7 +18,12 @@ import {
   Pencil,
   Save,
   Columns2,
-  ExternalLink
+  ExternalLink,
+  ChevronUp,
+  ChevronDown,
+  Turtle,
+  Rabbit,
+  Zap
 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import type { Song } from "@/types"
@@ -56,6 +61,12 @@ interface LyricsViewProps {
   initialSettings?: { capo?: number; transpose?: number; fontSize?: number }
   onSettingsChange?: (settings: { capo: number; transpose: number; fontSize: number }) => void
   initialLyricsColumns?: 1 | 2
+  onPrevSong?: () => void
+  onNextSong?: () => void
+  hasPrevSong?: boolean
+  hasNextSong?: boolean
+  songPosition?: { current: number; total: number }
+  slideDirection?: "next" | "prev"
 }
 
 export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function LyricsView(
@@ -68,13 +79,20 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
     isSaving = false,
     initialSettings,
     onSettingsChange,
-    initialLyricsColumns = 1
+    initialLyricsColumns = 1,
+    onPrevSong,
+    onNextSong,
+    hasPrevSong = false,
+    hasNextSong = false,
+    songPosition,
+    slideDirection
   }: LyricsViewProps,
   ref
 ) {
   const { t } = useTranslation()
   const router = useRouter()
   const containerRef = useRef<HTMLDivElement>(null)
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null)
   const [isEditing, setIsEditing] = useState(false)
   const [isPreviewing, setIsPreviewing] = useState(false)
   const [isReferenceOpen, setIsReferenceOpen] = useState(false)
@@ -172,6 +190,24 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
   const handleBack = useCallback(() => {
     handleClose()
   }, [handleClose])
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    if (isEditing || (!onPrevSong && !onNextSong)) return
+    const touch = e.touches[0]
+    touchStartRef.current = { x: touch.clientX, y: touch.clientY }
+  }, [isEditing, onPrevSong, onNextSong])
+
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    if (isEditing || !touchStartRef.current || (!onPrevSong && !onNextSong)) return
+    const touch = e.changedTouches[0]
+    const dx = touch.clientX - touchStartRef.current.x
+    const dy = touch.clientY - touchStartRef.current.y
+    touchStartRef.current = null
+    // Only trigger if horizontal swipe dominates and exceeds threshold
+    if (Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy)) return
+    if (dx < 0 && hasNextSong) onNextSong?.()
+    else if (dx > 0 && hasPrevSong) onPrevSong?.()
+  }, [isEditing, onPrevSong, onNextSong, hasPrevSong, hasNextSong])
 
   // Reset scroll position and stop auto-scroll when song changes
   useEffect(() => {
@@ -360,12 +396,20 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
   )
 
   return (
-    <div ref={containerRef} className={cn("bg-background", isPanel ? "h-full" : "min-h-screen")}>
+    <div
+      ref={containerRef}
+      className={cn(
+        "bg-background",
+        isPanel ? "h-full" : "min-h-screen",
+        slideDirection === "next" && "animate-in slide-in-from-right-4 fade-in-0 duration-200",
+        slideDirection === "prev" && "animate-in slide-in-from-left-4 fade-in-0 duration-200"
+      )}
+    >
       {/* Header */}
       <div className="sticky top-0 z-10 border-b bg-background">
-        <div className={cn("px-4 py-2", !isPanel && "container mx-auto")}>
-          {/* Row 1: navigation + song info */}
-          <div className="flex items-center gap-2">
+        <div className={cn("px-4 pt-2 pb-1", !isPanel && "container mx-auto")}>
+          {/* Row 1: back button + song title */}
+          <div className="flex items-center gap-1.5 min-w-0">
             <Button
               variant="ghost"
               size="icon"
@@ -375,72 +419,78 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
             >
               {onClose ? <X className="h-4 w-4" /> : <ArrowLeft className="h-4 w-4" />}
             </Button>
+            <p className="text-base font-semibold truncate min-w-0">{song.title}</p>
+          </div>
 
-            <div className="flex-1 min-w-0 flex items-center gap-2 overflow-hidden">
-              <p className="text-sm font-medium truncate shrink">
-                {song.title}
-                {song.artist && (
-                  <span className="text-muted-foreground font-normal"> · {song.artist}</span>
-                )}
-              </p>
+          {/* Row 2: metadata (artist · key · bpm) on left, actions on right */}
+          <div className="flex items-center gap-1 mt-0.5 pl-1">
+            <div className="flex items-center gap-1.5 min-w-0 flex-1 overflow-hidden">
+              {song.artist && (
+                <span className="text-xs text-muted-foreground truncate shrink">{song.artist}</span>
+              )}
               {song.key && (
                 <Badge variant="secondary" className="shrink-0 text-xs">
                   {song.key}
                 </Badge>
               )}
               {song.bpm > 0 && (
-                <Badge variant="outline" className="shrink-0 text-xs">
+                <Badge variant="outline" className="shrink-0 text-xs gap-1">
+                  {song.bpm < 90 ? (
+                    <Turtle className="h-3 w-3" />
+                  ) : song.bpm <= 120 ? (
+                    <Rabbit className="h-3 w-3" />
+                  ) : (
+                    <Zap className="h-3 w-3" />
+                  )}
                   {song.bpm} {t.songs.bpm}
                 </Badge>
               )}
             </div>
-          </div>
 
-          {/* Row 2: actions */}
-          <div className="flex items-center justify-end gap-0.5">
-            {canEdit && isEditing ? (
+            <div className="flex items-center gap-0.5 shrink-0">
+              {canEdit && isEditing ? (
                 <>
                   <SaveStatus status={saveStatus} className="mr-1" />
                   <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8"
+                    variant="outline"
+                    className="h-9 gap-1.5 px-2.5"
                     onClick={handleCancel}
                     aria-label={t.common.cancel}
                   >
-                    <X className="h-3.5 w-3.5" />
+                    <X className="h-4 w-4" />
+                    <span className="text-sm">{t.common.cancel}</span>
                   </Button>
                   <Button
                     variant={isPreviewing ? "secondary" : "ghost"}
                     size="icon"
-                    className="h-8 w-8"
+                    className="h-9 w-9"
                     onClick={togglePreview}
                     aria-label={isPreviewing ? t.common.edit : t.songs.preview}
                   >
                     {isPreviewing ? (
-                      <Pencil className="h-3.5 w-3.5" />
+                      <Pencil className="h-4 w-4" />
                     ) : (
-                      <Eye className="h-3.5 w-3.5" />
+                      <Eye className="h-4 w-4" />
                     )}
                   </Button>
                   <Button
                     variant="default"
                     size="icon"
-                    className="h-8 w-8"
+                    className="h-9 w-9"
                     onClick={handleSave}
-                    disabled={isSaving}
+                    disabled={isSaving || saveStatus === "saved"}
                     aria-label={t.common.save}
                   >
-                    <Save className="h-3.5 w-3.5" />
+                    <Save className="h-4 w-4" />
                   </Button>
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8"
+                    className="h-9 w-9"
                     onClick={() => setIsReferenceOpen(true)}
                     aria-label={t.songs.lyrics.chordproReference}
                   >
-                    <BookOpen className="h-3.5 w-3.5" />
+                    <BookOpen className="h-4 w-4" />
                   </Button>
                 </>
               ) : (
@@ -448,19 +498,19 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
                   {canEdit && (
                     <Button
                       variant="ghost"
-                      className="h-8 gap-1.5 px-2"
+                      className="h-9 gap-1.5 px-2.5"
                       onClick={handleEdit}
                       aria-label={t.songs.editLyrics}
                     >
-                      <Pencil className="h-3.5 w-3.5" />
-                      <span className="hidden sm:inline text-xs">{t.common.edit}</span>
+                      <Pencil className="h-4 w-4" />
+                      <span className="hidden sm:inline text-sm">{t.common.edit}</span>
                     </Button>
                   )}
                   {isPanel && (
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-8 w-8"
+                      className="h-9 w-9"
                       asChild
                       title={t.songs.viewLyrics}
                     >
@@ -469,27 +519,32 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        <ExternalLink className="h-3.5 w-3.5" />
+                        <ExternalLink className="h-4 w-4" />
                       </a>
                     </Button>
                   )}
                   <Button
                     variant="ghost"
-                    className="h-8 gap-1.5 px-2"
+                    className="h-9 gap-1.5 px-2.5"
                     onClick={() => setIsReferenceOpen(true)}
                     aria-label={t.songs.lyrics.chordproReference}
                   >
-                    <BookOpen className="h-3.5 w-3.5" />
-                    <span className="hidden sm:inline text-xs">{t.songs.lyrics.docs}</span>
+                    <BookOpen className="h-4 w-4" />
+                    <span className="hidden sm:inline text-sm">{t.songs.lyrics.docs}</span>
                   </Button>
                 </>
               )}
             </div>
+          </div>
         </div>
       </div>
 
       {/* Lyrics Content */}
-      <div className={cn("px-4 py-8", !isPanel && "container mx-auto")}>
+      <div
+        className={cn("px-4 py-8", !isPanel && "container mx-auto")}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
         <div className="w-full">
           <div className="max-w-5xl mx-auto">
             {isEditing && (
@@ -531,9 +586,42 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
           </div>
         </div>
       </div>
-      {/* Floating controls — auto-scroll + settings, always visible while scrolling */}
+      {/* Floating controls — song navigation (left) + auto-scroll/settings (right) */}
       {!isEditing && (
-        <div className="fixed bottom-6 right-4 z-20 flex items-center gap-1 rounded-2xl border bg-background px-2 py-1.5 shadow-lg">
+        <>
+          {/* Song navigation — bottom-left, only when playlist context is active */}
+          {(onPrevSong || onNextSong) && (
+            <div className="fixed bottom-6 left-4 z-20 flex items-center gap-1 rounded-2xl border bg-background px-2 py-1.5 shadow-lg">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={onPrevSong}
+                disabled={!hasPrevSong}
+                aria-label={t.common.previous}
+              >
+                <ChevronUp className="h-4 w-4" />
+              </Button>
+              {songPosition && (
+                <span className="min-w-8 text-center text-xs tabular-nums text-muted-foreground">
+                  {songPosition.current}/{songPosition.total}
+                </span>
+              )}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={onNextSong}
+                disabled={!hasNextSong}
+                aria-label={t.common.next}
+              >
+                <ChevronDown className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
+
+          {/* Auto-scroll + display settings — bottom-right */}
+          <div className="fixed bottom-6 right-4 z-20 flex items-center gap-1 rounded-2xl border bg-background px-2 py-1.5 shadow-lg">
           <AutoScrollControls
             isScrolling={isScrolling}
             onToggle={toggleAutoScroll}
@@ -577,7 +665,8 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
               {settingsPopoverContent}
             </PopoverContent>
           </Popover>
-        </div>
+          </div>
+        </>
       )}
       <LazyChordProReference open={isReferenceOpen} onOpenChange={setIsReferenceOpen} />
     </div>

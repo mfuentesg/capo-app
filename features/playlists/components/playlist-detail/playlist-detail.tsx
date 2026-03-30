@@ -11,9 +11,7 @@ import {
   ListMusic,
   Globe,
   Copy,
-  ExternalLink,
-  ChevronUp,
-  ChevronDown
+  ExternalLink
 } from "lucide-react"
 import { toast } from "sonner"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
@@ -68,23 +66,42 @@ interface ActiveSongLyricsProps {
   onClose: () => void
   onSaveLyrics: (lyrics: string) => void
   isSaving: boolean
+  onPrevSong?: () => void
+  onNextSong?: () => void
+  hasPrevSong?: boolean
+  hasNextSong?: boolean
+  songPosition?: { current: number; total: number }
+  slideDirection?: "next" | "prev"
 }
 
-function ActiveSongLyrics({ song, onClose, onSaveLyrics, isSaving }: ActiveSongLyricsProps) {
+function ActiveSongLyrics({
+  song,
+  onClose,
+  onSaveLyrics,
+  isSaving,
+  onPrevSong,
+  onNextSong,
+  hasPrevSong,
+  hasNextSong,
+  songPosition,
+  slideDirection
+}: ActiveSongLyricsProps) {
   const { data: userSettings } = useUserSongSettings(song)
   const effectiveSettings = useEffectiveSongSettings(song)
   const { mutate: upsertSettings } = useUpsertUserSongSettings(song)
   const { data: preferences } = useUserPreferences()
-  const settingsKey = userSettings === undefined ? "loading" : "ready"
+
+  if (userSettings === undefined) {
+    return <SongSkeleton />
+  }
 
   return (
     <LyricsView
-      key={settingsKey}
       mode="panel"
       song={{
         ...song,
         lyrics: song.lyrics ?? "",
-        fontSize: song.fontSize ?? 1,
+        fontSize: song.fontSize ?? 1.25,
         transpose: song.transpose ?? 0,
         capo: song.capo ?? 0
       }}
@@ -94,6 +111,12 @@ function ActiveSongLyrics({ song, onClose, onSaveLyrics, isSaving }: ActiveSongL
       initialSettings={effectiveSettings}
       onSettingsChange={upsertSettings}
       initialLyricsColumns={preferences?.lyricsColumns ?? 2}
+      onPrevSong={onPrevSong}
+      onNextSong={onNextSong}
+      hasPrevSong={hasPrevSong}
+      hasNextSong={hasNextSong}
+      songPosition={songPosition}
+      slideDirection={slideDirection}
     />
   )
 }
@@ -213,6 +236,7 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
   const queryClient = useQueryClient()
   const [isCalendarOpen, setIsCalendarOpen] = useState(false)
   const [activeIndex, setActiveIndex] = useState<number | null>(null)
+  const [slideDirection, setSlideDirection] = useState<"next" | "prev" | null>(null)
   const [isAddSongsOpen, setIsAddSongsOpen] = useState(false)
   const deleteDialogIds = createOverlayIds(`playlist-detail-delete-${playlist.id}`)
   const calendarPopoverIds = createOverlayIds(`playlist-detail-calendar-${playlist.id}`)
@@ -278,7 +302,22 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
   const totalSongs = songsWithPosition.length
 
   const handleOpenLyrics = useCallback((index: number) => {
+    setSlideDirection(null)
     startTransition(() => setActiveIndex(index))
+  }, [])
+
+  const handlePrevSong = useCallback(() => {
+    startTransition(() => {
+      setSlideDirection("prev")
+      setActiveIndex((i) => (i !== null && i > 0 ? i - 1 : i))
+    })
+  }, [])
+
+  const handleNextSong = useCallback((total: number) => {
+    startTransition(() => {
+      setSlideDirection("next")
+      setActiveIndex((i) => (i !== null && i < total - 1 ? i + 1 : i))
+    })
   }, [])
 
   const handleSongReorder = async (sourceIndex: number, destinationIndex: number) => {
@@ -564,42 +603,22 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
           </SheetTitle>
           <div className="relative flex h-full flex-col">
 
-            <div className="pointer-events-none absolute right-4 bottom-6 z-20">
-              <div className="pointer-events-auto flex items-center gap-1 rounded-full border bg-background px-1.5 py-1 shadow-md">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 rounded-full"
-                  onClick={() => setActiveIndex((i) => (i !== null && i > 0 ? i - 1 : i))}
-                  disabled={activeIndex === null || activeIndex === 0}
-                >
-                  <ChevronUp className="h-4 w-4" />
-                </Button>
-                <span className="min-w-10 text-center text-xs tabular-nums text-muted-foreground">
-                  {activeIndex !== null ? `${activeIndex + 1}/${totalSongs}` : ""}
-                </span>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 rounded-full"
-                  onClick={() =>
-                    setActiveIndex((i) => (i !== null && i < totalSongs - 1 ? i + 1 : i))
-                  }
-                  disabled={activeIndex === null || activeIndex >= totalSongs - 1}
-                >
-                  <ChevronDown className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto overflow-x-hidden">
               {activeSong && (
                 <ActiveSongLyrics
                   key={activeSong.id}
                   song={activeSong}
                   onClose={() => setActiveIndex(null)}
+                  onPrevSong={handlePrevSong}
+                  onNextSong={() => handleNextSong(totalSongs)}
+                  hasPrevSong={activeIndex !== null && activeIndex > 0}
+                  hasNextSong={activeIndex !== null && activeIndex < totalSongs - 1}
+                  songPosition={
+                    activeIndex !== null
+                      ? { current: activeIndex + 1, total: totalSongs }
+                      : undefined
+                  }
+                  slideDirection={slideDirection ?? undefined}
                   onSaveLyrics={(lyrics) => {
                     const songId = activeSong.id
                     queryClient.setQueryData(

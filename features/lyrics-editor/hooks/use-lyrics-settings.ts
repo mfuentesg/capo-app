@@ -12,7 +12,7 @@ interface UseLyricsSettingsOptions {
 
 export function useLyricsSettings(options?: UseLyricsSettingsOptions) {
   const { t } = useTranslation()
-  const [fontSizeValue, setFontSizeValue] = useState(options?.initialFontSize ?? 1)
+  const [fontSizeValue, setFontSizeValue] = useState(options?.initialFontSize ?? 1.25)
   const [transposeValue, setTransposeValue] = useState(options?.initialTranspose ?? 0)
   const [capoValue, setCapoValue] = useState(options?.initialCapo ?? 0)
 
@@ -33,10 +33,10 @@ export function useLyricsSettings(options?: UseLyricsSettingsOptions) {
       notify({ capo: capoValue, transpose: transposeValue, fontSize: next })
     },
     reset: () => {
-      setFontSizeValue(1)
-      notify({ capo: capoValue, transpose: transposeValue, fontSize: 1 })
+      setFontSizeValue(1.25)
+      notify({ capo: capoValue, transpose: transposeValue, fontSize: 1.25 })
     },
-    isAtDefault: () => fontSizeValue === 1,
+    isAtDefault: () => fontSizeValue === 1.25,
     isAtMin: () => fontSizeValue <= 0.5,
     isAtMax: () => fontSizeValue >= 3
   }
@@ -90,10 +90,10 @@ export function useLyricsSettings(options?: UseLyricsSettingsOptions) {
   }
 
   const resetAll = () => {
-    setFontSizeValue(1)
+    setFontSizeValue(1.25)
     setTransposeValue(0)
     setCapoValue(0)
-    notify({ capo: 0, transpose: 0, fontSize: 1 })
+    notify({ capo: 0, transpose: 0, fontSize: 1.25 })
   }
 
   return {
