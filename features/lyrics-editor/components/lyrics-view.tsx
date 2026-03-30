@@ -419,28 +419,28 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
             >
               {onClose ? <X className="h-4 w-4" /> : <ArrowLeft className="h-4 w-4" />}
             </Button>
-            <p className="text-sm font-semibold truncate min-w-0">{song.title}</p>
+            <p className="text-base font-semibold truncate min-w-0">{song.title}</p>
           </div>
 
           {/* Row 2: metadata (artist · key · bpm) on left, actions on right */}
           <div className="flex items-center gap-1 mt-0.5 pl-1">
             <div className="flex items-center gap-1.5 min-w-0 flex-1 overflow-hidden">
               {song.artist && (
-                <span className="text-xs text-muted-foreground truncate shrink">{song.artist}</span>
+                <span className="text-sm text-muted-foreground truncate shrink">{song.artist}</span>
               )}
               {song.key && (
-                <Badge variant="secondary" className="shrink-0 text-xs">
+                <Badge variant="secondary" className="shrink-0 text-sm">
                   {song.key}
                 </Badge>
               )}
               {song.bpm > 0 && (
-                <Badge variant="outline" className="shrink-0 text-xs gap-1">
+                <Badge variant="outline" className="shrink-0 text-sm gap-1">
                   {song.bpm < 90 ? (
-                    <Turtle className="h-3 w-3" />
+                    <Turtle className="h-3.5 w-3.5" />
                   ) : song.bpm <= 120 ? (
-                    <Rabbit className="h-3 w-3" />
+                    <Rabbit className="h-3.5 w-3.5" />
                   ) : (
-                    <Zap className="h-3 w-3" />
+                    <Zap className="h-3.5 w-3.5" />
                   )}
                   {song.bpm} {t.songs.bpm}
                 </Badge>
@@ -453,44 +453,44 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
                   <SaveStatus status={saveStatus} className="mr-1" />
                   <Button
                     variant="outline"
-                    className="h-8 gap-1.5 px-2"
+                    className="h-9 gap-1.5 px-2.5"
                     onClick={handleCancel}
                     aria-label={t.common.cancel}
                   >
-                    <X className="h-3.5 w-3.5" />
-                    <span className="text-xs">{t.common.cancel}</span>
+                    <X className="h-4 w-4" />
+                    <span className="text-sm">{t.common.cancel}</span>
                   </Button>
                   <Button
                     variant={isPreviewing ? "secondary" : "ghost"}
                     size="icon"
-                    className="h-8 w-8"
+                    className="h-9 w-9"
                     onClick={togglePreview}
                     aria-label={isPreviewing ? t.common.edit : t.songs.preview}
                   >
                     {isPreviewing ? (
-                      <Pencil className="h-3.5 w-3.5" />
+                      <Pencil className="h-4 w-4" />
                     ) : (
-                      <Eye className="h-3.5 w-3.5" />
+                      <Eye className="h-4 w-4" />
                     )}
                   </Button>
                   <Button
                     variant="default"
                     size="icon"
-                    className="h-8 w-8"
+                    className="h-9 w-9"
                     onClick={handleSave}
                     disabled={isSaving || saveStatus === "saved"}
                     aria-label={t.common.save}
                   >
-                    <Save className="h-3.5 w-3.5" />
+                    <Save className="h-4 w-4" />
                   </Button>
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8"
+                    className="h-9 w-9"
                     onClick={() => setIsReferenceOpen(true)}
                     aria-label={t.songs.lyrics.chordproReference}
                   >
-                    <BookOpen className="h-3.5 w-3.5" />
+                    <BookOpen className="h-4 w-4" />
                   </Button>
                 </>
               ) : (
@@ -498,19 +498,19 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
                   {canEdit && (
                     <Button
                       variant="ghost"
-                      className="h-8 gap-1.5 px-2"
+                      className="h-9 gap-1.5 px-2.5"
                       onClick={handleEdit}
                       aria-label={t.songs.editLyrics}
                     >
-                      <Pencil className="h-3.5 w-3.5" />
-                      <span className="hidden sm:inline text-xs">{t.common.edit}</span>
+                      <Pencil className="h-4 w-4" />
+                      <span className="hidden sm:inline text-sm">{t.common.edit}</span>
                     </Button>
                   )}
                   {isPanel && (
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-8 w-8"
+                      className="h-9 w-9"
                       asChild
                       title={t.songs.viewLyrics}
                     >
@@ -519,18 +519,18 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        <ExternalLink className="h-3.5 w-3.5" />
+                        <ExternalLink className="h-4 w-4" />
                       </a>
                     </Button>
                   )}
                   <Button
                     variant="ghost"
-                    className="h-8 gap-1.5 px-2"
+                    className="h-9 gap-1.5 px-2.5"
                     onClick={() => setIsReferenceOpen(true)}
                     aria-label={t.songs.lyrics.chordproReference}
                   >
-                    <BookOpen className="h-3.5 w-3.5" />
-                    <span className="hidden sm:inline text-xs">{t.songs.lyrics.docs}</span>
+                    <BookOpen className="h-4 w-4" />
+                    <span className="hidden sm:inline text-sm">{t.songs.lyrics.docs}</span>
                   </Button>
                 </>
               )}
