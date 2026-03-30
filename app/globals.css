@@ -193,11 +193,6 @@
   @apply font-bold cursor-pointer;
 }
 
-/* All chord-row slots (real or empty) must share the same height so lyrics align */
-.clp > :first-child {
-  min-height: 1.6em; /* matches leading-[1.6] on .chordsheet-content */
-}
-
 /* Styling only on stacked chords (above lyrics in chord-line layout) */
 .clp .chord {
   color: var(--chord);
@@ -207,9 +202,9 @@
   margin: 0 1px;
 }
 
-.section-repeat-content .clp .chord {
-  color: var(--section-accent) !important;
-  background: color-mix(in oklch, var(--section-accent) 12%, transparent) !important;
+.section-repeat-content .chord {
+  color: var(--section-accent);
+  background: color-mix(in oklch, var(--section-accent) 12%, transparent);
 }
 
 .chordsheet-content .chord:hover {
@@ -247,6 +242,16 @@
   white-space: pre;
   line-height: inherit;
   padding-top: 1.6em; /* reserve space for the chord row above */
+}
+
+/* When no lyric text is present the chord must be in normal flow so the .clp
+   container is sized by the chord width — prevents chords overlapping each other. */
+.clp--chord-only > :first-child {
+  position: static;
+}
+
+.clp--chord-only .clp-lyric {
+  padding-top: 0; /* chord is in-flow, no need to reserve space */
 }
 
 /* ── Section accent colours by type ─────────────────────────────── */

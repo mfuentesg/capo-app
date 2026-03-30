@@ -130,7 +130,11 @@ function formatLyricsToHtml(
 
           // Flex chord-lyric pair: chord stacked above its lyrics, no space-based positioning
           const chordSpan = chord ? `<span class="chord">${chord}</span>` : `<span class="clp-chord-empty"></span>`
-          clpParts.push(`<span class="clp">${chordSpan}<span class="clp-lyric">${lyrics}</span></span>`)
+          // When there is no lyric text the chord must stay in normal flow so it
+          // sizes the .clp container — otherwise all zero-width .clp columns collapse
+          // and their absolute-positioned chords overlap each other.
+          const clpClass = chord && !lyrics ? "clp clp--chord-only" : "clp"
+          clpParts.push(`<span class="${clpClass}">${chordSpan}<span class="clp-lyric">${lyrics}</span></span>`)
 
           lyricsLine += lyrics
 
@@ -437,9 +441,9 @@ function SectionHeader({ name, isCollapsed, onToggle, icon, flags }: SectionHead
   )
 
   const flagBadges =
-    flags && flags.length > 0 ? (
+    flags && flags.some((f) => f !== "inline") ? (
       <span className="flex items-center gap-1 shrink-0">
-        {flags.map((flag) => {
+        {flags.filter((f) => f !== "inline").map((flag) => {
           const cfg = FLAG_CONFIG[flag]
           return (
             <span
