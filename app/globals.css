@@ -193,18 +193,18 @@
   @apply font-bold cursor-pointer;
 }
 
+/* All chord-row slots (real or empty) must share the same height so lyrics align */
+.clp > :first-child {
+  min-height: 1.6em; /* matches leading-[1.6] on .chordsheet-content */
+}
+
 /* Styling only on stacked chords (above lyrics in chord-line layout) */
 .clp .chord {
-  min-height: 1.4em;
   color: var(--chord);
   background: color-mix(in oklch, var(--chord) 12%, transparent);
   border-radius: 3px;
   padding: 0 3px;
   margin: 0 1px;
-}
-
-.clp-chord-empty {
-  min-height: 1.4em;
 }
 
 .section-repeat-content .clp .chord {
