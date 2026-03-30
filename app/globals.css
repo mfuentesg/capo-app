@@ -224,6 +224,7 @@
   display: inline-flex;
   flex-wrap: wrap;
   align-items: flex-start;
+  gap: 0 0.25em;
 }
 
 .clp {
