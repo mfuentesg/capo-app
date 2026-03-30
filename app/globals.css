@@ -222,7 +222,7 @@
 .chord-line {
   display: inline-flex;
   flex-wrap: wrap;
-  align-items: flex-end;
+  align-items: flex-start;
 }
 
 .clp {
