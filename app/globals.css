@@ -195,6 +195,7 @@
 
 /* Styling only on stacked chords (above lyrics in chord-line layout) */
 .clp .chord {
+  min-height: 1.4em;
   color: var(--chord);
   background: color-mix(in oklch, var(--chord) 12%, transparent);
   border-radius: 3px;
