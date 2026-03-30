@@ -90,11 +90,13 @@ function ActiveSongLyrics({
   const effectiveSettings = useEffectiveSongSettings(song)
   const { mutate: upsertSettings } = useUpsertUserSongSettings(song)
   const { data: preferences } = useUserPreferences()
-  const settingsKey = userSettings === undefined ? "loading" : "ready"
+
+  if (userSettings === undefined) {
+    return <SongSkeleton />
+  }
 
   return (
     <LyricsView
-      key={settingsKey}
       mode="panel"
       song={{
         ...song,
