@@ -77,7 +77,7 @@ export function useEffectiveSongSettings(song: Song) {
   return {
     transpose: userSettings?.transpose ?? song.transpose ?? 0,
     capo: userSettings?.capo ?? song.capo ?? 0,
-    fontSize: userSettings?.fontSize ?? song.fontSize ?? 1.25
+    fontSize: userSettings?.fontSize ?? song.fontSize ?? 1
   }
 }
 
