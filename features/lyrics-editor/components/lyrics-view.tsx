@@ -99,6 +99,7 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
   const [hasInitializedEditor, setHasInitializedEditor] = useState(false)
   const [editedLyrics, setEditedLyrics] = useState(song.lyrics || "")
   const [savedLyrics, setSavedLyrics] = useState(song.lyrics || "")
+  const [editorResetKey, setEditorResetKey] = useState(0)
   const [lyricsColumns, setLyricsColumnsState] = useState<1 | 2>(initialLyricsColumns)
   const { mutate: upsertPreferences } = useUpsertUserPreferences()
 
@@ -162,12 +163,14 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
     setIsEditing(true)
     setIsPreviewing(false)
     setEditedLyrics(savedLyrics)
+    setEditorResetKey((k) => k + 1)
   }
 
   const handleCancel = useCallback(() => {
     setIsEditing(false)
     setIsPreviewing(false)
     setEditedLyrics(savedLyrics)
+    setEditorResetKey((k) => k + 1)
   }, [savedLyrics])
 
   const handleSave = () => {
@@ -580,7 +583,7 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
                   isEditing && !isPreviewing ? "block" : "hidden"
                 )}
               >
-                <LazySongEditor content={editedLyrics} onChange={handleLyricsChange} />
+                <LazySongEditor key={editorResetKey} content={savedLyrics} onChange={handleLyricsChange} />
               </div>
             )}
           </div>

@@ -40,8 +40,8 @@ export function useAutoSave<T>(
     }
 
     clearPending()
+    setStatus("pending")
 
-    const pendingTimer = setTimeout(() => setStatus("pending"), 0)
     timeoutRef.current = setTimeout(async () => {
       setStatus("saving")
       try {
@@ -53,7 +53,6 @@ export function useAutoSave<T>(
     }, delay)
 
     return () => {
-      clearTimeout(pendingTimer)
       clearPending()
     }
   }, [value, enabled, delay, clearPending])
