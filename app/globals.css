@@ -287,50 +287,67 @@
 }
 
 /* ── Volta (iteration) blocks ────────────────────────────────────── */
-/* Rendered inside <pre> — display:block on a <span> is intentional. */
+/*
+ * Block-level <div> elements inside <pre> are valid HTML5 and break
+ * cleanly out of the preformatted flow while the .volta-content area
+ * inherits whitespace-pre-wrap so chord/lyric spacing is preserved.
+ *
+ * --volta-color falls back to muted-foreground for top-level volta
+ * (outside any section), and is overridden to --section-accent when
+ * nested inside a section block — giving automatic color harmony.
+ */
 .volta-block {
+  --volta-color: var(--muted-foreground);
   display: block;
-  border-left: 2px solid oklch(0.7 0.16 65);
-  border-top: 2px solid oklch(0.7 0.16 65);
-  padding: 3px 0 3px 10px;
-  margin-bottom: 4px;
+  border-radius: 6px;
+  border: 1px solid color-mix(in oklch, var(--volta-color) 28%, transparent);
+  background: color-mix(in oklch, var(--volta-color) 6%, transparent);
+  margin: 6px 0;
+  overflow: hidden;
 }
 
-.dark .volta-block {
-  border-color: oklch(0.8 0.15 65);
+.section-repeat .volta-block {
+  --volta-color: var(--section-accent);
 }
 
 .volta-label {
   display: block;
-  font-size: 0.75em;
+  font-size: 0.68em;
   font-weight: 700;
-  color: oklch(0.6 0.16 65);
-  margin-bottom: 2px;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  padding: 3px 10px 3px;
+  color: var(--volta-color);
+  background: color-mix(in oklch, var(--volta-color) 12%, transparent);
+  border-bottom: 1px solid color-mix(in oklch, var(--volta-color) 22%, transparent);
 }
 
-.dark .volta-label {
-  color: oklch(0.8 0.15 65);
+.volta-content {
+  display: block;
+  padding: 5px 10px 7px;
 }
 
 /* ── Performance notes ───────────────────────────────────────────── */
+/* Styled as a musician's pencil annotation — italic, warm tint,     */
+/* with parentheses added via pseudo-elements.                        */
 .performance-note {
   display: inline-block;
-  font-size: 0.75em;
-  font-weight: 600;
   font-style: italic;
-  color: oklch(0.55 0.16 65);
-  background: oklch(0.97 0.04 65);
-  padding: 0.05em 0.35em;
-  border-radius: 3px;
-  border: 1px solid currentColor;
-  opacity: 0.9;
+  font-size: 0.82em;
+  color: oklch(0.58 0.13 65);
+  opacity: 0.88;
+}
+
+.performance-note::before {
+  content: "(\00a0";
+}
+
+.performance-note::after {
+  content: "\00a0)";
 }
 
 .dark .performance-note {
-  color: oklch(0.82 0.15 65);
-  background: oklch(0.28 0.05 65);
+  color: oklch(0.78 0.12 65);
 }
 
 .multi-column-lyrics {

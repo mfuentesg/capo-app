@@ -198,7 +198,9 @@ function processChordProContent(
 }
 
 // Splits text at {start_of_volta}...{end_of_volta} boundaries, processes each piece
-// through processChordProContent, and wraps volta pieces in a styled span block.
+// through processChordProContent, and wraps volta pieces in a styled div card.
+// Block-level <div> elements are valid inside <pre> (HTML5) and break cleanly out
+// of the preformatted flow while inheriting whitespace-pre-wrap for their content.
 function splitAndProcessVolta(
   text: string,
   transpose: number,
@@ -208,30 +210,39 @@ function splitAndProcessVolta(
 ): string {
   const parts: string[] = []
   let lastIndex = 0
+  let hasVolta = false
 
   const re = new RegExp(VOLTA_SPLIT_RE.source, "gi")
   let match: RegExpExecArray | null
 
   while ((match = re.exec(text)) !== null) {
+    hasVolta = true
     const before = text.slice(lastIndex, match.index)
     if (before) {
-      parts.push(processChordProContent(before, transpose, capo, sectionLabels, inline))
+      // trimEnd so the div block starts cleanly without extra blank lines
+      parts.push(processChordProContent(before, transpose, capo, sectionLabels, inline).trimEnd())
     }
 
     const label = match[1]?.trim() ?? ""
     const content = match[2] ?? ""
-    const innerHtml = processChordProContent(content, transpose, capo, sectionLabels, inline)
-    const labelHtml = label
-      ? `<span class="volta-label">${escapeHtml(label)}</span>\n`
-      : ""
-    parts.push(`<span class="volta-block">${labelHtml}${innerHtml}\n</span>`)
+    const innerHtml = processChordProContent(content.trim(), transpose, capo, sectionLabels, inline)
+    const labelHtml = label ? `<div class="volta-label">${escapeHtml(label)}</div>` : ""
+    parts.push(`<div class="volta-block">${labelHtml}<div class="volta-content">${innerHtml}</div></div>`)
 
     lastIndex = match.index + match[0].length
   }
 
   const tail = text.slice(lastIndex)
   if (tail) {
-    parts.push(processChordProContent(tail, transpose, capo, sectionLabels, inline))
+    // trimStart so content after a volta block doesn't have leading blank lines
+    const tailHtml = processChordProContent(
+      hasVolta ? tail.trimStart() : tail,
+      transpose,
+      capo,
+      sectionLabels,
+      inline
+    )
+    if (tailHtml) parts.push(tailHtml)
   }
 
   return parts.join("\n")
