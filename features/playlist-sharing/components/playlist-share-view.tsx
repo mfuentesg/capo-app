@@ -37,7 +37,7 @@ import {
   useUserPreferences,
   useUpdateSong
 } from "@/features/songs"
-import { createClient } from "@/lib/supabase/client"
+import { usePublicPlaylistRealtime } from "../hooks"
 import { formatLongDate } from "@/lib/utils"
 
 interface ActiveSongLyricsForShareProps {
@@ -159,64 +159,13 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
   }, [activeIndex])
 
   // Realtime: subscribe to playlist settings and song order changes
-  useEffect(() => {
-    if (!playlist.id) return
-
-    const supabase = createClient()
-    const channel = supabase
-      .channel(`share-view:${playlist.id}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "UPDATE",
-          schema: "public",
-          table: "playlists",
-          filter: `id=eq.${playlist.id}`
-        },
-        (payload) => {
-          const updated = payload.new as { is_public: boolean; allow_guest_editing: boolean }
-          setLocalVisibility(updated.is_public ? "public" : "private")
-          setLocalGuestEditing(updated.allow_guest_editing ?? false)
-        }
-      )
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "songs"
-          // No row-level filter: songs.playlist_id doesn't exist (relationship is via
-          // playlist_songs). Any song edit triggers a refetch via the public share-code
-          // API, which naturally scopes the result to this playlist.
-        },
-        () => {
-          if (playlist.shareCode) {
-            api.getPublicPlaylistByShareCode(playlist.shareCode).then((data) => {
-              if (data) setSongs(data.songs)
-            })
-          }
-        }
-      )
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "playlist_songs",
-          filter: `playlist_id=eq.${playlist.id}`
-        },
-        async () => {
-          if (!playlist.shareCode) return
-          const updated = await api.getPublicPlaylistByShareCode(playlist.shareCode)
-          if (updated) setSongs(updated.songs)
-        }
-      )
-      .subscribe()
-
-    return () => {
-      channel.unsubscribe()
+  usePublicPlaylistRealtime(playlist.id, playlist.shareCode ?? "", {
+    onSongsChange: setSongs,
+    onPlaylistChange: ({ visibility, allowGuestEditing }) => {
+      setLocalVisibility(visibility)
+      setLocalGuestEditing(allowGuestEditing)
     }
-  }, [playlist.id, playlist.shareCode])
+  })
 
   const activeSong = activeIndex !== null ? songs[activeIndex] : null
   const totalSongs = songs.length

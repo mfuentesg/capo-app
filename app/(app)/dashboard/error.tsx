@@ -43,7 +43,7 @@ export default function DashboardError({
         <div className="flex items-center justify-center gap-3">
           <Button onClick={reset}>{t.common.tryAgain}</Button>
           <Button variant="outline" asChild>
-            <Link href="/dashboard">Go to Dashboard</Link>
+            <Link href="/dashboard/songs">Go to Songs</Link>
           </Button>
         </div>
       </div>
