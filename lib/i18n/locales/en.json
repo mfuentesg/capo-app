@@ -310,7 +310,7 @@
   "errors": {
     "unexpectedError": "An unexpected error occurred. Please try again.",
     "loadingError": "There was a problem loading this page. Please try again.",
-    "goToDashboard": "Go to Dashboard"
+    "goToSongs": "Go to Songs"
   },
   "dashboard": {
     "title": "Dashboard",

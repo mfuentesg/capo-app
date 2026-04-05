@@ -1,9 +1,9 @@
 import { setViewFilterCookie, getInitialAppContextData } from "../server"
 import { VIEW_FILTER_KEY, SELECTED_TEAM_ID_KEY } from "../constants"
 import { createClient } from "@/lib/supabase/server"
-import { getUser } from "@/features/auth/api"
-import { getTeamsWithClient } from "@/features/teams/api"
-import { getUserPreferences } from "@/features/songs/api/user-preferences-api"
+import { getUser } from "@/features/auth"
+import { getTeamsWithClient } from "@/features/teams"
+import { getUserPreferences } from "@/features/songs"
 import { cookies } from "next/headers"
 
 // Declare at module scope so they're accessible in all tests
@@ -19,16 +19,16 @@ jest.mock("@/lib/supabase/server", () => ({
   createClient: jest.fn()
 }))
 
-jest.mock("@/features/auth/api", () => ({
+jest.mock("@/features/auth", () => ({
   getUser: jest.fn()
 }))
 
-jest.mock("@/features/teams/api", () => ({
+jest.mock("@/features/teams", () => ({
   getTeamsWithClient: jest.fn(),
   api: { getTeams: jest.fn() }
 }))
 
-jest.mock("@/features/songs/api/user-preferences-api", () => ({
+jest.mock("@/features/songs", () => ({
   getUserPreferences: jest.fn()
 }))
 

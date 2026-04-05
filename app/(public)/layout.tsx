@@ -1,7 +1,7 @@
 import type React from "react"
 import { cookies } from "next/headers"
 import { QueryProvider } from "@/components/providers/query-provider"
-import { LocaleProvider } from "@/features/settings/contexts"
+import { LocaleProvider } from "@/features/settings"
 import { defaultLocale, isValidLocale } from "@/lib/i18n/config"
 import type { Locale } from "@/lib/i18n/config"
 

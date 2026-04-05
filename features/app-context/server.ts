@@ -12,11 +12,11 @@ import type { UserInfo } from "@/features/auth"
 import type { Tables } from "@/lib/supabase/database.types"
 import { SELECTED_TEAM_ID_KEY, VIEW_FILTER_KEY } from "./constants"
 import { createClient } from "@/lib/supabase/server"
-import { api as teamsApi, getTeamsWithClient } from "@/features/teams/api"
-import { getUser } from "@/features/auth/api"
+import { api as teamsApi, getTeamsWithClient } from "@/features/teams"
+import { getUser } from "@/features/auth"
 import { cookies } from "next/headers"
 import { cache } from "react"
-import { getUserPreferences } from "@/features/songs/api/user-preferences-api"
+import { getUserPreferences } from "@/features/songs"
 
 export async function setSelectedTeamId(teamId: string) {
   const cookieStore = await cookies()

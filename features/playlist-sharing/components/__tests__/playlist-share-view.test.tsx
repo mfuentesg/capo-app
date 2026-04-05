@@ -6,7 +6,7 @@ import { LocaleProvider } from "@/features/settings"
 import { AppContextProvider } from "@/features/app-context"
 import { AppRouterContext } from "next/dist/shared/lib/app-router-context.shared-runtime"
 import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime"
-import type { PlaylistWithSongs } from "@/features/playlists/types"
+import type { PlaylistWithSongs } from "@/features/playlists"
 
 jest.mock("next/link", () => ({
   __esModule: true,
