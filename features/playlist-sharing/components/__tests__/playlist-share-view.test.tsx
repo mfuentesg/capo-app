@@ -28,7 +28,9 @@ jest.mock("@/features/auth", () => ({
 jest.mock("@/features/songs", () => ({
   useAllUserSongSettings: jest.fn().mockReturnValue({ data: [] }),
   useEffectiveSongSettings: jest.fn().mockReturnValue({ capo: 0, transpose: 0 }),
-  useUpsertUserSongSettings: jest.fn().mockReturnValue({ mutate: jest.fn() })
+  useUpsertUserSongSettings: jest.fn().mockReturnValue({ mutate: jest.fn() }),
+  useUpdateSong: jest.fn().mockReturnValue({ mutate: jest.fn(), isPending: false }),
+  useUserPreferences: jest.fn().mockReturnValue({ data: null })
 }))
 
 jest.mock("@hello-pangea/dnd", () => ({
