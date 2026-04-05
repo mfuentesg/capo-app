@@ -3,7 +3,7 @@
  */
 
 export const AUTH_CALLBACK_PATH = "/auth/callback"
-export const DEFAULT_REDIRECT_PATH = "/dashboard"
+export const DEFAULT_REDIRECT_PATH = "/dashboard/songs"
 export const LOGIN_PATH = "/"
 
 /**

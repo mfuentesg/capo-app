@@ -22,7 +22,7 @@ import { useSongs } from "@/features/songs"
 import { addSongsToPlaylistAction } from "../../api/actions"
 import { playlistsKeys } from "../../hooks/query-keys"
 import { useTranslation } from "@/hooks/use-translation"
-import type { BPMRange } from "@/features/songs/types"
+import type { BPMRange } from "@/features/songs"
 import type { Song } from "@/features/songs"
 
 interface AddSongsSheetProps {
