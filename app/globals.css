@@ -345,6 +345,10 @@
   @apply text-[1em] font-bold uppercase tracking-[0.08em] text-muted-foreground;
 }
 
+.lyrics-comment {
+  @apply text-[0.875em] text-muted-foreground/60 italic;
+}
+
 .section-repeat-chevron {
   @apply shrink-0 transition-transform duration-150 ease-in-out;
 }
