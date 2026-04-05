@@ -172,6 +172,9 @@
       "columnLayout": "Diseño",
       "oneColumn": "1 columna",
       "twoColumns": "2 columnas",
+      "visibility": "Visibilidad",
+      "showChordsLabel": "Acordes",
+      "showLyricsLabel": "Letra",
       "chordproReference": "Referencia ChordPro",
       "docs": "Docs",
       "autoScroll": {

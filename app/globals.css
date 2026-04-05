@@ -254,6 +254,24 @@
   padding-top: 0; /* chord is in-flow, no need to reserve space */
 }
 
+/* ── Chord / lyric visibility toggles ───────────────────────────── */
+/* Hide chords: remove chord spans and collapse the space they reserved */
+.hide-chords .chord,
+.hide-chords .clp-chord-empty {
+  display: none;
+}
+.hide-chords .clp-lyric {
+  padding-top: 0;
+}
+
+/* Hide lyrics: collapse lyric spans, let chords flow in normal document flow */
+.hide-lyrics .clp-lyric {
+  display: none;
+}
+.hide-lyrics .clp > :first-child {
+  position: static;
+}
+
 /* ── Section accent colours by type ─────────────────────────────── */
 .section-repeat[data-section-type="verse"] {
   --section-accent: oklch(0.48 0.16 248);
