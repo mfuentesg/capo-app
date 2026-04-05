@@ -27,9 +27,12 @@ export function usePublicPlaylistRealtime(
   shareCode: string,
   callbacks: PublicPlaylistRealtimeCallbacks
 ) {
-  // Keep callbacks in a ref so the effect never needs to re-run when they change
+  // Keep callbacks in a ref so the subscription effect never needs to re-run when they change.
+  // Update via a separate effect (not during render) to satisfy react-hooks/refs.
   const callbacksRef = useRef(callbacks)
-  callbacksRef.current = callbacks
+  useEffect(() => {
+    callbacksRef.current = callbacks
+  })
 
   useEffect(() => {
     if (!playlistId || !shareCode) return
