@@ -29,6 +29,16 @@ type LyricsSegment =
 // Unique tokens that survive ChordProParser unchanged (no [A-G] at word start).
 const COMMENT_TOKEN = "SECTIONLBL"
 const SECTION_START_TOKEN = "SECTSTART"
+const PERF_NOTE_TOKEN = "PERFORMNOTE"
+
+// Regex that matches {start_of_volta: label}...{end_of_volta} (and shorthand sovt/eovt).
+// Lazy [\s\S]*? prevents over-matching across multiple volta blocks.
+const VOLTA_SPLIT_RE =
+  /\{(?:start_of_volta|sovt)(?::\s*([^}]*))?\}([\s\S]*?)\{(?:end_of_volta|eovt)\}/gi
+
+function escapeHtml(str: string): string {
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;")
+}
 
 const SECTION_DIRECTIVE_MAP: Record<string, string> = {
   start_of_chorus: "chorus",
@@ -55,14 +65,19 @@ const SECTION_END_RE =
 const SECTION_START_RE =
   /\{(start_of_chorus|soc|start_of_verse|sov|start_of_bridge|sob|start_of_tab|sot|start_of_grid|sog|start_of_intro|soi|start_of_outro|soo|start_of_pre_chorus|sopc)(?::\s*([^}]+))?\}/gi
 
-function formatLyricsToHtml(
+// Processes a plain ChordPro text block (no volta markers) through the parser
+// and returns an HTML string. Handles {comment}, {note}, and section-start tokens.
+// inline=true uses the side-by-side chord/lyric layout instead of stacked.
+function processChordProContent(
   text: string,
   transpose: number,
   capo: number,
-  sectionLabels: Record<string, string>
+  sectionLabels: Record<string, string>,
+  inline: boolean
 ): string {
   const commentLabels: string[] = []
   const sectionStarts: { type: string; label: string }[] = []
+  const noteTexts: string[] = []
 
   // Replace {comment}/{c} with placeholder tokens.
   let processedText = text.replace(
@@ -72,6 +87,12 @@ function formatLyricsToHtml(
       return `${COMMENT_TOKEN}${commentLabels.length - 1}`
     }
   )
+
+  // Replace {note: text} with placeholder tokens.
+  processedText = processedText.replace(/\{note: *([^}]*)\}/gi, (_, content: string) => {
+    noteTexts.push(content.trim())
+    return `${PERF_NOTE_TOKEN}${noteTexts.length - 1}`
+  })
 
   // Replace section start directives with tokens; strip end markers entirely.
   processedText = processedText
@@ -89,28 +110,50 @@ function formatLyricsToHtml(
   if (transpose !== 0) {
     parsedSong = parsedSong.transpose(transpose, { normalizeChordSuffix: false })
   }
-
   if (capo > 0) {
     parsedSong = parsedSong.transpose(-capo, { normalizeChordSuffix: false })
   }
 
-  // Custom formatter that preserves chord strings as-is from ChordLyricsPair
   return parsedSong.lines
     .map((line) => {
-      // Check for tokens first
       const rawText = line.toString()
+
+      // Token: {comment}
       const commentMatch = rawText.match(new RegExp(`${COMMENT_TOKEN}(\\d+)`))
       if (commentMatch) {
         const label = commentLabels[parseInt(commentMatch[1], 10)]
-        return label ? `<span class="section-label">${label}</span>` : ""
+        return label ? `<span class="section-label">${escapeHtml(label)}</span>` : ""
       }
 
+      // Token: {note}
+      const noteMatch = rawText.match(new RegExp(`${PERF_NOTE_TOKEN}(\\d+)`))
+      if (noteMatch) {
+        const noteText = noteTexts[parseInt(noteMatch[1], 10)]
+        return noteText ? `<span class="performance-note">${escapeHtml(noteText)}</span>` : ""
+      }
+
+      // Token: section start directive
       const sectionMatch = rawText.match(new RegExp(`${SECTION_START_TOKEN}(\\d+)`))
       if (sectionMatch) {
         const { type, label } = sectionStarts[parseInt(sectionMatch[1], 10)]
-        return `<span class="section-label section-label--${type}">${label}</span>`
+        return `<span class="section-label section-label--${type}">${escapeHtml(label)}</span>`
       }
 
+      if (inline) {
+        const inlineParts: string[] = []
+        line.items.forEach((item) => {
+          const chordPair = item as { chords?: string; lyrics?: string | null }
+          const contentItem = item as { content?: string }
+          const chord = chordPair.chords || ""
+          const lyrics = chordPair.lyrics || ""
+          if (lyrics) inlineParts.push(lyrics)
+          if (chord) inlineParts.push(`<span class="chord">${chord}</span> `)
+          if (!chord && !lyrics && contentItem.content) inlineParts.push(contentItem.content)
+        })
+        return inlineParts.join("").replace(/\s{2,}/g, " ").trim()
+      }
+
+      // Stacked layout (default)
       let chordLine = ""
       let lyricsLine = ""
       let currentPos = 0
@@ -118,24 +161,18 @@ function formatLyricsToHtml(
       let hasContentItems = false
 
       line.items.forEach((item) => {
-        // Use type casting to safely access properties that might exist on different item types
         const chordPair = item as { chords?: string; lyrics?: string | null }
         const contentItem = item as { content?: string }
-
         const chord = chordPair.chords || ""
         const lyrics = chordPair.lyrics || ""
 
         if (chord || lyrics) {
           if (chord) {
-            // Add chord with class and padding
             const offset = Math.max(0, currentPos - chordLine.replace(/<[^>]*>/g, "").length)
             chordLine += " ".repeat(offset) + `<span class="chord">${chord}</span>`
           }
-
           lyricsLine += lyrics
           currentPos += Math.max(chord.length + 1, lyrics.length)
-
-          // Also collect inline representation (lyrics precede the chord they annotate)
           if (lyrics) inlineParts.push(lyrics)
           if (chord) inlineParts.push(`<span class="chord">${chord}</span> `)
         } else if (contentItem.content) {
@@ -160,6 +197,54 @@ function formatLyricsToHtml(
     .join("\n")
 }
 
+// Splits text at {start_of_volta}...{end_of_volta} boundaries, processes each piece
+// through processChordProContent, and wraps volta pieces in a styled span block.
+function splitAndProcessVolta(
+  text: string,
+  transpose: number,
+  capo: number,
+  sectionLabels: Record<string, string>,
+  inline: boolean
+): string {
+  const parts: string[] = []
+  let lastIndex = 0
+
+  const re = new RegExp(VOLTA_SPLIT_RE.source, "gi")
+  let match: RegExpExecArray | null
+
+  while ((match = re.exec(text)) !== null) {
+    const before = text.slice(lastIndex, match.index)
+    if (before) {
+      parts.push(processChordProContent(before, transpose, capo, sectionLabels, inline))
+    }
+
+    const label = match[1]?.trim() ?? ""
+    const content = match[2] ?? ""
+    const innerHtml = processChordProContent(content, transpose, capo, sectionLabels, inline)
+    const labelHtml = label
+      ? `<span class="volta-label">${escapeHtml(label)}</span>\n`
+      : ""
+    parts.push(`<span class="volta-block">${labelHtml}${innerHtml}\n</span>`)
+
+    lastIndex = match.index + match[0].length
+  }
+
+  const tail = text.slice(lastIndex)
+  if (tail) {
+    parts.push(processChordProContent(tail, transpose, capo, sectionLabels, inline))
+  }
+
+  return parts.join("\n")
+}
+
+function formatLyricsToHtml(
+  text: string,
+  transpose: number,
+  capo: number,
+  sectionLabels: Record<string, string>
+): string {
+  return splitAndProcessVolta(text, transpose, capo, sectionLabels, false)
+}
 
 function formatInlineLyricsToHtml(
   text: string,
@@ -167,69 +252,7 @@ function formatInlineLyricsToHtml(
   capo: number,
   sectionLabels: Record<string, string>
 ): string {
-  const commentLabels: string[] = []
-  const sectionStarts: { type: string; label: string }[] = []
-
-  let processedText = text.replace(
-    /\{c(?:omment(?:_italic|_box)?)?: *([^}]*)\}/gi,
-    (_, content: string) => {
-      commentLabels.push(content.trim())
-      return `${COMMENT_TOKEN}${commentLabels.length - 1}`
-    }
-  )
-
-  processedText = processedText
-    .replace(SECTION_START_RE, (_, directive: string, name?: string) => {
-      const type = SECTION_DIRECTIVE_MAP[directive.toLowerCase()] ?? "section"
-      const label = name?.trim() ?? sectionLabels[type] ?? type
-      sectionStarts.push({ type, label })
-      return `${SECTION_START_TOKEN}${sectionStarts.length - 1}`
-    })
-    .replace(SECTION_END_RE, "")
-
-  const parser = new ChordProParser()
-  let parsedSong = parser.parse(processedText)
-
-  if (transpose !== 0) {
-    parsedSong = parsedSong.transpose(transpose, { normalizeChordSuffix: false })
-  }
-  if (capo > 0) {
-    parsedSong = parsedSong.transpose(-capo, { normalizeChordSuffix: false })
-  }
-
-  return parsedSong.lines
-    .map((line) => {
-      const rawText = line.toString()
-
-      const commentMatch = rawText.match(new RegExp(`${COMMENT_TOKEN}(\\d+)`))
-      if (commentMatch) {
-        const label = commentLabels[parseInt(commentMatch[1], 10)]
-        return label ? `<span class="section-label">${label}</span>` : ""
-      }
-
-      const sectionMatch = rawText.match(new RegExp(`${SECTION_START_TOKEN}(\\d+)`))
-      if (sectionMatch) {
-        const { type, label } = sectionStarts[parseInt(sectionMatch[1], 10)]
-        return `<span class="section-label section-label--${type}">${label}</span>`
-      }
-
-      const inlineParts: string[] = []
-
-      line.items.forEach((item) => {
-        const chordPair = item as { chords?: string; lyrics?: string | null }
-        const contentItem = item as { content?: string }
-
-        const chord = chordPair.chords || ""
-        const lyrics = chordPair.lyrics || ""
-
-        if (lyrics) inlineParts.push(lyrics)
-        if (chord) inlineParts.push(`<span class="chord">${chord}</span> `)
-        if (!chord && !lyrics && contentItem.content) inlineParts.push(contentItem.content)
-      })
-
-      return inlineParts.join("").replace(/\s{2,}/g, " ").trim()
-    })
-    .join("\n")
+  return splitAndProcessVolta(text, transpose, capo, sectionLabels, true)
 }
 
 // Matches the opening { of any directive that starts a new section or a repeat

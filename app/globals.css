@@ -286,6 +286,53 @@
   @apply opacity-50;
 }
 
+/* ── Volta (iteration) blocks ────────────────────────────────────── */
+/* Rendered inside <pre> — display:block on a <span> is intentional. */
+.volta-block {
+  display: block;
+  border-left: 2px solid oklch(0.7 0.16 65);
+  border-top: 2px solid oklch(0.7 0.16 65);
+  padding: 3px 0 3px 10px;
+  margin-bottom: 4px;
+}
+
+.dark .volta-block {
+  border-color: oklch(0.8 0.15 65);
+}
+
+.volta-label {
+  display: block;
+  font-size: 0.75em;
+  font-weight: 700;
+  color: oklch(0.6 0.16 65);
+  margin-bottom: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.dark .volta-label {
+  color: oklch(0.8 0.15 65);
+}
+
+/* ── Performance notes ───────────────────────────────────────────── */
+.performance-note {
+  display: inline-block;
+  font-size: 0.75em;
+  font-weight: 600;
+  font-style: italic;
+  color: oklch(0.55 0.16 65);
+  background: oklch(0.97 0.04 65);
+  padding: 0.05em 0.35em;
+  border-radius: 3px;
+  border: 1px solid currentColor;
+  opacity: 0.9;
+}
+
+.dark .performance-note {
+  color: oklch(0.82 0.15 65);
+  background: oklch(0.28 0.05 65);
+}
+
 .multi-column-lyrics {
   @apply max-h-none overflow-visible [column-width:400px] [column-gap:3rem] [column-rule:1px_solid_var(--border)];
 }
