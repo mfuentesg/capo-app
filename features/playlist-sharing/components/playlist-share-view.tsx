@@ -28,7 +28,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet"
 import { LyricsView } from "@/features/lyrics-editor"
 import { api, reorderPlaylistSongsAction, updatePlaylistAction } from "@/features/playlists"
-import type { PlaylistWithSongs, Playlist } from "@/features/playlists/types"
+import type { PlaylistWithSongs, Playlist } from "@/features/playlists"
 import type { Song } from "@/features/songs"
 import {
   useAllUserSongSettings,

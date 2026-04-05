@@ -1,5 +1,4 @@
 import { activityKeys } from "@/features/activity/hooks/query-keys"
-import { dashboardKeys } from "@/features/dashboard/hooks/query-keys"
 import { playlistsKeys } from "@/features/playlists/hooks/query-keys"
 import { songsKeys } from "@/features/songs/hooks/query-keys"
 import { teamsKeys } from "@/features/teams/hooks/query-keys"
@@ -12,17 +11,6 @@ describe("query key factories", () => {
     expect(activityKeys.all).toEqual(["activity"])
     expect(activityKeys.lists()).toEqual(["activity", "list"])
     expect(activityKeys.list(personalContext)).toEqual(["activity", "list", personalContext])
-  })
-
-  it("builds dashboard query keys", () => {
-    expect(dashboardKeys.all).toEqual(["dashboard"])
-    expect(dashboardKeys.stats(teamContext)).toEqual(["dashboard", "stats", teamContext])
-    expect(dashboardKeys.recentSongs(teamContext, 10)).toEqual([
-      "dashboard",
-      "recentSongs",
-      teamContext,
-      10
-    ])
   })
 
   it("builds playlist query keys", () => {
