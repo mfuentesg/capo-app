@@ -24,6 +24,7 @@ export interface UserSongSettings {
   capo: number
   transpose: number
   fontSize?: number
+  chordVariations?: Record<string, number>
 }
 
 export interface UserPreferences {

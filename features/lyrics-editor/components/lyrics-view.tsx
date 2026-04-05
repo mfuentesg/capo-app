@@ -1,7 +1,7 @@
 "use client"
 
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from "react"
-import { useUpsertUserPreferences } from "@/features/songs"
+import { useUpsertUserPreferences, useUpsertUserSongSettings } from "@/features/songs"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -137,6 +137,10 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
   const [showChords, setShowChords] = useState(true)
   const [showLyrics, setShowLyrics] = useState(true)
   const { mutate: upsertPreferences } = useUpsertUserPreferences()
+  const { mutate: upsertSongSettings } = useUpsertUserSongSettings(song)
+  const [chordVariations, setChordVariations] = useState<Record<string, number>>(
+    song.userSettings?.chordVariations ?? {}
+  )
 
   const [scrollSpeed, setScrollSpeed] = useState(() =>
     song.bpm > 0 ? song.bpm : DEFAULT_SCROLL_SPEED
@@ -671,6 +675,12 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
                   columns={lyricsColumns}
                   showChords={showChords}
                   showLyrics={showLyrics}
+                  chordVariations={chordVariations}
+                  onSetChordVariation={(chord, index) => {
+                    const updated = { ...chordVariations, [chord]: index }
+                    setChordVariations(updated)
+                    upsertSongSettings({ chordVariations: { [chord]: index } })
+                  }}
                 />
               </div>
             )}

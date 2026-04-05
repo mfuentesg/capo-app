@@ -44,7 +44,10 @@ export function useUpsertUserSongSettings(song: Song) {
       const merged: Omit<UserSongSettings, "songId"> = {
         transpose: updates.transpose ?? existing?.transpose ?? song.transpose ?? 0,
         capo: updates.capo ?? existing?.capo ?? song.capo ?? 0,
-        fontSize: updates.fontSize ?? existing?.fontSize ?? song.fontSize
+        fontSize: updates.fontSize ?? existing?.fontSize ?? song.fontSize,
+        chordVariations: updates.chordVariations
+          ? { ...(existing?.chordVariations ?? {}), ...updates.chordVariations }
+          : existing?.chordVariations
       }
       return upsertUserSongSettingsAction(song.id, merged)
     },
@@ -55,7 +58,10 @@ export function useUpsertUserSongSettings(song: Song) {
         songId: song.id,
         transpose: updates.transpose ?? old?.transpose ?? song.transpose ?? 0,
         capo: updates.capo ?? old?.capo ?? song.capo ?? 0,
-        fontSize: updates.fontSize ?? old?.fontSize ?? song.fontSize
+        fontSize: updates.fontSize ?? old?.fontSize ?? song.fontSize,
+        chordVariations: updates.chordVariations
+          ? { ...(old?.chordVariations ?? {}), ...updates.chordVariations }
+          : old?.chordVariations
       }))
       return { previous }
     },

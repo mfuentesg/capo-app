@@ -11,7 +11,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog"
-import { ChevronLeft, ChevronRight, Info } from "lucide-react"
+import { ChevronLeft, ChevronRight, Info, Star } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useLocale } from "@/features/settings"
 import { useChordOrientation } from "@/hooks/use-chord-orientation"
@@ -55,8 +55,8 @@ const guitarData = guitarDataRaw as unknown as GuitarData
 interface ChordDiagramProps {
   chordName: string | null
   onClose: () => void
-  initialPositionIndex?: number
-  onVariationChange?: (chordName: string, index: number) => void
+  preferredVariationIndex?: number
+  onSetPreferred?: (chordName: string, index: number) => void
 }
 
 interface GeneratedPosition {
@@ -237,7 +237,7 @@ function parseChord(
   return { key: lookupKey, suffix: normalized }
 }
 
-export function ChordDiagram({ chordName, onClose, initialPositionIndex, onVariationChange }: ChordDiagramProps) {
+export function ChordDiagram({ chordName, onClose, preferredVariationIndex, onSetPreferred }: ChordDiagramProps) {
   const [positionIndex, setPositionIndex] = React.useState(0)
   const [animKey, setAnimKey] = React.useState(0)
   const [slideDir, setSlideDir] = React.useState<"left" | "right">("left")
@@ -246,7 +246,7 @@ export function ChordDiagram({ chordName, onClose, initialPositionIndex, onVaria
   const { mirror } = useChordOrientation()
 
   React.useEffect(() => {
-    setPositionIndex(initialPositionIndex ?? 0)
+    setPositionIndex(preferredVariationIndex ?? 0)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chordName])
 
@@ -318,9 +318,6 @@ export function ChordDiagram({ chordName, onClose, initialPositionIndex, onVaria
     setSlideDir(dir)
     setAnimKey((k) => k + 1)
     setPositionIndex(next)
-    if (chordName) {
-      onVariationChange?.(chordName, next)
-    }
   }
 
   const handlePrev = () =>
@@ -352,11 +349,43 @@ export function ChordDiagram({ chordName, onClose, initialPositionIndex, onVaria
       >
         <div className="p-5 sm:p-8 flex-1 sm:flex-initial flex flex-col justify-center sm:block">
           <DialogHeader className="mb-8 sm:mb-6">
-            <DialogTitle className="text-4xl sm:text-4xl font-black tracking-tight">
-              {chordName}
-            </DialogTitle>
-            <div className="mt-1 font-medium text-muted-foreground uppercase tracking-widest text-[12px] sm:text-[10px]">
-              {isAlgorithmic ? "Generated Diagram" : "Verified Shape"}
+            <div className="flex items-start justify-between">
+              <div>
+                <DialogTitle className="text-4xl sm:text-4xl font-black tracking-tight">
+                  {chordName}
+                </DialogTitle>
+                <div className="mt-1 font-medium text-muted-foreground uppercase tracking-widest text-[12px] sm:text-[10px]">
+                  {isAlgorithmic ? "Generated Diagram" : "Verified Shape"}
+                </div>
+              </div>
+              {onSetPreferred && (
+                <button
+                  type="button"
+                  className={cn(
+                    "mt-1 p-1.5 rounded-full transition-colors",
+                    positionIndex === preferredVariationIndex
+                      ? "text-amber-500"
+                      : "text-muted-foreground/40 hover:text-muted-foreground"
+                  )}
+                  onClick={() => {
+                    if (chordName && positionIndex !== preferredVariationIndex) {
+                      onSetPreferred(chordName, positionIndex)
+                    }
+                  }}
+                  aria-label={
+                    positionIndex === preferredVariationIndex
+                      ? t.chords.preferredVariation
+                      : t.chords.setPreferred
+                  }
+                >
+                  <Star
+                    className={cn(
+                      "h-5 w-5",
+                      positionIndex === preferredVariationIndex && "fill-current"
+                    )}
+                  />
+                </button>
+              )}
             </div>
           </DialogHeader>
 

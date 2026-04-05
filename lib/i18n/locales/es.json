@@ -489,6 +489,8 @@
     "positionOf": "Posición {current} de {total}",
     "variation": "Variación {count}",
     "notFound": "no encontrado",
+    "setPreferred": "Marcar como preferida",
+    "preferredVariation": "Variación preferida",
     "orientation": {
       "flipVertical": "Girar (cejilla abajo)",
       "mirror": "Espejo",

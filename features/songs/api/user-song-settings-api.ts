@@ -9,7 +9,8 @@ function mapRowToSettings(row: UserSongSettingsRow): UserSongSettings {
     songId: row.song_id,
     capo: row.capo,
     transpose: row.transpose,
-    fontSize: row.font_size ?? undefined
+    fontSize: row.font_size ?? undefined,
+    chordVariations: (row.chord_variations as Record<string, number> | null) ?? undefined
   }
 }
 
@@ -54,6 +55,7 @@ export async function upsertUserSongSettings(
     capo: settings.capo,
     transpose: settings.transpose,
     font_size: settings.fontSize ?? null,
+    chord_variations: settings.chordVariations ?? null,
     updated_at: new Date().toISOString()
   }
 
