@@ -27,7 +27,7 @@ import {
   Share2
 } from "lucide-react"
 import { useRouter } from "next/navigation"
-import type { Song } from "@/types"
+import type { Song } from "@/features/songs"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Separator } from "@/components/ui/separator"
 import { useLyricsSettings } from "@/features/lyrics-editor"
