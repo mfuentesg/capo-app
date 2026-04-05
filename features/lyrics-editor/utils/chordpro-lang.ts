@@ -29,7 +29,7 @@ const SUPPORTED_DIRECTIVES = [
   { label: "capo", detail: "Capo fret position", apply: "capo: " },
   { label: "ca", detail: "Capo (short)", apply: "ca: " },
   { label: "meta", detail: "Custom metadata", apply: "meta: " },
-  // Sections — optional name, count, and performance flags (attention, skip, forte, piano, vamp, tag, break)
+  // Sections — optional name, count, and performance flags (attention, skip, forte, piano, vamp, tag, break, inline)
   { label: "start_of_chorus", detail: "Begin chorus — e.g. {soc: Chorus, 3, forte}", apply: "start_of_chorus: " },
   { label: "soc", detail: "Begin chorus (short) — e.g. {soc: Chorus, 3, forte}", apply: "soc: " },
   { label: "end_of_chorus", detail: "End chorus section", apply: "end_of_chorus}" },
@@ -83,6 +83,33 @@ const SUPPORTED_DIRECTIVES = [
   { label: "chordcolour", detail: "Chord text colour", apply: "chordcolour: " },
   { label: "chordcolor", detail: "Chord text color (US)", apply: "chordcolor: " },
 ] as const
+
+// Directives that accept comma-separated flags and/or a repeat count after the name
+const FLAG_DIRECTIVES = new Set([
+  "start_of_chorus", "soc",
+  "start_of_verse", "sov",
+  "start_of_bridge", "sob",
+  "start_of_intro", "soi",
+  "start_of_outro", "soo",
+  "start_of_pre_chorus", "sopc",
+  "repeat",
+])
+
+const FLAG_COMPLETIONS = [
+  { label: "inline", detail: "render chords inline with text" },
+  { label: "attention", detail: "! — mark for special attention" },
+  { label: "forte", detail: "f — forte (loud)" },
+  { label: "piano", detail: "p — piano (soft)" },
+  { label: "vamp", detail: "vamp — repeat until cue" },
+  { label: "tag", detail: "tag — ending tag" },
+  { label: "skip", detail: "skip — mark to skip" },
+  { label: "break", detail: "break — rest/break" },
+]
+
+const COUNT_COMPLETIONS = ["2", "3", "4", "5", "6", "7", "8"].map((n) => ({
+  label: n,
+  detail: `repeat ${n} times`,
+}))
 
 const chordProLang = StreamLanguage.define<ChordProState>({
   name: "chordpro",
@@ -156,7 +183,36 @@ const chordHighlight = HighlightStyle.define([
 ])
 
 function chordProCompletions(context: CompletionContext) {
-  // Only trigger after an opening {
+  // Flag/count completion: inside a section directive value, after a comma.
+  // Matches e.g. "{soc: Chorus, " or "{soi: Intro, 2, fo" up to the cursor.
+  const flagMatch = context.matchBefore(/\{([\w_]+):[^,}]+(?:,[^,}]*)*,\s*\w*/)
+  if (flagMatch) {
+    const directiveMatch = flagMatch.text.match(/^\{([\w_]+):/)
+    if (directiveMatch && FLAG_DIRECTIVES.has(directiveMatch[1].toLowerCase())) {
+      // Extract the partial token being typed after the last comma
+      const afterLastComma = flagMatch.text.match(/,\s*(\w*)$/)
+      const typed = afterLastComma?.[1] ?? ""
+      const from = flagMatch.to - typed.length
+
+      // Collect tokens already present so we don't re-suggest them
+      const alreadyUsed = new Set(
+        Array.from(flagMatch.text.matchAll(/,\s*(\w+)/g))
+          .map((m) => m[1])
+          .filter((t) => t !== typed)
+      )
+
+      const hasCount = Array.from(alreadyUsed).some((t) => /^\d+$/.test(t))
+
+      const options = [
+        ...(!hasCount ? COUNT_COMPLETIONS : []),
+        ...FLAG_COMPLETIONS.filter((f) => !alreadyUsed.has(f.label)),
+      ].map((o) => ({ ...o, type: "keyword" as const }))
+
+      return { from, options, filter: true }
+    }
+  }
+
+  // Directive name completion: after opening {
   const before = context.matchBefore(/\{\w*/)
   if (!before) return null
   return {

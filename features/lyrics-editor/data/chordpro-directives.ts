@@ -147,17 +147,17 @@ export const CHORDPRO_DIRECTIVES: ChordProDirective[] = [
     shorthand: "soi",
     category: "section",
     description:
-      "Marks the beginning of an intro section. Pair with {end_of_intro} or {eoi}. Lines with both instrument labels and chords (e.g. Bass: [Gm][Bb]) render inline automatically. Custom extension.",
+      "Marks the beginning of an intro section. Pair with {end_of_intro} or {eoi}. Accepts an optional name, repeat count, and performance flags — including the 'inline' flag to render chords and instrument labels side-by-side instead of stacked. Custom extension.",
     example:
-      "{soi: Intro}\nBass: [Gm][Bb][Dm] x2\nElectric Guitar: [Gm] x2\n{eoi}"
+      "{soi: Intro, inline}\nBass: [Gm][Bb][Dm] x2\nElectric Guitar: [Gm] x2\n{eoi}\n\n{soi: Intro}             ← stacked (default)\n{soi: Intro, inline}     ← Bass: Gm Bb Dm x2"
   },
   {
     name: "start_of_outro",
     shorthand: "soo",
     category: "section",
     description:
-      "Marks the beginning of an outro section. Pair with {end_of_outro} or {eoo}. Accepts an optional name, repeat count, and performance flags. Custom extension.",
-    example: "{soo: Outro}\n[Gm][Bb][Dm] x2\n{eoo}"
+      "Marks the beginning of an outro section. Pair with {end_of_outro} or {eoo}. Accepts an optional name, repeat count, and performance flags (including 'inline'). Custom extension.",
+    example: "{soo: Outro, inline}\nBass: [Gm][Bb][Dm] x2\n{eoo}"
   },
   {
     name: "start_of_pre_chorus",
@@ -255,6 +255,13 @@ export const CHORDPRO_DIRECTIVES: ChordProDirective[] = [
 ]
 
 export const SECTION_FLAG_DOCS: { flag: string; description: string; example: string }[] = [
+  {
+    flag: "inline",
+    description:
+      "Render every line in the section with chords and lyrics side-by-side instead of the default stacked (chord above lyric) layout. Ideal for intro/outro sections that list instruments and their chord patterns on a single line.",
+    example:
+      "{soi: Intro, inline}\nBass: [Gm][Bb][Dm] x2\nGuitarra: [Gm][Bb][Dm][F] x4\n{eoi}\n\n← renders as:\nBass: Gm Bb Dm x2\nGuitarra: Gm Bb Dm F x4"
+  },
   {
     flag: "attention",
     description: "Needs focus — easy section to fumble live.",

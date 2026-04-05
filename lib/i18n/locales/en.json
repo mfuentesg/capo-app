@@ -135,6 +135,7 @@
     "createSong": "Create Song",
     "openSong": "Open song",
     "editLyrics": "Edit Lyrics",
+    "shareLyrics": "Share",
     "addLyrics": "Add Lyrics",
     "deleteSong": "Delete Song",
     "deleteSongConfirmTitle": "Delete this song?",
@@ -172,6 +173,9 @@
       "columnLayout": "Layout",
       "oneColumn": "1 column",
       "twoColumns": "2 columns",
+      "visibility": "Visibility",
+      "showChordsLabel": "Chords",
+      "showLyricsLabel": "Lyrics",
       "chordproReference": "ChordPro Reference",
       "docs": "Docs",
       "autoScroll": {
@@ -300,7 +304,8 @@
     "roleChangeFailed": "Failed to change member role. Please try again.",
     "roleChangeOwnerNotAllowed": "Cannot change the team owner",
     "roleChangePermissionDenied": "You do not have permission to change roles",
-    "roleChangeAdminLimit": "Admins can only assign Member or Viewer"
+    "roleChangeAdminLimit": "Admins can only assign Member or Viewer",
+    "lyricsCopied": "Lyrics copied to clipboard"
   },
   "errors": {
     "unexpectedError": "An unexpected error occurred. Please try again.",

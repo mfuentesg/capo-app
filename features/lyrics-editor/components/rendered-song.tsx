@@ -16,14 +16,33 @@ interface RenderedSongProps {
   capo: number
   fontSize: number
   columns?: 1 | 2
+  showChords?: boolean
+  showLyrics?: boolean
 }
 
-const SECTION_FLAGS = ["attention", "skip", "forte", "piano", "vamp", "tag", "break"] as const
+const SECTION_FLAGS = [
+  "attention",
+  "skip",
+  "forte",
+  "piano",
+  "vamp",
+  "tag",
+  "break",
+  "inline"
+] as const
 type SectionFlag = (typeof SECTION_FLAGS)[number]
 
 type LyricsSegment =
   | { type: "normal"; html: string }
-  | { type: "section"; name: string; sectionType: string; html: string; count: number; flags: SectionFlag[] }
+  | {
+      type: "section"
+      name: string
+      sectionType: string
+      html: string
+      count: number
+      flags: SectionFlag[]
+      inline: boolean
+    }
   | { type: "repeat"; name: string; count: number; html: string; found: boolean }
 
 // Unique tokens that survive ChordProParser unchanged (no [A-G] at word start).
@@ -111,10 +130,11 @@ function formatLyricsToHtml(
         return `<span class="section-label section-label--${type}">${label}</span>`
       }
 
-      let chordLine = ""
+      let hasChords = false
       let lyricsLine = ""
-      let currentPos = 0
       const inlineParts: string[] = []
+      const clpParts: string[] = []
+      let hasContentItems = false
 
       line.items.forEach((item) => {
         // Use type casting to safely access properties that might exist on different item types
@@ -125,37 +145,122 @@ function formatLyricsToHtml(
         const lyrics = chordPair.lyrics || ""
 
         if (chord || lyrics) {
-          if (chord) {
-            // Add chord with class and padding
-            const offset = Math.max(0, currentPos - chordLine.replace(/<[^>]*>/g, "").length)
-            chordLine += " ".repeat(offset) + `<span class="chord">${chord}</span>`
-          }
+          if (chord) hasChords = true
+
+          // Flex chord-lyric pair: chord stacked above its lyrics, no space-based positioning
+          const chordSpan = chord
+            ? `<span class="chord">${chord}</span>`
+            : `<span class="clp-chord-empty"></span>`
+          // When there is no lyric text the chord must stay in normal flow so it
+          // sizes the .clp container — otherwise all zero-width .clp columns collapse
+          // and their absolute-positioned chords overlap each other.
+          const clpClass = chord && !lyrics ? "clp clp--chord-only" : "clp"
+          clpParts.push(
+            `<span class="${clpClass}">${chordSpan}<span class="clp-lyric">${lyrics}</span></span>`
+          )
 
           lyricsLine += lyrics
-          currentPos += Math.max(chord.length + 1, lyrics.length)
 
           // Also collect inline representation (lyrics precede the chord they annotate)
           if (lyrics) inlineParts.push(lyrics)
           if (chord) inlineParts.push(`<span class="chord">${chord}</span> `)
         } else if (contentItem.content) {
           lyricsLine += contentItem.content
-          currentPos += contentItem.content.length
           inlineParts.push(contentItem.content)
+          hasContentItems = true
         }
       })
 
-      // Auto-detect: if a line has both chords and lyrics text, render inline
-      if (chordLine.trim() && lyricsLine.trim()) {
-        return inlineParts.join("").replace(/\s{2,}/g, " ").trim()
+      // Auto-detect inline: only when plain text content items (e.g. "Bass: ") are
+      // mixed with chords, as in "Bass: [Gm][Bb] x2". Normal chord-lyric verses
+      // (pure ChordLyricsPairs) always use the stacked format.
+      if (hasContentItems && hasChords) {
+        return inlineParts
+          .join("")
+          .replace(/\s{2,}/g, " ")
+          .trim()
       }
-      if (chordLine.trim()) {
-        return `${chordLine}\n${lyricsLine}`
+      if (hasChords) {
+        return `<span class="chord-line">${clpParts.join("")}</span>`
       }
       return lyricsLine
     })
     .join("\n")
 }
 
+function formatInlineLyricsToHtml(
+  text: string,
+  transpose: number,
+  capo: number,
+  sectionLabels: Record<string, string>
+): string {
+  const commentLabels: string[] = []
+  const sectionStarts: { type: string; label: string }[] = []
+
+  let processedText = text.replace(
+    /\{c(?:omment(?:_italic|_box)?)?: *([^}]*)\}/gi,
+    (_, content: string) => {
+      commentLabels.push(content.trim())
+      return `${COMMENT_TOKEN}${commentLabels.length - 1}`
+    }
+  )
+
+  processedText = processedText
+    .replace(SECTION_START_RE, (_, directive: string, name?: string) => {
+      const type = SECTION_DIRECTIVE_MAP[directive.toLowerCase()] ?? "section"
+      const label = name?.trim() ?? sectionLabels[type] ?? type
+      sectionStarts.push({ type, label })
+      return `${SECTION_START_TOKEN}${sectionStarts.length - 1}`
+    })
+    .replace(SECTION_END_RE, "")
+
+  const parser = new ChordProParser()
+  let parsedSong = parser.parse(processedText)
+
+  if (transpose !== 0) {
+    parsedSong = parsedSong.transpose(transpose, { normalizeChordSuffix: false })
+  }
+  if (capo > 0) {
+    parsedSong = parsedSong.transpose(-capo, { normalizeChordSuffix: false })
+  }
+
+  return parsedSong.lines
+    .map((line) => {
+      const rawText = line.toString()
+
+      const commentMatch = rawText.match(new RegExp(`${COMMENT_TOKEN}(\\d+)`))
+      if (commentMatch) {
+        const label = commentLabels[parseInt(commentMatch[1], 10)]
+        return label ? `<span class="section-label">${label}</span>` : ""
+      }
+
+      const sectionMatch = rawText.match(new RegExp(`${SECTION_START_TOKEN}(\\d+)`))
+      if (sectionMatch) {
+        const { type, label } = sectionStarts[parseInt(sectionMatch[1], 10)]
+        return `<span class="section-label section-label--${type}">${label}</span>`
+      }
+
+      const inlineParts: string[] = []
+
+      line.items.forEach((item) => {
+        const chordPair = item as { chords?: string; lyrics?: string | null }
+        const contentItem = item as { content?: string }
+
+        const chord = chordPair.chords || ""
+        const lyrics = chordPair.lyrics || ""
+
+        if (lyrics) inlineParts.push(lyrics)
+        if (chord) inlineParts.push(`<span class="chord">${chord}</span> `)
+        if (!chord && !lyrics && contentItem.content) inlineParts.push(contentItem.content)
+      })
+
+      return inlineParts
+        .join("")
+        .replace(/\s{2,}/g, " ")
+        .trim()
+    })
+    .join("\n")
+}
 
 // Matches the opening { of any directive that starts a new section or a repeat
 // reference, used to determine where a comment-defined section ends.
@@ -173,7 +278,7 @@ function buildSectionMap(lyrics: string): Map<string, string> {
 
   // 1. Named explicit blocks: {soc/sov/sob: Name}...{eoc/eov/eob}
   const blockRe =
-    /\{(?:start_of_chorus|soc|start_of_verse|sov|start_of_bridge|sob)(?::\s*([^}]+))?\}([\s\S]*?)\{(?:end_of_chorus|eoc|end_of_verse|eov|end_of_bridge|eob)\}/gi
+    /\{(?:start_of_chorus|soc|start_of_verse|sov|start_of_bridge|sob|start_of_intro|soi|start_of_outro|soo|start_of_pre_chorus|sopc|start_of_tab|sot|start_of_grid|sog)(?::\s*([^}]+))?\}([\s\S]*?)\{(?:end_of_chorus|eoc|end_of_verse|eov|end_of_bridge|eob|end_of_intro|eoi|end_of_outro|eoo|end_of_pre_chorus|eopc|end_of_tab|eot|end_of_grid|eog)\}/gi
   let match: RegExpExecArray | null
   while ((match = blockRe.exec(lyrics)) !== null) {
     const name = match[1]?.trim()
@@ -294,14 +399,19 @@ function buildSegments(
           sectionType: "comment",
           html: formatLyricsToHtml(content, transpose, capo, sectionLabels),
           count: 1,
-          flags: []
+          flags: [],
+          inline: false
         })
         newPos = matchEnd + (nextBoundary ? nextBoundary.index : remaining.length)
       }
     } else {
       // start_of_X — find the matching end_of_X
       const sectionType = SECTION_DIRECTIVE_MAP[directive] ?? "section"
-      const { name: parsedName, count, flags } = value
+      const {
+        name: parsedName,
+        count,
+        flags
+      } = value
         ? parseSectionValue(value)
         : { name: sectionLabels[sectionType] ?? sectionType, count: 1, flags: [] }
       const remaining = lyrics.slice(matchEnd)
@@ -310,13 +420,17 @@ function buildSegments(
           remaining
         )
       const content = (endMatch ? remaining.slice(0, endMatch.index) : remaining).trim()
+      const inline = flags.includes("inline")
       segments.push({
         type: "section",
         name: parsedName,
         sectionType,
-        html: formatLyricsToHtml(content, transpose, capo, sectionLabels),
+        html: inline
+          ? formatInlineLyricsToHtml(content, transpose, capo, sectionLabels)
+          : formatLyricsToHtml(content, transpose, capo, sectionLabels),
         count,
-        flags
+        flags,
+        inline
       })
       newPos = matchEnd + (endMatch ? endMatch.index + endMatch[0].length : remaining.length)
     }
@@ -328,13 +442,29 @@ function buildSegments(
 }
 
 const FLAG_CONFIG: Record<SectionFlag, { label: string; className: string }> = {
-  attention: { label: "!", className: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400" },
+  attention: {
+    label: "!",
+    className: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400"
+  },
   skip: { label: "skip", className: "bg-muted text-muted-foreground" },
-  forte: { label: "f", className: "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400 italic" },
-  piano: { label: "p", className: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400 italic" },
-  vamp: { label: "vamp", className: "bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-400" },
-  tag: { label: "tag", className: "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400" },
-  break: { label: "break", className: "bg-muted text-muted-foreground" }
+  forte: {
+    label: "f",
+    className: "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400 italic"
+  },
+  piano: {
+    label: "p",
+    className: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400 italic"
+  },
+  vamp: {
+    label: "vamp",
+    className: "bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-400"
+  },
+  tag: {
+    label: "tag",
+    className: "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400"
+  },
+  break: { label: "break", className: "bg-muted text-muted-foreground" },
+  inline: { label: "inline", className: "bg-muted text-muted-foreground" }
 }
 
 interface SectionHeaderProps {
@@ -358,19 +488,21 @@ function SectionHeader({ name, isCollapsed, onToggle, icon, flags }: SectionHead
   )
 
   const flagBadges =
-    flags && flags.length > 0 ? (
+    flags && flags.some((f) => f !== "inline") ? (
       <span className="flex items-center gap-1 shrink-0">
-        {flags.map((flag) => {
-          const cfg = FLAG_CONFIG[flag]
-          return (
-            <span
-              key={flag}
-              className={`text-[9px] font-bold uppercase tracking-wide px-1 py-0.5 rounded leading-none ${cfg.className}`}
-            >
-              {cfg.label}
-            </span>
-          )
-        })}
+        {flags
+          .filter((f) => f !== "inline")
+          .map((flag) => {
+            const cfg = FLAG_CONFIG[flag]
+            return (
+              <span
+                key={flag}
+                className={`text-[9px] font-bold uppercase tracking-wide px-1 py-0.5 rounded leading-none ${cfg.className}`}
+              >
+                {cfg.label}
+              </span>
+            )
+          })}
       </span>
     ) : null
 
@@ -421,7 +553,9 @@ export function RenderedSong({
   transpose,
   capo,
   fontSize,
-  columns = 2
+  columns = 2,
+  showChords = true,
+  showLyrics = true
 }: RenderedSongProps) {
   const [collapsedSet, setCollapsedSet] = useState<Set<number>>(new Set())
   const [selectedChord, setSelectedChord] = useState<string | null>(null)
@@ -491,10 +625,13 @@ export function RenderedSong({
     const columnStyle = columns === 2 ? { columnCount: 2 as const } : { columnCount: 1 as const }
     const fontStyle = { fontSize: `${fontSize * 14}px`, ...columnStyle }
     const hasComplexSegments = segments.some((s) => s.type === "repeat" || s.type === "section")
+    const visibilityClass = [!showChords && "hide-chords", !showLyrics && "hide-lyrics"]
+      .filter(Boolean)
+      .join(" ")
 
     if (!hasComplexSegments) {
       return (
-        <div onClick={handleChordClick}>
+        <div className={visibilityClass || undefined} onClick={handleChordClick}>
           <pre
             className="chordsheet-content multi-column-lyrics"
             style={fontStyle}
@@ -513,7 +650,11 @@ export function RenderedSong({
     }
 
     return (
-      <div className="multi-column-lyrics space-y-6" style={fontStyle} onClick={handleChordClick}>
+      <div
+        className={`multi-column-lyrics space-y-6${visibilityClass ? ` ${visibilityClass}` : ""}`}
+        style={fontStyle}
+        onClick={handleChordClick}
+      >
         {segments.map((segment, index) => {
           if (segment.type === "normal") {
             return (
@@ -560,10 +701,7 @@ export function RenderedSong({
                 className="section-repeat section-repeat--not-found"
                 data-section-type="repeat"
               >
-                <SectionHeader
-                  name={`${repeatLabel} (${t.chords.notFound})`}
-                  isCollapsed={false}
-                />
+                <SectionHeader name={`${repeatLabel} (${t.chords.notFound})`} isCollapsed={false} />
               </div>
             )
           }

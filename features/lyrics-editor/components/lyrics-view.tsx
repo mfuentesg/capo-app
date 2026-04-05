@@ -18,7 +18,13 @@ import {
   Pencil,
   Save,
   Columns2,
-  ExternalLink
+  ExternalLink,
+  ChevronUp,
+  ChevronDown,
+  Turtle,
+  Rabbit,
+  Zap,
+  Share2
 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import type { Song } from "@/types"
@@ -35,12 +41,44 @@ import { AutoScrollControls } from "./auto-scroll-controls"
 import { SaveStatus } from "@/components/ui/save-status"
 import { createOverlayIds } from "@/lib/ui/stable-overlay-ids"
 import { cn } from "@/lib/utils"
+import { toast } from "sonner"
 
 const MIN_SCROLL_SPEED = 10
 const MAX_SCROLL_SPEED = 300
 const SCROLL_SPEED_STEP = 10
 const DEFAULT_SCROLL_SPEED = 30
 const BEATS_PER_LINE = 4
+
+function buildShareText(lyrics: string, showChords: boolean, showLyrics: boolean): string {
+  // Strip all ChordPro directives {…} and normalize blank lines
+  const withoutDirectives = lyrics
+    .replace(/\{[^}]*\}/g, "")
+    .replace(/[ \t]+$/gm, "")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim()
+
+  if (!showChords) {
+    // Lyrics only: strip [chord] markers
+    return withoutDirectives.replace(/\[[^\]]*\]/g, "")
+  }
+
+  if (!showLyrics) {
+    // Chords only: per line, extract chord names; keep plain text lines as-is
+    return withoutDirectives
+      .split("\n")
+      .map((line) => {
+        const chords = [...line.matchAll(/\[([^\]]+)\]/g)].map((m) => m[1])
+        if (chords.length > 0) return chords.join("  ")
+        return line.replace(/\[[^\]]*\]/g, "").trim()
+      })
+      .join("\n")
+      .replace(/\n{3,}/g, "\n\n")
+      .trim()
+  }
+
+  // Both visible: keep [chord] inline markers (standard ChordPro plain text)
+  return withoutDirectives
+}
 
 export interface LyricsViewHandle {
   requestClose: () => void
@@ -56,6 +94,12 @@ interface LyricsViewProps {
   initialSettings?: { capo?: number; transpose?: number; fontSize?: number }
   onSettingsChange?: (settings: { capo: number; transpose: number; fontSize: number }) => void
   initialLyricsColumns?: 1 | 2
+  onPrevSong?: () => void
+  onNextSong?: () => void
+  hasPrevSong?: boolean
+  hasNextSong?: boolean
+  songPosition?: { current: number; total: number }
+  slideDirection?: "next" | "prev"
 }
 
 export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function LyricsView(
@@ -68,20 +112,30 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
     isSaving = false,
     initialSettings,
     onSettingsChange,
-    initialLyricsColumns = 1
+    initialLyricsColumns = 1,
+    onPrevSong,
+    onNextSong,
+    hasPrevSong = false,
+    hasNextSong = false,
+    songPosition,
+    slideDirection
   }: LyricsViewProps,
   ref
 ) {
   const { t } = useTranslation()
   const router = useRouter()
   const containerRef = useRef<HTMLDivElement>(null)
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null)
   const [isEditing, setIsEditing] = useState(false)
   const [isPreviewing, setIsPreviewing] = useState(false)
   const [isReferenceOpen, setIsReferenceOpen] = useState(false)
   const [hasInitializedEditor, setHasInitializedEditor] = useState(false)
   const [editedLyrics, setEditedLyrics] = useState(song.lyrics || "")
   const [savedLyrics, setSavedLyrics] = useState(song.lyrics || "")
+  const [editorResetKey, setEditorResetKey] = useState(0)
   const [lyricsColumns, setLyricsColumnsState] = useState<1 | 2>(initialLyricsColumns)
+  const [showChords, setShowChords] = useState(true)
+  const [showLyrics, setShowLyrics] = useState(true)
   const { mutate: upsertPreferences } = useUpsertUserPreferences()
 
   const [scrollSpeed, setScrollSpeed] = useState(() =>
@@ -144,12 +198,14 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
     setIsEditing(true)
     setIsPreviewing(false)
     setEditedLyrics(savedLyrics)
+    setEditorResetKey((k) => k + 1)
   }
 
   const handleCancel = useCallback(() => {
     setIsEditing(false)
     setIsPreviewing(false)
     setEditedLyrics(savedLyrics)
+    setEditorResetKey((k) => k + 1)
   }, [savedLyrics])
 
   const handleSave = () => {
@@ -172,6 +228,47 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
   const handleBack = useCallback(() => {
     handleClose()
   }, [handleClose])
+
+  const handleShare = useCallback(async () => {
+    const text = buildShareText(savedLyrics, showChords, showLyrics)
+    const header = [song.title, song.artist].filter(Boolean).join(" - ")
+    const fullText = header ? `${header}\n\n${text}` : text
+
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share({ title: song.title, text: fullText })
+      } catch (error) {
+        if (error instanceof Error && error.name !== "AbortError") {
+          toast.error(t.toasts.error)
+        }
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(fullText)
+        toast.success(t.toasts.lyricsCopied)
+      } catch {
+        toast.error(t.toasts.error)
+      }
+    }
+  }, [savedLyrics, showChords, showLyrics, song.title, song.artist, t.toasts])
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    if (isEditing || (!onPrevSong && !onNextSong)) return
+    const touch = e.touches[0]
+    touchStartRef.current = { x: touch.clientX, y: touch.clientY }
+  }, [isEditing, onPrevSong, onNextSong])
+
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    if (isEditing || !touchStartRef.current || (!onPrevSong && !onNextSong)) return
+    const touch = e.changedTouches[0]
+    const dx = touch.clientX - touchStartRef.current.x
+    const dy = touch.clientY - touchStartRef.current.y
+    touchStartRef.current = null
+    // Only trigger if horizontal swipe dominates and exceeds threshold
+    if (Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy)) return
+    if (dx < 0 && hasNextSong) onNextSong?.()
+    else if (dx > 0 && hasPrevSong) onPrevSong?.()
+  }, [isEditing, onPrevSong, onNextSong, hasPrevSong, hasNextSong])
 
   // Reset scroll position and stop auto-scroll when song changes
   useEffect(() => {
@@ -356,16 +453,54 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
           </Button>
         </div>
       </div>
+
+      <Separator />
+
+      {/* Visibility */}
+      <div className="space-y-2">
+        <div className="flex items-center gap-2">
+          <Eye className="h-4 w-4" />
+          <span className="text-sm font-medium">{t.songs.lyrics.visibility}</span>
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <Button
+            onClick={() => setShowChords((v) => !v)}
+            variant={showChords ? "default" : "outline"}
+            size="sm"
+            className="justify-center gap-1.5"
+          >
+            <Guitar className="h-3.5 w-3.5" />
+            {t.songs.lyrics.showChordsLabel}
+          </Button>
+          <Button
+            onClick={() => setShowLyrics((v) => !v)}
+            variant={showLyrics ? "default" : "outline"}
+            size="sm"
+            className="justify-center gap-1.5"
+          >
+            <Type className="h-3.5 w-3.5" />
+            {t.songs.lyrics.showLyricsLabel}
+          </Button>
+        </div>
+      </div>
     </div>
   )
 
   return (
-    <div ref={containerRef} className={cn("bg-background", isPanel ? "h-full" : "min-h-screen")}>
+    <div
+      ref={containerRef}
+      className={cn(
+        "bg-background",
+        isPanel ? "h-full" : "min-h-screen",
+        slideDirection === "next" && "animate-in slide-in-from-right-4 fade-in-0 duration-200",
+        slideDirection === "prev" && "animate-in slide-in-from-left-4 fade-in-0 duration-200"
+      )}
+    >
       {/* Header */}
       <div className="sticky top-0 z-10 border-b bg-background">
-        <div className={cn("px-4 py-2", !isPanel && "container mx-auto")}>
-          {/* Row 1: navigation + song info */}
-          <div className="flex items-center gap-2">
+        <div className={cn("px-4 pt-2 pb-1", !isPanel && "container mx-auto")}>
+          {/* Row 1: back button + song title */}
+          <div className="flex items-center gap-1.5 min-w-0">
             <Button
               variant="ghost"
               size="icon"
@@ -375,72 +510,78 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
             >
               {onClose ? <X className="h-4 w-4" /> : <ArrowLeft className="h-4 w-4" />}
             </Button>
+            <p className="text-base font-semibold truncate min-w-0">{song.title}</p>
+          </div>
 
-            <div className="flex-1 min-w-0 flex items-center gap-2 overflow-hidden">
-              <p className="text-sm font-medium truncate shrink">
-                {song.title}
-                {song.artist && (
-                  <span className="text-muted-foreground font-normal"> · {song.artist}</span>
-                )}
-              </p>
+          {/* Row 2: metadata (artist · key · bpm) on left, actions on right */}
+          <div className="flex items-center gap-1 mt-0.5 pl-1">
+            <div className="flex items-center gap-1.5 min-w-0 flex-1 overflow-hidden">
+              {song.artist && (
+                <span className="text-xs text-muted-foreground truncate shrink">{song.artist}</span>
+              )}
               {song.key && (
                 <Badge variant="secondary" className="shrink-0 text-xs">
                   {song.key}
                 </Badge>
               )}
               {song.bpm > 0 && (
-                <Badge variant="outline" className="shrink-0 text-xs">
+                <Badge variant="outline" className="shrink-0 text-xs gap-1">
+                  {song.bpm < 90 ? (
+                    <Turtle className="h-3 w-3" />
+                  ) : song.bpm <= 120 ? (
+                    <Rabbit className="h-3 w-3" />
+                  ) : (
+                    <Zap className="h-3 w-3" />
+                  )}
                   {song.bpm} {t.songs.bpm}
                 </Badge>
               )}
             </div>
-          </div>
 
-          {/* Row 2: actions */}
-          <div className="flex items-center justify-end gap-0.5">
-            {canEdit && isEditing ? (
+            <div className="flex items-center gap-0.5 shrink-0">
+              {canEdit && isEditing ? (
                 <>
                   <SaveStatus status={saveStatus} className="mr-1" />
                   <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8"
+                    variant="outline"
+                    className="h-9 gap-1.5 px-2.5"
                     onClick={handleCancel}
                     aria-label={t.common.cancel}
                   >
-                    <X className="h-3.5 w-3.5" />
+                    <X className="h-4 w-4" />
+                    <span className="text-sm">{t.common.cancel}</span>
                   </Button>
                   <Button
                     variant={isPreviewing ? "secondary" : "ghost"}
                     size="icon"
-                    className="h-8 w-8"
+                    className="h-9 w-9"
                     onClick={togglePreview}
                     aria-label={isPreviewing ? t.common.edit : t.songs.preview}
                   >
                     {isPreviewing ? (
-                      <Pencil className="h-3.5 w-3.5" />
+                      <Pencil className="h-4 w-4" />
                     ) : (
-                      <Eye className="h-3.5 w-3.5" />
+                      <Eye className="h-4 w-4" />
                     )}
                   </Button>
                   <Button
                     variant="default"
                     size="icon"
-                    className="h-8 w-8"
+                    className="h-9 w-9"
                     onClick={handleSave}
-                    disabled={isSaving}
+                    disabled={isSaving || saveStatus === "saved"}
                     aria-label={t.common.save}
                   >
-                    <Save className="h-3.5 w-3.5" />
+                    <Save className="h-4 w-4" />
                   </Button>
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8"
+                    className="h-9 w-9"
                     onClick={() => setIsReferenceOpen(true)}
                     aria-label={t.songs.lyrics.chordproReference}
                   >
-                    <BookOpen className="h-3.5 w-3.5" />
+                    <BookOpen className="h-4 w-4" />
                   </Button>
                 </>
               ) : (
@@ -448,19 +589,19 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
                   {canEdit && (
                     <Button
                       variant="ghost"
-                      className="h-8 gap-1.5 px-2"
+                      className="h-9 gap-1.5 px-2.5"
                       onClick={handleEdit}
                       aria-label={t.songs.editLyrics}
                     >
-                      <Pencil className="h-3.5 w-3.5" />
-                      <span className="hidden sm:inline text-xs">{t.common.edit}</span>
+                      <Pencil className="h-4 w-4" />
+                      <span className="hidden sm:inline text-sm">{t.common.edit}</span>
                     </Button>
                   )}
                   {isPanel && (
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-8 w-8"
+                      className="h-9 w-9"
                       asChild
                       title={t.songs.viewLyrics}
                     >
@@ -469,27 +610,41 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        <ExternalLink className="h-3.5 w-3.5" />
+                        <ExternalLink className="h-4 w-4" />
                       </a>
                     </Button>
                   )}
                   <Button
                     variant="ghost"
-                    className="h-8 gap-1.5 px-2"
+                    size="icon"
+                    className="h-9 w-9"
+                    onClick={handleShare}
+                    aria-label={t.songs.shareLyrics}
+                  >
+                    <Share2 className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    className="h-9 gap-1.5 px-2.5"
                     onClick={() => setIsReferenceOpen(true)}
                     aria-label={t.songs.lyrics.chordproReference}
                   >
-                    <BookOpen className="h-3.5 w-3.5" />
-                    <span className="hidden sm:inline text-xs">{t.songs.lyrics.docs}</span>
+                    <BookOpen className="h-4 w-4" />
+                    <span className="hidden sm:inline text-sm">{t.songs.lyrics.docs}</span>
                   </Button>
                 </>
               )}
             </div>
+          </div>
         </div>
       </div>
 
       {/* Lyrics Content */}
-      <div className={cn("px-4 py-8", !isPanel && "container mx-auto")}>
+      <div
+        className={cn("px-4 py-8", !isPanel && "container mx-auto")}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
         <div className="w-full">
           <div className="max-w-5xl mx-auto">
             {isEditing && (
@@ -514,6 +669,8 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
                   capo={capo.value}
                   fontSize={font.value}
                   columns={lyricsColumns}
+                  showChords={showChords}
+                  showLyrics={showLyrics}
                 />
               </div>
             )}
@@ -525,15 +682,48 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
                   isEditing && !isPreviewing ? "block" : "hidden"
                 )}
               >
-                <LazySongEditor content={editedLyrics} onChange={handleLyricsChange} />
+                <LazySongEditor key={editorResetKey} content={savedLyrics} onChange={handleLyricsChange} />
               </div>
             )}
           </div>
         </div>
       </div>
-      {/* Floating controls — auto-scroll + settings, always visible while scrolling */}
+      {/* Floating controls — song navigation (left) + auto-scroll/settings (right) */}
       {!isEditing && (
-        <div className="fixed bottom-6 right-4 z-20 flex items-center gap-1 rounded-2xl border bg-background px-2 py-1.5 shadow-lg">
+        <>
+          {/* Song navigation — bottom-left, only when playlist context is active */}
+          {(onPrevSong || onNextSong) && (
+            <div className="fixed bottom-6 left-4 z-20 flex items-center gap-1 rounded-2xl border bg-background px-2 py-1.5 shadow-lg">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={onPrevSong}
+                disabled={!hasPrevSong}
+                aria-label={t.common.previous}
+              >
+                <ChevronUp className="h-4 w-4" />
+              </Button>
+              {songPosition && (
+                <span className="min-w-8 text-center text-xs tabular-nums text-muted-foreground">
+                  {songPosition.current}/{songPosition.total}
+                </span>
+              )}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={onNextSong}
+                disabled={!hasNextSong}
+                aria-label={t.common.next}
+              >
+                <ChevronDown className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
+
+          {/* Auto-scroll + display settings — bottom-right */}
+          <div className="fixed bottom-6 right-4 z-20 flex items-center gap-1 rounded-2xl border bg-background px-2 py-1.5 shadow-lg">
           <AutoScrollControls
             isScrolling={isScrolling}
             onToggle={toggleAutoScroll}
@@ -559,7 +749,7 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
                 aria-label={t.songs.lyrics.settings}
               >
                 <Settings2 className="h-3.5 w-3.5" />
-                {hasModifications() && (
+                {(hasModifications() || !showChords || !showLyrics) && (
                   <span className="absolute -top-0.5 -right-0.5 flex h-2 w-2">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
@@ -577,7 +767,8 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
               {settingsPopoverContent}
             </PopoverContent>
           </Popover>
-        </div>
+          </div>
+        </>
       )}
       <LazyChordProReference open={isReferenceOpen} onOpenChange={setIsReferenceOpen} />
     </div>
