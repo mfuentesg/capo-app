@@ -46,7 +46,7 @@ export function useUpsertUserSongSettings(song: Song) {
         capo: updates.capo ?? existing?.capo ?? song.capo ?? 0,
         fontSize: updates.fontSize ?? existing?.fontSize ?? song.fontSize,
         chordVariations: updates.chordVariations
-          ? { ...(existing?.chordVariations ?? {}), ...updates.chordVariations }
+          ? { ...(existing?.chordVariations ?? ({} as Record<string, number>)), ...updates.chordVariations }
           : existing?.chordVariations
       }
       return upsertUserSongSettingsAction(song.id, merged)
@@ -60,7 +60,7 @@ export function useUpsertUserSongSettings(song: Song) {
         capo: updates.capo ?? old?.capo ?? song.capo ?? 0,
         fontSize: updates.fontSize ?? old?.fontSize ?? song.fontSize,
         chordVariations: updates.chordVariations
-          ? { ...(old?.chordVariations ?? {}), ...updates.chordVariations }
+          ? { ...(old?.chordVariations ?? ({} as Record<string, number>)), ...updates.chordVariations }
           : old?.chordVariations
       }))
       return { previous }

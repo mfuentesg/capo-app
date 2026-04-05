@@ -139,7 +139,7 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
   const { mutate: upsertPreferences } = useUpsertUserPreferences()
   const { mutate: upsertSongSettings } = useUpsertUserSongSettings(song)
   const [chordVariations, setChordVariations] = useState<Record<string, number>>(
-    song.userSettings?.chordVariations ?? {}
+    song.userSettings?.chordVariations ?? ({} as Record<string, number>)
   )
 
   const [scrollSpeed, setScrollSpeed] = useState(() =>
