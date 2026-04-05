@@ -15,7 +15,7 @@ describe("Supabase Constants", () => {
     })
 
     it("should have correct DEFAULT_REDIRECT_PATH", () => {
-      expect(DEFAULT_REDIRECT_PATH).toBe("/dashboard")
+      expect(DEFAULT_REDIRECT_PATH).toBe("/dashboard/songs")
     })
 
     it("should have correct LOGIN_PATH", () => {
