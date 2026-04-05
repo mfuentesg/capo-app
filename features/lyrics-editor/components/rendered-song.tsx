@@ -16,6 +16,8 @@ interface RenderedSongProps {
   capo: number
   fontSize: number
   columns?: 1 | 2
+  showChords?: boolean
+  showLyrics?: boolean
 }
 
 const SECTION_FLAGS = [
@@ -551,7 +553,9 @@ export function RenderedSong({
   transpose,
   capo,
   fontSize,
-  columns = 2
+  columns = 2,
+  showChords = true,
+  showLyrics = true
 }: RenderedSongProps) {
   const [collapsedSet, setCollapsedSet] = useState<Set<number>>(new Set())
   const [selectedChord, setSelectedChord] = useState<string | null>(null)
@@ -620,10 +624,13 @@ export function RenderedSong({
     const columnStyle = columns === 2 ? { columnCount: 2 as const } : { columnCount: 1 as const }
     const fontStyle = { fontSize: `${fontSize * 14}px`, ...columnStyle }
     const hasComplexSegments = segments.some((s) => s.type === "repeat" || s.type === "section")
+    const visibilityClass = [!showChords && "hide-chords", !showLyrics && "hide-lyrics"]
+      .filter(Boolean)
+      .join(" ")
 
     if (!hasComplexSegments) {
       return (
-        <div onClick={handleChordClick}>
+        <div className={visibilityClass || undefined} onClick={handleChordClick}>
           <pre
             className="chordsheet-content multi-column-lyrics"
             style={fontStyle}
@@ -635,7 +642,11 @@ export function RenderedSong({
     }
 
     return (
-      <div className="multi-column-lyrics space-y-6" style={fontStyle} onClick={handleChordClick}>
+      <div
+        className={`multi-column-lyrics space-y-6${visibilityClass ? ` ${visibilityClass}` : ""}`}
+        style={fontStyle}
+        onClick={handleChordClick}
+      >
         {segments.map((segment, index) => {
           if (segment.type === "normal") {
             return (

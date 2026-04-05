@@ -23,7 +23,8 @@ import {
   ChevronDown,
   Turtle,
   Rabbit,
-  Zap
+  Zap,
+  Share2
 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import type { Song } from "@/types"
@@ -40,12 +41,44 @@ import { AutoScrollControls } from "./auto-scroll-controls"
 import { SaveStatus } from "@/components/ui/save-status"
 import { createOverlayIds } from "@/lib/ui/stable-overlay-ids"
 import { cn } from "@/lib/utils"
+import { toast } from "sonner"
 
 const MIN_SCROLL_SPEED = 10
 const MAX_SCROLL_SPEED = 300
 const SCROLL_SPEED_STEP = 10
 const DEFAULT_SCROLL_SPEED = 30
 const BEATS_PER_LINE = 4
+
+function buildShareText(lyrics: string, showChords: boolean, showLyrics: boolean): string {
+  // Strip all ChordPro directives {…} and normalize blank lines
+  const withoutDirectives = lyrics
+    .replace(/\{[^}]*\}/g, "")
+    .replace(/[ \t]+$/gm, "")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim()
+
+  if (!showChords) {
+    // Lyrics only: strip [chord] markers
+    return withoutDirectives.replace(/\[[^\]]*\]/g, "")
+  }
+
+  if (!showLyrics) {
+    // Chords only: per line, extract chord names; keep plain text lines as-is
+    return withoutDirectives
+      .split("\n")
+      .map((line) => {
+        const chords = [...line.matchAll(/\[([^\]]+)\]/g)].map((m) => m[1])
+        if (chords.length > 0) return chords.join("  ")
+        return line.replace(/\[[^\]]*\]/g, "").trim()
+      })
+      .join("\n")
+      .replace(/\n{3,}/g, "\n\n")
+      .trim()
+  }
+
+  // Both visible: keep [chord] inline markers (standard ChordPro plain text)
+  return withoutDirectives
+}
 
 export interface LyricsViewHandle {
   requestClose: () => void
@@ -100,6 +133,8 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
   const [editedLyrics, setEditedLyrics] = useState(song.lyrics || "")
   const [savedLyrics, setSavedLyrics] = useState(song.lyrics || "")
   const [lyricsColumns, setLyricsColumnsState] = useState<1 | 2>(initialLyricsColumns)
+  const [showChords, setShowChords] = useState(true)
+  const [showLyrics, setShowLyrics] = useState(true)
   const { mutate: upsertPreferences } = useUpsertUserPreferences()
 
   const [scrollSpeed, setScrollSpeed] = useState(() =>
@@ -190,6 +225,29 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
   const handleBack = useCallback(() => {
     handleClose()
   }, [handleClose])
+
+  const handleShare = useCallback(async () => {
+    const text = buildShareText(savedLyrics, showChords, showLyrics)
+    const header = [song.title, song.artist].filter(Boolean).join(" - ")
+    const fullText = header ? `${header}\n\n${text}` : text
+
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share({ title: song.title, text: fullText })
+      } catch (error) {
+        if (error instanceof Error && error.name !== "AbortError") {
+          toast.error(t.toasts.error)
+        }
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(fullText)
+        toast.success(t.toasts.lyricsCopied)
+      } catch {
+        toast.error(t.toasts.error)
+      }
+    }
+  }, [savedLyrics, showChords, showLyrics, song.title, song.artist, t.toasts])
 
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     if (isEditing || (!onPrevSong && !onNextSong)) return
@@ -392,6 +450,36 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
           </Button>
         </div>
       </div>
+
+      <Separator />
+
+      {/* Visibility */}
+      <div className="space-y-2">
+        <div className="flex items-center gap-2">
+          <Eye className="h-4 w-4" />
+          <span className="text-sm font-medium">{t.songs.lyrics.visibility}</span>
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <Button
+            onClick={() => setShowChords((v) => !v)}
+            variant={showChords ? "default" : "outline"}
+            size="sm"
+            className="justify-center gap-1.5"
+          >
+            <Guitar className="h-3.5 w-3.5" />
+            {t.songs.lyrics.showChordsLabel}
+          </Button>
+          <Button
+            onClick={() => setShowLyrics((v) => !v)}
+            variant={showLyrics ? "default" : "outline"}
+            size="sm"
+            className="justify-center gap-1.5"
+          >
+            <Type className="h-3.5 w-3.5" />
+            {t.songs.lyrics.showLyricsLabel}
+          </Button>
+        </div>
+      </div>
     </div>
   )
 
@@ -525,6 +613,15 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
                   )}
                   <Button
                     variant="ghost"
+                    size="icon"
+                    className="h-9 w-9"
+                    onClick={handleShare}
+                    aria-label={t.songs.shareLyrics}
+                  >
+                    <Share2 className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
                     className="h-9 gap-1.5 px-2.5"
                     onClick={() => setIsReferenceOpen(true)}
                     aria-label={t.songs.lyrics.chordproReference}
@@ -569,6 +666,8 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
                   capo={capo.value}
                   fontSize={font.value}
                   columns={lyricsColumns}
+                  showChords={showChords}
+                  showLyrics={showLyrics}
                 />
               </div>
             )}
@@ -647,7 +746,7 @@ export const LyricsView = forwardRef<LyricsViewHandle, LyricsViewProps>(function
                 aria-label={t.songs.lyrics.settings}
               >
                 <Settings2 className="h-3.5 w-3.5" />
-                {hasModifications() && (
+                {(hasModifications() || !showChords || !showLyrics) && (
                   <span className="absolute -top-0.5 -right-0.5 flex h-2 w-2">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>

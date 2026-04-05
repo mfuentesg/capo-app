@@ -135,6 +135,7 @@
     "createSong": "Crear canción",
     "openSong": "Abrir canción",
     "editLyrics": "Editar letra",
+    "shareLyrics": "Compartir",
     "addLyrics": "Agregar letra",
     "deleteSong": "Eliminar canción",
     "deleteSongConfirmTitle": "¿Eliminar esta canción?",
@@ -172,6 +173,9 @@
       "columnLayout": "Diseño",
       "oneColumn": "1 columna",
       "twoColumns": "2 columnas",
+      "visibility": "Visibilidad",
+      "showChordsLabel": "Acordes",
+      "showLyricsLabel": "Letra",
       "chordproReference": "Referencia ChordPro",
       "docs": "Docs",
       "autoScroll": {
@@ -300,7 +304,8 @@
     "roleChangeFailed": "Error al cambiar el rol del miembro. Por favor intenta de nuevo.",
     "roleChangeOwnerNotAllowed": "No se puede cambiar el propietario del equipo",
     "roleChangePermissionDenied": "No tienes permiso para cambiar roles",
-    "roleChangeAdminLimit": "Los administradores solo pueden asignar Miembro o Espectador"
+    "roleChangeAdminLimit": "Los administradores solo pueden asignar Miembro o Espectador",
+    "lyricsCopied": "Letra copiada al portapapeles"
   },
   "errors": {
     "unexpectedError": "Ocurrió un error inesperado. Por favor, inténtelo de nuevo.",
