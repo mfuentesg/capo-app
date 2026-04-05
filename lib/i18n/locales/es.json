@@ -310,7 +310,7 @@
   "errors": {
     "unexpectedError": "Ocurrió un error inesperado. Por favor, inténtelo de nuevo.",
     "loadingError": "Hubo un problema al cargar esta página. Por favor, inténtelo de nuevo.",
-    "goToDashboard": "Ir al Panel"
+    "goToSongs": "Ir a Canciones"
   },
   "dashboard": {
     "title": "Panel",
