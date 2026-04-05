@@ -34,7 +34,8 @@ import {
   useAllUserSongSettings,
   useEffectiveSongSettings,
   useUpsertUserSongSettings,
-  useUserPreferences
+  useUserPreferences,
+  useUpdateSong
 } from "@/features/songs"
 import { createClient } from "@/lib/supabase/client"
 import { formatLongDate } from "@/lib/utils"
@@ -44,6 +45,8 @@ interface ActiveSongLyricsForShareProps {
   onClose: () => void
   isAuthenticated: boolean
   canEdit?: boolean
+  onSaveLyrics?: (lyrics: string) => void
+  isSaving?: boolean
   onPrevSong?: () => void
   onNextSong?: () => void
   hasPrevSong?: boolean
@@ -57,6 +60,8 @@ function ActiveSongLyricsForShare({
   onClose,
   isAuthenticated,
   canEdit = false,
+  onSaveLyrics,
+  isSaving,
   onPrevSong,
   onNextSong,
   hasPrevSong,
@@ -80,6 +85,8 @@ function ActiveSongLyricsForShare({
         capo: song.capo ?? 0
       }}
       onClose={onClose}
+      onSaveLyrics={canEdit ? onSaveLyrics : undefined}
+      isSaving={isSaving}
       initialSettings={effectiveSettings}
       onSettingsChange={isAuthenticated ? upsertSettings : undefined}
       initialLyricsColumns={preferences?.lyricsColumns ?? 2}
@@ -213,6 +220,8 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
 
   const activeSong = activeIndex !== null ? songs[activeIndex] : null
   const totalSongs = songs.length
+
+  const { mutate: updateSong, isPending: isSavingLyrics } = useUpdateSong()
 
   const isOwner = user && playlist.userId === user.id
   const isTeamMember = !!(user && playlist.teamId && teams.some((t) => t.id === playlist.teamId))
@@ -553,6 +562,14 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
                   onClose={handleCloseDrawer}
                   isAuthenticated={!!user}
                   canEdit={canEditSongs}
+                  onSaveLyrics={(lyrics) => {
+                    const songId = activeSong.id
+                    setSongs((prev) =>
+                      prev.map((s) => (s.id === songId ? { ...s, lyrics } : s))
+                    )
+                    updateSong({ songId, updates: { lyrics } })
+                  }}
+                  isSaving={isSavingLyrics}
                   onPrevSong={handlePrevSong}
                   onNextSong={handleNextSong}
                   hasPrevSong={activeIndex !== null && activeIndex > 0}
