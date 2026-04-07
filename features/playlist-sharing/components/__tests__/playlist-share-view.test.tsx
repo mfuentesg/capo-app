@@ -6,7 +6,7 @@ import { LocaleProvider } from "@/features/settings"
 import { AppContextProvider } from "@/features/app-context"
 import { AppRouterContext } from "next/dist/shared/lib/app-router-context.shared-runtime"
 import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime"
-import type { PlaylistWithSongs } from "@/features/playlists/types"
+import type { PlaylistWithSongs } from "@/features/playlists"
 
 jest.mock("next/link", () => ({
   __esModule: true,
@@ -28,7 +28,9 @@ jest.mock("@/features/auth", () => ({
 jest.mock("@/features/songs", () => ({
   useAllUserSongSettings: jest.fn().mockReturnValue({ data: [] }),
   useEffectiveSongSettings: jest.fn().mockReturnValue({ capo: 0, transpose: 0 }),
-  useUpsertUserSongSettings: jest.fn().mockReturnValue({ mutate: jest.fn() })
+  useUpsertUserSongSettings: jest.fn().mockReturnValue({ mutate: jest.fn() }),
+  useUpdateSong: jest.fn().mockReturnValue({ mutate: jest.fn(), isPending: false }),
+  useUserPreferences: jest.fn().mockReturnValue({ data: null })
 }))
 
 jest.mock("@hello-pangea/dnd", () => ({

@@ -16,14 +16,33 @@ interface RenderedSongProps {
   capo: number
   fontSize: number
   columns?: 1 | 2
+  showChords?: boolean
+  showLyrics?: boolean
 }
 
-const SECTION_FLAGS = ["attention", "skip", "forte", "piano", "vamp", "tag", "break", "inline"] as const
+const SECTION_FLAGS = [
+  "attention",
+  "skip",
+  "forte",
+  "piano",
+  "vamp",
+  "tag",
+  "break",
+  "inline"
+] as const
 type SectionFlag = (typeof SECTION_FLAGS)[number]
 
 type LyricsSegment =
   | { type: "normal"; html: string }
-  | { type: "section"; name: string; sectionType: string; html: string; count: number; flags: SectionFlag[]; inline: boolean }
+  | {
+      type: "section"
+      name: string
+      sectionType: string
+      html: string
+      count: number
+      flags: SectionFlag[]
+      inline: boolean
+    }
   | { type: "repeat"; name: string; count: number; html: string; found: boolean }
 
 // Unique tokens that survive ChordProParser unchanged (no [A-G] at word start).
@@ -139,45 +158,50 @@ function processChordProContent(
         return `<span class="section-label section-label--${type}">${escapeHtml(label)}</span>`
       }
 
-      if (inline) {
-        const inlineParts: string[] = []
-        line.items.forEach((item) => {
-          const chordPair = item as { chords?: string; lyrics?: string | null }
-          const contentItem = item as { content?: string }
-          const chord = chordPair.chords || ""
-          const lyrics = chordPair.lyrics || ""
-          if (lyrics) inlineParts.push(lyrics)
-          if (chord) inlineParts.push(`<span class="chord">${chord}</span> `)
-          if (!chord && !lyrics && contentItem.content) inlineParts.push(contentItem.content)
-        })
-        return inlineParts.join("").replace(/\s{2,}/g, " ").trim()
-      }
-
-      // Stacked layout (default)
-      let chordLine = ""
+      let hasChords = false
       let lyricsLine = ""
-      let currentPos = 0
       const inlineParts: string[] = []
+      const clpParts: string[] = []
       let hasContentItems = false
 
       line.items.forEach((item) => {
+        // Use type casting to safely access properties that might exist on different item types
         const chordPair = item as { chords?: string; lyrics?: string | null }
         const contentItem = item as { content?: string }
+
         const chord = chordPair.chords || ""
         const lyrics = chordPair.lyrics || ""
 
         if (chord || lyrics) {
-          if (chord) {
-            const offset = Math.max(0, currentPos - chordLine.replace(/<[^>]*>/g, "").length)
-            chordLine += " ".repeat(offset) + `<span class="chord">${chord}</span>`
+          if (chord) hasChords = true
+
+          if (inline) {
+            // Side-by-side layout: lyrics then chord on same line
+            if (lyrics) inlineParts.push(lyrics)
+            if (chord) inlineParts.push(`<span class="chord">${chord}</span> `)
+          } else {
+            // Flex chord-lyric pair: chord stacked above its lyrics, no space-based positioning
+            const chordSpan = chord
+              ? `<span class="chord">${chord}</span>`
+              : `<span class="clp-chord-empty"></span>`
+            // When there is no lyric text the chord must stay in normal flow so it
+            // sizes the .clp container — otherwise all zero-width .clp columns collapse
+            // and their absolute-positioned chords overlap each other.
+            const clpClass = chord && !lyrics ? "clp clp--chord-only" : "clp"
+            clpParts.push(
+              `<span class="${clpClass}">${chordSpan}<span class="clp-lyric">${lyrics}</span></span>`
+            )
           }
+
           lyricsLine += lyrics
-          currentPos += Math.max(chord.length + 1, lyrics.length)
-          if (lyrics) inlineParts.push(lyrics)
-          if (chord) inlineParts.push(`<span class="chord">${chord}</span> `)
+
+          // Also collect inline representation (lyrics precede the chord they annotate)
+          if (!inline) {
+            if (lyrics) inlineParts.push(lyrics)
+            if (chord) inlineParts.push(`<span class="chord">${chord}</span> `)
+          }
         } else if (contentItem.content) {
           lyricsLine += contentItem.content
-          currentPos += contentItem.content.length
           inlineParts.push(contentItem.content)
           hasContentItems = true
         }
@@ -186,11 +210,20 @@ function processChordProContent(
       // Auto-detect inline: only when plain text content items (e.g. "Bass: ") are
       // mixed with chords, as in "Bass: [Gm][Bb] x2". Normal chord-lyric verses
       // (pure ChordLyricsPairs) always use the stacked format.
-      if (hasContentItems && chordLine.trim()) {
-        return inlineParts.join("").replace(/\s{2,}/g, " ").trim()
+      if (hasContentItems && hasChords) {
+        return inlineParts
+          .join("")
+          .replace(/\s{2,}/g, " ")
+          .trim()
       }
-      if (chordLine.trim()) {
-        return `${chordLine}\n${lyricsLine}`
+      if (inline) {
+        return inlineParts
+          .join("")
+          .replace(/\s{2,}/g, " ")
+          .trim()
+      }
+      if (hasChords) {
+        return `<span class="chord-line">${clpParts.join("")}</span>`
       }
       return lyricsLine
     })
@@ -280,9 +313,9 @@ const SEGMENT_SCAN_RE =
 function buildSectionMap(lyrics: string): Map<string, string> {
   const map = new Map<string, string>()
 
-  // 1. Named explicit blocks: {soc/sov/sob: Name}...{eoc/eov/eob}
+  // 1. Named explicit blocks: {soc/sov/sob/soi/soo/sopc/sot/sog: Name}...{end}
   const blockRe =
-    /\{(?:start_of_chorus|soc|start_of_verse|sov|start_of_bridge|sob)(?::\s*([^}]+))?\}([\s\S]*?)\{(?:end_of_chorus|eoc|end_of_verse|eov|end_of_bridge|eob)\}/gi
+    /\{(?:start_of_chorus|soc|start_of_verse|sov|start_of_bridge|sob|start_of_intro|soi|start_of_outro|soo|start_of_pre_chorus|sopc|start_of_tab|sot|start_of_grid|sog)(?::\s*([^}]+))?\}([\s\S]*?)\{(?:end_of_chorus|eoc|end_of_verse|eov|end_of_bridge|eob|end_of_intro|eoi|end_of_outro|eoo|end_of_pre_chorus|eopc|end_of_tab|eot|end_of_grid|eog)\}/gi
   let match: RegExpExecArray | null
   while ((match = blockRe.exec(lyrics)) !== null) {
     const name = match[1]?.trim()
@@ -442,12 +475,27 @@ function buildSegments(
 }
 
 const FLAG_CONFIG: Record<SectionFlag, { label: string; className: string }> = {
-  attention: { label: "!", className: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400" },
+  attention: {
+    label: "!",
+    className: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400"
+  },
   skip: { label: "skip", className: "bg-muted text-muted-foreground" },
-  forte: { label: "f", className: "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400 italic" },
-  piano: { label: "p", className: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400 italic" },
-  vamp: { label: "vamp", className: "bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-400" },
-  tag: { label: "tag", className: "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400" },
+  forte: {
+    label: "f",
+    className: "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400 italic"
+  },
+  piano: {
+    label: "p",
+    className: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400 italic"
+  },
+  vamp: {
+    label: "vamp",
+    className: "bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-400"
+  },
+  tag: {
+    label: "tag",
+    className: "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400"
+  },
   break: { label: "break", className: "bg-muted text-muted-foreground" },
   inline: { label: "inline", className: "bg-muted text-muted-foreground" }
 }
@@ -473,19 +521,21 @@ function SectionHeader({ name, isCollapsed, onToggle, icon, flags }: SectionHead
   )
 
   const flagBadges =
-    flags && flags.length > 0 ? (
+    flags && flags.some((f) => f !== "inline") ? (
       <span className="flex items-center gap-1 shrink-0">
-        {flags.map((flag) => {
-          const cfg = FLAG_CONFIG[flag]
-          return (
-            <span
-              key={flag}
-              className={`text-[9px] font-bold uppercase tracking-wide px-1 py-0.5 rounded leading-none ${cfg.className}`}
-            >
-              {cfg.label}
-            </span>
-          )
-        })}
+        {flags
+          .filter((f) => f !== "inline")
+          .map((flag) => {
+            const cfg = FLAG_CONFIG[flag]
+            return (
+              <span
+                key={flag}
+                className={`text-[9px] font-bold uppercase tracking-wide px-1 py-0.5 rounded leading-none ${cfg.className}`}
+              >
+                {cfg.label}
+              </span>
+            )
+          })}
       </span>
     ) : null
 
@@ -536,7 +586,9 @@ export function RenderedSong({
   transpose,
   capo,
   fontSize,
-  columns = 2
+  columns = 2,
+  showChords = true,
+  showLyrics = true
 }: RenderedSongProps) {
   const [collapsedSet, setCollapsedSet] = useState<Set<number>>(new Set())
   const [selectedChord, setSelectedChord] = useState<string | null>(null)
@@ -605,10 +657,13 @@ export function RenderedSong({
     const columnStyle = columns === 2 ? { columnCount: 2 as const } : { columnCount: 1 as const }
     const fontStyle = { fontSize: `${fontSize * 14}px`, ...columnStyle }
     const hasComplexSegments = segments.some((s) => s.type === "repeat" || s.type === "section")
+    const visibilityClass = [!showChords && "hide-chords", !showLyrics && "hide-lyrics"]
+      .filter(Boolean)
+      .join(" ")
 
     if (!hasComplexSegments) {
       return (
-        <div onClick={handleChordClick}>
+        <div className={visibilityClass || undefined} onClick={handleChordClick}>
           <pre
             className="chordsheet-content multi-column-lyrics"
             style={fontStyle}
@@ -620,7 +675,11 @@ export function RenderedSong({
     }
 
     return (
-      <div className="multi-column-lyrics space-y-6" style={fontStyle} onClick={handleChordClick}>
+      <div
+        className={`multi-column-lyrics space-y-6${visibilityClass ? ` ${visibilityClass}` : ""}`}
+        style={fontStyle}
+        onClick={handleChordClick}
+      >
         {segments.map((segment, index) => {
           if (segment.type === "normal") {
             return (

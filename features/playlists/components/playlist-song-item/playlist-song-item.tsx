@@ -1,6 +1,6 @@
 "use client"
 
-import { Music2, Clock } from "lucide-react"
+import { Music2, Turtle, Rabbit, Zap } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import { getKeyColorClasses, getBpmColorClasses } from "@/lib/badge-colors"
@@ -50,7 +50,13 @@ export function PlaylistSongItem({ song, index, className, showDragHandle }: Pla
             {song.key}
           </Badge>
           <Badge variant="secondary" className={cn("gap-1.5 text-xs", getBpmColorClasses(song.bpm))}>
-            <Clock className="h-3 w-3" />
+            {song.bpm < 90 ? (
+              <Turtle className="h-3 w-3" />
+            ) : song.bpm <= 120 ? (
+              <Rabbit className="h-3 w-3" />
+            ) : (
+              <Zap className="h-3 w-3" />
+            )}
             {song.bpm} BPM
           </Badge>
         </div>
