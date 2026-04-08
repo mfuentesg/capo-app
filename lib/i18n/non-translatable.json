@@ -4,6 +4,7 @@
     "brand_names": ["English", "Español", "Capo", "ChordPro"],
     "technical_terms": ["Next.js", "Google", "TypeScript", "JavaScript"],
     "abbreviations": ["HTML", "CSS", "JSON", "XML", "API", "UUID", "URL"],
+    "html_entities": ["&amp;", "&lt;", "&gt;", "&quot;", "&#39;"],
     "proper_nouns": [],
     "chordpro_directives": [
       "start_of_chorus",
@@ -71,6 +72,11 @@
     ]
   },
   "whitelist": [
+    "&amp;",
+    "&lt;",
+    "&gt;",
+    "&quot;",
+    "&#39;",
     "mfuentesg",
     "mfuentesg.dev",
     "hello@mfuentesg.dev",
