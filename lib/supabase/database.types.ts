@@ -464,6 +464,50 @@ export type Database = {
           },
         ]
       }
+      user_chord_definitions: {
+        Row: {
+          id: string
+          user_id: string
+          chord_name: string
+          base_fret: number
+          frets: number[]
+          fingers: number[]
+          barres: number[]
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          chord_name: string
+          base_fret?: number
+          frets: number[]
+          fingers?: number[]
+          barres?: number[]
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          chord_name?: string
+          base_fret?: number
+          frets?: number[]
+          fingers?: number[]
+          barres?: number[]
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_chord_definitions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_song_settings: {
         Row: {
           capo: number

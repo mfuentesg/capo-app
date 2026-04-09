@@ -514,7 +514,9 @@
       "openLegend": "= abierta",
       "fretLegend": "números = traste",
       "stretchWarning": "Separación amplia — esta forma puede ser difícil de tocar.",
-      "fretboardLabel": "Entrada de diapasón de guitarra"
+      "fretboardLabel": "Entrada de diapasón de guitarra",
+      "saveChord": "Guardar",
+      "savedChord": "Guardado"
     },
     "page": {
       "title": "Referencia de Acordes",

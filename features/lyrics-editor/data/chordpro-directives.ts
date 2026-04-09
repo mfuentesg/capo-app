@@ -195,13 +195,15 @@ export const CHORDPRO_DIRECTIVES: ChordProDirective[] = [
   {
     name: "define",
     category: "chord",
-    description: "Defines a custom chord fingering using fret positions.",
-    example: "{define: Asus2 base-fret 1 frets 0 0 2 2 0 0}"
+    description:
+      "Defines a custom chord fingering for this song. The shape appears first — labeled 'My Chord' — in the chord diagram popup when the chord is clicked. If you have a saved chord under the same name in your personal chord library, this song-local definition takes priority. Syntax: chord-name base-fret N frets f1..f6 [fingers g1..g6] where fret values are x (muted), 0 (open), or 1–4 (relative fret).",
+    example:
+      "{define: Am11 base-fret 5 frets x 0 2 0 1 0 fingers 0 0 3 0 1 0}\n{define: Asus2 base-fret 1 frets 0 0 2 2 0 0}"
   },
   {
     name: "chord",
     category: "chord",
-    description: "Alias for {define}.",
+    description: "Alias for {define}. Defines a custom chord fingering for this song.",
     example: "{chord: Dm7 base-fret 1 frets x 0 0 2 1 1}"
   },
   {

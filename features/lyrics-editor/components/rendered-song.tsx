@@ -5,6 +5,7 @@ import dynamic from "next/dynamic"
 import { ChordProParser } from "chordsheetjs"
 import { ChevronDown, Music2, Repeat2 } from "lucide-react"
 import { useLocale } from "@/features/settings"
+import { type ChordPosition, useUserChords } from "@/features/chords"
 
 const ChordDiagram = dynamic(() => import("./chord-diagram").then((m) => m.ChordDiagram), {
   ssr: false
@@ -546,6 +547,85 @@ function SectionHeader({ name, isCollapsed, onToggle, icon, flags }: SectionHead
   )
 }
 
+// Regex matching both {define: ...} and {chord: ...} directives (single-line)
+const DEFINE_DIRECTIVE_RE = /\{(?:define|chord):[^}]*\}/gi
+
+/**
+ * Parses all {define:} / {chord:} directives from a ChordPro lyrics string and
+ * returns a map of chord name → ChordPosition. Later definitions for the same
+ * chord name override earlier ones.
+ */
+export function parseDefinedChords(lyrics: string): Map<string, ChordPosition> {
+  const map = new Map<string, ChordPosition>()
+  if (!lyrics) return map
+
+  const re = new RegExp(DEFINE_DIRECTIVE_RE.source, "gi")
+  let match: RegExpExecArray | null
+
+  while ((match = re.exec(lyrics)) !== null) {
+    // Extract everything between the first space after "define"/"chord" and the closing }
+    const inner = match[0].slice(1, -1) // strip outer { }
+    const colonIdx = inner.indexOf(":")
+    if (colonIdx === -1) continue
+    const value = inner.slice(colonIdx + 1).trim()
+    const parsed = parseDefineValue(value)
+    if (parsed) map.set(parsed.name, parsed.position)
+  }
+
+  return map
+}
+
+function parseDefineValue(value: string): { name: string; position: ChordPosition } | null {
+  const tokens = value.trim().split(/\s+/)
+  if (tokens.length < 2) return null
+
+  const name = tokens[0]
+  let baseFret = 1
+  let frets: number[] = []
+  let fingers: number[] = []
+  let barres: number[] = []
+
+  let i = 1
+  while (i < tokens.length) {
+    const tok = tokens[i].toLowerCase()
+    if (tok === "base-fret") {
+      baseFret = parseInt(tokens[i + 1], 10) || 1
+      i += 2
+    } else if (tok === "frets") {
+      i++
+      frets = []
+      while (i < tokens.length && !["fingers", "barres", "base-fret"].includes(tokens[i].toLowerCase())) {
+        const t = tokens[i]
+        frets.push(t === "x" || t === "X" ? -1 : parseInt(t, 10))
+        i++
+      }
+    } else if (tok === "fingers") {
+      i++
+      fingers = []
+      while (i < tokens.length && !["frets", "barres", "base-fret"].includes(tokens[i].toLowerCase())) {
+        fingers.push(parseInt(tokens[i], 10) || 0)
+        i++
+      }
+    } else if (tok === "barres") {
+      i++
+      barres = []
+      while (i < tokens.length && !["frets", "fingers", "base-fret"].includes(tokens[i].toLowerCase())) {
+        barres.push(parseInt(tokens[i], 10) || 0)
+        i++
+      }
+    } else {
+      i++
+    }
+  }
+
+  if (frets.length === 0) return null
+
+  // Pad fingers to same length as frets
+  while (fingers.length < frets.length) fingers.push(0)
+
+  return { name, position: { frets, fingers, baseFret, barres } }
+}
+
 export function RenderedSong({
   lyrics,
   transpose,
@@ -557,6 +637,7 @@ export function RenderedSong({
   const [selectedChord, setSelectedChord] = useState<string | null>(null)
 
   const { t } = useLocale()
+  const userChords = useUserChords()
 
   const sectionLabels = useMemo(
     () => ({
@@ -571,6 +652,18 @@ export function RenderedSong({
     }),
     [t]
   )
+
+  // Song-local {define:}/{chord:} overrides user's saved library
+  const songDefinedChords = useMemo(
+    () => (lyrics ? parseDefinedChords(lyrics) : new Map<string, ChordPosition>()),
+    [lyrics]
+  )
+
+  const definedChords = useMemo(() => {
+    const merged = new Map(userChords)
+    songDefinedChords.forEach((pos, name) => merged.set(name, pos))
+    return merged
+  }, [userChords, songDefinedChords])
 
   const handleChordClick = (e: React.MouseEvent) => {
     const target = e.target as HTMLElement
@@ -596,8 +689,10 @@ export function RenderedSong({
     if (!lyrics) return null
 
     try {
-      const sectionMap = buildSectionMap(lyrics)
-      return buildSegments(lyrics, sectionMap, transpose, capo, sectionLabels)
+      // Strip {define:}/{chord:} directives before parsing — they are metadata only
+      const cleanLyrics = lyrics.replace(DEFINE_DIRECTIVE_RE, "")
+      const sectionMap = buildSectionMap(cleanLyrics)
+      return buildSegments(cleanLyrics, sectionMap, transpose, capo, sectionLabels)
     } catch (error) {
       console.error("Error parsing ChordPro:", error)
       return null
@@ -629,7 +724,7 @@ export function RenderedSong({
             style={fontStyle}
             dangerouslySetInnerHTML={{ __html: segments[0]?.html ?? "" }}
           />
-          <ChordDiagram chordName={selectedChord} onClose={() => setSelectedChord(null)} />
+          <ChordDiagram chordName={selectedChord} onClose={() => setSelectedChord(null)} definedChords={definedChords} />
         </div>
       )
     }
