@@ -519,7 +519,9 @@
       "openLegend": "= open",
       "fretLegend": "numbers = fret",
       "stretchWarning": "Wide span — this shape may be difficult to play.",
-      "fretboardLabel": "Guitar fretboard input"
+      "fretboardLabel": "Guitar fretboard input",
+      "saveChord": "Save",
+      "savedChord": "Saved"
     },
     "page": {
       "title": "Chord Reference",

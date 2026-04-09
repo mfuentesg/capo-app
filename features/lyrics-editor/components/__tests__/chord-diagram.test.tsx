@@ -79,4 +79,44 @@ describe("ChordDiagram", () => {
     render(<ChordDiagram chordName="C" onClose={onClose} />)
     expect(screen.getByTestId("dialog-root")).toBeInTheDocument()
   })
+
+  describe("definedChords prop", () => {
+    const customPosition = {
+      frets: [-1, 0, 2, 0, 1, 0],
+      fingers: [0, 0, 3, 0, 1, 0],
+      baseFret: 5,
+      barres: []
+    }
+
+    it("shows 'My Chord' label when a defined chord is provided and shown first", () => {
+      const definedChords = new Map([["Am11", customPosition]])
+      render(<ChordDiagram chordName="Am11" onClose={jest.fn()} definedChords={definedChords} />)
+      expect(screen.getByText("My Chord")).toBeInTheDocument()
+    })
+
+    it("shows chord diagram when definedChords contains the chord name", () => {
+      const definedChords = new Map([["Am11", customPosition]])
+      render(<ChordDiagram chordName="Am11" onClose={jest.fn()} definedChords={definedChords} />)
+      expect(screen.getByTestId("chord-svg")).toBeInTheDocument()
+    })
+
+    it("does not show 'My Chord' label when definedChords is empty", () => {
+      const definedChords = new Map<string, typeof customPosition>()
+      render(<ChordDiagram chordName="C" onClose={jest.fn()} definedChords={definedChords} />)
+      expect(screen.queryByText("My Chord")).not.toBeInTheDocument()
+    })
+
+    it("does not show 'My Chord' label when chord name is not in definedChords", () => {
+      const definedChords = new Map([["Dm7", customPosition]])
+      render(<ChordDiagram chordName="C" onClose={jest.fn()} definedChords={definedChords} />)
+      expect(screen.queryByText("My Chord")).not.toBeInTheDocument()
+    })
+
+    it("shows 'My Chord' label for an otherwise unknown chord that has a custom definition", () => {
+      const definedChords = new Map([["Cinvalid", customPosition]])
+      render(<ChordDiagram chordName="Cinvalid" onClose={jest.fn()} definedChords={definedChords} />)
+      expect(screen.getByText("My Chord")).toBeInTheDocument()
+      expect(screen.getByTestId("chord-svg")).toBeInTheDocument()
+    })
+  })
 })

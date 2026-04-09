@@ -3,7 +3,7 @@
 import * as React from "react"
 import { Chord as ChordJS } from "chordsheetjs"
 import guitarDataRaw from "@tombatossals/chords-db/lib/guitar.json"
-import { keyLabel, toDbKey } from "@/features/chords"
+import { keyLabel, toDbKey, type ChordPosition as ChordPositionType } from "@/features/chords"
 import {
   Dialog,
   DialogContent,
@@ -20,14 +20,8 @@ import { findGuitarChord as findGuitarChordRaw } from "chord-fingering"
 import { cn } from "@/lib/utils"
 import { ChordPositionDiagram } from "@/components/chord-position-diagram"
 
-interface ChordPosition {
-  frets: number[]
-  fingers: number[]
-  baseFret: number
-  barres: number[]
-  capo?: boolean
-  midi?: number[]
-}
+// Re-use the canonical ChordPosition from the chords feature
+type ChordPosition = ChordPositionType
 
 interface ChordVariation {
   key: string
@@ -55,6 +49,7 @@ const guitarData = guitarDataRaw as unknown as GuitarData
 interface ChordDiagramProps {
   chordName: string | null
   onClose: () => void
+  definedChords?: Map<string, ChordPosition>
 }
 
 interface GeneratedPosition {
@@ -235,7 +230,7 @@ function parseChord(
   return { key: lookupKey, suffix: normalized }
 }
 
-export function ChordDiagram({ chordName, onClose }: ChordDiagramProps) {
+export function ChordDiagram({ chordName, onClose, definedChords }: ChordDiagramProps) {
   const [positionIndex, setPositionIndex] = React.useState(0)
   const [animKey, setAnimKey] = React.useState(0)
   const [slideDir, setSlideDir] = React.useState<"left" | "right">("left")
@@ -247,8 +242,11 @@ export function ChordDiagram({ chordName, onClose }: ChordDiagramProps) {
     setPositionIndex(0)
   }, [chordName])
 
-  const { positions, totalPositions, isAlgorithmic } = React.useMemo(() => {
-    if (!chordName) return { positions: [], totalPositions: 0, isAlgorithmic: false }
+  const { positions, totalPositions, isAlgorithmic, hasDefined } = React.useMemo(() => {
+    if (!chordName) return { positions: [], totalPositions: 0, isAlgorithmic: false, hasDefined: false }
+
+    // Check user-defined / song-local chord first
+    const customPosition = definedChords?.get(chordName)
 
     // First try finding the EXACT chord in DB (including slash)
     const exactParsed = parseChord(chordName, { allowBaseFallback: false })
@@ -267,7 +265,16 @@ export function ChordDiagram({ chordName, onClose }: ChordDiagramProps) {
       try {
         const generated = findGuitarChord(chordName)
         if (generated && generated.fingerings && generated.fingerings.length > 0) {
-          return { positions: transformGeneratedChord(generated), totalPositions: generated.fingerings.length, isAlgorithmic: true }
+          const algPositions = transformGeneratedChord(generated)
+          if (customPosition) {
+            return {
+              positions: [customPosition, ...algPositions],
+              totalPositions: 1 + algPositions.length,
+              isAlgorithmic: true,
+              hasDefined: true
+            }
+          }
+          return { positions: algPositions, totalPositions: algPositions.length, isAlgorithmic: true, hasDefined: false }
         }
       } catch {
         // Fallback silently if generation fails
@@ -286,8 +293,17 @@ export function ChordDiagram({ chordName, onClose }: ChordDiagramProps) {
       }
     }
 
-    return { positions: foundPositions, totalPositions: foundPositions.length, isAlgorithmic: false }
-  }, [chordName])
+    if (customPosition) {
+      return {
+        positions: [customPosition, ...foundPositions],
+        totalPositions: 1 + foundPositions.length,
+        isAlgorithmic: false,
+        hasDefined: true
+      }
+    }
+
+    return { positions: foundPositions, totalPositions: foundPositions.length, isAlgorithmic: false, hasDefined: false }
+  }, [chordName, definedChords])
 
   if (!chordName) return null
 
@@ -350,7 +366,11 @@ export function ChordDiagram({ chordName, onClose }: ChordDiagramProps) {
               {chordName}
             </DialogTitle>
             <div className="mt-1 font-medium text-muted-foreground uppercase tracking-widest text-[12px] sm:text-[10px]">
-              {isAlgorithmic ? "Generated Diagram" : "Verified Shape"}
+              {positionIndex === 0 && hasDefined
+                ? "My Chord"
+                : isAlgorithmic
+                  ? "Generated Diagram"
+                  : "Verified Shape"}
             </div>
           </DialogHeader>
 
