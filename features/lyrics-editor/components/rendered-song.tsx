@@ -144,7 +144,7 @@ function processChordProContent(
       const commentMatch = lineLyrics.match(new RegExp(`${COMMENT_TOKEN}(\\d+)`))
       if (commentMatch) {
         const label = commentLabels[parseInt(commentMatch[1], 10)]
-        return label ? `<span class="lyrics-comment">// ${escapeHtml(label)}</span>` : ""
+        return label ? `<div class="lyrics-comment">// ${escapeHtml(label)}</div>` : ""
       }
 
       // Token: {note}
@@ -299,76 +299,7 @@ function formatInlineLyricsToHtml(
   capo: number,
   sectionLabels: Record<string, string>
 ): string {
-<<<<<<< HEAD
   return splitAndProcessVolta(text, transpose, capo, sectionLabels, true)
-=======
-  const commentLabels: string[] = []
-  const sectionStarts: { type: string; label: string }[] = []
-
-  let processedText = text.replace(
-    /\{c(?:omment(?:_italic|_box)?)?: *([^}]*)\}/gi,
-    (_, content: string) => {
-      commentLabels.push(content.trim())
-      return `${COMMENT_TOKEN}${commentLabels.length - 1}`
-    }
-  )
-
-  processedText = processedText
-    .replace(SECTION_START_RE, (_, directive: string, name?: string) => {
-      const type = SECTION_DIRECTIVE_MAP[directive.toLowerCase()] ?? "section"
-      const label = name?.trim() ?? sectionLabels[type] ?? type
-      sectionStarts.push({ type, label })
-      return `${SECTION_START_TOKEN}${sectionStarts.length - 1}`
-    })
-    .replace(SECTION_END_RE, "")
-
-  const parser = new ChordProParser()
-  let parsedSong = parser.parse(processedText)
-
-  if (transpose !== 0) {
-    parsedSong = parsedSong.transpose(transpose, { normalizeChordSuffix: false })
-  }
-  if (capo > 0) {
-    parsedSong = parsedSong.transpose(-capo, { normalizeChordSuffix: false })
-  }
-
-  return parsedSong.lines
-    .map((line) => {
-      const rawText = line.toString()
-
-      const commentMatch = rawText.match(new RegExp(`${COMMENT_TOKEN}(\\d+)`))
-      if (commentMatch) {
-        const label = commentLabels[parseInt(commentMatch[1], 10)]
-        return label ? `<span class="lyrics-comment">// ${label}</span>` : ""
-      }
-
-      const sectionMatch = rawText.match(new RegExp(`${SECTION_START_TOKEN}(\\d+)`))
-      if (sectionMatch) {
-        const { type, label } = sectionStarts[parseInt(sectionMatch[1], 10)]
-        return `<span class="section-label section-label--${type}">${label}</span>`
-      }
-
-      const inlineParts: string[] = []
-
-      line.items.forEach((item) => {
-        const chordPair = item as { chords?: string; lyrics?: string | null }
-        const contentItem = item as { content?: string }
-
-        const chord = chordPair.chords || ""
-        const lyrics = chordPair.lyrics || ""
-
-        if (lyrics) inlineParts.push(lyrics)
-        if (chord) inlineParts.push(`<span class="chord">${chord}</span> `)
-        if (!chord && !lyrics && contentItem.content) inlineParts.push(contentItem.content)
-      })
-
-      return inlineParts
-        .join("")
-        .replace(/\s{2,}/g, " ")
-        .trim()
-    })
-    .join("\n")
->>>>>>> a819d99 (feat(lyrics-editor): render inline {c} comments as code-style annotations)
 }
 
 // Matches the opening { of any directive that starts a new section or a repeat
