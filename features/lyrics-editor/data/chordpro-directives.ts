@@ -186,8 +186,9 @@ export const CHORDPRO_DIRECTIVES: ChordProDirective[] = [
     shorthand: "c",
     category: "comment",
     description:
-      "Displays an inline annotation in the rendered output. A named comment also acts as a section label for {repeat} references.",
-    example: "{comment: Play softly}\n{c: Capo 2}\n{c: Intro} ← can be referenced by {repeat: Intro}"
+      "Adds an annotation to the rendered output. At the top level it creates a named section (collapsible, colored header) that can also be referenced by {repeat}. Inside a {start_of_*} block it renders as an inline code-comment (// text).",
+    example:
+      "Top-level named section:\n{c: Intro}\n[Am][G] x4\n\nInside a section block (renders as // comment):\n{start_of_bridge: Bridge}\n{c: sing softly here}\n[Em]Lyrics...\n{end_of_bridge}"
   },
   {
     name: "comment_italic",

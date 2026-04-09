@@ -135,24 +135,27 @@ function processChordProContent(
 
   return parsedSong.lines
     .map((line) => {
-      const rawText = line.toString()
+      // line.toString() returns "[object Object]" in chordsheetjs v12 — read from items instead.
+      const lineLyrics = line.items
+        .map((item) => (item as { lyrics?: string | null }).lyrics ?? "")
+        .join("")
 
       // Token: {comment}
-      const commentMatch = rawText.match(new RegExp(`${COMMENT_TOKEN}(\\d+)`))
+      const commentMatch = lineLyrics.match(new RegExp(`${COMMENT_TOKEN}(\\d+)`))
       if (commentMatch) {
         const label = commentLabels[parseInt(commentMatch[1], 10)]
-        return label ? `<span class="section-label">${escapeHtml(label)}</span>` : ""
+        return label ? `<div class="lyrics-comment">${escapeHtml(label)}</div>` : ""
       }
 
       // Token: {note}
-      const noteMatch = rawText.match(new RegExp(`${PERF_NOTE_TOKEN}(\\d+)`))
+      const noteMatch = lineLyrics.match(new RegExp(`${PERF_NOTE_TOKEN}(\\d+)`))
       if (noteMatch) {
         const noteText = noteTexts[parseInt(noteMatch[1], 10)]
         return noteText ? `<span class="performance-note">${escapeHtml(noteText)}</span>` : ""
       }
 
       // Token: section start directive
-      const sectionMatch = rawText.match(new RegExp(`${SECTION_START_TOKEN}(\\d+)`))
+      const sectionMatch = lineLyrics.match(new RegExp(`${SECTION_START_TOKEN}(\\d+)`))
       if (sectionMatch) {
         const { type, label } = sectionStarts[parseInt(sectionMatch[1], 10)]
         return `<span class="section-label section-label--${type}">${escapeHtml(label)}</span>`
