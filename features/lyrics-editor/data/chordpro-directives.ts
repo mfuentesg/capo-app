@@ -169,14 +169,26 @@ export const CHORDPRO_DIRECTIVES: ChordProDirective[] = [
       "{sopc: Pre-Chorus}\n[Em]Every day I'm getting [C]closer\n{eopc}"
   },
 
+  // Volta (iteration) sections — custom extension
+  {
+    name: "start_of_volta",
+    shorthand: "sovt",
+    category: "section",
+    description:
+      "Marks content that applies only on a specific pass through a repeated section (volta bracket). The label is free text — use '1st time', '2nd time', 'D.C.', etc. Pair with {end_of_volta} or {eovt}. Works inside any section block or at the top level. Custom extension.",
+    example:
+      "{sov: Verse}\nPart of the [D]lyric\n\n{sovt: 1st time}\nSecond [A]line\n{eovt}\n\n{sovt: 2nd time}\nThird [F]line\n{eovt}\n{eov}"
+  },
+
   // Comments
   {
     name: "comment",
     shorthand: "c",
     category: "comment",
     description:
-      "Displays an inline annotation in the rendered output. A named comment also acts as a section label for {repeat} references.",
-    example: "{comment: Play softly}\n{c: Capo 2}\n{c: Intro} ← can be referenced by {repeat: Intro}"
+      "Adds an annotation to the rendered output. At the top level it creates a named section (collapsible, colored header) that can also be referenced by {repeat}. Inside a {start_of_*} block it renders as an inline code-comment (// text).",
+    example:
+      "Top-level named section:\n{c: Intro}\n[Am][G] x4\n\nInside a section block (renders as // comment):\n{start_of_bridge: Bridge}\n{c: sing softly here}\n[Em]Lyrics...\n{end_of_bridge}"
   },
   {
     name: "comment_italic",
@@ -246,6 +258,14 @@ export const CHORDPRO_DIRECTIVES: ChordProDirective[] = [
   },
 
   // Custom directives
+  {
+    name: "note",
+    category: "comment",
+    description:
+      "Renders an inline performance badge at the current position. Use for real-time directions like 'stronger', 'louder', 'slow down', or 'key change here'. Must appear on its own line. Works anywhere — inside or outside a section. Custom extension.",
+    example:
+      "{sov: Chorus}\n[G]How great thou art\n{note: louder here}\n[G]How great thou art\n{eov}\n\n{note: stronger}    ← also works outside sections"
+  },
   {
     name: "repeat",
     category: "formatting",

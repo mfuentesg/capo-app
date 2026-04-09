@@ -95,7 +95,7 @@ describe("Auth Callback Route", () => {
       expect(createClient).toHaveBeenCalled()
       expect(mockSupabase.auth.exchangeCodeForSession).toHaveBeenCalledWith("test-code")
       expect(response.status).toBe(307)
-      expect(response.headers.get("location")).toBe("http://localhost:3000/dashboard")
+      expect(response.headers.get("location")).toBe("http://localhost:3000/dashboard/songs")
     })
 
     it("should redirect to custom next URL if valid", async () => {
@@ -117,7 +117,7 @@ describe("Auth Callback Route", () => {
       )
       const response = await GET(request)
 
-      expect(response.headers.get("location")).toBe("http://localhost:3000/dashboard")
+      expect(response.headers.get("location")).toBe("http://localhost:3000/dashboard/songs")
     })
 
     it("should reject protocol-relative redirect URLs", async () => {
@@ -128,7 +128,7 @@ describe("Auth Callback Route", () => {
       )
       const response = await GET(request)
 
-      expect(response.headers.get("location")).toBe("http://localhost:3000/dashboard")
+      expect(response.headers.get("location")).toBe("http://localhost:3000/dashboard/songs")
     })
 
     it("should allow absolute same-origin redirect URLs", async () => {
@@ -189,7 +189,7 @@ describe("Auth Callback Route", () => {
       )
       const response = await GET(request)
 
-      expect(response.headers.get("location")).toBe("http://localhost:3000/dashboard")
+      expect(response.headers.get("location")).toBe("http://localhost:3000/dashboard/songs")
     })
 
     it("should clear invitation token cookie on the returned invitation redirect response", async () => {

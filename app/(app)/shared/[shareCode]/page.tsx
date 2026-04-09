@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { PlaylistShareView } from "@/features/playlist-sharing"
-import { api } from "@/features/playlists/api"
+import { api } from "@/features/playlists"
 
 export async function generateMetadata({
   params

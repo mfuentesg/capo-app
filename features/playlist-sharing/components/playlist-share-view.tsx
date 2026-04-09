@@ -27,16 +27,17 @@ import { Switch } from "@/components/ui/switch"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet"
 import { LyricsView } from "@/features/lyrics-editor"
-import { api, reorderPlaylistSongsAction, updatePlaylistAction } from "@/features/playlists"
-import type { PlaylistWithSongs, Playlist } from "@/features/playlists/types"
+import { reorderPlaylistSongsAction, updatePlaylistAction } from "@/features/playlists"
+import type { PlaylistWithSongs, Playlist } from "@/features/playlists"
 import type { Song } from "@/features/songs"
 import {
   useAllUserSongSettings,
   useEffectiveSongSettings,
   useUpsertUserSongSettings,
-  useUserPreferences
+  useUserPreferences,
+  useUpdateSong
 } from "@/features/songs"
-import { createClient } from "@/lib/supabase/client"
+import { usePublicPlaylistRealtime } from "../hooks"
 import { formatLongDate } from "@/lib/utils"
 
 interface ActiveSongLyricsForShareProps {
@@ -44,6 +45,8 @@ interface ActiveSongLyricsForShareProps {
   onClose: () => void
   isAuthenticated: boolean
   canEdit?: boolean
+  onSaveLyrics?: (lyrics: string) => void
+  isSaving?: boolean
   onPrevSong?: () => void
   onNextSong?: () => void
   hasPrevSong?: boolean
@@ -57,6 +60,8 @@ function ActiveSongLyricsForShare({
   onClose,
   isAuthenticated,
   canEdit = false,
+  onSaveLyrics,
+  isSaving,
   onPrevSong,
   onNextSong,
   hasPrevSong,
@@ -80,6 +85,8 @@ function ActiveSongLyricsForShare({
         capo: song.capo ?? 0
       }}
       onClose={onClose}
+      onSaveLyrics={canEdit ? onSaveLyrics : undefined}
+      isSaving={isSaving}
       initialSettings={effectiveSettings}
       onSettingsChange={isAuthenticated ? upsertSettings : undefined}
       initialLyricsColumns={preferences?.lyricsColumns ?? 2}
@@ -152,67 +159,18 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
   }, [activeIndex])
 
   // Realtime: subscribe to playlist settings and song order changes
-  useEffect(() => {
-    if (!playlist.id) return
-
-    const supabase = createClient()
-    const channel = supabase
-      .channel(`share-view:${playlist.id}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "UPDATE",
-          schema: "public",
-          table: "playlists",
-          filter: `id=eq.${playlist.id}`
-        },
-        (payload) => {
-          const updated = payload.new as { is_public: boolean; allow_guest_editing: boolean }
-          setLocalVisibility(updated.is_public ? "public" : "private")
-          setLocalGuestEditing(updated.allow_guest_editing ?? false)
-        }
-      )
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "songs"
-          // No row-level filter: songs.playlist_id doesn't exist (relationship is via
-          // playlist_songs). Any song edit triggers a refetch via the public share-code
-          // API, which naturally scopes the result to this playlist.
-        },
-        () => {
-          if (playlist.shareCode) {
-            api.getPublicPlaylistByShareCode(playlist.shareCode).then((data) => {
-              if (data) setSongs(data.songs)
-            })
-          }
-        }
-      )
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "playlist_songs",
-          filter: `playlist_id=eq.${playlist.id}`
-        },
-        async () => {
-          if (!playlist.shareCode) return
-          const updated = await api.getPublicPlaylistByShareCode(playlist.shareCode)
-          if (updated) setSongs(updated.songs)
-        }
-      )
-      .subscribe()
-
-    return () => {
-      channel.unsubscribe()
+  usePublicPlaylistRealtime(playlist.id, playlist.shareCode ?? "", {
+    onSongsChange: setSongs,
+    onPlaylistChange: ({ visibility, allowGuestEditing }) => {
+      setLocalVisibility(visibility)
+      setLocalGuestEditing(allowGuestEditing)
     }
-  }, [playlist.id, playlist.shareCode])
+  })
 
   const activeSong = activeIndex !== null ? songs[activeIndex] : null
   const totalSongs = songs.length
+
+  const { mutate: updateSong, isPending: isSavingLyrics } = useUpdateSong()
 
   const isOwner = user && playlist.userId === user.id
   const isTeamMember = !!(user && playlist.teamId && teams.some((t) => t.id === playlist.teamId))
@@ -553,6 +511,14 @@ export function PlaylistShareView({ playlist }: PlaylistShareViewProps) {
                   onClose={handleCloseDrawer}
                   isAuthenticated={!!user}
                   canEdit={canEditSongs}
+                  onSaveLyrics={(lyrics) => {
+                    const songId = activeSong.id
+                    setSongs((prev) =>
+                      prev.map((s) => (s.id === songId ? { ...s, lyrics } : s))
+                    )
+                    updateSong({ songId, updates: { lyrics } })
+                  }}
+                  isSaving={isSavingLyrics}
                   onPrevSong={handlePrevSong}
                   onNextSong={handleNextSong}
                   hasPrevSong={activeIndex !== null && activeIndex > 0}

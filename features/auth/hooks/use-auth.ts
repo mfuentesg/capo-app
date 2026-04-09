@@ -8,7 +8,7 @@ import {
   AUTH_CALLBACK_PATH,
   LOGIN_PATH
 } from "@/lib/supabase/constants"
-import { SELECTED_TEAM_ID_KEY } from "@/features/app-context/constants"
+import { SELECTED_TEAM_ID_KEY } from "@/features/app-context"
 import type { AuthError } from "@supabase/supabase-js"
 import { toast } from "sonner"
 import { useLocale } from "@/features/settings"
