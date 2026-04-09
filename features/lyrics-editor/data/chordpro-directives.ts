@@ -169,6 +169,17 @@ export const CHORDPRO_DIRECTIVES: ChordProDirective[] = [
       "{sopc: Pre-Chorus}\n[Em]Every day I'm getting [C]closer\n{eopc}"
   },
 
+  // Volta (iteration) sections — custom extension
+  {
+    name: "start_of_volta",
+    shorthand: "sovt",
+    category: "section",
+    description:
+      "Marks content that applies only on a specific pass through a repeated section (volta bracket). The label is free text — use '1st time', '2nd time', 'D.C.', etc. Pair with {end_of_volta} or {eovt}. Works inside any section block or at the top level. Custom extension.",
+    example:
+      "{sov: Verse}\nPart of the [D]lyric\n\n{sovt: 1st time}\nSecond [A]line\n{eovt}\n\n{sovt: 2nd time}\nThird [F]line\n{eovt}\n{eov}"
+  },
+
   // Comments
   {
     name: "comment",
@@ -244,6 +255,14 @@ export const CHORDPRO_DIRECTIVES: ChordProDirective[] = [
   },
 
   // Custom directives
+  {
+    name: "note",
+    category: "comment",
+    description:
+      "Renders an inline performance badge at the current position. Use for real-time directions like 'stronger', 'louder', 'slow down', or 'key change here'. Must appear on its own line. Works anywhere — inside or outside a section. Custom extension.",
+    example:
+      "{sov: Chorus}\n[G]How great thou art\n{note: louder here}\n[G]How great thou art\n{eov}\n\n{note: stronger}    ← also works outside sections"
+  },
   {
     name: "repeat",
     category: "formatting",

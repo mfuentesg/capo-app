@@ -63,6 +63,11 @@ const SUPPORTED_DIRECTIVES = [
   { label: "sopc", detail: "Begin pre-chorus (short)", apply: "sopc: " },
   { label: "end_of_pre_chorus", detail: "End pre-chorus section", apply: "end_of_pre_chorus}" },
   { label: "eopc", detail: "End pre-chorus (short)", apply: "eopc}" },
+  // Volta (iteration) sections — custom extension
+  { label: "start_of_volta", detail: "Begin volta/iteration — e.g. {sovt: 1st time}", apply: "start_of_volta: " },
+  { label: "sovt", detail: "Begin volta (short) — e.g. {sovt: 1st time}", apply: "sovt: " },
+  { label: "end_of_volta", detail: "End volta section", apply: "end_of_volta}" },
+  { label: "eovt", detail: "End volta (short)", apply: "eovt}" },
   // Section references
   { label: "repeat", detail: "Reference a named section with optional count — e.g. {repeat: Chorus, 2}", apply: "repeat: " },
   // Comments
@@ -70,6 +75,8 @@ const SUPPORTED_DIRECTIVES = [
   { label: "c", detail: "Comment (short)", apply: "c: " },
   { label: "comment_italic", detail: "Italic comment", apply: "comment_italic: " },
   { label: "comment_box", detail: "Boxed comment", apply: "comment_box: " },
+  // Performance notes — custom extension
+  { label: "note", detail: "Performance note — e.g. {note: stronger}", apply: "note: " },
   // Chord definitions
   { label: "define", detail: "Define a chord shape", apply: "define: " },
   { label: "chord", detail: "Chord definition", apply: "chord: " },

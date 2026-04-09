@@ -357,6 +357,70 @@
   @apply opacity-50;
 }
 
+/* ── Volta (iteration) blocks ────────────────────────────────────── */
+/*
+ * Block-level <div> elements inside <pre> are valid HTML5 and break
+ * cleanly out of the preformatted flow while the .volta-content area
+ * inherits whitespace-pre-wrap so chord/lyric spacing is preserved.
+ *
+ * --volta-color falls back to muted-foreground for top-level volta
+ * (outside any section), and is overridden to --section-accent when
+ * nested inside a section block — giving automatic color harmony.
+ */
+.volta-block {
+  --volta-color: var(--muted-foreground);
+  display: block;
+  border-radius: 6px;
+  border: 1px solid color-mix(in oklch, var(--volta-color) 28%, transparent);
+  background: color-mix(in oklch, var(--volta-color) 6%, transparent);
+  margin: 6px 0;
+  overflow: hidden;
+}
+
+.section-repeat .volta-block {
+  --volta-color: var(--section-accent);
+}
+
+.volta-label {
+  display: block;
+  font-size: 0.68em;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 3px 10px 3px;
+  color: var(--volta-color);
+  background: color-mix(in oklch, var(--volta-color) 12%, transparent);
+  border-bottom: 1px solid color-mix(in oklch, var(--volta-color) 22%, transparent);
+}
+
+.volta-content {
+  display: block;
+  padding: 5px 10px 7px;
+}
+
+/* ── Performance notes ───────────────────────────────────────────── */
+/* Styled as a musician's pencil annotation — italic, warm tint,     */
+/* with parentheses added via pseudo-elements.                        */
+.performance-note {
+  display: inline-block;
+  font-style: italic;
+  font-size: 0.82em;
+  color: oklch(0.58 0.13 65);
+  opacity: 0.88;
+}
+
+.performance-note::before {
+  content: "(\00a0";
+}
+
+.performance-note::after {
+  content: "\00a0)";
+}
+
+.dark .performance-note {
+  color: oklch(0.78 0.12 65);
+}
+
 .multi-column-lyrics {
   @apply max-h-none overflow-visible [column-width:400px] [column-gap:3rem] [column-rule:1px_solid_var(--border)];
 }
