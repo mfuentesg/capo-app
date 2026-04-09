@@ -348,16 +348,17 @@
 .lyrics-comment {
   --comment-color: var(--muted-foreground);
   display: block;
+  border-radius: 6px;
+  border: 1px solid color-mix(in oklch, var(--comment-color) 28%, transparent);
+  background: color-mix(in oklch, var(--comment-color) 12%, transparent);
+  margin: 6px 0;
+  overflow: hidden;
   font-size: 0.68em;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  padding: 2px 10px;
-  margin: 4px 0;
+  padding: 3px 10px;
   color: var(--comment-color);
-  background: color-mix(in oklch, var(--comment-color) 8%, transparent);
-  border-radius: 4px;
-  border: 1px solid color-mix(in oklch, var(--comment-color) 22%, transparent);
 }
 
 .section-repeat-chevron {

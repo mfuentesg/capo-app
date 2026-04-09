@@ -144,7 +144,7 @@ function processChordProContent(
       const commentMatch = lineLyrics.match(new RegExp(`${COMMENT_TOKEN}(\\d+)`))
       if (commentMatch) {
         const label = commentLabels[parseInt(commentMatch[1], 10)]
-        return label ? `<div class="lyrics-comment">// ${escapeHtml(label)}</div>` : ""
+        return label ? `<div class="lyrics-comment">${escapeHtml(label)}</div>` : ""
       }
 
       // Token: {note}
