@@ -350,14 +350,27 @@
   display: block;
   border-radius: 6px;
   border: 1px solid color-mix(in oklch, var(--comment-color) 28%, transparent);
-  background: color-mix(in oklch, var(--comment-color) 12%, transparent);
+  background: color-mix(in oklch, var(--comment-color) 6%, transparent);
   margin: 6px 0;
   overflow: hidden;
+}
+
+.lyrics-comment-label {
+  display: block;
   font-size: 0.68em;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  padding: 3px 10px;
+  padding: 3px 10px 3px;
+  color: var(--comment-color);
+  background: color-mix(in oklch, var(--comment-color) 12%, transparent);
+  border-bottom: 1px solid color-mix(in oklch, var(--comment-color) 22%, transparent);
+}
+
+.lyrics-comment-body {
+  display: block;
+  padding: 5px 10px 7px;
+  font-size: 0.85em;
   color: var(--comment-color);
 }
 

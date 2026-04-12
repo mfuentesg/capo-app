@@ -56,7 +56,11 @@ const VOLTA_SPLIT_RE =
   /\{(?:start_of_volta|sovt)(?::\s*([^}]*))?\}([\s\S]*?)\{(?:end_of_volta|eovt)\}/gi
 
 function escapeHtml(str: string): string {
-  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;")
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
 }
 
 const SECTION_DIRECTIVE_MAP: Record<string, string> = {
@@ -92,7 +96,8 @@ function processChordProContent(
   transpose: number,
   capo: number,
   sectionLabels: Record<string, string>,
-  inline: boolean
+  inline: boolean,
+  commentLabel: string
 ): string {
   const commentLabels: string[] = []
   const sectionStarts: { type: string; label: string }[] = []
@@ -144,7 +149,9 @@ function processChordProContent(
       const commentMatch = lineLyrics.match(new RegExp(`${COMMENT_TOKEN}(\\d+)`))
       if (commentMatch) {
         const label = commentLabels[parseInt(commentMatch[1], 10)]
-        return label ? `<div class="lyrics-comment">${escapeHtml(label)}</div>` : ""
+        return label
+          ? `<div class="lyrics-comment"><div class="lyrics-comment-label">${escapeHtml(commentLabel)}</div><div class="lyrics-comment-body">${escapeHtml(label)}</div></div>`
+          : ""
       }
 
       // Token: {note}
@@ -242,7 +249,8 @@ function splitAndProcessVolta(
   transpose: number,
   capo: number,
   sectionLabels: Record<string, string>,
-  inline: boolean
+  inline: boolean,
+  commentLabel: string
 ): string {
   const parts: string[] = []
   let lastIndex = 0
@@ -256,14 +264,32 @@ function splitAndProcessVolta(
     const before = text.slice(lastIndex, match.index)
     if (before) {
       // trimEnd so the div block starts cleanly without extra blank lines
-      parts.push(processChordProContent(before, transpose, capo, sectionLabels, inline).trimEnd())
+      parts.push(
+        processChordProContent(
+          before,
+          transpose,
+          capo,
+          sectionLabels,
+          inline,
+          commentLabel
+        ).trimEnd()
+      )
     }
 
     const label = match[1]?.trim() ?? ""
     const content = match[2] ?? ""
-    const innerHtml = processChordProContent(content.trim(), transpose, capo, sectionLabels, inline)
+    const innerHtml = processChordProContent(
+      content.trim(),
+      transpose,
+      capo,
+      sectionLabels,
+      inline,
+      commentLabel
+    )
     const labelHtml = label ? `<div class="volta-label">${escapeHtml(label)}</div>` : ""
-    parts.push(`<div class="volta-block">${labelHtml}<div class="volta-content">${innerHtml}</div></div>`)
+    parts.push(
+      `<div class="volta-block">${labelHtml}<div class="volta-content">${innerHtml}</div></div>`
+    )
 
     lastIndex = match.index + match[0].length
   }
@@ -276,7 +302,8 @@ function splitAndProcessVolta(
       transpose,
       capo,
       sectionLabels,
-      inline
+      inline,
+      commentLabel
     )
     if (tailHtml) parts.push(tailHtml)
   }
@@ -288,18 +315,20 @@ function formatLyricsToHtml(
   text: string,
   transpose: number,
   capo: number,
-  sectionLabels: Record<string, string>
+  sectionLabels: Record<string, string>,
+  commentLabel: string
 ): string {
-  return splitAndProcessVolta(text, transpose, capo, sectionLabels, false)
+  return splitAndProcessVolta(text, transpose, capo, sectionLabels, false, commentLabel)
 }
 
 function formatInlineLyricsToHtml(
   text: string,
   transpose: number,
   capo: number,
-  sectionLabels: Record<string, string>
+  sectionLabels: Record<string, string>,
+  commentLabel: string
 ): string {
-  return splitAndProcessVolta(text, transpose, capo, sectionLabels, true)
+  return splitAndProcessVolta(text, transpose, capo, sectionLabels, true, commentLabel)
 }
 
 // Matches the opening { of any directive that starts a new section or a repeat
@@ -377,7 +406,8 @@ function buildSegments(
   sectionMap: Map<string, string>,
   transpose: number,
   capo: number,
-  sectionLabels: Record<string, string>
+  sectionLabels: Record<string, string>,
+  commentLabel: string
 ): LyricsSegment[] {
   const segments: LyricsSegment[] = []
   let pos = 0
@@ -392,7 +422,7 @@ function buildSegments(
       if (tail)
         segments.push({
           type: "normal",
-          html: formatLyricsToHtml(tail, transpose, capo, sectionLabels)
+          html: formatLyricsToHtml(tail, transpose, capo, sectionLabels, commentLabel)
         })
       break
     }
@@ -406,7 +436,7 @@ function buildSegments(
     if (before)
       segments.push({
         type: "normal",
-        html: formatLyricsToHtml(before, transpose, capo, sectionLabels)
+        html: formatLyricsToHtml(before, transpose, capo, sectionLabels, commentLabel)
       })
 
     let newPos = matchEnd
@@ -420,7 +450,7 @@ function buildSegments(
             type: "repeat",
             name,
             count,
-            html: formatLyricsToHtml(content, transpose, capo, sectionLabels),
+            html: formatLyricsToHtml(content, transpose, capo, sectionLabels, commentLabel),
             found: true
           })
         } else {
@@ -437,7 +467,7 @@ function buildSegments(
           type: "section",
           name: value,
           sectionType: "comment",
-          html: formatLyricsToHtml(content, transpose, capo, sectionLabels),
+          html: formatLyricsToHtml(content, transpose, capo, sectionLabels, commentLabel),
           count: 1,
           flags: [],
           inline: false
@@ -447,7 +477,11 @@ function buildSegments(
     } else {
       // start_of_X — find the matching end_of_X
       const sectionType = SECTION_DIRECTIVE_MAP[directive] ?? "section"
-      const { name: parsedName, count, flags } = value
+      const {
+        name: parsedName,
+        count,
+        flags
+      } = value
         ? parseSectionValue(value)
         : { name: sectionLabels[sectionType] ?? sectionType, count: 1, flags: [] }
       const remaining = lyrics.slice(matchEnd)
@@ -462,8 +496,8 @@ function buildSegments(
         name: parsedName,
         sectionType,
         html: inline
-          ? formatInlineLyricsToHtml(content, transpose, capo, sectionLabels)
-          : formatLyricsToHtml(content, transpose, capo, sectionLabels),
+          ? formatInlineLyricsToHtml(content, transpose, capo, sectionLabels, commentLabel)
+          : formatLyricsToHtml(content, transpose, capo, sectionLabels, commentLabel),
         count,
         flags,
         inline
@@ -637,12 +671,19 @@ export function RenderedSong({
 
     try {
       const sectionMap = buildSectionMap(lyrics)
-      return buildSegments(lyrics, sectionMap, transpose, capo, sectionLabels)
+      return buildSegments(
+        lyrics,
+        sectionMap,
+        transpose,
+        capo,
+        sectionLabels,
+        t.songSections.comment
+      )
     } catch (error) {
       console.error("Error parsing ChordPro:", error)
       return null
     }
-  }, [lyrics, transpose, capo, sectionLabels])
+  }, [lyrics, transpose, capo, sectionLabels, t.songSections.comment])
 
   if (!lyrics) {
     return (
@@ -729,10 +770,7 @@ export function RenderedSong({
                 className="section-repeat section-repeat--not-found"
                 data-section-type="repeat"
               >
-                <SectionHeader
-                  name={`${repeatLabel} (${t.chords.notFound})`}
-                  isCollapsed={false}
-                />
+                <SectionHeader name={`${repeatLabel} (${t.chords.notFound})`} isCollapsed={false} />
               </div>
             )
           }

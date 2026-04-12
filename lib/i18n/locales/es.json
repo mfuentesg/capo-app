@@ -537,7 +537,8 @@
     "grid": "Grilla",
     "intro": "Intro",
     "outro": "Outro",
-    "pre_chorus": "Pre-Coro"
+    "pre_chorus": "Pre-Coro",
+    "comment": "Comentario"
   },
   "activity": {
     "noActivity": "Aún no hay actividad",

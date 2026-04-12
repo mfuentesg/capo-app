@@ -537,7 +537,8 @@
     "grid": "Grid",
     "intro": "Intro",
     "outro": "Outro",
-    "pre_chorus": "Pre-Chorus"
+    "pre_chorus": "Pre-Chorus",
+    "comment": "Comment"
   },
   "activity": {
     "noActivity": "No activity yet",
