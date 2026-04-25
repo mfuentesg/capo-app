@@ -18,6 +18,8 @@ interface RenderedSongProps {
   columns?: 1 | 2
   showChords?: boolean
   showLyrics?: boolean
+  chordVariations?: Record<string, number>
+  onSetChordVariation?: (chord: string, index: number) => void
 }
 
 const SECTION_FLAGS = [
@@ -625,7 +627,9 @@ export function RenderedSong({
   fontSize,
   columns = 2,
   showChords = true,
-  showLyrics = true
+  showLyrics = true,
+  chordVariations,
+  onSetChordVariation
 }: RenderedSongProps) {
   const [collapsedSet, setCollapsedSet] = useState<Set<number>>(new Set())
   const [selectedChord, setSelectedChord] = useState<string | null>(null)
@@ -713,7 +717,12 @@ export function RenderedSong({
             style={fontStyle}
             dangerouslySetInnerHTML={{ __html: segments[0]?.html ?? "" }}
           />
-          <ChordDiagram chordName={selectedChord} onClose={() => setSelectedChord(null)} />
+          <ChordDiagram
+            chordName={selectedChord}
+            onClose={() => setSelectedChord(null)}
+            preferredVariationIndex={chordVariations?.[selectedChord ?? ""]}
+            onSetPreferred={onSetChordVariation}
+          />
         </div>
       )
     }
@@ -800,7 +809,12 @@ export function RenderedSong({
             </div>
           )
         })}
-        <ChordDiagram chordName={selectedChord} onClose={() => setSelectedChord(null)} />
+        <ChordDiagram
+          chordName={selectedChord}
+          onClose={() => setSelectedChord(null)}
+          preferredVariationIndex={chordVariations?.[selectedChord ?? ""]}
+          onSetPreferred={onSetChordVariation}
+        />
       </div>
     )
   }

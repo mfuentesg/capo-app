@@ -467,6 +467,7 @@ export type Database = {
       user_song_settings: {
         Row: {
           capo: number
+          chord_variations: Json | null
           created_at: string
           font_size: number | null
           id: string
@@ -477,6 +478,7 @@ export type Database = {
         }
         Insert: {
           capo?: number
+          chord_variations?: Json | null
           created_at?: string
           font_size?: number | null
           id?: string
@@ -487,6 +489,7 @@ export type Database = {
         }
         Update: {
           capo?: number
+          chord_variations?: Json | null
           created_at?: string
           font_size?: number | null
           id?: string

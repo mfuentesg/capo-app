@@ -34,6 +34,8 @@ jest.mock("@/features/settings", () => ({
         positionOf: "Position {current} of {total}",
         variation: "Variation {count}",
         notFound: "not found",
+        setPreferred: "Set as preferred",
+        preferredVariation: "Preferred variation",
         orientation: {
           flipVertical: "Flip (nut at bottom)",
           mirror: "Mirror",
