@@ -5,6 +5,7 @@ import { DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdow
 import { Mail, LogOut, Settings } from "lucide-react"
 import { useSignOut } from "@/features/auth"
 import { useLocale } from "@/features/settings"
+import { ThemeMenuItem } from "@/components/layout/theme-menu-item"
 
 export function ProfileMenuActions() {
   const { t } = useLocale()
@@ -29,6 +30,11 @@ export function ProfileMenuActions() {
             <span>{t.nav.invitations}</span>
           </Link>
         </DropdownMenuItem>
+      </div>
+
+      <DropdownMenuSeparator />
+      <div className="p-1">
+        <ThemeMenuItem />
       </div>
 
       <DropdownMenuSeparator />
