@@ -11,7 +11,8 @@ import {
   ListMusic,
   Globe,
   Copy,
-  ExternalLink
+  ExternalLink,
+  ArrowRightLeft
 } from "lucide-react"
 import { toast } from "sonner"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
@@ -60,6 +61,8 @@ import { playlistsKeys } from "../../hooks/query-keys"
 import { removeSongFromPlaylistAction } from "../../api/actions"
 import { createOverlayIds } from "@/lib/ui/stable-overlay-ids"
 import { AddSongsSheet } from "./add-songs-sheet"
+import { TransferPlaylistDialog } from "../transfer-playlist-dialog"
+import { useTeams } from "@/features/teams"
 
 interface ActiveSongLyricsProps {
   song: SongWithPosition
@@ -238,6 +241,9 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
   const [activeIndex, setActiveIndex] = useState<number | null>(null)
   const [slideDirection, setSlideDirection] = useState<"next" | "prev" | null>(null)
   const [isAddSongsOpen, setIsAddSongsOpen] = useState(false)
+  const [isTransferDialogOpen, setIsTransferDialogOpen] = useState(false)
+  const { data: teams = [] } = useTeams()
+  const canTransfer = teams.length > 0 || !!playlist.teamId
   const deleteDialogIds = createOverlayIds(`playlist-detail-delete-${playlist.id}`)
   const calendarPopoverIds = createOverlayIds(`playlist-detail-calendar-${playlist.id}`)
 
@@ -538,6 +544,29 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
           )}
         </div>
 
+        {/* Transfer Playlist */}
+        {canTransfer && (
+          <div className="rounded-2xl border bg-card shadow-sm p-4">
+            <div className="flex items-center justify-between gap-4">
+              <div className="space-y-0.5">
+                <p className="text-sm font-medium">{t.playlistDetail.transferPlaylist}</p>
+                <p className="text-xs text-muted-foreground">
+                  {t.playlistDetail.transferPlaylistDescription}
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                className="shrink-0 gap-1.5 transition active:scale-[0.98]"
+                onClick={() => setIsTransferDialogOpen(true)}
+              >
+                <ArrowRightLeft className="h-3.5 w-3.5" />
+                {t.playlistDetail.transferPlaylist}
+              </Button>
+            </div>
+          </div>
+        )}
+
         {/* Danger Zone */}
         <div className="rounded-2xl border border-destructive/30 bg-destructive/[0.02] p-4">
           <h3 className="text-sm font-black text-destructive mb-3">
@@ -584,6 +613,16 @@ export function PlaylistDetail({ playlist, onClose, onUpdate, onDelete }: Playli
           </div>
         </div>
       </div>
+
+      {/* Transfer Playlist Dialog */}
+      {canTransfer && (
+        <TransferPlaylistDialog
+          playlist={playlist}
+          open={isTransferDialogOpen}
+          onOpenChange={setIsTransferDialogOpen}
+          onSuccess={onClose}
+        />
+      )}
 
       {/* Lyrics Sheet */}
       <Sheet

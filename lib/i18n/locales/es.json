@@ -245,7 +245,14 @@
     "noSongsToAdd": "Todas tus canciones ya están en este playlist",
     "addSelectedSongs": "Agregar {count} canciones",
     "dropToRemove": "Soltar aquí para eliminar",
-    "guestEditingDisabledHint": "Solo disponible cuando el playlist es público"
+    "guestEditingDisabledHint": "Solo disponible cuando el playlist es público",
+    "transferPlaylist": "Transferir playlist",
+    "transferPlaylistTitle": "Transferir \"{name}\" a...",
+    "transferPlaylistDescription": "Selecciona a dónde mover este playlist. Ya no aparecerá en su ubicación actual.",
+    "transferPlaylistPersonal": "Mi biblioteca personal",
+    "transferPlaylistSelectPlaceholder": "Selecciona el destino",
+    "transferPlaylistSongsNote": "Las canciones personales de este playlist también se moverán a {team}. Las canciones que ya pertenecen a otro equipo permanecerán donde están.",
+    "transferPlaylistConfirm": "Transferir"
   },
   "playlistItem": {
     "privatePlaylist": "Playlist privado",
@@ -277,6 +284,7 @@
     "playlistUpdated": "Playlist actualizado",
     "playlistDeleted": "Playlist eliminado",
     "songsAdded": "Canciones agregadas al playlist",
+    "playlistTransferred": "Playlist transferido exitosamente",
     "songsAlreadyInPlaylist": "Todas las canciones ya están en este playlist",
     "error": "Algo salió mal",
     "accountDeleted": "Cuenta eliminada",

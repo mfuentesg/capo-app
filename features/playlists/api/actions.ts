@@ -14,7 +14,8 @@ import {
   addSongToPlaylist as addSongToPlaylistApi,
   addSongsToPlaylist as addSongsToPlaylistApi,
   removeSongFromPlaylist as removeSongFromPlaylistApi,
-  reorderPlaylistSongs as reorderPlaylistSongsApi
+  reorderPlaylistSongs as reorderPlaylistSongsApi,
+  transferPlaylist as transferPlaylistApi
 } from "./playlistsApi"
 
 export async function getPlaylistsAction(context: AppContext): Promise<Playlist[]> {
@@ -105,4 +106,20 @@ export async function reorderPlaylistSongsAction(
   if (shareCode) {
     revalidatePath(`/shared/${shareCode}`)
   }
+}
+
+export async function transferPlaylistAction(
+  playlistId: string,
+  destination: { type: "personal" } | { type: "team"; teamId: string }
+): Promise<void> {
+  const supabase = await createClient()
+  const {
+    data: { user }
+  } = await supabase.auth.getUser()
+  if (!user) throw new Error("Unauthorized")
+  const dest =
+    destination.type === "team"
+      ? { type: "team" as const, teamId: destination.teamId }
+      : { type: "personal" as const, userId: user.id }
+  await transferPlaylistApi(supabase, playlistId, dest)
 }

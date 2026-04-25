@@ -5,6 +5,7 @@ export {
   useCreatePlaylist,
   useUpdatePlaylist,
   useDeletePlaylist,
+  useTransferPlaylist,
   useAddSongsToPlaylist,
   useReorderPlaylistSongs,
   playlistsKeys
