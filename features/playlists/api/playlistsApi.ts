@@ -662,6 +662,38 @@ export async function reorderPlaylistSongs(
 }
 
 /**
+ * Transfer a playlist to a different context (personal ↔ team).
+ * When moving to a team, also bulk-transfers personal songs so team members can see them.
+ */
+export async function transferPlaylist(
+  supabase: SupabaseClient<Database>,
+  playlistId: string,
+  destination: { type: "personal"; userId: string } | { type: "team"; teamId: string }
+): Promise<void> {
+  if (destination.type === "team") {
+    const { data: playlistSongs } = await supabase
+      .from("playlist_songs")
+      .select("song_id")
+      .eq("playlist_id", playlistId)
+    if (playlistSongs && playlistSongs.length > 0) {
+      const songIds = playlistSongs.map((ps) => ps.song_id)
+      const { error: songsError } = await supabase
+        .from("songs")
+        .update({ team_id: destination.teamId, user_id: null })
+        .in("id", songIds)
+        .is("team_id", null)
+      if (songsError) throw songsError
+    }
+  }
+  const update =
+    destination.type === "team"
+      ? { team_id: destination.teamId, user_id: null }
+      : { user_id: destination.userId, team_id: null }
+  const { error } = await supabase.from("playlists").update(update).eq("id", playlistId)
+  if (error) throw error
+}
+
+/**
  * Ensure playlist has a share code (via RPC)
  * Uses the ensure_share_code RPC function from the database
  * Auto-generates share_code if missing when playlist becomes public

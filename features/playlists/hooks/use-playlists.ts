@@ -9,7 +9,8 @@ import {
   updatePlaylistAction,
   deletePlaylistAction,
   addSongsToPlaylistAction,
-  reorderPlaylistSongsAction
+  reorderPlaylistSongsAction,
+  transferPlaylistAction
 } from "../api/actions"
 import { playlistsKeys } from "./query-keys"
 import type { Playlist } from "../types"
@@ -18,6 +19,7 @@ import { useLocale } from "@/features/settings"
 import { useAppContext, useViewFilter, type AppContext } from "@/features/app-context"
 import { useUser } from "@/features/auth"
 import { useRouter } from "next/navigation"
+import { songsKeys } from "@/features/songs"
 
 type PlaylistQuerySnapshot = Array<[readonly unknown[], Playlist[] | undefined]>
 
@@ -193,6 +195,34 @@ export function useDeletePlaylist() {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: playlistsKeys.lists() })
       toast.success(t.toasts?.playlistDeleted || "Playlist deleted")
+    }
+  })
+}
+
+/**
+ * Hook to transfer a playlist to a different context (personal ↔ team)
+ */
+export function useTransferPlaylist() {
+  const queryClient = useQueryClient()
+  const { t } = useLocale()
+
+  return useMutation({
+    mutationFn: ({
+      playlistId,
+      destination
+    }: {
+      playlistId: string
+      destination: { type: "personal" } | { type: "team"; teamId: string }
+    }) => transferPlaylistAction(playlistId, destination),
+    onSuccess: (_, { playlistId }) => {
+      queryClient.removeQueries({ queryKey: playlistsKeys.detail(playlistId) })
+      void queryClient.invalidateQueries({ queryKey: playlistsKeys.lists() })
+      void queryClient.invalidateQueries({ queryKey: songsKeys.lists() })
+      toast.success(t.toasts?.playlistTransferred ?? "Playlist transferred")
+    },
+    onError: (error) => {
+      console.error("Error transferring playlist:", error)
+      toast.error(t.toasts?.error ?? "Something went wrong")
     }
   })
 }

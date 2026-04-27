@@ -8,6 +8,7 @@ export {
   useCreatePlaylist,
   useUpdatePlaylist,
   useDeletePlaylist,
+  useTransferPlaylist,
   useAddSongsToPlaylist,
   useReorderPlaylistSongs
 } from "./use-playlists"
